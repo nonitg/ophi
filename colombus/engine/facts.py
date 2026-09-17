@@ -27,8 +27,8 @@ def _tooth_class_in(f: Fact, case: Case, pack: RulePack) -> LeafResult:
     t = case.requested_tooth
     cls = notation.tooth_class(t)
     if cls in (f.classes or []):
-        return LeafResult(status=Status.SATISFIED, detail=f"#{t} is a {notation.describe(t)}")
-    return LeafResult(status=Status.UNSATISFIED, shortfall=Shortfall(detail=cls), detail=f"#{t} is a {notation.describe(t)}; not in {', '.join(f.classes or [])}")
+        return LeafResult(status=Status.SATISFIED, detail=f"#{t} is the {notation.describe(t)}")
+    return LeafResult(status=Status.UNSATISFIED, shortfall=Shortfall(detail=cls), detail=f"#{t} is the {notation.describe(t)}; not in {', '.join(f.classes or [])}")
 
 
 def _adjacent_molars_missing(f: Fact, case: Case, pack: RulePack) -> LeafResult:
