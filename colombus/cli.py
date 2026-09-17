@@ -48,7 +48,8 @@ def cmd_packet(args: argparse.Namespace) -> int:
     a = assess(case, default_pack())
     out = Path(args.out) / case.case_id
     manifest = build_packet(case, a, out)
-    report = verify_packet(out)
+    tokens = [t for t in [*case.patient.display_name.split(), case.patient.patient_id, case.patient.cdcp_client_id or ""] if len(t) >= 3]
+    report = verify_packet(out, forbidden_tokens=tokens)
     print(f"packet: {out}  files={len(manifest['files'])}  bytes={manifest['total_bytes']}")
     print(f"verifier: {'PASS' if report.ok else 'FAIL'}")
     for f in report.findings:

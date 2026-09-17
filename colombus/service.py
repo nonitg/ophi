@@ -22,6 +22,7 @@ from colombus.cdm.models import (
 from colombus.engine.assess import assess
 from colombus.engine.models import Assessment, Verdict
 from colombus.extract.proposer import propose_for_case
+from colombus.packet.documents import narrative_ascii
 from colombus.rules.loader import default_pack
 from colombus.rules.schema import RulePack
 
@@ -183,7 +184,8 @@ class CaseService:
         so = SignOff(
             signed_by=by, licence=licence, signed_at=datetime.now(UTC),
             attestation="I have reviewed this packet and it reflects my clinical judgment and the contents of this patient's record.",
-            narrative_sha256=hashlib.sha256(narrative_text.encode()).hexdigest(),
+            # Hash the ASCII text exactly as the packet ships it, so the verifier can match attestation to file.
+            narrative_sha256=hashlib.sha256(narrative_ascii(narrative_text).encode()).hexdigest(),
             assessment_id=v.assessment.assessment_id, ruleset_version=v.assessment.ruleset.version,
         )
         st = v.state
