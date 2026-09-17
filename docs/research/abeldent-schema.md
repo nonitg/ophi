@@ -340,3 +340,25 @@ Findings from building it:
 - Whether a live install populates `AImage`/`AImageVersion` (Fictional Data ships images stripped).
 - The EULA text. `C:\ABELDent\abeladvantage.chm` (48 MB) is on the box and unread — still
   week-1 action #3.
+
+## Review record
+
+Before commit `f3a664c`, a fresh-context agent reviewed this slice against the M0 exit criteria,
+`docs/plan/01-ingestion.md` and `CLAUDE.md`. Verdict: extraction criterion met and honestly
+scoped; not ready until seven majors were fixed. All seven were fixed in that commit:
+
+1. RTF-to-text leaked text from nested `{\*…}` groups → skip stack, `\uN?`, `\~`, `\tab`, dashes.
+2. Financial mirror fee fallback re-used one `tdi` row for many clinical rows (112 collisions) →
+   one-to-one, nearest posting within 400 days, else `unmatched`; 0 collisions after.
+3. `scripts/fixture-summary` read stale keys, table above had drifted → fixed and regenerated.
+4. Blind coordinate click in the submit-dialog dismisser → removed; `ui.ps1` now refuses blind
+   input while any Submit/CDAnet/Print Forms window is open.
+5. `q.ps1` write filter only checked statement starts → whole-text keyword scan on
+   comment/literal-stripped SQL plus an always-rolled-back transaction.
+6. Test covered none of the slice's additions → duplicates, one-to-one mirroring,
+   `planned_applied`, RTF and view-only notes asserted.
+7. PLAN status dropped the reasoning-core paragraph and the M0 body items → restored, tabled.
+
+Minor findings left open: shared poll loop across the `vm-*-abeldent.sh` scripts; `Appt` values
+2/3 and `Phase` semantics; `Provenance` fields belong to the agent mapper, not the lab dump.
+
