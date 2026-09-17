@@ -2,14 +2,21 @@
 """M0 artifact: dump a Fictional Data patient's preauth-relevant chart as structured JSON.
 
 One command, zero manual steps. For every patient with a planned procedure (or the pids
-given), pull patient, coverage, planned + completed procedures, perio exams (decoded to
-per-site millimetres and a point count), clinical notes, and imaging — each section
-stamped with a source_assurance so "no perio chart recorded" and "this driver cannot see
-perio charts" never collapse into the same answer.
+given), pull patient, coverage, planned + completed procedures, odontogram conditions,
+perio exams (decoded to per-site millimetres and a point count), clinical notes, and
+imaging — each section stamped with a source_assurance so "no perio chart recorded" and
+"this driver cannot see perio charts" never collapse into the same answer.
+
+ABELDent keeps two ledgers. `Transactions` is the clinical chart ledger the Treatment view
+reads (planned items, charted procedures, odontogram conditions); `tdi` is the financial
+ledger. Planned work is authoritative in `Transactions`: older fictional plans exist only
+there, and items entered through the modern Treatment view are mirrored into `tdi` with a
+sentinel itrid. Every procedure here is read from `Transactions` and carries its `tdi`
+mirror when one exists.
 
 Read-only. Runs the plan's canonical SELECTs through `vm sql`, so the same rails the lab
 tooling enforces (no writes, no procs) apply here. Nothing here is per-patient chatter:
-seven set-based queries per run, whatever the patient count.
+nine set-based queries per run, whatever the patient count.
 
 Usage:
     lab/tools/chart_dump.py                       # all patients with planned work
@@ -30,17 +37,28 @@ from perio_decode import UNIVERSAL_TO_FDI, decode, summarise  # noqa: E402
 VM = HERE.parent / "vm" / "vm"
 FDI_TO_UNIVERSAL = {fdi: i + 1 for i, fdi in enumerate(UNIVERSAL_TO_FDI)}
 
-# tdi.itype: '' posted/completed, 'P' planned. 'T' and 'I' are observed but unresolved —
-# T rows carry the sentinel itrid 99999999 (P rows 99999998) and look like an alternative
-# treatment plan; I rows have real itrids on same-day exam/scaling/polish. Do not let a
-# rule depend on either until the Step 6 diff-probe settles them.
+# Transactions.Type: ' ' charted/completed, 'P' planned. 'I' and 'T' are observed but
+# unresolved; they are surfaced under other_ledger_rows and no rule may depend on them.
+TX_TYPE = {"": "completed", "P": "planned", "T": "unverified_T", "I": "unverified_I"}
+# tdi.itype uses the same letters; T rows carry sentinel itrid 99999999, P rows 99999998.
 ITYPE = {"": "completed", "P": "planned", "T": "planned_unverified_T", "I": "unverified_I"}
+RADIOGRAPH_CHART_CODE = 242
 
 PERIO_COLS = {"Pocket": "pocket", "Bleeding_Suppuration": "bleeding", "Recession": "recession",
               "Attachment": "attachment", "Furcation": "furcation", "Mobility": "mobility",
               "MAG": "mag"}
 PERIO_LEN = {"pocket": 192, "bleeding": 192, "recession": 192, "attachment": 192,
              "furcation": 96, "mobility": 32, "mag": 64}
+
+LEDGER_NOTE = (
+    "Transactions is the clinical chart ledger (what the Treatment view shows); tdi is the "
+    "financial ledger. Planned items entered through the modern Treatment view are mirrored "
+    "into tdi (itype 'P', sentinel itrid 99999998); older fictional plans exist only in "
+    "Transactions, so financial_mirror is null for them.")
+# Verified on pids 5/153/155/157: Grp restarts at 1 for every bridge, so it is a unit position, not an id.
+GRP_NOTE = ("bridge_group is Transactions.Grp: 0/null for single units; for bridge units it is the 1..n "
+            "position within the bridge (retainer, pontic, ...). Consecutive rows with ascending Grp "
+            "starting at 1 form one bridge; Grp is not a shared bridge id.")
 
 
 def sql(query):
@@ -81,9 +99,14 @@ def fdi_or_none(t):
     return int(t) if t and int(t) > 0 else None
 
 
+def s(v):
+    """Trimmed string or None; ABELDent pads char columns with spaces."""
+    return (v or "").strip() or None
+
+
 def planned_pids():
-    rows = sql("SELECT DISTINCT ipid FROM tdi WHERE itype IN ('P','T')")
-    return sorted(r["ipid"] for r in rows)
+    rows = sql("SELECT DISTINCT patID FROM Transactions WHERE Type='P' AND Deleted=0")
+    return sorted(r["patID"] for r in rows)
 
 
 def fetch(pids):
@@ -92,25 +115,19 @@ def fetch(pids):
     out["pat"] = sql(
         f"SELECT pid, plname, pfname, {d('pbirth')}, pgender, pdentist, pinactive, pnonpatient, "
         f"{d('plastckp')}, pstatus FROM pat WHERE pid IN ({P})")
+    out["tx"] = sql(
+        f"SELECT x.TransID, {d('x.Date', 'Date')}, x.patID, x.ChartNum, x.Grp, x.ToothNum, x.ProvID, "
+        f"x.Code, x.ChartCode, x.Descr, x.Billed, x.Surfaces, x.Deleted, x.PlanNum, x.MatID, x.Phase, "
+        f"x.Type, x.Appt, x.Applied, x.RespProvID, x.ItemNum, "
+        f"{d('p.Date', 'PlanDate')}, p.Descr AS PlanDescr, p.State AS PlanState "
+        f"FROM Transactions x LEFT JOIN Plans p ON p.PatID = x.patID AND p.PlanNum = x.PlanNum AND x.PlanNum > 0 "
+        f"WHERE x.patID IN ({P}) ORDER BY x.patID, x.Date, x.TransID")
     out["tdi"] = sql(
         f"SELECT t.ipid, t.itrid, {d('t.idate', 'idate')}, t.ijcode, j.jdesc1, j.jneedsxrays, "
         f"t.itooth, t.isurf, t.idid, t.iresppvdr, t.iefee, t.ilabfee, t.itype "
         f"FROM tdi t LEFT JOIN jcf j ON j.jcode = t.ijcode WHERE t.ipid IN ({P}) "
         f"ORDER BY t.ipid, t.idate, t.itrid")
-    out["ixi"] = sql(
-        f"SELECT x.ixipid, x.ixiplno, x.ixiplanid, n.nplanname, n.ninscoid, i.insname, "
-        f"i.insSupportsMultipagePreds, x.ixicertno, x.ixigroupno, x.ixisubpid, x.ixireltosub, "
-        f"x.ixiIsActive, {d('x.ixiExpiryDate', 'ixiExpiryDate')} "
-        f"FROM ixi x LEFT JOIN nsp n ON n.nid = x.ixiplanid LEFT JOIN ins i ON i.inscoid = n.ninscoid "
-        f"WHERE x.ixipid IN ({P}) ORDER BY x.ixipid, x.ixiplno")
-    # Dependants carry a blank plan id and point at the subscriber; the plan lives on the
-    # subscriber's own ixi row. Resolve it so a rule can see the carrier without a second hop.
-    subs = sorted({r["ixisubpid"] for r in out["ixi"] if r["ixisubpid"] and not (r["ixiplanid"] or "").strip()})
-    out["sub_ixi"] = sql(
-        f"SELECT x.ixipid, x.ixiplno, x.ixiplanid, n.nplanname, n.ninscoid, i.insname, "
-        f"i.insSupportsMultipagePreds, x.ixicertno, x.ixigroupno, x.ixisubpid, x.ixireltosub, x.ixiIsActive "
-        f"FROM ixi x LEFT JOIN nsp n ON n.nid = x.ixiplanid LEFT JOIN ins i ON i.inscoid = n.ninscoid "
-        f"WHERE x.ixipid IN ({in_list(subs)}) AND x.ixiIsActive = 1 ORDER BY x.ixipid, x.ixiplno") if subs else []
+    out["ixi"], out["sub_ixi"] = fetch_coverage(P)
     hexes = ", ".join(hexcol(c, PERIO_LEN[a]) for c, a in PERIO_COLS.items())
     out["perio"] = sql(
         f"SELECT patID, ExamNum, {d('Date')}, ProvID, {d('DateCertified')}, {hexes} "
@@ -132,6 +149,25 @@ def fetch(pids):
         "SELECT 'AImageToothNumber_orphans', COUNT(*) FROM AImageToothNumber a "
         "WHERE NOT EXISTS (SELECT 1 FROM AImage i WHERE i.ImageID = a.ImageID)")
     return out
+
+
+def fetch_coverage(P):
+    """ixi rows for the patients plus the active ixi rows of any subscriber they inherit from."""
+    ixi = sql(
+        f"SELECT x.ixipid, x.ixiplno, x.ixiplanid, n.nplanname, n.ninscoid, i.insname, "
+        f"i.insSupportsMultipagePreds, x.ixicertno, x.ixigroupno, x.ixisubpid, x.ixireltosub, "
+        f"x.ixiIsActive, {d('x.ixiExpiryDate', 'ixiExpiryDate')} "
+        f"FROM ixi x LEFT JOIN nsp n ON n.nid = x.ixiplanid LEFT JOIN ins i ON i.inscoid = n.ninscoid "
+        f"WHERE x.ixipid IN ({P}) ORDER BY x.ixipid, x.ixiplno")
+    # Dependants carry a blank plan id and point at the subscriber; the plan lives on the
+    # subscriber's own ixi row. Resolve it so a rule can see the carrier without a second hop.
+    subs = sorted({r["ixisubpid"] for r in ixi if r["ixisubpid"] and not (r["ixiplanid"] or "").strip()})
+    sub_ixi = sql(
+        f"SELECT x.ixipid, x.ixiplno, x.ixiplanid, n.nplanname, n.ninscoid, i.insname, "
+        f"i.insSupportsMultipagePreds, x.ixicertno, x.ixigroupno, x.ixisubpid, x.ixireltosub, x.ixiIsActive "
+        f"FROM ixi x LEFT JOIN nsp n ON n.nid = x.ixiplanid LEFT JOIN ins i ON i.inscoid = n.ninscoid "
+        f"WHERE x.ixipid IN ({in_list(subs)}) AND x.ixiIsActive = 1 ORDER BY x.ixipid, x.ixiplno") if subs else []
+    return ixi, sub_ixi
 
 
 def by_pid(rows, key):
@@ -164,71 +200,201 @@ def decode_exam(row):
     return exam
 
 
+def tx_type(r):
+    return (r["Type"] or "").strip()
+
+
+def is_condition(r):
+    """Odontogram condition: a charted row with no procedure code (ChartCode 100-160)."""
+    return tx_type(r) == "" and not s(r["Code"])
+
+
+def is_completed(r):
+    return tx_type(r) == "" and bool(s(r["Code"])) and r["Deleted"] == 0
+
+
 def build(pid, raw, img_counts):
     pat = next((p for p in raw["pat"] if p["pid"] == pid), None)
     if not pat:
         return None
-    procs = [r for r in raw["tdi"] if r["ipid"] == pid]
-    planned = [proc_row(r) for r in procs if r["itype"].strip() in ("P", "T")]
-    completed = [proc_row(r) for r in procs if r["itype"].strip() == ""]
-    other = [proc_row(r) for r in procs if r["itype"].strip() not in ("", "P", "T")]
+    tx = [r for r in raw["tx"] if r["patID"] == pid]
+    tdi = [r for r in raw["tdi"] if r["ipid"] == pid]
+    return {
+        "source": {"pms": "ABELDent", "version": "15.1.0 Freemium", "dataset": "Fictional Data (CA)",
+                   "notation": {"Transactions.ToothNum": "FDI", "tdi.itooth": "FDI", "Notes.ToothNumber": "FDI",
+                                "Perio arrays": "Universal 1-32, converted to FDI here"}},
+        "patient": patient_section(pid, pat),
+        "coverage": coverage_section(pid, raw),
+        **ledger_sections(tx, tdi),
+        "perio_exams": perio_section(pid, raw),
+        "clinical_notes": notes_section(pid, raw),
+        "imaging": imaging_section(tx, img_counts),
+    }
+
+
+def patient_section(pid, pat):
+    return {
+        "pid": pid, "surname": pat["plname"], "given": pat["pfname"], "dob": pat["pbirth"],
+        "gender": (pat["pgender"] or "").strip(), "dentist": (pat["pdentist"] or "").strip(),
+        "inactive": pat["pinactive"], "non_patient": pat["pnonpatient"],
+        "source_assurance": assurance("present", "pat row"),
+    }
+
+
+def coverage_section(pid, raw):
+    items = [cov_row(r, raw["sub_ixi"]) for r in raw["ixi"] if r["ixipid"] == pid]
+    return {
+        "items": items,
+        "source_assurance": assurance(
+            "present" if items else "none_recorded",
+            "ixi joined to nsp (plan) and ins (carrier). Family members carry a blank plan id and point at the subscriber via ixisubpid."),
+    }
+
+
+def ledger_sections(tx, tdi):
+    planned = [planned_item(r, tdi) for r in tx if tx_type(r) == "P"]
+    completed = [completed_item(r, tdi) for r in tx if is_completed(r)]
+    conditions = [condition_item(r) for r in tx if is_condition(r)]
+    other = [other_item(r) for r in tx if tx_type(r) not in ("", "P")]
+    return {
+        "planned_procedures": {
+            "items": planned,
+            "source_assurance": assurance(
+                "present" if planned else "none_recorded",
+                "Transactions WHERE Type='P' (all Deleted values, see deleted_raw), joined to Plans on PlanNum. "
+                + LEDGER_NOTE + " " + GRP_NOTE),
+        },
+        "completed_procedures": {
+            "items": completed,
+            "source_assurance": assurance(
+                "present" if completed else "none_recorded",
+                "Transactions WHERE Type=' ' AND Code<>'' AND Deleted=0. financial_mirror is the tdi row "
+                "(itype='') with the same code and tooth, matched on posting date first and equal fee second "
+                "(financial_mirror_match says which); null when tdi never posted it. " + GRP_NOTE),
+        },
+        "odontogram_conditions": {
+            "items": conditions,
+            "source_assurance": assurance(
+                "present" if conditions else "none_recorded",
+                "Transactions WHERE Type=' ' AND Code is empty: odontogram markings by ChartCode "
+                "(116 Decay, 102 Crown, 114 Bridge, 106 Implant, 100/104/108/140 Existing Condition, ...). "
+                "Not procedures and never billed."),
+        },
+        "other_ledger_rows": other,
+    }
+
+
+def perio_section(pid, raw):
     perio = [decode_exam(r) for r in raw["perio"] if r["patID"] == pid]
+    return {
+        "items": perio,
+        "source_assurance": assurance("present" if perio else "none_recorded",
+                                      "Perio table, positional byte arrays decoded per site. DateCertified blank in all Fictional Data rows."),
+    }
+
+
+def notes_section(pid, raw):
     notes = [note_row(r) for r in raw["notes"] if r["PatID"] == pid]
     excluded = next((r["n"] for r in raw["notes_excluded"] if r["PatID"] == pid), 0)
+    return {
+        "items": notes,
+        "excluded_deleted_or_superseded": excluded,
+        "source_assurance": assurance("present" if notes else "none_recorded",
+                                      "Notes WHERE IsDeleted=0 AND IsLatest=1, joined to Charts on KeyNumber=ChartNum. IsSignedOff is NULL throughout Fictional Data."),
+    }
 
-    imaging_detail = (
-        "Imaging tables are readable but hold zero rows database-wide "
+
+def imaging_section(tx, img_counts):
+    events = [radiograph_event(r) for r in tx
+              if r["ChartCode"] == RADIOGRAPH_CHART_CODE and tx_type(r) == "" and r["Deleted"] == 0]
+    detail = (
+        "items: imaging tables are readable but hold zero rows database-wide "
         f"({', '.join(f'{k}={v}' for k, v in img_counts.items() if k != 'AImageToothNumber_orphans')}). "
         f"{img_counts.get('AImageToothNumber_orphans', 0)} AImageToothNumber rows reference images that "
         "no longer exist, so Fictional Data once had images and ships without them. Cannot distinguish "
         "'none recorded' from 'not visible to this driver'; treat as indeterminate until the imaging spike "
-        "resolves it. Manual upload is the only radiograph source for now."
+        "resolves it. Manual upload is the only radiograph source for now. "
+        "procedure_events: charted Transactions rows (Type=' ', Deleted=0) with ChartCode 242 (radiograph "
+        "procedure codes 02102-02601). "
+        "An event proves a radiograph was taken and charted/billed on that date; it does not locate the "
+        "image. The evidence matcher must not treat a procedure event as a retrievable artifact."
     )
     return {
-        "source": {"pms": "ABELDent", "version": "15.1.0 Freemium", "dataset": "Fictional Data (CA)",
-                   "notation": {"tdi.itooth": "FDI", "Notes.ToothNumber": "FDI", "Perio arrays": "Universal 1-32, converted to FDI here"}},
-        "patient": {
-            "pid": pid, "surname": pat["plname"], "given": pat["pfname"], "dob": pat["pbirth"],
-            "gender": (pat["pgender"] or "").strip(), "dentist": (pat["pdentist"] or "").strip(),
-            "inactive": pat["pinactive"], "non_patient": pat["pnonpatient"],
-            "source_assurance": assurance("present", "pat row"),
-        },
-        "coverage": {
-            "items": [cov_row(r, raw["sub_ixi"]) for r in raw["ixi"] if r["ixipid"] == pid],
-            "source_assurance": assurance(
-                "present" if any(r["ixipid"] == pid for r in raw["ixi"]) else "none_recorded",
-                "ixi joined to nsp (plan) and ins (carrier). Family members carry a blank plan id and point at the subscriber via ixisubpid."),
-        },
-        "planned_procedures": {
-            "items": planned,
-            "source_assurance": assurance("present" if planned else "none_recorded",
-                                          "tdi.itype IN ('P','T'). T is unverified — see itype_note."),
-            "itype_note": "T rows use sentinel itrid 99999999, P rows 99999998. Resolve T and I by diff-probe before any rule depends on them.",
-        },
-        "completed_procedures": {
-            "items": completed,
-            "source_assurance": assurance("present" if completed else "none_recorded", "tdi.itype = ''"),
-        },
-        "other_ledger_rows": other,
-        "perio_exams": {
-            "items": perio,
-            "source_assurance": assurance("present" if perio else "none_recorded",
-                                          "Perio table, positional byte arrays decoded per site. DateCertified blank in all Fictional Data rows."),
-        },
-        "clinical_notes": {
-            "items": notes,
-            "excluded_deleted_or_superseded": excluded,
-            "source_assurance": assurance("present" if notes else "none_recorded",
-                                          "Notes WHERE IsDeleted=0 AND IsLatest=1, joined to Charts on KeyNumber=ChartNum. IsSignedOff is NULL throughout Fictional Data."),
-        },
-        "imaging": {
-            "items": [],
-            "source_assurance": assurance("indeterminate", imaging_detail),
-        },
+        "items": [],
+        "procedure_events": events,
+        "source_assurance": assurance("indeterminate", detail),
     }
 
 
+def tx_row(r):
+    """Fields common to every Transactions-sourced item."""
+    fdi = fdi_or_none(r["ToothNum"])
+    return {
+        "trans_id": r["TransID"], "date": r["Date"], "code": s(r["Code"]),
+        "description": s(r["Descr"]) or "", "chart_code": r["ChartCode"],
+        "tooth_fdi": fdi, "tooth_universal": FDI_TO_UNIVERSAL.get(fdi) if fdi else None,
+        "surfaces": s(r["Surfaces"]),
+        "provider": s(r["ProvID"]) or "", "responsible_provider": s(r["RespProvID"]) or "",
+        "fee": (r["Billed"] or 0) / 100, "phase": r["Phase"], "item_num": r["ItemNum"],
+        "bridge_group": r["Grp"] or None, "deleted_raw": r["Deleted"],
+        "appt": r["Appt"], "applied": r["Applied"],
+    }
+
+
+def planned_item(r, tdi):
+    plan = None
+    if r["PlanNum"]:
+        plan = {"date": r["PlanDate"], "description": s(r["PlanDescr"]), "state": r["PlanState"]}
+    mirror, how = financial_mirror(r, tdi, planned=True)
+    return {**tx_row(r), "plan_num": r["PlanNum"], "plan": plan, "status": "planned",
+            "financial_mirror": mirror, "financial_mirror_match": how}
+
+
+def completed_item(r, tdi):
+    mirror, how = financial_mirror(r, tdi, planned=False)
+    return {**tx_row(r), "chart_num": r["ChartNum"], "status": "completed",
+            "financial_mirror": mirror, "financial_mirror_match": how}
+
+
+def condition_item(r):
+    return {"trans_id": r["TransID"], "date": r["Date"], "chart_code": r["ChartCode"],
+            "description": s(r["Descr"]) or "", "tooth_fdi": fdi_or_none(r["ToothNum"]),
+            "surfaces": s(r["Surfaces"]), "material": s(r["MatID"]), "chart_num": r["ChartNum"],
+            "deleted_raw": r["Deleted"]}
+
+
+def radiograph_event(r):
+    return {"trans_id": r["TransID"], "date": r["Date"], "code": s(r["Code"]),
+            "description": s(r["Descr"]) or "", "tooth_fdi": fdi_or_none(r["ToothNum"]),
+            "provider": s(r["ProvID"]) or "", "chart_num": r["ChartNum"]}
+
+
+def other_item(r):
+    t = tx_type(r)
+    return {**tx_row(r), "plan_num": r["PlanNum"], "status": TX_TYPE.get(t, f"unknown_{t}"), "type_raw": t}
+
+
+def financial_mirror(r, tdi, planned):
+    """The tdi row mirroring a Transactions row, plus how it was matched.
+
+    Same code and tooth always. Planned rows match tdi itype P/T regardless of date. Completed
+    rows prefer the same posting date; Fictional Data often charts a procedure months before tdi
+    posts it (pid 8: charted 2003-06-27, posted 2003-11-21), so fall back to an equal fee and say so."""
+    code, fdi = s(r["Code"]), fdi_or_none(r["ToothNum"])
+    cands = [t for t in tdi if s(t["ijcode"]) == code and fdi_or_none(t["itooth"]) == fdi]
+    if planned:
+        hit = next((t for t in cands if t["itype"].strip() in ("P", "T")), None)
+        return (proc_row(hit), "code_tooth") if hit else (None, None)
+    posted = [t for t in cands if t["itype"].strip() == ""]
+    hit = next((t for t in posted if t["idate"] == r["Date"]), None)
+    if hit:
+        return proc_row(hit), "code_tooth_date"
+    hit = next((t for t in posted if (t["iefee"] or 0) == (r["Billed"] or 0)), None)
+    return (proc_row(hit), "code_tooth_fee") if hit else (None, None)
+
+
 def proc_row(r):
+    """A tdi (financial ledger) row."""
     fdi = fdi_or_none(r["itooth"])
     return {
         "itrid": r["itrid"], "date": r["idate"], "code": r["ijcode"].strip(),
@@ -270,6 +436,21 @@ def note_row(r):
     }
 
 
+HEADER = (f"{'pid':>4} {'patient':<18} {'planned':>7} {'crowns':>6} {'done':>5} {'cond':>4} {'xray':>4} "
+          f"{'perio':>5} {'pts(last)':>9} {'notes':>5} {'cov':>3}  imaging")
+
+
+def summary_line(pid, case):
+    pl = case["planned_procedures"]["items"]
+    pe = case["perio_exams"]["items"]
+    return (f"{pid:>4} {case['patient']['surname'] + ', ' + case['patient']['given']:<18.18} "
+            f"{len(pl):>7} {sum((p['code'] or '').startswith('27') for p in pl):>6} "
+            f"{len(case['completed_procedures']['items']):>5} {len(case['odontogram_conditions']['items']):>4} "
+            f"{len(case['imaging']['procedure_events']):>4} {len(pe):>5} "
+            f"{(pe[-1]['point_count'] if pe else '-'):>9} {len(case['clinical_notes']['items']):>5} "
+            f"{len(case['coverage']['items']):>3}  {case['imaging']['source_assurance']['status']}")
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--pids", nargs="*", type=int, help="patient ids; default = all with planned work")
@@ -282,19 +463,14 @@ def main():
     outdir = Path(args.out)
     outdir.mkdir(parents=True, exist_ok=True)
 
-    print(f"{'pid':>4} {'patient':<18} {'planned':>7} {'crowns':>6} {'perio':>5} {'pts(last)':>9} {'notes':>5} {'cov':>3}  imaging")
+    print(HEADER)
     for pid in pids:
         case = build(pid, raw, img_counts)
         if not case:
             print(f"{pid:>4} (no pat row)")
             continue
         (outdir / f"{pid}.json").write_text(json.dumps(case, indent=2, default=str) + "\n")
-        pl = case["planned_procedures"]["items"]
-        pe = case["perio_exams"]["items"]
-        print(f"{pid:>4} {case['patient']['surname'] + ', ' + case['patient']['given']:<18.18} "
-              f"{len(pl):>7} {sum(p['code'].startswith('27') for p in pl):>6} {len(pe):>5} "
-              f"{(pe[-1]['point_count'] if pe else '-'):>9} {len(case['clinical_notes']['items']):>5} "
-              f"{len(case['coverage']['items']):>3}  {case['imaging']['source_assurance']['status']}")
+        print(summary_line(pid, case))
     print(f"\n{len(pids)} patients -> {outdir}")
 
 

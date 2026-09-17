@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+{% from "macros.html" import verdict_badge %}
+{% block title %}Packet · {{ case.patient.display_name }} — Colombus{% endblock %}
+{% block content %}
+<header class="page-head">
+  <div>
+    <div class="eyebrow"><a href="/">Queue</a> / <a href="/cases/{{ case.case_id }}">Case review</a> / Packet</div>
+    <h1>Packet preview &amp; sign-off <span class="muted">·</span> {{ case.patient.display_name }} <span class="num">#{{ case.requested_tooth }}</span> {{ case.treatment.code }}</h1>
+  </div>
+  <div class="head-actions">{{ verdict_badge(a.verdict, view.signed) }}</div>
+</header>
+
+<div class="packet-grid">
+  <section class="col">
+    <div class="card">
+      <h2>Preview <span class="muted">— what the adjudicator receives</span></h2>
+      {% if pk.unavailable %}
+      <div class="note amber">{{ pk.unavailable }} The packet renderer is being built in parallel; this screen will embed <code>preview.pdf</code> when it lands.</div>
+      {% else %}
+      <iframe class="pdf" src="/cases/{{ case.case_id }}/packet/preview.pdf" title="Packet preview"></iframe>
+      {% endif %}
+    </div>
+
+    {% if pk.files %}
+    <div class="card">
+      <h2>Files in the packet <span class="muted num">({{ pk.files|length }})</span></h2>
+      <table class="tbl">
+        <thead><tr><th>#</th><th>File</th><th>Kind</th><th>Requirements</th><th>Spec</th></tr></thead>
+        <tbody>
+        {% for f in pk.files %}
+        <tr>
+          <td class="num">{{ f.seq }}</td>
+          <td class="num">{{ f.filename }}</td>
+          <td>{{ f.kind }}</td>
+          <td class="small">{{ f.requirements|join(', ') if f.requirements else '—' }}</td>
+          <td>{% if f.spec_ok is none %}<span class="muted">—</span>{% elif f.spec_ok %}<span class="ok-text">pass</span>{% else %}<span class="bad-text">fail</span>{% endif %}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% endif %}
+
+    {% if pk.report %}
+    <div class="verdict-line {{ 'ok' if pk.report.ok else 'bad' }}">
+      {% if pk.report.ok %}
+      Independent verifier: PASS, <span class="num">{{ pk.report.file_count }}</span> files, <span class="num">{{ kb(pk.report.total_bytes) }}</span>
+      {% else %}
+      Independent verifier: FAIL
+      <ul>{% for f in pk.report.findings %}<li>{{ f }}</li>{% endfor %}</ul>
+      {% endif %}
+    </div>
+    {% elif pk.verifier_unavailable %}
+    <div class="note amber">{{ pk.verifier_unavailable }}</div>
+    {% endif %}
+  </section>
+
+  <section class="col">
+    {% if view.signed %}{% set so = view.state.sign_off %}
+    <div class="card signed-card">
+      <h2>Signed off</h2>
+      <dl class="kv">
+        <dt>By</dt><dd>{{ so.signed_by }}{% if so.licence %} <span class="muted num">{{ so.licence }}</span>{% endif %}</dd>
+        <dt>When</dt><dd class="num">{{ so.signed_at.strftime('%Y-%m-%d %H:%M UTC') }}</dd>
+        <dt>Narrative sha256</dt><dd class="num small mono">{{ so.narrative_sha256 }}</dd>
+        <dt>Assessment</dt><dd class="num mono">{{ so.assessment_id }}</dd>
+        <dt>Rule pack</dt><dd class="num">{{ so.ruleset_version }}</dd>
+      </dl>
+      <p class="attest">“{{ so.attestation }}”</p>
+      <div class="btn-row">
+        {% if not pk.unavailable %}<a class="btn btn-primary" href="/cases/{{ case.case_id }}/packet/download">Download packet (.zip)</a>{% endif %}
+        {% if view.state.submitted_at %}
+        <span class="ok-text">Marked submitted <span class="num">{{ view.state.submitted_at.strftime('%Y-%m-%d %H:%M UTC') }}</span></span>
+        {% else %}
+        <form method="post" action="/cases/{{ case.case_id }}/submitted"><button class="btn">Mark as submitted via CDAnet/PMS</button></form>
+        {% endif %}
+      </div>
+      <p class="closing">Colombus never transmits. You do.</p>
+    </div>
+    <div class="card">
+      <h2>Narrative <span class="muted">(as signed)</span></h2>
+      <pre class="narrative-ro">{{ narrative }}</pre>
+    </div>
+    {% else %}
+    <form method="post" action="/cases/{{ case.case_id }}/narrative" class="card" id="narrative-form">
+      <div class="card-head">
+        <h2>Clinical narrative</h2>
+        <span class="muted small">{{ 'Edited' if view.state.narrative_edits is not none else 'Draft: template + verbatim chart quotes' }}</span>
+      </div>
+      {% if narrative_note %}<div class="note amber">{{ narrative_note }}</div>{% endif %}
+      <textarea name="narrative" id="narrative" rows="16" data-dirty-warn>{{ narrative }}</textarea>
+      <div class="btn-row">
+        <button class="btn" type="submit">Save narrative</button>
+        <span class="muted small">Saving invalidates any prior sign-off.</span>
+      </div>
+    </form>
+
+    <div class="card">
+      <h2>Sign-off</h2>
+      <p class="attest">“I have reviewed this packet and it reflects my clinical judgment and the contents of this patient's record.”</p>
+      {% if can_sign %}
+        {% if actor.is_dentist %}
+        <form method="post" action="/cases/{{ case.case_id }}/sign-off" id="signoff-form">
+          <input type="hidden" name="narrative" id="signoff-narrative" value="{{ narrative }}">
+          <button class="btn btn-primary" type="submit">Sign off as {{ actor.name }}{% if actor.licence %} ({{ actor.licence }}){% endif %}</button>
+        </form>
+        {% else %}
+        <div class="note amber">Sign-off is the treating dentist's attestation. You are acting as {{ actor.name }} ({{ actor.role }}) — switch to Dr. Priya Lau in the header.</div>
+        {% endif %}
+      {% else %}
+      <ul class="block-list">
+        {% for x in blocking %}<li>{{ x.title }}</li>{% endfor %}
+      </ul>
+      <p class="bad-text">Sign-off is blocked until every requirement is satisfied or accepted.</p>
+      <a class="btn" href="/cases/{{ case.case_id }}">Back to the gap checklist</a>
+      {% endif %}
+    </div>
+    {% endif %}
+
+    {% if a.deadlines or a.notes %}
+    <div class="card">
+      {% if a.deadlines %}
+      <h2>Evidence currency</h2>
+      <ul class="plain">
+        {% for d in a.deadlines|sort(attribute='expires_on') %}
+        <li><b>{{ d.label }}</b> goes stale on <span class="num">{{ d.expires_on }}</span> <span class="muted">({{ d.requirement_id }})</span></li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+      {% if a.notes %}
+      <h2>Notes</h2>
+      <ul class="plain muted">{% for n in a.notes %}<li>{{ n }}</li>{% endfor %}</ul>
+      {% endif %}
+    </div>
+    {% endif %}
+  </section>
+</div>
+{% endblock %}

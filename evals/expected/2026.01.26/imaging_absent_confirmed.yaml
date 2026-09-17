@@ -1,0 +1,18 @@
+verdict: BLOCKED
+completeness: 11/13
+requirements:
+  claim_form: satisfied
+  tx_plan_details: satisfied via structured_plan
+  radiograph_pa: unsatisfied
+  radiograph_bw: unsatisfied
+  perio_chart: satisfied via complete_perio_chart
+  client_age: satisfied
+  tooth_eligibility: satisfied via standard_tooth
+  frequency_tooth: satisfied
+  frequency_client: satisfied
+  basic_treatment_complete: satisfied
+  restorability: satisfied
+  extensively_restored: satisfied
+  lab_codes_current: satisfied
+top_action: Take bitewings (right and left)
+blocking_actions: 2

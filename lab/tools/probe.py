@@ -83,8 +83,10 @@ def row_counts():
 
 def sql_json(query):
     """Run a batch (possibly several statements); return one list of rows per result set."""
+    t0 = datetime.now()
     r = subprocess.run([str(VM), "sql", query, "", "json"], capture_output=True, text=True)
     body = r.stdout.strip()
+    print(f"    sql {len(query):>7}B {len(body):>8}B out {(datetime.now() - t0).total_seconds():5.1f}s", file=sys.stderr)
     if not body or body.startswith("REFUSED") or "Exception" in body[:300]:
         raise RuntimeError(f"vm sql failed: {(body or r.stderr)[:500]}\n--- query head ---\n{query[:300]}")
     sets = []
@@ -118,7 +120,8 @@ def hash_stmt(tbl, cols, pk):
     body = ", ".join(as_text(c, t) for _, c, t in cols)
     key = (" + '|' + ".join(f"ISNULL(CONVERT(nvarchar(max), {q(c)}), '{NULL}')" for c in pk)
            if pk else "''")
-    return (f"SELECT '{tbl}' t, {key} k, CONVERT(varchar(64), HASHBYTES('SHA2_256', CONCAT_WS('|', {body})), 2) h "
+    # CONCAT_WS wants >= 3 arguments; pad so one-column tables do not error out the whole batch.
+    return (f"SELECT '{tbl}' t, {key} k, CONVERT(varchar(64), HASHBYTES('SHA2_256', CONCAT_WS('|', '', '', {body})), 2) h "
             f"FROM {q(tbl)}")
 
 

@@ -1,0 +1,7 @@
+#!/bin/bash
+# Run probe snapshot for N seconds with live stderr, then stop it. Diagnoses slow batches.
+cd "$(dirname "$0")/.." || exit 1
+./lab/tools/probe.py snapshot dbg --note debug 2>&1 &
+pid=$!
+sleep "${1:-60}"
+kill $pid 2>/dev/null

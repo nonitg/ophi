@@ -82,6 +82,7 @@ def _no_pending_codes_with_prefix(f: Fact, case: Case, pack: RulePack) -> LeafRe
         return LeafResult(status=Status.INDETERMINATE, detail=f"planned procedures reported as {sa.availability.value}; cannot confirm basic treatment is complete")
     tx = case.treatment
     pend = [h for h in case.procedure_history if h.status == "planned" and any(h.code.startswith(p) for p in (f.prefixes or []))
+            and not any(h.code.startswith(x) for x in (f.exclude_prefixes or []))
             and not (f.exclude_requested and h.code == tx.code and h.tooth_fdi == tx.tooth.tooth_fdi)]
     if not pend:
         return LeafResult(status=Status.SATISFIED, detail="no pending basic restorative or periodontal treatment in the plan")

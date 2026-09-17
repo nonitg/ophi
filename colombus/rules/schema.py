@@ -58,6 +58,7 @@ class Fact(BaseModel):
     months: int | None = None
     max_count: int | None = None
     exclude_requested: bool = False
+    exclude_prefixes: list[str] | None = None
 
 
 class NotEscalated(BaseModel):

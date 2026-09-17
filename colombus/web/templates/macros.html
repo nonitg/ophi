@@ -1,0 +1,32 @@
+{# Shared fragments. The badge and the chip are the two things every screen must render identically. #}
+
+{% macro verdict_badge(verdict, signed=False, short=False) -%}
+{%- if signed -%}
+<span class="badge signed">Signed</span>
+{%- else -%}
+<span class="badge {{ VERDICT_CLASS[verdict] }}">{{ VERDICT_SHORT[verdict] if short else VERDICT_LABEL[verdict] }}</span>
+{%- endif -%}
+{%- endmacro %}
+
+{% macro clause_chip(clause, pack) -%}
+<span class="chip" tabindex="0">
+  <span class="chip-text">{{ clause.source|capitalize }} · {{ clause.ref }}</span>
+  <span class="chip-pop" role="tooltip">
+    <b>{{ source_title(pack, clause.source) }}</b>
+    <span class="chip-ref">{{ clause.ref }}</span>
+    {% if clause.quote %}<q>{{ clause.quote }}</q>{% endif %}
+    {% if clause.also %}
+    <span class="chip-also">Also: {{ source_title(pack, clause.also.source) }} — {{ clause.also.ref }}{% if clause.also.quote %}: <q>{{ clause.also.quote }}</q>{% endif %}</span>
+    {% endif %}
+    {% if pack.sources.get(clause.source) %}<a href="{{ pack.sources[clause.source].url }}" target="_blank" rel="noopener">Source document</a>{% endif %}
+  </span>
+</span>
+{%- endmacro %}
+
+{% macro status_icon(status) -%}
+<span class="st {{ STATUS_CLASS[status] }}" title="{{ STATUS_LABEL[status] }}" aria-label="{{ STATUS_LABEL[status] }}"></span>
+{%- endmacro %}
+
+{% macro teeth(list) -%}
+{%- for t in list %}#{{ t }}{% if not loop.last %}, {% endif %}{% endfor -%}
+{%- endmacro %}

@@ -104,8 +104,22 @@ def _solve_all(p: RequireAll, ctx: LeafContext, fired: dict[str, EscalationResul
     matched = [m for r in parts for m in r.matched]
     expires = min((r.expires_on for r in parts if r.expires_on), default=None)
     failing = [r.detail for r in parts if SEVERITY[r.status] >= SEVERITY[Status.AT_RISK] and r.detail]
-    detail = "; ".join(failing) if failing else "; ".join(r.detail for r in parts if r.detail)
+    detail = _join_details(failing if failing else [r.detail for r in parts if r.detail])
     return LeafResult(status=worst.status, matched=matched, shortfall=sf, expires_on=expires, detail=detail)
+
+
+AWAITING = "awaiting the treating dentist's confirmation: "
+
+
+def _join_details(details: list[str]) -> str:
+    """Seven 'awaiting confirmation' leaves read as one line, not seven."""
+    awaiting = [d[len(AWAITING):] for d in details if d.startswith(AWAITING)]
+    other = [d for d in details if not d.startswith(AWAITING)]
+    if len(awaiting) > 1:
+        other.append(f"awaiting the treating dentist's confirmation on {len(awaiting)} criteria: {'; '.join(awaiting)}")
+    elif awaiting:
+        other.append(AWAITING + awaiting[0])
+    return "; ".join(other)
 
 
 def _solve_one_of(p: OneOf, ctx: LeafContext, fired: dict[str, EscalationResult], pack: RulePack) -> Solved:
@@ -120,7 +134,14 @@ def _solve_one_of(p: OneOf, ctx: LeafContext, fired: dict[str, EscalationResult]
     if best.status in (Status.SATISFIED, Status.AT_RISK, Status.PENDING_CONFIRMATION):
         return best, best_opt.id, (best_opt.risk_reason if best.status == Status.AT_RISK else None), None
     # Nothing passes: report the cheapest, closest near-miss, but keep the union of what was tried.
-    cheapest_opt, cheapest = min(results, key=lambda t: (EFFORT_ORDER[t[0].remediation_cost], t[1].shortfall.distance, p.one_of.index(t[0])))
+    # A fired escalation that demands one of these options has already chosen the path (footnote 7:
+    # PSR 4, or 3 in two sextants, closes the PSR path) — cost must not steer staff back onto it.
+    demanded = {er.demanded for er in fired.values()} & {o.id for o in p.one_of}
+    pool = [(o, r) for o, r in results if o.id in demanded] if demanded else results
+    # A path with evidence already on record (a 4-point chart, a PSR) is a near-miss; a path with
+    # nothing toward it is a from-scratch alternative. Prefer near-misses, then effort, then distance.
+    cheapest_opt, cheapest = min(pool, key=lambda t: (0 if t[1].matched else 1, EFFORT_ORDER[t[0].remediation_cost],
+                                                       t[1].shortfall.distance, p.one_of.index(t[0])))
     cheapest.detail = f"{cheapest_opt.label}: {cheapest.detail}" + "".join(
         f" | {o.label}: {r.detail}" for o, r in results if o is not cheapest_opt and r.detail)
     if any(r.status == Status.INDETERMINATE for _, r in results) and cheapest.status == Status.UNSATISFIED:

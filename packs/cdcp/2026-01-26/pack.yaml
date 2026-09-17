@@ -129,8 +129,10 @@ requirements:
     clause:
       source: matrix
       ref: "Restorative services — PA+BW (R&L) <=12mo: Yes"
-      quote: "Intraoral radiographs are considered 'current' for preauthorization purposes if dated within the last 12 months of the preauthorization submission."
-      also: { source: guide, ref: "6.1.2 Radiograph standards" }
+      also:
+        source: guide
+        ref: "6.1.2 Radiograph standards"
+        quote: "Intraoral radiographs are considered 'current' for preauthorization purposes if dated within the last 12 months of the preauthorization submission."
     satisfied_by:
       find:
         artifact_type: radiograph
@@ -271,7 +273,9 @@ requirements:
       quote: "All basic treatment addressing any existing active biological disease (caries and periodontal) must be completed before submitting requests for crowns."
     satisfied_by:
       require_all:
-        - { fact: no_pending_codes_with_prefix, prefixes: ["20", "21", "22", "23", "41", "42", "43"], exclude_requested: true }
+        # Cores and posts (21301/21302, 23601/23602, 2575x/2576x) are done alongside the crown, not before it.
+        - { fact: no_pending_codes_with_prefix, prefixes: ["20", "21", "22", "23", "41", "42", "43"],
+            exclude_prefixes: ["21301", "21302", "23601", "23602", "2575", "2576"], exclude_requested: true }
         - { find: { artifact_type: clinician_assertion, criterion: active_disease_addressed } }
     gap:
       title: Complete pending basic treatment before submitting

@@ -8,7 +8,7 @@ from datetime import date
 
 from colombus.cdm.models import (
     ArtifactType, AssertionPayload, Availability, Case, ChartArtifact, ExtractedDetailPayload,
-    NotePayload, PSRPayload, PerioChartPayload, RadiographPayload, RadiographView, Section,
+    NotePayload, PSRPayload, PerioChartPayload, RadiographPayload, RadiographView, Section, TxPlanPayload,
 )
 from colombus.dental import notation, sextants
 from colombus.engine import recency
@@ -37,10 +37,14 @@ class LeafContext:
 def label_of(a: ChartArtifact) -> str:
     p = a.payload
     if isinstance(p, RadiographPayload):
-        teeth = ",".join(f"#{t}" for t in p.teeth_fdi) if p.teeth_fdi else (p.laterality or "")
-        return f"{p.view.value} {teeth}".strip()
+        if p.view == RadiographView.BW:
+            side = p.laterality.value if p.laterality else ("/".join(sorted({notation.side(t) for t in p.teeth_fdi})) or "")
+            return f"{side} BW".strip()
+        if len(p.teeth_fdi) <= 2 and p.teeth_fdi:
+            return f"{p.view.value} of " + ", ".join(f"#{t}" for t in p.teeth_fdi)
+        return p.view.value
     if isinstance(p, PerioChartPayload):
-        return f"perio chart, {p.point_count} sites"
+        return f"perio chart ({p.point_count} sites)"
     if isinstance(p, PSRPayload):
         return "PSR " + " ".join(f"{s}={v if v is not None else '–'}" for s, v in sorted(p.scores.items()))
     if isinstance(p, NotePayload):
@@ -136,7 +140,7 @@ def _pick_by_recency(cands: list[ChartArtifact], f: Find, ctx: LeafContext, what
                           detail=f"{what} on record but without a capture date; recency cannot be established (never inferred from the import date)")
     newest = sf.stale[0]
     return LeafResult(status=Status.UNSATISFIED, shortfall=sf,
-                      detail=f"most recent {what} ({newest.label}) is dated {newest.captured_at}, {newest.age_days} days before {as_of}; {months}-month bound exceeded by {newest.over_by_days} days")
+                      detail=f"most recent {what} is dated {newest.captured_at}, {newest.age_days} days before {as_of}; {months}-month bound exceeded by {newest.over_by_days} day{'' if newest.over_by_days == 1 else 's'}")
 
 
 def _finish(a: ChartArtifact, f: Find, ctx: LeafContext, what: str, r: recency.RecencyResult | None) -> LeafResult:
@@ -165,6 +169,14 @@ def _radiographs(ctx: LeafContext, view: RadiographView | None) -> list[ChartArt
 def _resolve_generic(f: Find, ctx: LeafContext) -> LeafResult:
     tooth = ctx.case.requested_tooth
     cands = [a for a in ctx.case.artifacts_of(f.artifact_type) if _usable(a)]
+    if f.artifact_type == ArtifactType.TX_PLAN:
+        # Footnote 1 wants the plan that covers this treatment, not any plan on file.
+        code = ctx.case.treatment.code
+        named = [a for a in cands if isinstance(a.payload, TxPlanPayload) and code in a.payload.pending_codes]
+        if cands and not named:
+            return LeafResult(status=Status.UNSATISFIED, shortfall=Shortfall(missing=[f"treatment plan naming {code}"]),
+                              detail=f"a treatment plan is on record but none lists {code} as pending")
+        cands = named
     if f.view:
         cands = [a for a in cands if isinstance(a.payload, RadiographPayload) and a.payload.view == f.view]
     what = f"{f.view.value if f.view else f.artifact_type.value.replace('_', ' ')}"

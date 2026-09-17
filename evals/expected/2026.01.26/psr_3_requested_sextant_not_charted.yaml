@@ -1,0 +1,19 @@
+verdict: BLOCKED
+completeness: 12/13
+requirements:
+  claim_form: satisfied
+  tx_plan_details: satisfied via structured_plan
+  radiograph_pa: satisfied
+  radiograph_bw: satisfied
+  perio_chart: unsatisfied
+  client_age: satisfied
+  tooth_eligibility: satisfied via standard_tooth
+  frequency_tooth: satisfied
+  frequency_client: satisfied
+  basic_treatment_complete: satisfied
+  restorability: satisfied
+  extensively_restored: satisfied
+  lab_codes_current: satisfied
+top_action: 'Record 6-site measurements for #46 and sextant S6 to complete the PSR
+  path'
+blocking_actions: 1

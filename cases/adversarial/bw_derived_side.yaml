@@ -1,0 +1,46 @@
+# READY_TO_SUBMIT — bitewings with no `side` recorded by the source, but each images teeth on one side.
+# Laterality is derived deterministically from the imaged teeth (quadrants 1/4 = right, 2/3 = left),
+# so right and left are both covered and radiograph_bw is satisfied.
+id: bw_derived_side
+as_of: 2026-09-17
+patient: { id: "9001", name: "Adversarial Base", dob: 1975-05-20, sex: F, cdcp_client_id: "CDCP-0000-9001" }
+provider: { name: "Dr. Priya Lau", licence: "ON-48213" }
+treatment:
+  code: "27211"
+  description: "Crown, porcelain fused to metal"
+  tooth: 46
+  appointment: 2026-09-27
+  fee_cents: 128500
+  lab_codes: ["99112"]
+dentition:
+  missing: [18, 28, 38, 48]
+  restored_surfaces: { 46: [M, O, D, B, L] }
+history:
+  - { code: "21225", tooth: 46, surfaces: [M, O, D, B, L], date: 2020-03-10 }
+  - { code: "01202", age: 40d }
+radiographs:
+  - { id: pa_46, view: PA, tooth: 46, age: 40d }
+  - { id: bw_a, view: BW, teeth: [14, 15, 16, 17, 44, 45, 46, 47], age: 40d }
+  - { id: bw_b, view: BW, teeth: [24, 25, 26, 27, 34, 35, 36, 37], age: 40d }
+perio_charts:
+  - { id: perio_full, age: 40d, sites: 6, depth: 2, examiner: "K. Osei RDH" }
+notes:
+  - id: note_1
+    age: 40d
+    author: "Dr. Priya Lau"
+    teeth: [46]
+    text: >-
+      46 five-surface amalgam, fractured lingual cusp, recurrent caries mesial. Vital, asymptomatic.
+      Plan PFM crown 46. No other treatment outstanding.
+tx_plans:
+  - { id: plan_46, age: 40d, pending: ["27211"], completed: ["21225", "01202"] }
+assertions:
+  - { criterion: no_active_perio, age: 2d }
+  - { criterion: crown_root_ratio, age: 2d }
+  - { criterion: no_furcation, age: 2d }
+  - { criterion: margin_3mm, age: 2d }
+  - { criterion: ferrule_1_5mm, age: 2d }
+  - { criterion: mesiodistal_space, age: 2d }
+  - { criterion: no_adjunctive_needed, age: 2d }
+  - { criterion: extensively_restored, age: 2d, note: "Five continuous surfaces MODBL, non-endodontically treated" }
+  - { criterion: active_disease_addressed, age: 2d }

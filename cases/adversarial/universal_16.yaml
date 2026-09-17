@@ -1,0 +1,53 @@
+# READY_TO_SUBMIT via third_molar_exception — the source declares Universal notation and the treatment
+# tooth is written "16". Universal 16 is the upper-left THIRD molar (FDI 28), not FDI 16 (upper-right
+# first molar). Guide 6.3.5: third molars qualify only where the 1st and 2nd molars are missing and the
+# 3rd is in occlusion — 26 and 27 are missing and the dentist asserts occlusion, so tooth_eligibility is
+# satisfied via the exception path. Radiograph and note teeth are also written in Universal.
+#
+# casegen applies `notation` to treatment, radiographs and notes only. `dentition` and `history` teeth
+# below are FDI (28, 26, 27) — see the eval report; the dentition universe is internal to the engine.
+id: universal_16
+as_of: 2026-09-17
+notation: universal
+patient: { id: "9001", name: "Adversarial Base", dob: 1975-05-20, sex: F, cdcp_client_id: "CDCP-0000-9001" }
+provider: { name: "Dr. Priya Lau", licence: "ON-48213" }
+treatment:
+  code: "27211"
+  description: "Crown, porcelain fused to metal"
+  tooth: 16
+  appointment: 2026-09-27
+  fee_cents: 128500
+  lab_codes: ["99112"]
+dentition:
+  missing: [18, 26, 27, 38, 48]
+  restored_surfaces: { 28: [M, O, D, B, L] }
+history:
+  - { code: "21225", tooth: 28, surfaces: [M, O, D, B, L], date: 2020-03-10 }
+  - { code: "01202", age: 40d }
+radiographs:
+  - { id: pa_u16, view: PA, tooth: 16, age: 40d }
+  - { id: bw_r, view: BW, side: right, teeth: [2, 3, 4, 5, 28, 29, 30, 31], age: 40d }
+  - { id: bw_l, view: BW, side: left, teeth: [12, 13, 16, 18, 19, 20, 21], age: 40d }
+perio_charts:
+  - { id: perio_full, age: 40d, sites: 6, depth: 2, examiner: "K. Osei RDH" }
+notes:
+  - id: note_1
+    age: 40d
+    author: "Dr. Priya Lau"
+    teeth: [16]
+    text: >-
+      #16 (UL third molar) five-surface amalgam, fractured buccal cusp; 14 and 15 missing, 16 in
+      occlusion with 17. Plan PFM crown 16. No other treatment outstanding.
+tx_plans:
+  - { id: plan_u16, age: 40d, pending: ["27211"], completed: ["21225", "01202"] }
+assertions:
+  - { criterion: third_molar_in_occlusion, age: 2d, note: "26 and 27 missing; 28 occludes with 38" }
+  - { criterion: no_active_perio, age: 2d }
+  - { criterion: crown_root_ratio, age: 2d }
+  - { criterion: no_furcation, age: 2d }
+  - { criterion: margin_3mm, age: 2d }
+  - { criterion: ferrule_1_5mm, age: 2d }
+  - { criterion: mesiodistal_space, age: 2d }
+  - { criterion: no_adjunctive_needed, age: 2d }
+  - { criterion: extensively_restored, age: 2d, note: "Five continuous surfaces MODBL, non-endodontically treated" }
+  - { criterion: active_disease_addressed, age: 2d }

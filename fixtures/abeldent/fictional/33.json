@@ -4,6 +4,7 @@
     "version": "15.1.0 Freemium",
     "dataset": "Fictional Data (CA)",
     "notation": {
+      "Transactions.ToothNum": "FDI",
       "tdi.itooth": "FDI",
       "Notes.ToothNumber": "FDI",
       "Perio arrays": "Universal 1-32, converted to FDI here"
@@ -64,101 +65,262 @@
   "planned_procedures": {
     "items": [
       {
-        "itrid": 99999999,
-        "date": "2004-09-10",
-        "code": "27211",
-        "description": "Porcelain/Ceramic/Polymer Glass Fused Metal Based Crown",
-        "needs_xrays_flag": null,
-        "tooth_fdi": 11,
-        "tooth_universal": 8,
-        "surfaces": null,
-        "provider": "T",
-        "responsible_provider": "T",
-        "fee": 581.0,
-        "lab_fee": 0.0,
-        "status": "planned_unverified_T",
-        "itype_raw": "T"
-      },
-      {
-        "itrid": 99999999,
-        "date": "2004-12-09",
+        "trans_id": 190,
+        "date": "2004-04-15",
         "code": "26101",
         "description": "Indirect Angulated/Transmucosal pre-fabricated abutment",
-        "needs_xrays_flag": null,
+        "chart_code": 212,
         "tooth_fdi": 11,
         "tooth_universal": 8,
         "surfaces": null,
         "provider": "T",
         "responsible_provider": "T",
         "fee": 338.04,
-        "lab_fee": 0.0,
-        "status": "planned_unverified_T",
-        "itype_raw": "T"
+        "phase": 1,
+        "item_num": 0,
+        "bridge_group": null,
+        "deleted_raw": 0,
+        "appt": 1,
+        "applied": 0,
+        "plan_num": 1,
+        "plan": {
+          "date": "2004-04-14",
+          "description": "rest",
+          "state": 2
+        },
+        "status": "planned",
+        "financial_mirror": {
+          "itrid": 99999999,
+          "date": "2004-12-09",
+          "code": "26101",
+          "description": "Indirect Angulated/Transmucosal pre-fabricated abutment",
+          "needs_xrays_flag": null,
+          "tooth_fdi": 11,
+          "tooth_universal": 8,
+          "surfaces": null,
+          "provider": "T",
+          "responsible_provider": "T",
+          "fee": 338.04,
+          "lab_fee": 0.0,
+          "status": "planned_unverified_T",
+          "itype_raw": "T"
+        },
+        "financial_mirror_match": "code_tooth"
+      },
+      {
+        "trans_id": 191,
+        "date": "2004-04-16",
+        "code": "27211",
+        "description": "Porcelain/Ceramic/Polymer Glass Fused Metal Based Crown",
+        "chart_code": 203,
+        "tooth_fdi": 11,
+        "tooth_universal": 8,
+        "surfaces": null,
+        "provider": "T",
+        "responsible_provider": "T",
+        "fee": 581.0,
+        "phase": 1,
+        "item_num": 0,
+        "bridge_group": null,
+        "deleted_raw": 0,
+        "appt": 2,
+        "applied": 0,
+        "plan_num": 1,
+        "plan": {
+          "date": "2004-04-14",
+          "description": "rest",
+          "state": 2
+        },
+        "status": "planned",
+        "financial_mirror": {
+          "itrid": 99999999,
+          "date": "2004-09-10",
+          "code": "27211",
+          "description": "Porcelain/Ceramic/Polymer Glass Fused Metal Based Crown",
+          "needs_xrays_flag": null,
+          "tooth_fdi": 11,
+          "tooth_universal": 8,
+          "surfaces": null,
+          "provider": "T",
+          "responsible_provider": "T",
+          "fee": 581.0,
+          "lab_fee": 0.0,
+          "status": "planned_unverified_T",
+          "itype_raw": "T"
+        },
+        "financial_mirror_match": "code_tooth"
       }
     ],
     "source_assurance": {
       "status": "present",
-      "detail": "tdi.itype IN ('P','T'). T is unverified \u2014 see itype_note."
-    },
-    "itype_note": "T rows use sentinel itrid 99999999, P rows 99999998. Resolve T and I by diff-probe before any rule depends on them."
+      "detail": "Transactions WHERE Type='P' (all Deleted values, see deleted_raw), joined to Plans on PlanNum. Transactions is the clinical chart ledger (what the Treatment view shows); tdi is the financial ledger. Planned items entered through the modern Treatment view are mirrored into tdi (itype 'P', sentinel itrid 99999998); older fictional plans exist only in Transactions, so financial_mirror is null for them. bridge_group is Transactions.Grp: 0/null for single units; for bridge units it is the 1..n position within the bridge (retainer, pontic, ...). Consecutive rows with ascending Grp starting at 1 form one bridge; Grp is not a shared bridge id."
+    }
   },
   "completed_procedures": {
     "items": [
       {
-        "itrid": 247,
-        "date": "2004-09-08",
+        "trans_id": 187,
+        "date": "2004-04-14",
         "code": "01103",
         "description": "Exam & Diagnosis Complete Permanent Dentition",
-        "needs_xrays_flag": null,
+        "chart_code": 233,
         "tooth_fdi": null,
         "tooth_universal": null,
         "surfaces": null,
         "provider": "T",
         "responsible_provider": "T",
         "fee": 112.58,
-        "lab_fee": 0.0,
+        "phase": 1,
+        "item_num": 0,
+        "bridge_group": null,
+        "deleted_raw": 0,
+        "appt": 1,
+        "applied": 0,
+        "chart_num": 1,
         "status": "completed",
-        "itype_raw": ""
+        "financial_mirror": {
+          "itrid": 247,
+          "date": "2004-09-08",
+          "code": "01103",
+          "description": "Exam & Diagnosis Complete Permanent Dentition",
+          "needs_xrays_flag": null,
+          "tooth_fdi": null,
+          "tooth_universal": null,
+          "surfaces": null,
+          "provider": "T",
+          "responsible_provider": "T",
+          "fee": 112.58,
+          "lab_fee": 0.0,
+          "status": "completed",
+          "itype_raw": ""
+        },
+        "financial_mirror_match": "code_tooth_fee"
       },
       {
-        "itrid": 248,
-        "date": "2004-09-08",
+        "trans_id": 188,
+        "date": "2004-04-14",
         "code": "11101",
         "description": "Polishing One Unit of Time",
-        "needs_xrays_flag": null,
+        "chart_code": 245,
         "tooth_fdi": null,
         "tooth_universal": null,
         "surfaces": null,
         "provider": "T",
         "responsible_provider": "T",
         "fee": 32.96,
-        "lab_fee": 0.0,
+        "phase": 1,
+        "item_num": 0,
+        "bridge_group": null,
+        "deleted_raw": 0,
+        "appt": 1,
+        "applied": 0,
+        "chart_num": 1,
         "status": "completed",
-        "itype_raw": ""
+        "financial_mirror": {
+          "itrid": 248,
+          "date": "2004-09-08",
+          "code": "11101",
+          "description": "Polishing One Unit of Time",
+          "needs_xrays_flag": null,
+          "tooth_fdi": null,
+          "tooth_universal": null,
+          "surfaces": null,
+          "provider": "T",
+          "responsible_provider": "T",
+          "fee": 32.96,
+          "lab_fee": 0.0,
+          "status": "completed",
+          "itype_raw": ""
+        },
+        "financial_mirror_match": "code_tooth_fee"
       },
       {
-        "itrid": 249,
-        "date": "2004-09-08",
+        "trans_id": 189,
+        "date": "2004-04-14",
         "code": "11111",
         "description": "Scaling One Unit of Time",
-        "needs_xrays_flag": null,
+        "chart_code": 236,
         "tooth_fdi": null,
         "tooth_universal": null,
         "surfaces": null,
         "provider": "T",
         "responsible_provider": "T",
         "fee": 47.09,
-        "lab_fee": 0.0,
+        "phase": 1,
+        "item_num": 0,
+        "bridge_group": null,
+        "deleted_raw": 0,
+        "appt": 1,
+        "applied": 0,
+        "chart_num": 1,
         "status": "completed",
-        "itype_raw": ""
+        "financial_mirror": {
+          "itrid": 249,
+          "date": "2004-09-08",
+          "code": "11111",
+          "description": "Scaling One Unit of Time",
+          "needs_xrays_flag": null,
+          "tooth_fdi": null,
+          "tooth_universal": null,
+          "surfaces": null,
+          "provider": "T",
+          "responsible_provider": "T",
+          "fee": 47.09,
+          "lab_fee": 0.0,
+          "status": "completed",
+          "itype_raw": ""
+        },
+        "financial_mirror_match": "code_tooth_fee"
       }
     ],
     "source_assurance": {
       "status": "present",
-      "detail": "tdi.itype = ''"
+      "detail": "Transactions WHERE Type=' ' AND Code<>'' AND Deleted=0. financial_mirror is the tdi row (itype='') with the same code and tooth, matched on posting date first and equal fee second (financial_mirror_match says which); null when tdi never posted it. bridge_group is Transactions.Grp: 0/null for single units; for bridge units it is the 1..n position within the bridge (retainer, pontic, ...). Consecutive rows with ascending Grp starting at 1 form one bridge; Grp is not a shared bridge id."
     }
   },
-  "other_ledger_rows": [],
+  "odontogram_conditions": {
+    "items": [
+      {
+        "trans_id": 186,
+        "date": "2004-04-14",
+        "chart_code": 104,
+        "description": "Missing",
+        "tooth_fdi": 11,
+        "surfaces": null,
+        "material": null,
+        "chart_num": 1,
+        "deleted_raw": 0
+      }
+    ],
+    "source_assurance": {
+      "status": "present",
+      "detail": "Transactions WHERE Type=' ' AND Code is empty: odontogram markings by ChartCode (116 Decay, 102 Crown, 114 Bridge, 106 Implant, 100/104/108/140 Existing Condition, ...). Not procedures and never billed."
+    }
+  },
+  "other_ledger_rows": [
+    {
+      "trans_id": 194,
+      "date": "2004-04-15",
+      "code": "23222",
+      "description": "Permanent Molar Tooth Coloured Rest. - 2 surf.",
+      "chart_code": 200,
+      "tooth_fdi": 17,
+      "tooth_universal": 2,
+      "surfaces": "MO",
+      "provider": "T",
+      "responsible_provider": "T",
+      "fee": 134.98,
+      "phase": 1,
+      "item_num": 0,
+      "bridge_group": null,
+      "deleted_raw": 0,
+      "appt": 1,
+      "applied": 0,
+      "plan_num": 0,
+      "status": "unverified_I",
+      "type_raw": "I"
+    }
+  ],
   "perio_exams": {
     "items": [],
     "source_assurance": {
@@ -203,9 +365,10 @@
   },
   "imaging": {
     "items": [],
+    "procedure_events": [],
     "source_assurance": {
       "status": "indeterminate",
-      "detail": "Imaging tables are readable but hold zero rows database-wide (AImage=0, AImageVersion=0, TDIImageLink=0, Imaging=0, Document=0). 9 AImageToothNumber rows reference images that no longer exist, so Fictional Data once had images and ships without them. Cannot distinguish 'none recorded' from 'not visible to this driver'; treat as indeterminate until the imaging spike resolves it. Manual upload is the only radiograph source for now."
+      "detail": "items: imaging tables are readable but hold zero rows database-wide (AImage=0, AImageVersion=0, TDIImageLink=0, Imaging=0, Document=0). 9 AImageToothNumber rows reference images that no longer exist, so Fictional Data once had images and ships without them. Cannot distinguish 'none recorded' from 'not visible to this driver'; treat as indeterminate until the imaging spike resolves it. Manual upload is the only radiograph source for now. procedure_events: charted Transactions rows (Type=' ', Deleted=0) with ChartCode 242 (radiograph procedure codes 02102-02601). An event proves a radiograph was taken and charted/billed on that date; it does not locate the image. The evidence matcher must not treat a procedure event as a retrievable artifact."
     }
   }
 }

@@ -17,6 +17,34 @@ CMD_EXE='C:\Windows\System32\cmd.exe'
 
 die() { echo "error: $*" >&2; exit 1; }
 
+# The guest side is a single shared mailbox (_cmd.ps1/_last.txt, _ucmd.ps1/_ulast.txt), so two
+# host processes talking at once corrupt each other's results. Serialise every guest round trip
+# with a mkdir lock; mkdir is atomic on APFS and needs no flock.
+LOCK="${TMPDIR:-/tmp}/colombus-vm.lock"
+lock() {
+  local i
+  for i in $(seq 1 3000); do
+    if mkdir "$LOCK" 2>/dev/null; then trap 'rmdir "$LOCK" 2>/dev/null' EXIT; return 0; fi
+    # Stale lock (holder died): older than 10 minutes.
+    if [ -n "$(find "$LOCK" -maxdepth 0 -mmin +10 2>/dev/null)" ]; then rmdir "$LOCK" 2>/dev/null; fi
+    sleep 0.1
+  done
+  die "could not acquire $LOCK"
+}
+unlock() { rmdir "$LOCK" 2>/dev/null; trap - EXIT; }
+
+# schtasks /run is a silent no-op while the previous run is still winding down, so poll the task
+# state from the host until it reads Ready. Plain cmd redirection: no quoting to get wrong.
+wait_task_idle() {
+  local i state
+  for i in $(seq 1 60); do
+    "$UTMCTL" exec "$VM_UUID" --cmd "$CMD_EXE" /c \
+      "schtasks /query /tn $1 /fo csv /nh > $GUEST_DIR\\out\\_task.txt 2>&1" >/dev/null 2>&1
+    state="$("$UTMCTL" file pull "$VM_UUID" "$GUEST_DIR\\out\\_task.txt" 2>/dev/null)"
+    case "$state" in *Running*) sleep 0.2 ;; *) return 0 ;; esac
+  done
+}
+
 # utmctl exits 0 even when the guest file is still locked by the writer, so success is
 # judged on content, not exit code. Each utmctl round trip is ~200ms, which is the delay.
 pull_retry() {
@@ -32,6 +60,7 @@ pull_retry() {
 # A sentinel line marks completion — without it a partially-flushed file reads as done.
 ps_exec() {
   local marker='___COLOMBUS_DONE___' out
+  lock
   printf '%s\n%s\n' "$1" "Write-Output '$marker'" \
     | "$UTMCTL" file push "$VM_UUID" "$GUEST_DIR\\_cmd.ps1" >/dev/null 2>&1 \
     || die "guest agent not responding — is the VM running?"
@@ -41,30 +70,31 @@ ps_exec() {
   local i
   for i in $(seq 1 120); do
     out="$("$UTMCTL" file pull "$VM_UUID" "$GUEST_DIR\\out\\_last.txt" 2>/dev/null)"
-    case "$out" in *"$marker"*) printf '%s\n' "${out%$marker*}"; return 0 ;; esac
+    case "$out" in *"$marker"*) printf '%s\n' "${out%$marker*}"; unlock; return 0 ;; esac
   done
   echo "timed out waiting for guest command" >&2
   printf '%s\n' "$out"
-  return 1
+  unlock; return 1
 }
 
 # Run PowerShell as the logged-on user instead of SYSTEM, via the ColombusRun task.
 # Required for anything touching ABELDent's LocalDB or the desktop.
 user_exec() {
   local marker='___COLOMBUS_UDONE___' out i
+  lock
   printf '%s\n' "$1" | "$UTMCTL" file push "$VM_UUID" "$GUEST_DIR\\_ucmd.ps1" >/dev/null 2>&1 \
     || die "guest agent not responding"
   # schtasks /run is a silent no-op while the previous run is still exiting, so back-to-back
   # calls used to hang until the pull loop timed out. Wait for the task to go idle first.
-  ps_exec "for (\$i=0; \$i -lt 100; \$i++) { if ((schtasks /query /tn ColombusRun /fo csv /nh) -notmatch 'Running') { break }; Start-Sleep -Milliseconds 200 }" >/dev/null
+  wait_task_idle ColombusRun
   "$UTMCTL" exec "$VM_UUID" --cmd "$CMD_EXE" /c \
     "del $GUEST_DIR\\out\\_ulast.txt 2>nul & schtasks /run /tn ColombusRun" >/dev/null 2>&1
   for i in $(seq 1 300); do
     out="$("$UTMCTL" file pull "$VM_UUID" "$GUEST_DIR\\out\\_ulast.txt" 2>/dev/null)"
-    case "$out" in *"$marker"*) printf '%s\n' "${out%$marker*}"; return 0 ;; esac
+    case "$out" in *"$marker"*) printf '%s\n' "${out%$marker*}"; unlock; return 0 ;; esac
   done
   echo "timed out — is ColombusRun registered? run: $0 setup-user" >&2
-  printf '%s\n' "$out"; return 1
+  printf '%s\n' "$out"; unlock; return 1
 }
 
 cmd="${1:-help}"; shift || true
@@ -78,8 +108,10 @@ uexec)  user_exec "$*" ;;
 setup-user)
   ps_exec "\$u = (Get-CimInstance Win32_ComputerSystem).UserName
 if (-not \$u) { 'no interactive user logged on'; exit 1 }
-\$run = 'powershell -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File $GUEST_DIR\\run-user.ps1'
-\$shot = 'powershell -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File $GUEST_DIR\\shot.ps1'
+# Windows Terminal ignores -WindowStyle Hidden and pops a console over ABELDent, stealing focus
+# from UI automation. conhost --headless gives the task a console with no window at all.
+\$run = 'C:\\Windows\\System32\\conhost.exe --headless powershell -NoProfile -ExecutionPolicy Bypass -File $GUEST_DIR\\run-user.ps1'
+\$shot = 'C:\\Windows\\System32\\conhost.exe --headless powershell -NoProfile -ExecutionPolicy Bypass -File $GUEST_DIR\\shot.ps1'
 schtasks /create /tn ColombusRun /ru \$u /it /f /sc once /st 00:00 /tr \$run
 schtasks /create /tn ColombusShot /ru \$u /it /f /sc once /st 00:00 /tr \$shot
 'registered for ' + \$u"

@@ -1,0 +1,46 @@
+# READY_TO_SUBMIT — a crown on #46 completed 96 months and one day before submission (2018-09-16). The
+# rolling window closed on 2026-09-16 (Guide 4.0), so on 2026-09-17 the tooth is eligible again:
+# frequency_tooth satisfied. Pairs with prior_crown_96m_boundary to pin the boundary from both sides.
+id: prior_crown_outside_96m
+as_of: 2026-09-17
+patient: { id: "9001", name: "Adversarial Base", dob: 1975-05-20, sex: F, cdcp_client_id: "CDCP-0000-9001" }
+provider: { name: "Dr. Priya Lau", licence: "ON-48213" }
+treatment:
+  code: "27211"
+  description: "Crown, porcelain fused to metal"
+  tooth: 46
+  appointment: 2026-09-27
+  fee_cents: 128500
+  lab_codes: ["99112"]
+dentition:
+  missing: [18, 28, 38, 48]
+  restored_surfaces: { 46: [M, O, D, B, L] }
+history:
+  - { code: "27211", tooth: 46, date: 2018-09-16, description: "PFM crown" }
+  - { code: "01202", age: 40d }
+radiographs:
+  - { id: pa_46, view: PA, tooth: 46, age: 40d }
+  - { id: bw_r, view: BW, side: right, teeth: [14, 15, 16, 17, 44, 45, 46, 47], age: 40d }
+  - { id: bw_l, view: BW, side: left, teeth: [24, 25, 26, 27, 34, 35, 36, 37], age: 40d }
+perio_charts:
+  - { id: perio_full, age: 40d, sites: 6, depth: 2, examiner: "K. Osei RDH" }
+notes:
+  - id: note_1
+    age: 40d
+    author: "Dr. Priya Lau"
+    teeth: [46]
+    text: >-
+      46 PFM crown fractured through the porcelain, open margin distal. Plan replace crown 46.
+      No other treatment outstanding.
+tx_plans:
+  - { id: plan_46, age: 40d, pending: ["27211"], completed: ["27211", "01202"] }
+assertions:
+  - { criterion: no_active_perio, age: 2d }
+  - { criterion: crown_root_ratio, age: 2d }
+  - { criterion: no_furcation, age: 2d }
+  - { criterion: margin_3mm, age: 2d }
+  - { criterion: ferrule_1_5mm, age: 2d }
+  - { criterion: mesiodistal_space, age: 2d }
+  - { criterion: no_adjunctive_needed, age: 2d }
+  - { criterion: extensively_restored, age: 2d }
+  - { criterion: active_disease_addressed, age: 2d }

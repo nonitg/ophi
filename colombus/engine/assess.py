@@ -16,7 +16,7 @@ from colombus.rules.schema import EFFORT_ORDER, Requirement, RulePack
 ENGINE_VERSION = "0.1.0"
 
 NOTES = [
-    "Colombus checks documentation completeness against the cited CDCP rules. It does not predict or assert approval.",
+    "Colombus checks documentation completeness against the cited CDCP rules. It makes no statement about how the payer will decide.",
     "Every resubmission is treated by Sun Life as a brand-new request at the back of the queue; avoid duplicate submissions for the same case.",
     "Health Canada reported that more than 95% of preauthorizations were processed within 7 days as of May 2026.",
 ]
@@ -98,6 +98,11 @@ def rank_actions(results: list[RequirementResult], pack: RulePack, sched: Schedu
     that unblocks most; then cheapest effort; then requirement id as the final tiebreak so identical
     runs never reorder."""
     raw: list[tuple[int, int, int, int, str, Action]] = []
+    if sched.disposition == "not_required":
+        return []  # the crown requirements are informational only
+    if sched.disposition == "excluded":
+        return [Action(rank=1, blocking=True, effort="clinical", action_type="excluded_code",
+                       title="Procedure code falls under a listed CDCP exclusion", why=sched.detail, unblocks=["schedule"])]
     if sched.disposition == "not_in_schedule_b":
         a = Action(rank=0, blocking=True, effort="confirm_in_app", action_type="confirm_code",
                    title="Confirm the procedure code against the CDCP grid", why=sched.detail, unblocks=["schedule"])
@@ -123,6 +128,10 @@ def _fill(text: str, case: Case) -> str:
     return text.replace("{tooth}", str(case.requested_tooth)).replace("{at_appointment}", at)
 
 
+def _sentence(text: str) -> str:
+    return text[:1].upper() + text[1:] if text else text
+
+
 def _plural(n: int, one: str, many: str) -> str:
     return f"{n} {one if n == 1 else many}"
 
@@ -131,7 +140,7 @@ def _action_for(r: RequirementResult, req: Requirement, case: Case) -> Action:
     sf = r.shortfall
     if r.status == Status.AT_RISK:
         return Action(rank=0, blocking=False, effort=req.gap.effort, action_type="review_risk",
-                      title=f"Review risk: {req.label}", why=r.risk_reason or req.gap.why or "", unblocks=[r.requirement_id])
+                      title=f"Review risk: {req.label}", why=r.risk_reason or _sentence(r.detail) or req.gap.why or "", unblocks=[r.requirement_id])
     if r.status == Status.PENDING_CONFIRMATION:
         return Action(rank=0, blocking=True, effort="confirm_in_app", action_type="confirm_extraction",
                       title=f"Confirm: {sf.pending_confirmation[0]}" if sf.pending_confirmation else "Confirm proposed evidence",
@@ -139,7 +148,7 @@ def _action_for(r: RequirementResult, req: Requirement, case: Case) -> Action:
     if sf.not_met_assertions:
         return Action(rank=0, blocking=True, effort="clinical", action_type="criterion_not_met",
                       title=f"Dentist recorded a criterion as not met: {req.label}",
-                      why=r.detail, unblocks=[r.requirement_id])
+                      why=_sentence(r.detail), unblocks=[r.requirement_id])
     only_assertions_missing = sf.missing_assertions and not (sf.missing or sf.stale or sf.undated or sf.incomplete)
     if only_assertions_missing:
         n = len(sf.missing_assertions)
@@ -147,24 +156,28 @@ def _action_for(r: RequirementResult, req: Requirement, case: Case) -> Action:
         return Action(rank=0, blocking=True, effort="confirm_in_app", action_type="assert", title=title,
                       why=req.gap.why or "", unblocks=[r.requirement_id])
     if r.status == Status.INDETERMINATE:
-        why = r.detail
+        why = _sentence(r.detail)
         if sf.detail and sf.detail.startswith("driver reports"):
             title = f"Check the imaging software: {_fill(req.gap.title, case)[0].lower() + _fill(req.gap.title, case)[1:]}"
             return Action(rank=0, blocking=True, effort="reuse_existing", action_type="check_source", title=title,
                           why=why, unblocks=[r.requirement_id])
+        if sf.undated:
+            return Action(rank=0, blocking=True, effort="confirm_in_app", action_type="establish_date",
+                          title=f"Establish the capture date of the {sf.undated[0]}", why=why, unblocks=[r.requirement_id])
         return Action(rank=0, blocking=True, effort="confirm_in_app", action_type="resolve_unknown",
-                      title=f"Resolve: {_fill(req.gap.title, case)}", why=why, unblocks=[r.requirement_id])
+                      title=f"Cannot verify: {req.label}", why=why, unblocks=[r.requirement_id])
     title = _fill(r.near_miss_title or req.gap.title, case)
     why = req.gap.why or ""
     if sf.near_miss:
         why = sf.near_miss
     elif sf.stale:
         s = sf.stale[0]
-        why = f"The most recent {s.label} is dated {s.captured_at}, {s.age_days} days before submission ({s.over_by_days} days past the 12-month bound). " + why
+        why = f"The most recent {s.label} is dated {s.captured_at}, {_plural(s.age_days, 'day', 'days')} before submission ({_plural(s.over_by_days, 'day', 'days')} past the 12-month bound). " + why
     elif sf.incomplete and sf.incomplete.get("sites_per_tooth", 6) < 6:
         why = f"The perio chart dated {sf.incomplete['captured_at']} records {sf.incomplete['sites_per_tooth']} sites per tooth; CDCP requires 6 measurements per tooth. " + why
     elif sf.detail and not sf.missing:
-        why = f"{sf.detail}. " + why
+        why = f"{_sentence(r.detail)}. " + why
     elif sf.missing and sf.missing_assertions:
-        why = f"{r.detail}. " + why
-    return Action(rank=0, blocking=True, effort=req.gap.effort, action_type=req.gap.action_type, title=title, why=why, unblocks=[r.requirement_id])
+        # The fact that failed is the action; the dentist's pending answers are a separate action.
+        why = f"{r.detail.split('; awaiting')[0]}. " + why
+    return Action(rank=0, blocking=True, effort=req.gap.effort, action_type=req.gap.action_type, title=title, why=_sentence(why), unblocks=[r.requirement_id])

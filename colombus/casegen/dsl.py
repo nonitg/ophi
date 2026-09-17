@@ -69,17 +69,18 @@ def build_case(d: dict, default_id: str) -> Case:
         lab_codes=[str(c) for c in t.get("lab_codes", [])], appointment_date=resolve_date(t.get("appointment"), as_of),
     )
 
+    fdi = lambda x: notation.to_fdi(x, decl)  # noqa: E731 — every tooth number in the file is in the declared notation
     dent = d.get("dentition", {})
     dentition = DentitionState(
-        teeth={int(k): ToothState(v) for k, v in dent.get("teeth", {}).items()},
-        restored_surfaces={int(k): list(v) for k, v in dent.get("restored_surfaces", {}).items()},
-        endo_treated=set(dent.get("endo_treated", [])),
+        teeth={fdi(k): ToothState(v) for k, v in dent.get("teeth", {}).items()},
+        restored_surfaces={fdi(k): list(v) for k, v in dent.get("restored_surfaces", {}).items()},
+        endo_treated={fdi(x) for x in dent.get("endo_treated", [])},
     )
     # `missing: [18, 28]` shorthand
     for m in dent.get("missing", []):
-        dentition.teeth[int(m)] = ToothState.MISSING
+        dentition.teeth[fdi(m)] = ToothState.MISSING
 
-    history = [ProcedureHistoryItem(code=str(h["code"]), tooth_fdi=h.get("tooth"), surfaces=list(h.get("surfaces", [])),
+    history = [ProcedureHistoryItem(code=str(h["code"]), tooth_fdi=fdi(h["tooth"]) if h.get("tooth") is not None else None, surfaces=list(h.get("surfaces", [])),
                                     performed_on=resolve_date(h.get("date") or h.get("age"), as_of) or as_of,
                                     status=h.get("status", "completed"), description=h.get("description"))
                for h in d.get("history", [])]
@@ -99,7 +100,7 @@ def build_case(d: dict, default_id: str) -> Case:
             file=FileRef(path=r["file"]) if r.get("file") else None,
         ))
     for pc in d.get("perio_charts", []):
-        artifacts.append(_perio_chart(pc, as_of, ids, dentition))
+        artifacts.append(_perio_chart(pc, as_of, ids, dentition, decl))
     for ps in d.get("psr", []):
         artifacts.append(ChartArtifact(artifact_id=ps.get("id") or ids.next("psr"), type=ArtifactType.PSR,
                                        captured_at=resolve_date(ps.get("age", ps.get("date")), as_of), provenance=_prov("perio"),
@@ -148,12 +149,12 @@ def build_case(d: dict, default_id: str) -> Case:
                 assurance=assurance, source=Provenance(source_system=d.get("source", "casegen"), extraction_method="casegen"))
 
 
-def _perio_chart(pc: dict, as_of: date, ids: _Ids, dentition: DentitionState) -> ChartArtifact:
+def _perio_chart(pc: dict, as_of: date, ids: _Ids, dentition: DentitionState, decl: Notation) -> ChartArtifact:
     """`sites: 6` charts every present tooth; `teeth: {46: [3,2,3,4,3,3]}` overrides; `except: [17]` skips."""
     sites = int(pc.get("sites", 6))
     depth = int(pc.get("depth", 3))
-    skip = {int(x) for x in pc.get("except", [])}
-    explicit = {int(k): v for k, v in pc.get("teeth", {}).items()}
+    skip = {notation.to_fdi(x, decl) for x in pc.get("except", [])}
+    explicit = {notation.to_fdi(k, decl): v for k, v in pc.get("teeth", {}).items()}
     universe = dentition.present_teeth(notation.ALL_FDI_PERMANENT) if pc.get("full_mouth", True) else []
     teeth = []
     for t in sorted(set(universe) | set(explicit)):

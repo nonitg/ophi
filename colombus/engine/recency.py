@@ -47,4 +47,4 @@ def check(captured_at: date | None, as_of: date, months: int) -> RecencyResult:
                              "CDCP has not published which convention applies.")
     over = (as_of - expires_on).days
     return RecencyResult("stale", age_days, expires_on, over,
-                         f"captured {captured_at}, {age_days} days before {as_of}; {bound_txt} bound passed on {expires_on} ({over} days ago)")
+                         f"captured {captured_at}, {age_days} days before {as_of}; {bound_txt} bound passed on {expires_on} ({over} day{'' if over == 1 else 's'} ago)")

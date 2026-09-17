@@ -1,0 +1,13 @@
+#!/bin/bash
+# Drive the ABELDent UI on the lab VM. Thin wrapper over lab/vm/guest/ui.ps1 via `vm uexec`.
+#   scripts/ui windows | tree [-Name X] [-Depth N] | click -Name X | type -Text '...' | keys -Text '{ENTER}' | read -Name X
+# Each shell arg becomes one single-quoted PowerShell arg, so names with spaces survive.
+cd "$(dirname "$0")/.." || exit 1
+args=""
+for a in "$@"; do
+  case "$a" in
+    -*) args="$args $a" ;;
+    *)  args="$args '${a//\'/\'\'}'" ;;
+  esac
+done
+./lab/vm/vm uexec "& C:\colombus\ui.ps1$args"

@@ -8,7 +8,7 @@ The engine never sees the store; it only sees artifacts.
 from __future__ import annotations
 
 import hashlib
-import json
+import shutil
 import threading
 from datetime import UTC, date, datetime
 from pathlib import Path
@@ -34,6 +34,10 @@ VAR_DIR = ROOT / "var"
 # Ontario treatment coordinator). Shown as an estimate with its source, never as a measured saving.
 MANUAL_MINUTES_PER_PREAUTH = 25
 COORDINATOR_HOURLY_CAD = 26.70
+
+
+def _lf(text: str) -> str:
+    return text.replace("\r\n", "\n").replace("\r", "\n")
 
 
 class SignOff(BaseModel):
@@ -95,6 +99,7 @@ class Store:
         for p in self.root.glob("*.json"):
             p.unlink()
         (self.root / "audit.jsonl").unlink(missing_ok=True)
+        shutil.rmtree(self.root / "packets", ignore_errors=True)
 
 
 class CaseView(BaseModel):
@@ -170,6 +175,7 @@ class CaseService:
         self.store.audit(case_id, by, "confirm_proposal", f"{artifact_id}: {decision}")
 
     def save_narrative(self, case_id: str, text: str, by: str) -> None:
+        text = _lf(text)
         st = self.store.load(case_id)
         st.narrative_edits = text
         st.sign_off = None
@@ -178,6 +184,7 @@ class CaseService:
 
     def sign_off(self, case_id: str, by: str, licence: str | None, narrative_text: str) -> SignOff:
         """Non-skippable, one case, one human, one action. Blocked unless the verdict is READY."""
+        narrative_text = _lf(narrative_text)
         v = self.view(case_id)
         if v.assessment.verdict not in (Verdict.READY_TO_SUBMIT, Verdict.READY_WITH_RISKS):
             raise PermissionError(f"cannot sign off: verdict is {v.assessment.verdict}")

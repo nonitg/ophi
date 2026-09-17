@@ -1,0 +1,12 @@
+#!/bin/bash
+# One diff-after-action probe step: snapshot, then diff against the previous snapshot.
+#   scripts/probe-step <name> "<what was just done in the UI>"
+# First call only snapshots. Snapshots land in lab/out/probe/, diffs in lab/out/probe/<name>.diff.txt.
+set -uo pipefail
+cd "$(dirname "$0")/.." || exit 1
+name="${1:?name}"; note="${2:-}"
+prev="$(ls -t lab/out/probe/*.json 2>/dev/null | head -1 | xargs -n1 basename 2>/dev/null | sed 's/\.json$//')"
+./lab/tools/probe.py snapshot "$name" --note "$note" 2>/dev/null || exit 1
+if [ -n "$prev" ] && [ "$prev" != "$name" ]; then
+  ./lab/tools/probe.py diff "$prev" "$name" | tee "lab/out/probe/$name.diff.txt"
+fi

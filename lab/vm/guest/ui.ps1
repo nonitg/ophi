@@ -10,7 +10,7 @@
 #   ui.ps1 wait  -Name X [-Timeout 10]             wait for a control to appear
 param(
     [Parameter(Position = 0)][string]$Verb = 'tree',
-    [string]$Name, [string]$Id, [string]$Text, [string]$Type,
+    [string]$Name, [string]$Id, [string]$Text, [string]$Type, [int]$X = -1, [int]$Y = -1,
     [string]$Window = 'ABELDent',
     [int]$Depth = 3, [int]$Timeout = 10, [switch]$Partial
 )
@@ -56,9 +56,10 @@ function Find($scope) {
 function Describe($e) {
     $c = $e.Current
     $r = $c.BoundingRectangle
-    "{0} | name='{1}' | id='{2}' | class={3} | {4},{5} {6}x{7}{8}" -f $c.ControlType.ProgrammaticName.Replace('ControlType.', ''),
-        $c.Name, $c.AutomationId, $c.ClassName, [int]$r.X, [int]$r.Y, [int]$r.Width, [int]$r.Height,
-        $(if ($c.IsOffscreen) { ' OFFSCREEN' } else { '' })
+    # Offscreen controls report an infinite/empty rect; Int32 cast throws on it.
+    $geo = if ([double]::IsInfinity($r.X) -or $r.IsEmpty) { 'no-rect' } else { '{0},{1} {2}x{3}' -f [int]$r.X, [int]$r.Y, [int]$r.Width, [int]$r.Height }
+    "{0} | name='{1}' | id='{2}' | class={3} | {4}{5}" -f $c.ControlType.ProgrammaticName.Replace('ControlType.', ''),
+        $c.Name, $c.AutomationId, $c.ClassName, $geo, $(if ($c.IsOffscreen) { ' OFFSCREEN' } else { '' })
 }
 
 function Walk($e, $d) {
@@ -73,13 +74,33 @@ function Walk($e, $d) {
 function ClickCentre($e) {
     $r = $e.Current.BoundingRectangle
     if ($r.Width -le 0) { throw 'control has no on-screen rectangle' }
-    $x = [int]($r.X + $r.Width / 2); $y = [int]($r.Y + $r.Height / 2)
+    ClickXY ([int]($r.X + $r.Width / 2)) ([int]($r.Y + $r.Height / 2))
+}
+
+# Screen-coordinate click. Needed because ABELDent's patient-file views (Treatment, Perio,
+# Imaging) are not exposed through UI Automation at all; the screenshot is the only map.
+function RClickXY($x, $y) {
+    [System.Windows.Forms.Cursor]::Position = New-Object System.Drawing.Point($x, $y)
+    Start-Sleep -Milliseconds 80
+    $sig = '[DllImport("user32.dll")] public static extern void mouse_event(uint f, uint x, uint y, uint d, System.UIntPtr i);'
+    $m = Add-Type -MemberDefinition $sig -Name M2 -Namespace W32 -PassThru
+    $m::mouse_event(8, 0, 0, 0, [UIntPtr]::Zero); Start-Sleep -Milliseconds 60; $m::mouse_event(16, 0, 0, 0, [UIntPtr]::Zero)
+    "right-clicked ($x,$y)"
+}
+
+function ClickXY($x, $y, $double = $false) {
     [System.Windows.Forms.Cursor]::Position = New-Object System.Drawing.Point($x, $y)
     Start-Sleep -Milliseconds 80
     $sig = '[DllImport("user32.dll")] public static extern void mouse_event(uint f, uint x, uint y, uint d, System.UIntPtr i);'
     $m = Add-Type -MemberDefinition $sig -Name M -Namespace W32 -PassThru
     $m::mouse_event(2, 0, 0, 0, [UIntPtr]::Zero); Start-Sleep -Milliseconds 60; $m::mouse_event(4, 0, 0, 0, [UIntPtr]::Zero)
-    "clicked centre ($x,$y)"
+    if ($double) { Start-Sleep -Milliseconds 80; $m::mouse_event(2, 0, 0, 0, [UIntPtr]::Zero); Start-Sleep -Milliseconds 60; $m::mouse_event(4, 0, 0, 0, [UIntPtr]::Zero) }
+    "clicked ($x,$y)"
+}
+
+function FocusedElement {
+    $f = $A::FocusedElement
+    if ($f) { 'focus: ' + (Describe $f) } else { 'focus: none' }
 }
 
 switch ($Verb) {
@@ -131,6 +152,27 @@ switch ($Verb) {
         [System.Windows.Forms.SendKeys]::SendWait($Text)
         "typed '$Text'"
     }
+    'close' {
+        # Close a top-level window through its WindowPattern; clicking the X of a WPF window that
+        # ignores mouse input from another session does nothing.
+        $sig = '[DllImport("user32.dll")] public static extern bool PostMessage(IntPtr h, uint m, IntPtr w, IntPtr l);'
+        $u = Add-Type -MemberDefinition $sig -Name U -Namespace W32 -PassThru
+        $n = 0
+        foreach ($w in $root.FindAll('Children', $true_)) {
+            if ($w.Current.Name -notlike "$Window*") { continue }
+            $h = [IntPtr]$w.Current.NativeWindowHandle
+            "closing '{0}' hwnd={1} offscreen={2}" -f $w.Current.Name, $h, $w.Current.IsOffscreen
+            $p = $null
+            if ($w.TryGetCurrentPattern([System.Windows.Automation.WindowPattern]::Pattern, [ref]$p)) { try { $p.Close() } catch { 'pattern close failed: ' + $_.Exception.Message } }
+            [void]$u::PostMessage($h, 0x10, [IntPtr]::Zero, [IntPtr]::Zero)   # WM_CLOSE
+            $n++
+        }
+        if ($n -eq 0) { "no window like '$Window*'"; exit 1 }
+    }
+    'clickxy'  { ClickXY $X $Y }
+    'rclick'   { RClickXY $X $Y }
+    'dblclick' { ClickXY $X $Y $true }
+    'focus'    { FocusedElement }
     'keys' {
         [System.Windows.Forms.SendKeys]::SendWait($Text)
         "sent '$Text'"

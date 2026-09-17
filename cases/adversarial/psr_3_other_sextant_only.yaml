@@ -1,0 +1,48 @@
+# READY_WITH_RISKS — PSR 3 in S2 only; requested #46 is in S6 with 6-site measurements. Footnote 7: one
+# sextant at 3 (not the requested tooth's) triggers neither escalation. PSR path available ->
+# perio_chart at_risk via psr_interim_path ("will be considered" is discretionary, never satisfied).
+id: psr_3_other_sextant_only
+as_of: 2026-09-17
+patient: { id: "9001", name: "Adversarial Base", dob: 1975-05-20, sex: F, cdcp_client_id: "CDCP-0000-9001" }
+provider: { name: "Dr. Priya Lau", licence: "ON-48213" }
+treatment:
+  code: "27211"
+  description: "Crown, porcelain fused to metal"
+  tooth: 46
+  appointment: 2026-09-27
+  fee_cents: 128500
+  lab_codes: ["99112"]
+dentition:
+  missing: [18, 28, 38, 48]
+  restored_surfaces: { 46: [M, O, D, B, L] }
+history:
+  - { code: "21225", tooth: 46, surfaces: [M, O, D, B, L], date: 2020-03-10 }
+  - { code: "01202", age: 40d }
+radiographs:
+  - { id: pa_46, view: PA, tooth: 46, age: 40d }
+  - { id: bw_r, view: BW, side: right, teeth: [14, 15, 16, 17, 44, 45, 46, 47], age: 40d }
+  - { id: bw_l, view: BW, side: left, teeth: [24, 25, 26, 27, 34, 35, 36, 37], age: 40d }
+psr:
+  - { id: psr_1, age: 40d, scores: { S1: 2, S2: 3, S3: 2, S4: 2, S5: 1, S6: 2 } }
+perio_charts:
+  - { id: perio_46_only, age: 40d, full_mouth: false, teeth: { 46: [3, 3, 3, 3, 3, 3] } }
+notes:
+  - id: note_1
+    age: 40d
+    author: "Dr. Priya Lau"
+    teeth: [46]
+    text: >-
+      46 five-surface amalgam, fractured lingual cusp, recurrent caries mesial. Vital, asymptomatic.
+      Plan PFM crown 46. No other treatment outstanding.
+tx_plans:
+  - { id: plan_46, age: 40d, pending: ["27211"], completed: ["21225", "01202"] }
+assertions:
+  - { criterion: no_active_perio, age: 2d }
+  - { criterion: crown_root_ratio, age: 2d }
+  - { criterion: no_furcation, age: 2d }
+  - { criterion: margin_3mm, age: 2d }
+  - { criterion: ferrule_1_5mm, age: 2d }
+  - { criterion: mesiodistal_space, age: 2d }
+  - { criterion: no_adjunctive_needed, age: 2d }
+  - { criterion: extensively_restored, age: 2d, note: "Five continuous surfaces MODBL, non-endodontically treated" }
+  - { criterion: active_disease_addressed, age: 2d }

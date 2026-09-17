@@ -7,7 +7,7 @@ Part A: Local rules
 2. Test things yourself rather than asking the user to test. Use browser automation (e.g. Playwright) for UI verification, unit tests for logic.
 
 3. Code standards:
-   - Functions under 50 lines, single responsibility
+   - Functions single responsibility
    - No duplicated logic — extract shared code
 
 4. For new features: write one happy-path test per public function or endpoint. Skip tests that duplicate higher-level coverage or test trivial/unlikely-to-fail code paths.
