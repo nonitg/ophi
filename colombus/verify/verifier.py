@@ -37,6 +37,8 @@ DPI_TOLERANCE = 1  # PNG stores pixels/metre, so 300 dpi round-trips as 299.9994
 
 class VerifyReport(BaseModel):
     ok: bool
+    shippable: bool = False  # ok AND signed by the treating provider for a READY verdict
+    signed: bool = False
     findings: list[str]
     checks: dict[str, bool]
     file_count: int
@@ -98,6 +100,8 @@ class _Manifest(BaseModel):
     file_count: int
     total_bytes: int
     preview: str
+    status: str
+    verdict: str
     narrative_sha256: str | None
     attestation: _Attestation | None
     files: list[_FileEntry]
@@ -372,9 +376,34 @@ def _check_sequence(pkt: _Packet) -> list[str]:
 
 
 def _check_copy_law(pkt: _Packet) -> list[str]:
-    text = pkt.index_text_lower()
-    return [f"{INDEX_NAME}: contains '{tok}' (copy law: never assert approval or coverage)"
-            for tok in COPY_LAW_TOKENS if tok in text]
+    """Colombus's own voice must not assert approval or coverage: index, and the narrative outside quotes."""
+    findings = [f"{INDEX_NAME}: contains '{tok}' (copy law: never assert approval or coverage)"
+                for tok in COPY_LAW_TOKENS if tok in pkt.index_text_lower()]
+    for e in pkt.listed:
+        if e.kind != "narrative_txt" or not pkt.exists(e.filename):
+            continue
+        own_voice = re.sub(r'"[^"]*"', " ", pkt.path(e.filename).read_text(encoding="ascii", errors="replace")).lower()
+        findings += [f"{e.filename}: contains '{tok}' outside a quotation (copy law)" for tok in COPY_LAW_TOKENS if tok in own_voice]
+    return findings
+
+
+SIGNED_VERDICTS = ("READY_TO_SUBMIT", "READY_WITH_RISKS")
+
+
+def _check_status(pkt: _Packet) -> list[str]:
+    """A signed packet carries an attestation for a READY verdict; a draft carries none."""
+    m = pkt.manifest
+    assert m is not None
+    findings = []
+    if m.status not in ("draft", "signed"):
+        findings.append(f"{MANIFEST_NAME}: status {m.status!r} is not draft|signed")
+    if m.status == "signed" and m.attestation is None:
+        findings.append(f"{MANIFEST_NAME}: status signed but no attestation")
+    if m.status == "draft" and m.attestation is not None:
+        findings.append(f"{MANIFEST_NAME}: status draft but an attestation is present")
+    if m.status == "signed" and m.verdict not in SIGNED_VERDICTS:
+        findings.append(f"{MANIFEST_NAME}: signed packet for verdict {m.verdict}; only {', '.join(SIGNED_VERDICTS)} may be signed")
+    return findings
 
 
 def _check_forbidden_tokens(pkt: _Packet, tokens: list[str]) -> list[str]:
@@ -411,6 +440,7 @@ MANIFEST_CHECKS: list[tuple[str, _Check]] = [
     ("narrative_hash", _check_narrative_hash),
     ("sequence_contiguous", _check_sequence),
     ("copy_law_in_index", _check_copy_law),
+    ("status_consistent", _check_status),
 ]
 
 
@@ -441,8 +471,11 @@ def verify_packet(packet_dir: Path, forbidden_tokens: list[str] | None = None) -
         if forbidden_tokens is not None:
             record("no_forbidden_tokens_in_filenames", _check_forbidden_tokens(pkt, forbidden_tokens))
 
+    signed = manifest is not None and manifest.status == "signed" and manifest.attestation is not None
     return VerifyReport(
         ok=all(checks.values()),
+        shippable=all(checks.values()) and signed,
+        signed=signed,
         findings=findings,
         checks=checks,
         file_count=len(pkt.packet_files),

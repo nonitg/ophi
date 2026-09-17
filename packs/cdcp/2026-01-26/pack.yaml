@@ -99,8 +99,11 @@ requirements:
   - id: claim_form
     label: Claim form (CDA/CLHIA standard, or computer-generated treatment form)
     clause: { source: matrix, ref: "Restorative services — Claim form: Yes" }
-    satisfied_by: { provided_by_packet: true }
-    gap: { title: Claim form, action_type: generate_form, effort: confirm_in_app }
+    satisfied_by:
+      require_all:
+        - { fact: client_identifiers_present }
+        - { provided_by_packet: true }
+    gap: { title: Record the client's CDCP identifier and date of birth for the claim form, action_type: chart_entry, effort: chart_entry }
 
   - id: tx_plan_details
     label: Treatment plan details — all relevant completed and pending treatment
@@ -141,7 +144,8 @@ requirements:
         recency: { months: 12 }
     gap:
       title: "Take a periapical of #{tooth}{at_appointment}"
-      why: CDCP crown criteria (crown-to-root ratio, restoration margin relative to the alveolar crest) are assessed on a periapical. Bitewings do not image the periapical region.
+      why: CDCP crown criteria (crown-to-root ratio, restoration margin relative to the alveolar crest) are assessed on a periapical.
+      near_miss_why: "A bitewing dated {bw_date} is on file for #{tooth}. Bitewings do not image the periapical region. CDCP crown criteria require assessment of crown-to-root ratio and restoration margin relative to the alveolar crest — both require a periapical."
       action_type: new_radiograph
       effort: new_radiograph
 
@@ -248,7 +252,7 @@ requirements:
   - id: frequency_tooth
     label: No CDCP crown on this tooth within the previous 96 months
     clause: { source: grid, ref: "Schedule B — 2.0 Restoration, crowns", quote: "1/96mo/tooth" }
-    satisfied_by: { fact: no_prior_code_on_tooth_within, prefix: "27", months: 96 }
+    satisfied_by: { fact: no_prior_code_on_tooth_within, codes: ["27201", "27211", "27301"], months: 96 }
     gap:
       title: Prior crown on this tooth within 96 months — above frequency
       why: The grid allows one crown per tooth per 96 months; a request above frequency is adjudicated as an exception.
@@ -258,7 +262,7 @@ requirements:
   - id: frequency_client
     label: Fewer than 4 crowns for this client within the previous 120 months
     clause: { source: grid, ref: "Schedule B — 2.0 Restoration, crowns", quote: "4/120mo/client" }
-    satisfied_by: { fact: prior_codes_count_below, prefix: "27", months: 120, max_count: 4 }
+    satisfied_by: { fact: prior_codes_count_below, codes: ["27201", "27211", "27301"], months: 120, max_count: 4 }
     gap:
       title: Client at crown frequency limit (4 per 120 months)
       why: The grid allows four crowns per client per 120 months.

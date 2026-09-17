@@ -29,6 +29,19 @@ def as_dentist(client: TestClient) -> None:
     client.cookies.set("actor", "dentist")
 
 
+def _draft(case_id: str) -> str:
+    """The template narrative for a demo case, as the packet screen would prefill it."""
+    from colombus.casegen.dsl import load_case
+    from colombus.engine.assess import assess
+    from colombus.extract.proposer import propose_for_case
+    from colombus.packet.narrative import draft_narrative
+    from colombus.rules.loader import default_pack
+    from colombus.service import CASES_DIR
+    case = load_case(CASES_DIR / f"{case_id}.yaml")
+    case = case.with_artifacts(propose_for_case(case))
+    return draft_narrative(case, assess(case, default_pack()), default_pack())
+
+
 def test_queue_lists_cases_with_verdicts(client):
     r = client.get("/")
     assert r.status_code == 200
@@ -113,6 +126,13 @@ def test_packet_download_and_pdf(client):
     r = client.get("/cases/whitfield/packet")
     assert r.status_code == 200
     assert client.get("/cases/whitfield/packet/preview.pdf").status_code == 200
+    # Unsigned: a draft preview exists, but the packet cannot leave the building.
+    assert client.get("/cases/whitfield/packet/download").status_code == 409
+    client.cookies.set("actor", "dentist")
+    narrative = client.get("/cases/whitfield/packet").text
+    assert "draft" in narrative and "not for submission" in narrative
+    r = client.post("/cases/whitfield/sign-off", data={"narrative": _draft("whitfield")})
+    assert r.status_code == 303
     r = client.get("/cases/whitfield/packet/download")
     assert r.status_code == 200
     assert r.headers["content-type"] == "application/zip"
@@ -156,7 +176,8 @@ def test_actor_cookie_and_reset(client):
 
 
 def test_copy_law_in_colombus_voice(client):
-    for path in ["/", "/cases/singh", "/cases/deng", "/cases/rosco", "/settings"]:
+    # Look-Back is excluded: it reports Sun Life's recorded decisions ("approved"/"denied"), not Colombus's voice.
+    for path in ["/", "/cases/singh", "/cases/deng", "/cases/rosco", "/cases/whitfield/packet", "/settings"]:
         html = client.get(path).text
         hits = [m.group(0) for m in FORBIDDEN.finditer(html)]
         assert not hits, f"{path}: {hits}"

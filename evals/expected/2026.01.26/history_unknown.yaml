@@ -14,5 +14,6 @@ requirements:
   restorability: satisfied
   extensively_restored: satisfied
   lab_codes_current: satisfied
-top_action: 'Resolve: Client at crown frequency limit (4 per 120 months)'
+top_action: 'Cannot verify: Fewer than 4 crowns for this client within the previous
+  120 months'
 blocking_actions: 2

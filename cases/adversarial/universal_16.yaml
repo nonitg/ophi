@@ -4,8 +4,7 @@
 # 3rd is in occlusion — 26 and 27 are missing and the dentist asserts occlusion, so tooth_eligibility is
 # satisfied via the exception path. Radiograph and note teeth are also written in Universal.
 #
-# casegen applies `notation` to treatment, radiographs and notes only. `dentition` and `history` teeth
-# below are FDI (28, 26, 27) — see the eval report; the dentition universe is internal to the engine.
+# Every tooth number in this file is Universal: 1=FDI 18, 14=FDI 26, 15=FDI 27, 16=FDI 28, 17=FDI 38, 32=FDI 48.
 id: universal_16
 as_of: 2026-09-17
 notation: universal
@@ -19,10 +18,10 @@ treatment:
   fee_cents: 128500
   lab_codes: ["99112"]
 dentition:
-  missing: [18, 26, 27, 38, 48]
-  restored_surfaces: { 28: [M, O, D, B, L] }
+  missing: [1, 14, 15, 17, 32]
+  restored_surfaces: { 16: [M, O, D, B, L] }
 history:
-  - { code: "21225", tooth: 28, surfaces: [M, O, D, B, L], date: 2020-03-10 }
+  - { code: "21225", tooth: 16, surfaces: [M, O, D, B, L], date: 2020-03-10 }
   - { code: "01202", age: 40d }
 radiographs:
   - { id: pa_u16, view: PA, tooth: 16, age: 40d }

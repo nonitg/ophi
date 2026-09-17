@@ -32,7 +32,8 @@ class LookBackRow(BaseModel):
     submitted_on: date
     decision: str  # denied | approved
     fee_dollars: float
-    gaps: list[str] = Field(default_factory=list)  # labels of unsatisfied documentation requirements
+    gaps: list[str] = Field(default_factory=list)  # labels of documentation requirements confirmed unsatisfied
+    unverifiable: list[str] = Field(default_factory=list)  # source could not see the section; never counted as a gap
     other_open: list[str] = Field(default_factory=list)  # non-document requirements not satisfied (assertions etc.)
     resubmitted: bool = False
     resubmitted_decision: str | None = None
@@ -75,14 +76,15 @@ def load_rows(cases_dir: Path = LOOKBACK_DIR) -> list[LookBackRow]:
         d["as_of"] = outcome["submitted"]  # judge the chart as it stood on the day it was sent
         case = build_case(d, f.stem)
         a = assess(case, pack)
-        gaps = [r.label for r in a.requirements if r.applicable and r.requirement_id in DOCUMENT_REQUIREMENTS
-                and r.status in (Status.UNSATISFIED, Status.INDETERMINATE)]
+        docs = [r for r in a.requirements if r.applicable and r.requirement_id in DOCUMENT_REQUIREMENTS]
+        gaps = [r.label for r in docs if r.status == Status.UNSATISFIED]
+        unverifiable = [r.label for r in docs if r.status == Status.INDETERMINATE]
         other = [r.label for r in a.requirements if r.applicable and r.requirement_id not in DOCUMENT_REQUIREMENTS
                  and r.status not in (Status.SATISFIED, Status.NOT_APPLICABLE)]
         rows.append(LookBackRow(
             case_id=case.case_id, patient_label=_initials(case.patient.display_name), code=case.treatment.code,
             tooth_fdi=case.requested_tooth, submitted_on=case.as_of, decision=outcome["decision"],
-            fee_dollars=(case.treatment.fee_cents or 0) / 100, gaps=gaps, other_open=other,
+            fee_dollars=(case.treatment.fee_cents or 0) / 100, gaps=gaps, unverifiable=unverifiable, other_open=other,
             resubmitted=bool(outcome.get("resubmitted", False)), resubmitted_decision=outcome.get("resubmitted_decision"),
             denial_text=outcome.get("denial_text"),
         ))

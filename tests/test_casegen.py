@@ -77,20 +77,29 @@ def test_partial_chart_when_not_full_mouth():
     assert p.teeth_charted == {46}
 
 
-def test_universal_notation_converts_treatment_radiographs_and_notes():
+def test_universal_notation_converts_every_tooth_field():
+    """A source that declares Universal writes every tooth number in Universal; nothing stays mixed."""
     d = ready_dict()
     d["notation"] = "universal"
     d["treatment"]["tooth"] = 16                       # Universal 16 = FDI 28
+    d["dentition"] = {"missing": [1, 17, 32], "restored_surfaces": {30: ["M", "O"]}}   # 1=FDI 18, 30=FDI 46
+    d["history"] = [{"code": "21223", "tooth": 30, "date": "2020-01-01"}]
     d["radiographs"] = [{"id": "pa", "view": "PA", "tooth": 16, "age": "10d"},
                         {"id": "bw", "view": "BW", "teeth": [3, 14], "age": "10d"}]   # Universal 3 = FDI 16, 14 = FDI 26
+    d["perio_charts"] = [{"id": "perio", "age": "10d", "sites": 6, "teeth": {30: [3, 3, 3, 3, 3, 3]}, "except": [2]}]  # 2 = FDI 17
     d["notes"] = [{"id": "n", "age": "10d", "teeth": [16], "text": "x"}]
     case = build_case(d, "t")
     assert case.treatment.tooth.tooth_fdi == 28
     assert case.treatment.tooth.tooth_as_written == "16"
     assert case.treatment.tooth.notation_declared == Notation.UNIVERSAL
+    assert case.dentition.state(18).value == "missing" and case.dentition.state(48).value == "missing"
+    assert case.dentition.restored_surfaces == {46: ["M", "O"]}
+    assert case.procedure_history[0].tooth_fdi == 46
     assert case.artifact("pa").teeth_fdi == [28]
     assert case.artifact("bw").teeth_fdi == [16, 26]
     assert case.artifact("n").teeth_fdi == [28]
+    charted = case.artifact("perio").payload.teeth_charted
+    assert 46 in charted and 17 not in charted
 
 
 def test_notation_defaults_to_fdi():

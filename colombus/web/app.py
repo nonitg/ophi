@@ -7,7 +7,9 @@ parallel; each is imported lazily and the screen degrades to an explanatory plac
 from __future__ import annotations
 
 import csv
+import hashlib
 import io
+import json
 import shutil
 import zipfile
 from datetime import UTC, datetime
@@ -18,7 +20,12 @@ from fastapi.responses import FileResponse, HTMLResponse, RedirectResponse, Resp
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
-from colombus.service import CaseService, CaseView
+from colombus.lookback import run_lookback
+from colombus.packet.build import build_packet
+from colombus.packet.documents import narrative_ascii
+from colombus.packet.narrative import draft_narrative
+from colombus.verify.verifier import verify_packet
+from colombus.service import CaseService, CaseView, NarrativeInvalid, identity_tokens
 from colombus.web import present
 from colombus.web.present import ACTORS, DEFAULT_ACTOR, READY_VERDICTS, Actor
 
@@ -80,10 +87,6 @@ def _narrative(view: CaseView, pack) -> tuple[str, str | None]:
     """Saved edits win; otherwise the template drafter. Returns (text, unavailable_reason)."""
     if view.state.narrative_edits is not None:
         return view.state.narrative_edits, None
-    try:
-        from colombus.packet.narrative import draft_narrative
-    except ImportError:
-        return "", "Narrative drafter not available yet — write the clinical rationale here."
     return draft_narrative(view.case, view.assessment, pack), None
 
 
@@ -91,21 +94,29 @@ def _build_packet(request: Request, view: CaseView, narrative: str) -> dict:
     """Assemble the packet into var/packets/{case_id}/ and run the independent verifier over it."""
     out = _packet_dir(request, view.case.case_id)
     result: dict = {"dir": out, "manifest": None, "files": [], "report": None, "unavailable": None, "pdf": out / "preview.pdf"}
-    try:
-        from colombus.packet.build import build_packet
-    except ImportError:
-        result["unavailable"] = "Packet renderer not available yet."
-        return result
-    result["manifest"] = build_packet(view.case, view.assessment, out, narrative_text=narrative,
-                                      sign_off=view.state.sign_off, pack=_svc(request).pack)
-    result["files"] = present.manifest_files(result["manifest"])
-    try:
-        from colombus.verify.verifier import verify_packet
-    except ImportError:
-        result["verifier_unavailable"] = "Independent verifier not available yet."
-        return result
-    result["report"] = verify_packet(out, forbidden_tokens=view.case.patient.display_name.split())
+    sign_off = view.state.sign_off if view.signed else None  # a stale sign-off never reaches the packet
+    manifest = _existing_manifest(out, view, narrative, sign_off)
+    if manifest is None:
+        manifest = build_packet(view.case, view.assessment, out, narrative_text=narrative, sign_off=sign_off, pack=_svc(request).pack)
+    result["manifest"] = manifest
+    result["files"] = present.manifest_files(manifest)
+    result["report"] = verify_packet(out, forbidden_tokens=identity_tokens(view.case))
     return result
+
+
+def _existing_manifest(out: Path, view: CaseView, narrative: str, sign_off) -> dict | None:
+    """Reuse the packet on disk when nothing it depends on has changed (GET must not churn files)."""
+    p = out / "manifest.json"
+    if not p.exists():
+        return None
+    try:
+        m = json.loads(p.read_text())
+    except ValueError:
+        return None
+    same = (m.get("assessment_id") == view.assessment.assessment_id
+            and m.get("narrative_sha256") == hashlib.sha256(narrative_ascii(narrative).encode()).hexdigest()
+            and m.get("status") == ("signed" if sign_off else "draft"))
+    return m if same else None
 
 
 # --- screen 1: queue --------------------------------------------------------------------------------
@@ -141,7 +152,7 @@ def assert_criterion(request: Request, case_id: str, criterion_id: str = Form(..
     if not actor.is_dentist:
         return _error(request, 403, "Dentist only", "Clinician assertions are attributed clinical judgment; only the treating dentist records them.")
     try:
-        _svc(request).assert_criterion(case_id, criterion_id, value, actor.name, actor.licence, note.strip() or None)
+        _svc(request).assert_criterion(case_id, criterion_id, value, actor.name, actor.licence, note.strip() or None, role=actor.role)
     except (KeyError, ValueError) as e:
         return _error(request, 400, "Invalid assertion", str(e))
     return RedirectResponse(f"/cases/{case_id}#assertions", status_code=303)
@@ -187,10 +198,12 @@ def packet_download(request: Request, case_id: str):
     view = _view(request, case_id)
     if view is None:
         return _error(request, 404, "Case not found", f"No case '{case_id}' in the demo set.")
+    if not view.signed:
+        return _error(request, 409, "Not signed", "The packet can be downloaded once the treating dentist has signed off on this assessment.")
     narrative, _ = _narrative(view, _svc(request).pack)
     pk = _build_packet(request, view, narrative)
-    if pk["unavailable"]:
-        return _error(request, 503, "Packet not available", pk["unavailable"])
+    if not pk["report"].shippable:
+        return _error(request, 409, "Verifier refused", "The independent verifier did not pass this packet: " + "; ".join(pk["report"].findings))
     buf = io.BytesIO()
     with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as z:
         for f in sorted(pk["dir"].rglob("*")):
@@ -203,8 +216,17 @@ def packet_download(request: Request, case_id: str):
 
 @router.post("/cases/{case_id}/narrative")
 def save_narrative(request: Request, case_id: str, narrative: str = Form("")):
-    _svc(request).save_narrative(case_id, _form_text(narrative), _actor(request).name)
+    try:
+        _svc(request).save_narrative(case_id, _form_text(narrative), _actor(request).name)
+    except NarrativeInvalid as e:
+        return _narrative_error(request, e)
     return RedirectResponse(f"/cases/{case_id}/packet", status_code=303)
+
+
+def _narrative_error(request: Request, e: NarrativeInvalid) -> HTMLResponse:
+    return _error(request, 409, "Narrative not accepted",
+                  "Every clinical statement must be grounded in the chart and Colombus's own voice must not assert approval or coverage. "
+                  + " ".join(e.violations))
 
 
 @router.post("/cases/{case_id}/sign-off")
@@ -213,7 +235,9 @@ def sign_off(request: Request, case_id: str, narrative: str = Form("")):
     if not actor.is_dentist:
         return _error(request, 403, "Dentist only", "Sign-off is the treating dentist's attestation; only the dentist may record it.")
     try:
-        _svc(request).sign_off(case_id, actor.name, actor.licence, _form_text(narrative))
+        _svc(request).sign_off(case_id, actor.name, actor.licence, _form_text(narrative), role=actor.role)
+    except NarrativeInvalid as e:
+        return _narrative_error(request, e)
     except PermissionError as e:
         return _error(request, 409, "Sign-off is blocked", f"{e}. Sign-off is blocked until every requirement is satisfied or accepted.")
     return RedirectResponse(f"/cases/{case_id}/packet", status_code=303)
@@ -230,10 +254,7 @@ def mark_submitted(request: Request, case_id: str):
 
 @router.get("/look-back", response_class=HTMLResponse)
 def look_back(request: Request):
-    try:
-        from colombus.lookback import run_lookback
-    except ImportError:
-        return _render(request, "lookback.html", report=None, unavailable="Look-Back is not available yet: the retrospective module has not landed.")
+    from colombus.lookback import run_lookback
     try:
         report = run_lookback()
     except Exception as e:  # a broken retrospective must not take the demo down

@@ -12,7 +12,7 @@ from colombus.cdm.models import (
 )
 from colombus.dental import notation, sextants
 from colombus.engine import recency
-from colombus.engine.models import EvidenceRef, LeafResult, Shortfall, StaleItem, Status
+from colombus.engine.models import SEVERITY, EvidenceRef, LeafResult, Shortfall, StaleItem, Status
 from colombus.rules.schema import AssertionCriterion, Find
 
 SECTION_OF: dict[ArtifactType, Section] = {
@@ -31,6 +31,7 @@ SECTION_OF: dict[ArtifactType, Section] = {
 class LeafContext:
     case: Case
     criteria: dict[str, AssertionCriterion]
+    near_miss_why: str | None = None  # the requirement's own near-miss sentence, from the pack
     demanded_sextants: list[str] = field(default_factory=list)  # set by a fired escalation
 
 
@@ -198,8 +199,9 @@ def _bitewing_near_miss(ctx: LeafContext, tooth: int) -> str | None:
     if not bws:
         return None
     bw = max(bws, key=lambda a: a.captured_at)  # type: ignore[arg-type,return-value]
-    return (f"A bitewing dated {bw.captured_at} is on file for #{tooth}. Bitewings do not image the periapical region. "
-            f"CDCP crown criteria require assessment of crown-to-root ratio and restoration margin relative to the alveolar crest — both require a periapical.")
+    if not ctx.near_miss_why:
+        return None
+    return ctx.near_miss_why.replace("{bw_date}", str(bw.captured_at)).replace("{tooth}", str(tooth))
 
 
 def _resolve_bilateral(f: Find, ctx: LeafContext) -> LeafResult:
@@ -231,7 +233,7 @@ def _resolve_bilateral(f: Find, ctx: LeafContext) -> LeafResult:
         sf.missing += r.shortfall.missing
         sf.stale += r.shortfall.stale
         sf.undated += r.shortfall.undated
-    worst = max(results.values(), key=lambda r: {Status.UNSATISFIED: 5, Status.INDETERMINATE: 4, Status.AT_RISK: 2, Status.SATISFIED: 1}.get(r.status, 0))
+    worst = max(results.values(), key=lambda r: SEVERITY[r.status])
     expires = min((r.expires_on for r in results.values() if r.expires_on), default=None)
     parts = [f"{s}: {r.detail}" for s, r in results.items()]
     return LeafResult(status=worst.status, matched=matched, shortfall=sf, expires_on=expires, detail="; ".join(parts))

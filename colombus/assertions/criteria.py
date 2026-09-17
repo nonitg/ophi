@@ -27,16 +27,10 @@ class CriterionContext(BaseModel):
     note: str | None = None
 
 
-def tooth_is_endo_treated(case: Case) -> bool:
-    t = case.requested_tooth
-    return t in case.dentition.endo_treated or any(
-        h.status == "completed" and h.tooth_fdi == t and h.code.startswith("33") for h in case.procedure_history)
-
-
 def extensively_restored_variant(case: Case) -> str:
     if notation.is_anterior(case.requested_tooth):
         return "anterior"
-    return "posterior_endo" if tooth_is_endo_treated(case) else "posterior_non_endo"
+    return "posterior_endo" if case.tooth_is_endo_treated() else "posterior_non_endo"
 
 
 def criterion_context(case: Case, pack: RulePack, criterion_id: str) -> CriterionContext:

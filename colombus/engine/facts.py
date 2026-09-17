@@ -44,6 +44,25 @@ def _adjacent_molars_missing(f: Fact, case: Case, pack: RulePack) -> LeafResult:
     return LeafResult(status=Status.UNSATISFIED, shortfall=Shortfall(detail=", ".join(present)), detail=f"{', '.join(present)} recorded present; the third-molar exception requires both first and second molars missing")
 
 
+def _code_matches(code: str, f: Fact) -> bool:
+    if f.codes:
+        return code in f.codes
+    return code.startswith(f.prefix or "")
+
+
+def _family(f: Fact) -> str:
+    return "/".join(f.codes) if f.codes else f"{f.prefix}xxx"
+
+
+def _client_identifiers_present(f: Fact, case: Case, pack: RulePack) -> LeafResult:
+    """The claim form needs the client's CDCP identifier and date of birth; Colombus cannot invent them."""
+    missing = [x for x, v in (("CDCP client ID", case.patient.cdcp_client_id), ("date of birth", case.patient.dob)) if not v]
+    if missing:
+        return LeafResult(status=Status.INDETERMINATE, shortfall=Shortfall(missing=missing),
+                          detail=f"{' and '.join(missing)} not on file; the claim form cannot be completed")
+    return LeafResult(status=Status.SATISFIED, detail="client identifiers on file (CDCP client ID, date of birth)")
+
+
 def _history_or_indeterminate(case: Case) -> LeafResult | None:
     sa = case.assurance_for(Section.PROCEDURE_HISTORY)
     if sa.availability in (Availability.UNKNOWN, Availability.DEGRADED):
@@ -55,10 +74,10 @@ def _no_prior_code_on_tooth_within(f: Fact, case: Case, pack: RulePack) -> LeafR
     if (r := _history_or_indeterminate(case)):
         return r
     since = case.as_of - relativedelta(months=f.months or 0)
-    hits = [h for h in case.procedure_history if h.status == "completed" and h.code.startswith(f.prefix or "")
+    hits = [h for h in case.procedure_history if h.status == "completed" and _code_matches(h.code, f)
             and h.tooth_fdi == case.requested_tooth and h.performed_on >= since]
     if not hits:
-        return LeafResult(status=Status.SATISFIED, detail=f"no completed {f.prefix}xxx on #{case.requested_tooth} since {since}")
+        return LeafResult(status=Status.SATISFIED, detail=f"no completed {_family(f)} on #{case.requested_tooth} since {since}")
     h = max(hits, key=lambda x: x.performed_on)
     return LeafResult(status=Status.UNSATISFIED, shortfall=Shortfall(detail=f"{h.code} on {h.performed_on}"),
                       detail=f"{h.code} completed on #{h.tooth_fdi} on {h.performed_on}, within {f.months} months of {case.as_of}")
@@ -68,12 +87,12 @@ def _prior_codes_count_below(f: Fact, case: Case, pack: RulePack) -> LeafResult:
     if (r := _history_or_indeterminate(case)):
         return r
     since = case.as_of - relativedelta(months=f.months or 0)
-    hits = [h for h in case.procedure_history if h.status == "completed" and h.code.startswith(f.prefix or "") and h.performed_on >= since]
+    hits = [h for h in case.procedure_history if h.status == "completed" and _code_matches(h.code, f) and h.performed_on >= since]
     n = len(hits)
     if n < (f.max_count or 0):
-        return LeafResult(status=Status.SATISFIED, detail=f"{n} completed {f.prefix}xxx since {since}; limit is {f.max_count} per {f.months} months")
+        return LeafResult(status=Status.SATISFIED, detail=f"{n} completed {_family(f)} since {since}; limit is {f.max_count} per {f.months} months")
     return LeafResult(status=Status.UNSATISFIED, shortfall=Shortfall(detail=f"{n} crowns"),
-                      detail=f"{n} completed {f.prefix}xxx since {since} ({', '.join(f'{h.code} #{h.tooth_fdi} {h.performed_on}' for h in hits)}); limit is {f.max_count} per {f.months} months")
+                      detail=f"{n} completed {_family(f)} since {since} ({', '.join(f'{h.code} #{h.tooth_fdi} {h.performed_on}' for h in hits)}); limit is {f.max_count} per {f.months} months")
 
 
 def _no_pending_codes_with_prefix(f: Fact, case: Case, pack: RulePack) -> LeafResult:
@@ -108,4 +127,5 @@ _HANDLERS = {
     "prior_codes_count_below": _prior_codes_count_below,
     "no_pending_codes_with_prefix": _no_pending_codes_with_prefix,
     "no_retired_codes": _no_retired_codes,
+    "client_identifiers_present": _client_identifiers_present,
 }

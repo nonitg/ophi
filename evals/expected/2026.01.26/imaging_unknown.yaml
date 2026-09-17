@@ -14,5 +14,6 @@ requirements:
   restorability: satisfied
   extensively_restored: satisfied
   lab_codes_current: satisfied
-top_action: 'Check the imaging software: take bitewings (right and left)'
+top_action: 'Check the imaging software: dated bitewing radiographs, right and left,
+  within 12 months'
 blocking_actions: 2

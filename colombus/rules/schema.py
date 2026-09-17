@@ -49,8 +49,9 @@ class Fact(BaseModel):
 
     fact: Literal[
         "age_at_least", "tooth_class_in", "adjacent_molars_missing", "no_prior_code_on_tooth_within",
-        "prior_codes_count_below", "no_pending_codes_with_prefix", "no_retired_codes",
+        "prior_codes_count_below", "no_pending_codes_with_prefix", "no_retired_codes", "client_identifiers_present",
     ]
+    codes: list[str] | None = None  # explicit code list for frequency facts (preferred over prefix)
     years: int | None = None
     classes: list[str] | None = None
     prefix: str | None = None
@@ -138,6 +139,7 @@ class AppliesWhen(BaseModel):
 class Gap(BaseModel):
     title: str
     why: str | None = None
+    near_miss_why: str | None = None  # rendered when related evidence exists but does not satisfy; {bw_date} {tooth}
     action_type: str
     effort: Effort
 

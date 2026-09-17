@@ -9,6 +9,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import date
 
+from colombus.assertions import criteria
 from colombus.cdm.models import (
     ArtifactType, AssertionPayload, Availability, Case, ChartArtifact, ExtractedDetailPayload, NotePayload,
     PerioChartPayload, PSRPayload, RadiographPayload,
@@ -284,42 +285,22 @@ def _segments(text: str, proposals: list[ChartArtifact]) -> list[dict]:
 # --- clinician assertions -------------------------------------------------------------------------
 
 
-def _variant_key(case: Case) -> str:
-    tooth = case.requested_tooth
-    if notation.is_anterior(tooth):
-        return "anterior"
-    endo_hist = any(h.code.startswith("33") and h.tooth_fdi == tooth and h.status == "completed" for h in case.procedure_history)
-    return "posterior_endo" if tooth in case.dentition.endo_treated or endo_hist else "posterior_non_endo"
-
-
 def assertion_rows(view: CaseView, pack: RulePack) -> tuple[list[dict], list[dict]]:
-    """(relevant, other). Relevant = a requirement in this assessment asks for it, or it has already been answered."""
+    """(relevant, other). Relevant = an applicable requirement asks for it, or it has already been answered."""
     case = view.case
     current: dict[str, AssertionPayload] = {}
     for art in case.artifacts_of(ArtifactType.CLINICIAN_ASSERTION):  # later artifacts (user input) win
         pl = art.payload
         assert isinstance(pl, AssertionPayload)
         current[pl.criterion_id] = pl
-    wanted: set[str] = set(current)
-    for r in view.assessment.requirements:
-        if r.applicable:
-            wanted |= set(r.shortfall.missing_assertions) | set(r.shortfall.not_met_assertions)
-    variant = _variant_key(case)
+    wanted = set(criteria.relevant_criteria(case, pack)) | set(current)
     relevant, other = [], []
     for cid, crit in pack.assertion_criteria.items():
-        row = _assertion_row(cid, crit, current.get(cid), variant, case)
+        ctx = criteria.criterion_context(case, pack, cid)
+        row = {"id": cid, "label": crit.label, "clause": crit.clause, "current": current.get(cid),
+               "variant": ctx.variant_text, "odontogram": ctx.hint}
         (relevant if cid in wanted else other).append(row)
     return relevant, other
-
-
-def _assertion_row(cid: str, crit: AssertionCriterion, cur: AssertionPayload | None, variant: str, case: Case) -> dict:
-    row = {"id": cid, "label": crit.label, "clause": crit.clause, "current": cur, "variant": None, "odontogram": None}
-    if crit.variants:
-        row["variant"] = crit.variants.get(variant)
-        surfaces = case.dentition.restored_surfaces.get(case.requested_tooth)
-        if surfaces:
-            row["odontogram"] = f"Odontogram: surfaces {''.join(surfaces)} restored"
-    return row
 
 
 # --- packet ---------------------------------------------------------------------------------------

@@ -345,3 +345,9 @@ class Case(BaseModel):
     @property
     def requested_tooth(self) -> int:
         return self.treatment.tooth.tooth_fdi
+
+    def tooth_is_endo_treated(self) -> bool:
+        """Odontogram flag or a completed 33xxx (RCT) on the requested tooth."""
+        t = self.requested_tooth
+        return t in self.dentition.endo_treated or any(
+            h.status == "completed" and h.tooth_fdi == t and h.code.startswith("33") for h in self.procedure_history)

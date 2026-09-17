@@ -15,7 +15,7 @@
     <div class="card">
       <h2>Preview <span class="muted">— what the adjudicator receives</span></h2>
       {% if pk.unavailable %}
-      <div class="note amber">{{ pk.unavailable }} The packet renderer is being built in parallel; this screen will embed <code>preview.pdf</code> when it lands.</div>
+      <div class="note amber">{{ pk.unavailable }}</div>
       {% else %}
       <iframe class="pdf" src="/cases/{{ case.case_id }}/packet/preview.pdf" title="Packet preview"></iframe>
       {% endif %}
@@ -44,7 +44,7 @@
     {% if pk.report %}
     <div class="verdict-line {{ 'ok' if pk.report.ok else 'bad' }}">
       {% if pk.report.ok %}
-      Independent verifier: PASS, <span class="num">{{ pk.report.file_count }}</span> files, <span class="num">{{ kb(pk.report.total_bytes) }}</span>
+      Independent verifier: PASS, <span class="num">{{ pk.report.file_count }}</span> files, <span class="num">{{ kb(pk.report.total_bytes) }}</span> · {% if pk.report.signed %}signed packet{% else %}draft — not signed, not for submission{% endif %}
       {% else %}
       Independent verifier: FAIL
       <ul>{% for f in pk.report.findings %}<li>{{ f }}</li>{% endfor %}</ul>
@@ -56,6 +56,7 @@
   </section>
 
   <section class="col">
+    {% if view.sign_off_stale %}<div class="note amber">A sign-off by {{ view.state.sign_off.signed_by }} on {{ view.state.sign_off.signed_at.strftime('%Y-%m-%d') }} was voided: the chart or an answer changed since (assessment {{ view.state.sign_off.assessment_id }} → {{ a.assessment_id }}). Review and sign again.</div>{% endif %}
     {% if view.signed %}{% set so = view.state.sign_off %}
     <div class="card signed-card">
       <h2>Signed off</h2>

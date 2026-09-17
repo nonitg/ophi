@@ -14,6 +14,7 @@ from __future__ import annotations
 import re
 from datetime import date
 
+from colombus.assertions.criteria import extensively_restored_variant
 from colombus.cdm.models import (
     ArtifactType, AssertionPayload, Case, ChartArtifact, ExtractedDetailPayload, Notation, NotePayload,
     ProcedureHistoryItem, ToothRef, TxPlanPayload,
@@ -141,15 +142,6 @@ def _section_findings(case: Case) -> list[str]:
     return out + (quotes or [NO_FINDINGS])
 
 
-def _restored_variant(case: Case) -> str:
-    tooth = case.requested_tooth
-    if notation.is_anterior(tooth):
-        return "anterior"
-    endo_in_history = any(h.code.startswith("33") and h.tooth_fdi == tooth and h.status == "completed"
-                          for h in case.procedure_history)
-    return "posterior_endo" if tooth in case.dentition.endo_treated or endo_in_history else "posterior_non_endo"
-
-
 def _assertion_lines(a: ChartArtifact, case: Case, pack: RulePack) -> list[str]:
     p = a.payload
     assert isinstance(p, AssertionPayload)
@@ -161,7 +153,7 @@ def _assertion_lines(a: ChartArtifact, case: Case, pack: RulePack) -> list[str]:
     cite = f" [{_cite(crit.clause)}]" if crit else ""
     out = [f"{who} {verb} on {fmt_date(p.asserted_at.date())}: {label}.{cite}"]
     if crit and crit.variants:
-        key = _restored_variant(case)
+        key = extensively_restored_variant(case)
         if key in crit.variants:
             out.append(f"  Definition applied ({_VARIANT_NAMES.get(key, key)}): {crit.variants[key]}")
     if p.note:

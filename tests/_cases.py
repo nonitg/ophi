@@ -28,7 +28,7 @@ ALL_CRITERIA = [
 _READY: dict = {
     "id": "inline",
     "as_of": "2026-09-17",
-    "patient": {"id": "9001", "name": "Base Patient", "dob": "1975-05-20", "sex": "F"},
+    "patient": {"id": "9001", "name": "Base Patient", "dob": "1975-05-20", "sex": "F", "cdcp_client_id": "CDCP-0000-9001"},
     "provider": {"name": "Dr. Priya Lau", "licence": "ON-48213"},
     "treatment": {"code": "27211", "description": "Crown, porcelain fused to metal", "tooth": 46,
                   "planned": "10d", "appointment": "2026-09-27", "fee_cents": 128500, "lab_codes": ["99112"]},

@@ -357,6 +357,8 @@ def test_history_unknown_makes_frequency_indeterminate_not_blocked():
 def test_schedule_dispositions(code, disposition, verdict):
     d = ready_dict()
     d["treatment"]["code"] = code
+    for plan in d.get("tx_plans", []):  # footnote 1: the plan must name the treatment being requested
+        plan["pending"] = [code]
     a = assess_dict(d)
     assert a.schedule.disposition == disposition
     assert a.verdict == verdict

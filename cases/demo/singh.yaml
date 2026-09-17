@@ -1,4 +1,4 @@
-# Beat 3 of the demo: a bitewing is on file, but bitewings do not image the apex.
+# Beat 3 of the demo: bitewings are on file and image #16, but no periapical exists — bitewings do not image the apex.
 id: singh
 as_of: 2026-09-17
 clinic: Fictional Dental Centre
@@ -23,7 +23,6 @@ history:
 radiographs:
   - { id: bw_r_2026, view: BW, side: right, teeth: [14, 15, 16, 17, 44, 45, 46, 47], date: 2026-08-02 }
   - { id: bw_l_2026, view: BW, side: left, teeth: [24, 25, 26, 27, 34, 35, 36, 37], date: 2026-08-02 }
-  - { id: pa_16_2023, view: PA, tooth: 16, date: 2023-11-14 }
 perio_charts:
   - { id: perio_2026, date: 2026-03-04, sites: 6, depth: 3, teeth: { 16: [3, 3, 4, 3, 3, 3] }, examiner: "K. Osei RDH" }
 notes:

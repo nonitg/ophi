@@ -23,6 +23,7 @@ from colombus.engine.assess import assess
 from colombus.engine.models import Assessment, Verdict
 from colombus.extract.proposer import propose_for_case
 from colombus.packet.documents import narrative_ascii
+from colombus.packet.narrative import validate_narrative
 from colombus.rules.loader import default_pack
 from colombus.rules.schema import RulePack
 
@@ -36,8 +37,27 @@ MANUAL_MINUTES_PER_PREAUTH = 25
 COORDINATOR_HOURLY_CAD = 26.70
 
 
+def _dentist_only(role: str, what: str) -> None:
+    if role != "dentist":
+        raise PermissionError(f"{what} may only be recorded by the treating dentist (actor role: {role})")
+
+
 def _lf(text: str) -> str:
     return text.replace("\r\n", "\n").replace("\r", "\n")
+
+
+class NarrativeInvalid(ValueError):
+    """The rationale text failed the grounding / copy-law validator. Carries the violations."""
+
+    def __init__(self, violations: list[str]) -> None:
+        super().__init__("; ".join(violations))
+        self.violations = violations
+
+
+def identity_tokens(case: Case) -> list[str]:
+    """Tokens that must never appear in packet filenames or the index (checked by the verifier)."""
+    raw = [*case.patient.display_name.replace(",", " ").split(), case.patient.patient_id, case.patient.cdcp_client_id or ""]
+    return [t for t in raw if len(t) >= 3]
 
 
 class SignOff(BaseModel):
@@ -114,7 +134,13 @@ class CaseView(BaseModel):
 
     @property
     def signed(self) -> bool:
-        return self.state.sign_off is not None
+        """Signed for THIS assessment. A chart change produces a new assessment id and voids the sign-off."""
+        so = self.state.sign_off
+        return so is not None and so.assessment_id == self.assessment.assessment_id
+
+    @property
+    def sign_off_stale(self) -> bool:
+        return self.state.sign_off is not None and not self.signed
 
     @property
     def dollars_at_risk(self) -> float:
@@ -174,7 +200,9 @@ class CaseService:
 
     # --- writes -------------------------------------------------------------------------------
 
-    def assert_criterion(self, case_id: str, criterion_id: str, value: str, by: str, licence: str | None, note: str | None = None) -> None:
+    def assert_criterion(self, case_id: str, criterion_id: str, value: str, by: str, licence: str | None, note: str | None = None,
+                         role: str = "dentist") -> None:
+        _dentist_only(role, "clinician assertions")
         if criterion_id not in self.pack.assertion_criteria:
             raise KeyError(criterion_id)
         if value not in ("met", "not_met", "not_applicable"):
@@ -196,15 +224,19 @@ class CaseService:
 
     def save_narrative(self, case_id: str, text: str, by: str) -> None:
         text = _lf(text)
+        self._validate(case_id, text)
         st = self.store.load(case_id)
         st.narrative_edits = text
         st.sign_off = None
         self.store.save(case_id, st)
         self.store.audit(case_id, by, "edit_narrative", f"{len(text)} chars")
 
-    def sign_off(self, case_id: str, by: str, licence: str | None, narrative_text: str) -> SignOff:
-        """Non-skippable, one case, one human, one action. Blocked unless the verdict is READY."""
+    def sign_off(self, case_id: str, by: str, licence: str | None, narrative_text: str, role: str = "dentist") -> SignOff:
+        """Non-skippable, one case, one human, one action. Dentist only. Blocked unless the verdict is READY
+        and the narrative passes the grounding validator."""
+        _dentist_only(role, "sign-off")
         narrative_text = _lf(narrative_text)
+        self._validate(case_id, narrative_text)
         v = self.view(case_id)
         if v.assessment.verdict not in (Verdict.READY_TO_SUBMIT, Verdict.READY_WITH_RISKS):
             raise PermissionError(f"cannot sign off: verdict is {v.assessment.verdict}")
@@ -232,6 +264,11 @@ class CaseService:
         self.store.reset()
 
     # --- helpers ------------------------------------------------------------------------------
+
+    def _validate(self, case_id: str, text: str) -> None:
+        violations = validate_narrative(text, self.view(case_id).case)
+        if violations:
+            raise NarrativeInvalid(violations)
 
     @staticmethod
     def minutes_estimate(case: Case, a: Assessment) -> dict:

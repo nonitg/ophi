@@ -1,7 +1,7 @@
 verdict: BLOCKED
-completeness: 5/12
+completeness: 4/12
 requirements:
-  claim_form: satisfied
+  claim_form: indeterminate
   tx_plan_details: satisfied_pending_confirmation via plan_in_note
   radiograph_pa: indeterminate
   radiograph_bw: indeterminate
@@ -14,4 +14,4 @@ requirements:
   restorability: indeterminate
   extensively_restored: indeterminate
 top_action: Complete a 6-site periodontal chart (all present teeth)
-blocking_actions: 7
+blocking_actions: 8

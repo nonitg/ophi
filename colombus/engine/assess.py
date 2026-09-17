@@ -9,7 +9,7 @@ from datetime import UTC, datetime
 from colombus.cdm.models import Case
 from colombus.engine.evaluate import evaluate_requirement
 from colombus.engine.models import (
-    Action, Assessment, Deadline, RequirementResult, RulesetRef, ScheduleResult, Status, Verdict, Workload,
+    SEVERITY, Action, Assessment, Deadline, RequirementResult, RulesetRef, ScheduleResult, Status, Verdict, Workload,
 )
 from colombus.rules.schema import EFFORT_ORDER, Requirement, RulePack
 
@@ -17,15 +17,20 @@ ENGINE_VERSION = "0.1.0"
 
 NOTES = [
     "Colombus checks documentation completeness against the cited CDCP rules. It makes no statement about how the payer will decide.",
-    "Every resubmission is treated by Sun Life as a brand-new request at the back of the queue; avoid duplicate submissions for the same case.",
-    "Health Canada reported that more than 95% of preauthorizations were processed within 7 days as of May 2026.",
+    "Sun Life processes preauthorizations first-come, first-processed; a resubmission enters the queue as a new request (Health Canada CDCP preauthorization guidance). Avoid duplicate submissions for the same case.",
+    "Health Canada reported that more than 95% of preauthorizations were processed within 7 days as of 2026-05-31 (CDCP statistics).",
 ]
 
 
 def assess(case: Case, pack: RulePack) -> Assessment:
     t0 = time.perf_counter()
     sched = check_schedule(case, pack)
-    results = [evaluate_requirement(r, case, pack) for r in pack.requirements]
+    if sched.disposition in ("not_required", "excluded"):
+        # No crown preauthorization rule applies; evaluating the crown requirements would invent gaps.
+        results = [RequirementResult(requirement_id=r.id, label=r.label, clause=r.clause, status=Status.NOT_APPLICABLE,
+                                     applicable=False, explanation=f"{r.id}: not evaluated — {sched.detail}") for r in pack.requirements]
+    else:
+        results = [evaluate_requirement(r, case, pack) for r in pack.requirements]
     verdict = decide(sched, results)
     actions = rank_actions(results, pack, sched, case)
     deadlines = sorted(
@@ -66,7 +71,7 @@ def check_schedule(case: Case, pack: RulePack) -> ScheduleResult:
     for fam in s.excluded_families:
         if code.startswith(fam.prefix):
             return ScheduleResult(disposition="excluded", preauth_required=None, clause=fam.clause,
-                                  detail=f"{code} falls under '{fam.label}', listed in {fam.clause.ref} as an exclusion. Exclusions are not eligible for reconsideration.")
+                                  detail=f"{code} falls under '{fam.label}', listed in {fam.clause.ref} as an exclusion. Exclusions are not open to reconsideration.")
     if code in s.preauth_always:
         return ScheduleResult(disposition="preauth_required", preauth_required=True,
                               detail=f"{code} is in Schedule B ({s.family_label}) on the {pack.jurisdiction.province} {pack.jurisdiction.provider_type.upper()} {pack.jurisdiction.grid_year} grid; preauthorization is always required.")
@@ -112,8 +117,7 @@ def rank_actions(results: list[RequirementResult], pack: RulePack, sched: Schedu
             continue
         req = pack.requirement(r.requirement_id)
         a = _action_for(r, req, case)
-        sev = {Status.UNSATISFIED: 0, Status.INDETERMINATE: 1, Status.PENDING_CONFIRMATION: 2, Status.AT_RISK: 3}[r.status]
-        raw.append((0 if a.blocking else 1, sev, -len(a.unblocks), EFFORT_ORDER.get(a.effort, 99), r.requirement_id, a))
+        raw.append((0 if a.blocking else 1, -SEVERITY[r.status], -len(a.unblocks), EFFORT_ORDER.get(a.effort, 99), r.requirement_id, a))
     raw.sort(key=lambda t: t[:5])
     out = []
     for i, t in enumerate(raw, start=1):
@@ -158,7 +162,7 @@ def _action_for(r: RequirementResult, req: Requirement, case: Case) -> Action:
     if r.status == Status.INDETERMINATE:
         why = _sentence(r.detail)
         if sf.detail and sf.detail.startswith("driver reports"):
-            title = f"Check the imaging software: {_fill(req.gap.title, case)[0].lower() + _fill(req.gap.title, case)[1:]}"
+            title = f"Check the imaging software: {req.label[0].lower() + req.label[1:]}"
             return Action(rank=0, blocking=True, effort="reuse_existing", action_type="check_source", title=title,
                           why=why, unblocks=[r.requirement_id])
         if sf.undated:

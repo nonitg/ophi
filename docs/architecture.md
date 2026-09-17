@@ -48,8 +48,12 @@ clause. The loader hashes the YAML; every assessment records the hash.
 - `evaluate.py`: escalations first (precedence order), then the boolean tree. `require_all` takes the
   worst status; `one_of` takes the best, and when nothing passes reports the cheapest, closest
   near-miss with its shortfall.
-- `assess.py`: schedule gate → verdict enum → ranked actions (blocking first; missing evidence before
-  confirmations; then unblock count, effort, requirement id) → deadlines → completeness counter.
+- `assess.py`: schedule gate → verdict enum → ranked actions → deadlines → completeness counter.
+  Action order is `(blocking desc, status severity: unsatisfied before indeterminate/pending/at_risk,
+  unblock count desc, effort asc, requirement id asc)` — the plan's key plus one tier so that evidence
+  that is actually missing outranks things a human only has to confirm. When no preauthorization rule
+  applies (code outside the pack, or a listed exclusion) the crown requirements are marked
+  `not_applicable` rather than evaluated, so the engine never invents gaps for a filling.
 
 **Proposer (`colombus/extract`).** Heuristic sentence matcher for plan language in signed-off notes.
 Every proposal carries a verbatim quote checked as an exact substring; otherwise it is dropped.
@@ -94,6 +98,22 @@ READY_WITH_RISKS · READY_TO_SUBMIT`. No score, no probability.
 | LLM extraction (Haiku) + Sonnet escalation | Heuristic proposer | Same contract, same verbatim-quote filter, no API key needed for the demo. `Proposer` protocol is the seam. |
 | ABELDent driver → CDM | casegen YAML → CDM | The Fictional Data fixture shape is still changing in the lab session (see PLAN.md status). `PmsRepository` (`colombus/sources`) is the seam; `USE_MOCK_PMS_API=true` serves `mocks/` without a VM. The casegen cases are the golden corpus the plan asked for anyway. |
 | Verdict `EXCLUDED_AS_CODED` not in the plan's enum | Added | Appendix E exclusions are the highest-value early exit; the plan lists it under "encode with high confidence". |
+
+## Open rule questions for the SME
+
+Surfaced by the adversarial corpus; each is encoded in the safe direction until answered.
+
+1. **Frequency counts any completed 27xxx**, not only CDCP-paid crowns. Over-blocks a pre-CDCP
+   private crown. Needs a payer flag on procedure history.
+2. **Appendix E exclusions** are encoded only for fixed prosthodontics (6xxxx). 3/4 crowns, veneers,
+   inlays/onlays need verified USC&LS code numbers; a 27xxx 3/4-crown code currently lands in
+   "confirm the code against the grid".
+3. **PSR supersession.** Escalations read the newest PSR within 12 months; the PSR-path leaf may match
+   an older complete PSR when the newest lacks a sextant. Does a newer partial PSR supersede?
+4. **Recency convention.** 12 calendar months vs 365 days: the one-day disagreement band across a
+   leap year yields `at_risk`. Unpublished by CDCP.
+5. **Footnote 6 relief** (rationale in lieu of charting) is not extended to crowns — policy decision
+   PD-004 in the pack.
 
 ## Things the MVP does not do
 

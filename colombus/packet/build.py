@@ -53,7 +53,7 @@ def build_packet(case: Case, assessment: Assessment, out_dir: Path, narrative_te
     for artifact, rids in _shippable_evidence(case, assessment):
         files.append(_render_evidence(artifact, rids, case, len(files) + 1, out_dir))
     files += _narrative_files(text, case, assessment, len(files) + 1, out_dir)
-    files.insert(0, _write_index(files, case, assessment, out_dir))
+    files.insert(0, _write_index(files, case, assessment, out_dir, signed=sign_off is not None))
     _check_budget(files)
 
     documents.render_preview(case, assessment, pack, text, files, sign_off, out_dir / "preview.pdf")
@@ -129,10 +129,10 @@ def _index_line(f: PacketFile, assessment: Assessment) -> str:
     return f"{f.seq:02d}  {f.filename} — {f.description}; supports {'; '.join(cites)}.{failure}"
 
 
-def _write_index(files: list[PacketFile], case: Case, assessment: Assessment, out_dir: Path) -> PacketFile:
+def _write_index(files: list[PacketFile], case: Case, assessment: Assessment, out_dir: Path, signed: bool) -> PacketFile:
     t = case.treatment
     lines = [
-        "Colombus packet index",
+        "Colombus packet index" + ("" if signed else " — DRAFT, not signed, not for submission"),
         f"Clinic: {case.clinic}",
         f"Reference: {assessment.assessment_id}",
         f"Procedure: {t.code} ({t.description or 'no description'}) on tooth #{t.tooth.tooth_fdi} (FDI)",
@@ -171,6 +171,8 @@ def _manifest(case: Case, assessment: Assessment, files: list[PacketFile], text:
         "file_count": len(files),
         "total_bytes": sum(f.bytes for f in files),
         "preview": "preview.pdf",
+        "status": "signed" if sign_off else "draft",
+        "verdict": assessment.verdict.value,
         "narrative_sha256": hashlib.sha256(txt.path.read_bytes()).hexdigest(),
         "attestation": sign_off.model_dump(mode="json") if sign_off else None,
         "files": [f.manifest_entry() for f in files],

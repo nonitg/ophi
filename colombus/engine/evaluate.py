@@ -8,8 +8,6 @@ sextant -> that whole sextant must be charted).
 
 from __future__ import annotations
 
-from datetime import date
-
 from colombus.cdm.models import ArtifactType, Case, PSRPayload
 from colombus.dental import sextants
 from colombus.engine import facts, leaves, recency
@@ -28,10 +26,7 @@ def applies(req: Requirement, case: Case) -> bool:
     if aw is None:
         return True
     if aw.tooth_has_endo_history is not None:
-        t = case.requested_tooth
-        has = t in case.dentition.endo_treated or any(
-            h.status == "completed" and h.tooth_fdi == t and h.code.startswith("33") for h in case.procedure_history)
-        if has != aw.tooth_has_endo_history:
+        if case.tooth_is_endo_treated() != aw.tooth_has_endo_history:
             return False
     if aw.treatment_has_lab_codes is not None and bool(case.treatment.lab_codes) != aw.treatment_has_lab_codes:
         return False
@@ -42,7 +37,7 @@ def evaluate_requirement(req: Requirement, case: Case, pack: RulePack) -> Requir
     if not applies(req, case):
         return RequirementResult(requirement_id=req.id, label=req.label, clause=req.clause, status=Status.NOT_APPLICABLE,
                                  applicable=False, explanation=f"{req.id}: does not apply to this case")
-    ctx = LeafContext(case=case, criteria=pack.assertion_criteria)
+    ctx = LeafContext(case=case, criteria=pack.assertion_criteria, near_miss_why=req.gap.near_miss_why)
     esc_results, fired = _evaluate_escalations(req.escalations, case)
     for e, er in zip(req.escalations, esc_results):
         if er.fired and e.demand == "sextant_perio_charting" and er.scope:
@@ -202,6 +197,3 @@ def _when(w: EscalationWhen, scores: dict[str, int | None], tooth: int) -> tuple
             matched.append(s)
     return len(matched) >= w.min_sextants, matched
 
-
-def expiry_of(r: RequirementResult) -> date | None:
-    return r.expires_on

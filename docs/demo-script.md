@@ -59,7 +59,9 @@ and attributed, the assertions block. Right: the editable rationale and the atte
 Below the preview: *Independent verifier: PASS — N files, X KB.* Say: *"A second program, sharing no
 code with the one that built this, reopened every file and re-checked the CDAnet limits."*
 
-Click **Sign off**. Then **Download packet**. Close with the line on screen:
+Before sign-off the verifier line reads *draft — not signed, not for submission* and the download is
+refused. Click **Sign off**. The verifier now reads *signed packet*. Then **Download packet**. Close with
+the line on screen:
 
 > **Colombus never transmits. You do.**
 
@@ -74,11 +76,11 @@ artifact it matched, its date, its age in days, and the day it goes stale.
 
 | Case | What it demonstrates |
 |---|---|
-| Singh #16 | Bitewing on file, no PA: the "bitewings do not image the apex" sentence |
+| Singh #16 | Bitewings on file that image #16, no periapical at all: the "bitewings do not image the apex" sentence |
 | Kowalchuk #46 | PA from 2023 (stale by 673 days) and a 4-point perio chart |
 | Deng #37 | PSR path: PSR 3 in the requested tooth's sextant demands that sextant's charting; retired lab code 99333; pending filling on #47 blocks "basic treatment complete" |
 | Tremblay #24 | Plan details live in a note → proposer → confirm; endodontically treated tooth adds the "healed" assertion |
-| Rosco #11 | The source cannot see imaging: *indeterminate*, not *missing*. "Check the imaging software" instead of "take a radiograph" |
+| Rosco #11 | No perio chart (a confirmed gap) plus a source that cannot see imaging: radiographs read *cannot verify*, not *missing*, and the action is "Check the imaging software" rather than "take a radiograph"; no CDCP client ID on file blocks the claim form |
 | Whitfield #36 | Fully documented and asserted: READY, 13 of 13 |
 
 ## Do not say
