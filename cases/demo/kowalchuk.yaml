@@ -1,0 +1,35 @@
+# Two gaps: no periapical within 12 months (last one 2023), and a 4-point perio chart.
+id: kowalchuk
+as_of: 2026-09-17
+patient: { id: "2210", name: "Teresa Kowalchuk", dob: 1961-11-02, sex: F, cdcp_client_id: "CDCP-7730-0918" }
+provider: { name: "Dr. Priya Lau", licence: "ON-48213" }
+treatment:
+  code: "27211"
+  description: "Crown, porcelain fused to metal"
+  tooth: 46
+  planned: 20d
+  appointment: 2026-09-20
+  fee_cents: 128500
+dentition:
+  missing: [18, 28, 38, 48, 36]
+  restored_surfaces: { 46: [M, O, D, B] }
+history:
+  - { code: "21224", tooth: 46, surfaces: [M, O, D, B], date: 2019-02-11 }
+  - { code: "01202", date: 2026-06-10 }
+radiographs:
+  - { id: pa_46_2023, view: PA, tooth: 46, date: 2023-11-14 }
+  - { id: bw_r, view: BW, side: right, teeth: [14, 15, 16, 17, 44, 45, 46, 47], date: 2026-06-10 }
+  - { id: bw_l, view: BW, side: left, teeth: [24, 25, 26, 27, 34, 35, 37], date: 2026-06-10 }
+perio_charts:
+  - { id: perio_4pt, date: 2026-06-10, sites: 4, depth: 3, examiner: "K. Osei RDH" }
+notes:
+  - id: note_0610
+    date: 2026-06-10
+    author: "Dr. Priya Lau"
+    type: "Exam"
+    teeth: [46]
+    text: >-
+      46 large MODB amalgam, recurrent decay at the distal margin, cusp fracture buccal. Plan crown 46.
+      Discussed CDCP coverage; patient consents to predetermination.
+tx_plans:
+  - { id: plan_46, date: 2026-06-10, pending: ["27211"], completed: ["21224", "01202"] }

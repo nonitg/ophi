@@ -1,0 +1,330 @@
+# CDCP preauthorization rule pack — crowns (27xxx), Ontario, GPSP grid, 2026.
+#
+# Two layers: `schedule` mirrors the published grid (which codes need preauth); `requirements`
+# encode the supporting-documentation matrix and the Guide's crown criteria. Every requirement
+# cites the clause that creates it. The SME edits this file; the engine's predicate vocabulary is
+# closed (see colombus/rules/schema.py) — anything not expressible here needs an engineer.
+#
+# Copy law: labels and gap text describe documentation completeness against a cited rule. They never
+# say approved, eligible or covered.
+
+id: cdcp-preauth-crowns
+version: "2026.01.26"
+payer: CDCP
+jurisdiction:
+  province: "ON"
+  provider_type: gpsp
+  grid_year: 2026
+effective_from: 2026-04-01   # Apr 1 2026 Guide + grids; documentation matrix dated 2026-01-26
+verified_on: 2026-09-17
+
+sources:
+  matrix:
+    title: CDCP supporting documentation requirements for preauthorization submissions (updated 2026-01-26)
+    url: https://www.canada.ca/content/dam/canada/employment-social-development/services/benefits/dental/dental-care-plan/providers/cdcp-supporting-documentation-requirements-for-preauthorization-submissions-en.pdf
+  guide:
+    title: CDCP Dental Benefits Guide (effective 2026-04-01)
+    url: https://www.canada.ca/en/services/benefits/dental/dental-care-plan/guide.html
+  grid:
+    title: CDCP Dental Benefit Grid — Ontario, General Practitioners and Specialists, 2026
+    url: https://www.sunlife.ca/content/dam/sunlife/regional/canada/documents/cxo/cdcp/grids/cdcp-on-gpsp-benefit-grid-2026-e.pdf
+  factsheet:
+    title: Health Canada factsheet on CDCP Guide and Grids updates, April 2026
+    url: https://nsdental.org/wp-content/uploads/2026/02/Factsheet-on-CDCP-Guide-and-Grids-updates-April-2026.pdf
+
+schedule:
+  service_category: restorative
+  # Schedule B crown codes on the ON GPSP 2026 grid. Preauthorization always required.
+  preauth_always: ["27201", "27211", "27301"]
+  # Codes in this family that are NOT listed above are not in the Schedule B crown list; the grid is
+  # the authority, so the engine asks a human to confirm rather than deciding.
+  family_prefix: "27"
+  family_label: Crowns
+  excluded_families:
+    - prefix: "6"
+      label: Fixed prosthodontics (bridges and all bridge-related procedures)
+      clause: { source: guide, ref: "Appendix E — Exclusions" }
+  frequency:
+    per_tooth: { count: 1, months: 96 }
+    per_client: { count: 4, months: 120 }
+    clause: { source: grid, ref: "Schedule B — 2.0 Restoration, crowns", quote: "4/120mo/client; 1/96mo/tooth" }
+  # April 2026 code-set changes: a stale PMS fee table is a silent denial generator.
+  retired_codes:
+    - { code: "99222", replaced_by: "99112", clause: { source: factsheet, ref: "Lab fee codes replaced, Apr 1 2026" } }
+    - { code: "99333", replaced_by: "99113", clause: { source: factsheet, ref: "Lab fee codes replaced, Apr 1 2026" } }
+
+# Criteria the dentist confirms. Colombus never asserts these; it records the clinician's answer,
+# attributed and timestamped, and renders it in the packet as their clinical judgment.
+assertion_criteria:
+  no_active_perio:
+    label: Absence of active periodontal disease at the requested tooth
+    clause: { source: guide, ref: "6.3.5 Crowns — restorability", quote: "absence of active periodontal disease" }
+  crown_root_ratio:
+    label: Crown-to-root ratio 1:1 or better
+    clause: { source: guide, ref: "6.3.5 Crowns — restorability", quote: "crown-to-root ratio <= 1:1" }
+  no_furcation:
+    label: No furcation involvement
+    clause: { source: guide, ref: "6.3.5 Crowns — restorability", quote: "absence of furcation involvement" }
+  margin_3mm:
+    label: Restoration margin at least 3 mm from the alveolar crest
+    clause: { source: guide, ref: "6.3.5 Crowns — restorability", quote: "restoration margin 3 mm from alveolar crest" }
+  ferrule_1_5mm:
+    label: Adequate ferrule (1.5 mm)
+    clause: { source: guide, ref: "6.3.5 Crowns — restorability", quote: "adequate ferrule (1.5 mm)" }
+  mesiodistal_space:
+    label: Mesio-distal space equivalent to the natural tooth
+    clause: { source: guide, ref: "6.3.5 Crowns — restorability", quote: "mesio-distal space equivalent to natural tooth" }
+  no_adjunctive_needed:
+    label: No crown lengthening, root resectioning or orthodontics required
+    clause: { source: guide, ref: "6.3.5 Crowns — restorability", quote: "no crown lengthening, root resectioning or orthodontics required" }
+  extensively_restored:
+    label: Tooth meets the CDCP "extensively restored" definition for its type
+    clause: { source: guide, ref: "6.3.5 Crowns — extensively restored" }
+    variants:
+      anterior: "Loss involves the entire incisal edge mesial-to-distal and extends cervically to both interproximal contacts"
+      posterior_endo: "Endodontically treated: 3 or more continuous surfaces involving both marginal ridges, or entire cusp destruction"
+      posterior_non_endo: "Non-endodontically treated: 5 continuous surfaces"
+  active_disease_addressed:
+    label: All basic treatment for active caries and periodontal disease is complete
+    clause: { source: guide, ref: "6.3.5 Crowns", quote: "All basic treatment addressing any existing active biological disease (caries and periodontal) must be completed before submitting requests for crowns." }
+  endo_healed:
+    label: The endodontically treated tooth has healed
+    clause: { source: guide, ref: "6.3.5 Crowns", quote: "An endodontically treated tooth must have healed before requesting a crown." }
+  third_molar_in_occlusion:
+    label: First and second molars are missing and the third molar is in occlusion with an opposing molar
+    clause: { source: guide, ref: "6.3.5 Crowns — tooth eligibility", quote: "third molars only where 1st and 2nd are missing and the 3rd is in occlusion with a prosthetic or natural molar" }
+
+requirements:
+
+  - id: claim_form
+    label: Claim form (CDA/CLHIA standard, or computer-generated treatment form)
+    clause: { source: matrix, ref: "Restorative services — Claim form: Yes" }
+    satisfied_by: { provided_by_packet: true }
+    gap: { title: Claim form, action_type: generate_form, effort: confirm_in_app }
+
+  - id: tx_plan_details
+    label: Treatment plan details — all relevant completed and pending treatment
+    clause:
+      source: matrix
+      ref: "Restorative services — Tx plan: Yes (footnote 1)"
+      quote: "Treatment plan details indicating all relevant completed and pending treatment needs ... Does not need to be a stand-alone document labelled 'treatment plan' so long as the information is included in the documentation submitted."
+    satisfied_by:
+      one_of:
+        - id: structured_plan
+          label: Treatment plan recorded in the PMS
+          remediation_cost: chart_entry
+          find: { artifact_type: tx_plan }
+        - id: plan_in_note
+          label: Plan details written in a clinical note
+          remediation_cost: confirm_in_app
+          find: { artifact_type: tx_plan_details }
+    gap:
+      title: Record treatment plan details (completed and pending needs)
+      why: CDCP requires treatment plan details for restorative preauthorizations; none was found in the plan or the notes.
+      action_type: chart_entry
+      effort: chart_entry
+
+  - id: radiograph_pa
+    label: Dated periapical radiograph of the requested tooth, within 12 months
+    clause:
+      source: matrix
+      ref: "Restorative services — PA+BW (R&L) <=12mo: Yes"
+      quote: "Intraoral radiographs are considered 'current' for preauthorization purposes if dated within the last 12 months of the preauthorization submission."
+      also: { source: guide, ref: "6.1.2 Radiograph standards" }
+    satisfied_by:
+      find:
+        artifact_type: radiograph
+        view: PA
+        for_tooth: requested
+        recency: { months: 12 }
+    gap:
+      title: "Take a periapical of #{tooth}{at_appointment}"
+      why: CDCP crown criteria (crown-to-root ratio, restoration margin relative to the alveolar crest) are assessed on a periapical. Bitewings do not image the periapical region.
+      action_type: new_radiograph
+      effort: new_radiograph
+
+  - id: radiograph_bw
+    label: Dated bitewing radiographs, right and left, within 12 months
+    clause: { source: matrix, ref: "Restorative services — PA+BW (R&L) <=12mo: Yes" }
+    satisfied_by:
+      find:
+        artifact_type: radiograph
+        view: BW
+        laterality: [right, left]
+        recency: { months: 12 }
+    gap:
+      title: Take bitewings (right and left)
+      why: The documentation matrix requires dated right and left bitewings within 12 months for restorative preauthorizations.
+      action_type: new_radiograph
+      effort: new_radiograph
+
+  - id: perio_chart
+    label: Dated complete periodontal chart, within 12 months
+    clause:
+      source: matrix
+      ref: "Restorative services — Complete perio chart <=12mo: Yes, crowns only (footnote 7)"
+      quote: "If a complete perio chart is not available, a dated PSR for each sextant plus 6-site periodontal measurements for each tooth requested, within last 12 months, will be considered."
+    satisfied_by:
+      one_of:
+        - id: complete_perio_chart
+          label: Complete periodontal chart, 6 sites per tooth, all present teeth
+          remediation_cost: chart_entry
+          find:
+            artifact_type: perio_chart
+            completeness: complete
+            recency: { months: 12 }
+        - id: psr_interim_path
+          label: PSR for every sextant plus 6-site measurements for the requested tooth
+          # Source wording is "will be considered", not "is accepted" — so this path never yields
+          # `satisfied`, only `at_risk`.
+          confers_status: at_risk
+          risk_reason: "PSR path is discretionary: CDCP wording is 'will be considered'."
+          remediation_cost: chart_entry
+          gap_title: "Record {missing} to complete the PSR path"
+          require_all:
+            - find: { artifact_type: psr, coverage: all_sextants, recency: { months: 12 } }
+            - find: { artifact_type: perio_measurements, for_tooth: requested, sites_per_tooth: 6, recency: { months: 12 } }
+            - not_escalated: psr_requires_full_chart
+    escalations:
+      - id: psr_requires_full_chart
+        precedence: 100
+        when: { any: [ { psr_score_gte: 4, min_sextants: 1 }, { psr_score_eq: 3, min_sextants: 2 } ] }
+        demand: complete_perio_chart
+        message: "PSR recorded {matched}. CDCP requires a complete periodontal chart when PSR is 4 in any sextant, or 3 in two or more sextants. The PSR-plus-six-site path is not available."
+      - id: psr_requires_sextant_chart
+        precedence: 50
+        when: { psr_score_eq: 3, in_sextant_of_requested_tooth: true }
+        demand: sextant_perio_charting
+        message: "PSR 3 in {matched}, the sextant of the requested tooth. CDCP requires 6-site charting of that sextant."
+    policy_decision:
+      id: PD-004
+      question: Footnote 6 grants a rationale in lieu of charting for additional SRP units. Does that relief extend to crowns?
+      decision: "No. Footnote 7 (PSR path) is the only alternative for crowns in this pack."
+      decided_on: 2026-09-17
+    gap:
+      title: Complete a 6-site periodontal chart (all present teeth)
+      why: CDCP requires a dated complete periodontal chart within 12 months for crown preauthorizations.
+      action_type: chart_entry
+      effort: chart_entry
+
+  - id: client_age
+    label: Client is 18 or older
+    clause: { source: guide, ref: "6.3.5 Crowns", quote: "preauth, 18+" }
+    satisfied_by: { fact: age_at_least, years: 18 }
+    gap:
+      title: Confirm client age
+      why: CDCP crown criteria apply to clients 18 and older.
+      action_type: review
+      effort: clinical
+
+  - id: tooth_eligibility
+    label: Requested tooth is an incisor, canine, premolar, first or second molar (third molars by exception)
+    clause:
+      source: guide
+      ref: "6.3.5 Crowns — tooth eligibility"
+      quote: "incisors, canines, bicuspids, 1st and 2nd molars; third molars only where 1st and 2nd are missing and the 3rd is in occlusion with a prosthetic or natural molar"
+    satisfied_by:
+      one_of:
+        - id: standard_tooth
+          label: Incisor, canine, premolar, first or second molar
+          remediation_cost: none
+          fact: tooth_class_in
+          classes: [incisor, canine, premolar, molar]
+        - id: third_molar_exception
+          label: Third molar with first and second molars missing, in occlusion (clinician confirms)
+          remediation_cost: confirm_in_app
+          require_all:
+            - { fact: tooth_class_in, classes: [third_molar] }
+            - { fact: adjacent_molars_missing }
+            - { find: { artifact_type: clinician_assertion, criterion: third_molar_in_occlusion } }
+    gap:
+      title: Confirm tooth eligibility
+      why: CDCP crown criteria list eligible tooth types; third molars qualify only by the stated exception.
+      action_type: assert
+      effort: confirm_in_app
+
+  - id: frequency_tooth
+    label: No CDCP crown on this tooth within the previous 96 months
+    clause: { source: grid, ref: "Schedule B — 2.0 Restoration, crowns", quote: "1/96mo/tooth" }
+    satisfied_by: { fact: no_prior_code_on_tooth_within, prefix: "27", months: 96 }
+    gap:
+      title: Prior crown on this tooth within 96 months — above frequency
+      why: The grid allows one crown per tooth per 96 months; a request above frequency is adjudicated as an exception.
+      action_type: review
+      effort: clinical
+
+  - id: frequency_client
+    label: Fewer than 4 crowns for this client within the previous 120 months
+    clause: { source: grid, ref: "Schedule B — 2.0 Restoration, crowns", quote: "4/120mo/client" }
+    satisfied_by: { fact: prior_codes_count_below, prefix: "27", months: 120, max_count: 4 }
+    gap:
+      title: Client at crown frequency limit (4 per 120 months)
+      why: The grid allows four crowns per client per 120 months.
+      action_type: review
+      effort: clinical
+
+  - id: basic_treatment_complete
+    label: All basic treatment for active caries and periodontal disease completed
+    clause:
+      source: guide
+      ref: "6.3.5 Crowns"
+      quote: "All basic treatment addressing any existing active biological disease (caries and periodontal) must be completed before submitting requests for crowns."
+    satisfied_by:
+      require_all:
+        - { fact: no_pending_codes_with_prefix, prefixes: ["20", "21", "22", "23", "41", "42", "43"], exclude_requested: true }
+        - { find: { artifact_type: clinician_assertion, criterion: active_disease_addressed } }
+    gap:
+      title: Complete pending basic treatment before submitting
+      why: The Guide requires basic caries and periodontal treatment to be completed before a crown request.
+      action_type: review
+      effort: clinical
+
+  - id: restorability
+    label: Restorability criteria confirmed by the treating dentist
+    clause: { source: guide, ref: "6.3.5 Crowns — restorability" }
+    satisfied_by:
+      require_all:
+        - { find: { artifact_type: clinician_assertion, criterion: no_active_perio } }
+        - { find: { artifact_type: clinician_assertion, criterion: crown_root_ratio } }
+        - { find: { artifact_type: clinician_assertion, criterion: no_furcation } }
+        - { find: { artifact_type: clinician_assertion, criterion: margin_3mm } }
+        - { find: { artifact_type: clinician_assertion, criterion: ferrule_1_5mm } }
+        - { find: { artifact_type: clinician_assertion, criterion: mesiodistal_space } }
+        - { find: { artifact_type: clinician_assertion, criterion: no_adjunctive_needed } }
+    gap:
+      title: Dentist to confirm restorability criteria
+      why: Four of these are radiographic measurements the dentist makes on the film; CDCP requires each to be met.
+      action_type: assert
+      effort: confirm_in_app
+
+  - id: extensively_restored
+    label: Tooth meets the "extensively restored" definition
+    clause: { source: guide, ref: "6.3.5 Crowns — extensively restored" }
+    satisfied_by: { find: { artifact_type: clinician_assertion, criterion: extensively_restored } }
+    gap:
+      title: Dentist to confirm the tooth is extensively restored per CDCP definition
+      why: CDCP defines "extensively restored" by tooth type; the dentist confirms which definition applies and that it is met.
+      action_type: assert
+      effort: confirm_in_app
+
+  - id: endo_healed
+    label: Endodontically treated tooth has healed
+    applies_when: { tooth_has_endo_history: true }
+    clause: { source: guide, ref: "6.3.5 Crowns", quote: "An endodontically treated tooth must have healed before requesting a crown." }
+    satisfied_by: { find: { artifact_type: clinician_assertion, criterion: endo_healed } }
+    gap:
+      title: Dentist to confirm healing of the endodontically treated tooth
+      why: CDCP requires an endodontically treated tooth to have healed before a crown is requested.
+      action_type: assert
+      effort: confirm_in_app
+
+  - id: lab_codes_current
+    label: Laboratory fee codes are valid for the 2026 date of service
+    applies_when: { treatment_has_lab_codes: true }
+    clause: { source: factsheet, ref: "Lab fee codes replaced, Apr 1 2026", quote: "99222, 99333 -> 99112, 99113" }
+    satisfied_by: { fact: no_retired_codes }
+    gap:
+      title: Replace retired lab fee code
+      why: Codes retired on 2026-04-01 are invalid for 2026 dates of service; a stale PMS fee table is a silent denial generator.
+      action_type: chart_entry
+      effort: chart_entry

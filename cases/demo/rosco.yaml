@@ -1,0 +1,28 @@
+# Modelled on Fictional Data patient 33: crown planned with no perio chart at all, and the imaging
+# section is Unknown — the driver cannot see radiographs. Absent and unseen must read differently.
+id: rosco
+as_of: 2026-09-17
+patient: { id: "33", name: "Patrica Rosco", dob: 1968-02-14, sex: F }
+provider: { name: "Dr. Priya Lau", licence: "ON-48213" }
+treatment:
+  code: "27211"
+  description: "Crown, porcelain fused to metal"
+  tooth: 11
+  planned: 30d
+  appointment: 2026-10-06
+  fee_cents: 128500
+dentition:
+  missing: [18, 28, 38, 48]
+  restored_surfaces: { 11: [M, I, D, L] }
+history:
+  - { code: "23113", tooth: 11, surfaces: [M, I, D], date: 2017-04-19 }
+assurance:
+  imaging: { availability: Unknown, reason: "ABELDent AImage/Imaging tables are empty in this install; pixel data is held by the imaging vendor" }
+  perio: Present
+notes:
+  - id: note_1
+    date: 2026-08-18
+    author: "Dr. Priya Lau"
+    teeth: [11]
+    text: >-
+      11 large MIDL composite, incisal edge fractured through to both contacts. Plan crown 11.

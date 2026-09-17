@@ -1,0 +1,45 @@
+# Fully documented and asserted. The one that should read READY_TO_SUBMIT.
+id: whitfield
+as_of: 2026-09-17
+patient: { id: "4481", name: "Dana Whitfield", dob: 1988-01-30, sex: F, cdcp_client_id: "CDCP-9021-3364" }
+provider: { name: "Dr. Priya Lau", licence: "ON-48213" }
+treatment:
+  code: "27211"
+  description: "Crown, porcelain fused to metal"
+  tooth: 36
+  planned: 3d
+  appointment: 2026-10-01
+  fee_cents: 128500
+  lab_codes: ["99112"]
+dentition:
+  missing: [18, 28, 38, 48]
+  restored_surfaces: { 36: [M, O, D, B, L] }
+history:
+  - { code: "21225", tooth: 36, surfaces: [M, O, D, B, L], date: 2020-09-01 }
+  - { code: "01202", date: 2026-07-08 }
+radiographs:
+  - { id: pa_36, view: PA, tooth: 36, date: 2026-07-08 }
+  - { id: bw_r, view: BW, side: right, teeth: [14, 15, 16, 17, 44, 45, 46, 47], date: 2026-07-08 }
+  - { id: bw_l, view: BW, side: left, teeth: [24, 25, 26, 27, 34, 35, 36, 37], date: 2026-07-08 }
+perio_charts:
+  - { id: perio_full, date: 2026-07-08, sites: 6, depth: 2, examiner: "K. Osei RDH" }
+notes:
+  - id: note_0708
+    date: 2026-07-08
+    author: "Dr. Priya Lau"
+    teeth: [36]
+    text: >-
+      36 five-surface amalgam with fractured lingual cusp, recurrent caries mesial. Vital, asymptomatic.
+      Plan PFM crown 36. No other treatment outstanding.
+tx_plans:
+  - { id: plan_36, date: 2026-07-08, pending: ["27211"], completed: ["21225", "01202"] }
+assertions:
+  - { criterion: no_active_perio, date: 2026-09-15 }
+  - { criterion: crown_root_ratio, date: 2026-09-15 }
+  - { criterion: no_furcation, date: 2026-09-15 }
+  - { criterion: margin_3mm, date: 2026-09-15 }
+  - { criterion: ferrule_1_5mm, date: 2026-09-15 }
+  - { criterion: mesiodistal_space, date: 2026-09-15 }
+  - { criterion: no_adjunctive_needed, date: 2026-09-15 }
+  - { criterion: extensively_restored, date: 2026-09-15, note: "Five continuous surfaces MODBL, non-endodontically treated" }
+  - { criterion: active_disease_addressed, date: 2026-09-15 }

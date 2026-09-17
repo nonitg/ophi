@@ -1,3 +1,9 @@
 lab/out/
 .playwright-mcp/
 __pycache__/
+.venv/
+var/
+out/
+*.egg-info/
+.pytest_cache/
+.hypothesis/

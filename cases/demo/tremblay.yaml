@@ -1,0 +1,36 @@
+# Documentation complete; the only thing open is the dentist's assertions. Plan details live in a note.
+id: tremblay
+as_of: 2026-09-17
+patient: { id: "3377", name: "Yves Tremblay", dob: 1970-07-15, sex: M, cdcp_client_id: "CDCP-1187-5540" }
+provider: { name: "Dr. Priya Lau", licence: "ON-48213" }
+treatment:
+  code: "27201"
+  description: "Crown, porcelain/ceramic"
+  tooth: 24
+  planned: 5d
+  appointment: 2026-09-29
+  fee_cents: 98500
+dentition:
+  missing: [18, 28, 38, 48]
+  restored_surfaces: { 24: [M, O, D, B, L] }
+  endo_treated: [24]
+history:
+  - { code: "33121", tooth: 24, date: 2025-11-03, description: "RCT, two canals" }
+  - { code: "23112", tooth: 24, surfaces: [O], date: 2025-11-03, description: "Temporary restoration" }
+  - { code: "01202", date: 2026-05-14 }
+radiographs:
+  - { id: pa_24, view: PA, tooth: 24, date: 2026-05-14 }
+  - { id: bw_r, view: BW, side: right, teeth: [14, 15, 16, 17, 44, 45, 46, 47], date: 2026-05-14 }
+  - { id: bw_l, view: BW, side: left, teeth: [24, 25, 26, 27, 34, 35, 36, 37], date: 2026-05-14 }
+perio_charts:
+  - { id: perio_full, date: 2026-05-14, sites: 6, depth: 2, examiner: "K. Osei RDH" }
+notes:
+  - id: note_0514
+    date: 2026-05-14
+    author: "Dr. Priya Lau"
+    type: "Exam"
+    teeth: [24]
+    text: >-
+      24 endodontically treated Nov 2025, asymptomatic, PA shows healing periapical lesion resolving.
+      MODBL composite core, buccal cusp fractured. Plan: ceramic crown 24 to protect the remaining
+      structure. All other restorative complete; perio stable, no pockets over 3 mm.
