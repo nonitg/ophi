@@ -1,0 +1,2017 @@
+{
+  "source": {
+    "pms": "ABELDent",
+    "version": "15.1.0 Freemium",
+    "dataset": "Fictional Data (CA)",
+    "notation": {
+      "tdi.itooth": "FDI",
+      "Notes.ToothNumber": "FDI",
+      "Perio arrays": "Universal 1-32, converted to FDI here"
+    }
+  },
+  "patient": {
+    "pid": 5,
+    "surname": "WATSON",
+    "given": "NORMA",
+    "dob": "1940-12-22",
+    "gender": "F",
+    "dentist": "T",
+    "inactive": false,
+    "non_patient": false,
+    "source_assurance": {
+      "status": "present",
+      "detail": "pat row"
+    }
+  },
+  "coverage": {
+    "items": [
+      {
+        "slot": "1",
+        "plan_id": "JHNSNINC",
+        "plan_name": "Johnson Inc.",
+        "carrier_id": "JOHNINC",
+        "carrier_name": "Johnson Inc.",
+        "carrier_supports_multipage_preds": false,
+        "certificate": "232341",
+        "group": null,
+        "subscriber_pid": 6,
+        "relation_to_subscriber": "S",
+        "active": true,
+        "expiry": null,
+        "inherited_from_subscriber": true
+      }
+    ],
+    "source_assurance": {
+      "status": "present",
+      "detail": "ixi joined to nsp (plan) and ins (carrier). Family members carry a blank plan id and point at the subscriber via ixisubpid."
+    }
+  },
+  "planned_procedures": {
+    "items": [
+      {
+        "itrid": 99999998,
+        "date": "2004-12-09",
+        "code": "27211",
+        "description": "Porcelain/Ceramic/Polymer Glass Fused Metal Based Crown",
+        "needs_xrays_flag": null,
+        "tooth_fdi": 16,
+        "tooth_universal": 3,
+        "surfaces": null,
+        "provider": "T",
+        "responsible_provider": "T",
+        "fee": 581.0,
+        "lab_fee": 0.0,
+        "status": "planned",
+        "itype_raw": "P"
+      },
+      {
+        "itrid": 99999998,
+        "date": "2004-12-09",
+        "code": "27211",
+        "description": "Porcelain/Ceramic/Polymer Glass Fused Metal Based Crown",
+        "needs_xrays_flag": null,
+        "tooth_fdi": 13,
+        "tooth_universal": 6,
+        "surfaces": null,
+        "provider": "T",
+        "responsible_provider": "T",
+        "fee": 581.0,
+        "lab_fee": 0.0,
+        "status": "planned",
+        "itype_raw": "P"
+      },
+      {
+        "itrid": 99999998,
+        "date": "2004-12-09",
+        "code": "27211",
+        "description": "Porcelain/Ceramic/Polymer Glass Fused Metal Based Crown",
+        "needs_xrays_flag": null,
+        "tooth_fdi": 12,
+        "tooth_universal": 7,
+        "surfaces": null,
+        "provider": "T",
+        "responsible_provider": "T",
+        "fee": 581.0,
+        "lab_fee": 0.0,
+        "status": "planned",
+        "itype_raw": "P"
+      },
+      {
+        "itrid": 99999998,
+        "date": "2004-12-09",
+        "code": "27211",
+        "description": "Porcelain/Ceramic/Polymer Glass Fused Metal Based Crown",
+        "needs_xrays_flag": null,
+        "tooth_fdi": 11,
+        "tooth_universal": 8,
+        "surfaces": null,
+        "provider": "T",
+        "responsible_provider": "T",
+        "fee": 581.0,
+        "lab_fee": 0.0,
+        "status": "planned",
+        "itype_raw": "P"
+      },
+      {
+        "itrid": 99999998,
+        "date": "2004-12-09",
+        "code": "27211",
+        "description": "Porcelain/Ceramic/Polymer Glass Fused Metal Based Crown",
+        "needs_xrays_flag": null,
+        "tooth_fdi": 26,
+        "tooth_universal": 14,
+        "surfaces": null,
+        "provider": "T",
+        "responsible_provider": "T",
+        "fee": 581.0,
+        "lab_fee": 0.0,
+        "status": "planned",
+        "itype_raw": "P"
+      },
+      {
+        "itrid": 99999998,
+        "date": "2004-12-09",
+        "code": "27211",
+        "description": "Porcelain/Ceramic/Polymer Glass Fused Metal Based Crown",
+        "needs_xrays_flag": null,
+        "tooth_fdi": 21,
+        "tooth_universal": 9,
+        "surfaces": null,
+        "provider": "T",
+        "responsible_provider": "T",
+        "fee": 581.0,
+        "lab_fee": 0.0,
+        "status": "planned",
+        "itype_raw": "P"
+      },
+      {
+        "itrid": 99999998,
+        "date": "2004-12-09",
+        "code": "62502",
+        "description": "Porcelain Pontic Aluminous",
+        "needs_xrays_flag": null,
+        "tooth_fdi": 23,
+        "tooth_universal": 11,
+        "surfaces": null,
+        "provider": "T",
+        "responsible_provider": "T",
+        "fee": 307.67,
+        "lab_fee": 0.0,
+        "status": "planned",
+        "itype_raw": "P"
+      },
+      {
+        "itrid": 99999998,
+        "date": "2004-12-09",
+        "code": "62502",
+        "description": "Porcelain Pontic Aluminous",
+        "needs_xrays_flag": null,
+        "tooth_fdi": 24,
+        "tooth_universal": 12,
+        "surfaces": null,
+        "provider": "T",
+        "responsible_provider": "T",
+        "fee": 307.67,
+        "lab_fee": 0.0,
+        "status": "planned",
+        "itype_raw": "P"
+      },
+      {
+        "itrid": 99999998,
+        "date": "2004-12-09",
+        "code": "67211",
+        "description": "Retainers,Porcelain/Ceramic/Polymer Glass Fused to Meta",
+        "needs_xrays_flag": null,
+        "tooth_fdi": 25,
+        "tooth_universal": 13,
+        "surfaces": null,
+        "provider": "T",
+        "responsible_provider": "T",
+        "fee": 756.78,
+        "lab_fee": 0.0,
+        "status": "planned",
+        "itype_raw": "P"
+      },
+      {
+        "itrid": 99999998,
+        "date": "2004-12-09",
+        "code": "67211",
+        "description": "Retainers,Porcelain/Ceramic/Polymer Glass Fused to Meta",
+        "needs_xrays_flag": null,
+        "tooth_fdi": 22,
+        "tooth_universal": 10,
+        "surfaces": null,
+        "provider": "T",
+        "responsible_provider": "T",
+        "fee": 756.78,
+        "lab_fee": 0.0,
+        "status": "planned",
+        "itype_raw": "P"
+      }
+    ],
+    "source_assurance": {
+      "status": "present",
+      "detail": "tdi.itype IN ('P','T'). T is unverified \u2014 see itype_note."
+    },
+    "itype_note": "T rows use sentinel itrid 99999999, P rows 99999998. Resolve T and I by diff-probe before any rule depends on them."
+  },
+  "completed_procedures": {
+    "items": [
+      {
+        "itrid": 56,
+        "date": "2002-09-02",
+        "code": "02142",
+        "description": "Two Bitewings",
+        "needs_xrays_flag": null,
+        "tooth_fdi": null,
+        "tooth_universal": null,
+        "surfaces": null,
+        "provider": "T",
+        "responsible_provider": "T",
+        "fee": 24.02,
+        "lab_fee": 0.0,
+        "status": "completed",
+        "itype_raw": ""
+      },
+      {
+        "itrid": 57,
+        "date": "2002-09-02",
+        "code": "02601",
+        "description": "Panoramic Film",
+        "needs_xrays_flag": null,
+        "tooth_fdi": null,
+        "tooth_universal": null,
+        "surfaces": null,
+        "provider": "T",
+        "responsible_provider": "T",
+        "fee": 46.53,
+        "lab_fee": 0.0,
+        "status": "completed",
+        "itype_raw": ""
+      },
+      {
+        "itrid": 58,
+        "date": "2002-09-09",
+        "code": "23112",
+        "description": "Permanent Anterior Bond Tooth Coloured 2 Surfaces Rest.",
+        "needs_xrays_flag": null,
+        "tooth_fdi": 13,
+        "tooth_universal": 6,
+        "surfaces": "BI",
+        "provider": "T",
+        "responsible_provider": "T",
+        "fee": 98.1,
+        "lab_fee": 0.0,
+        "status": "completed",
+        "itype_raw": ""
+      },
+      {
+        "itrid": 59,
+        "date": "2002-09-09",
+        "code": "21211",
+        "description": "Permanent Anterior/Bicuspid Amalgam One Surface",
+        "needs_xrays_flag": null,
+        "tooth_fdi": 14,
+        "tooth_universal": 5,
+        "surfaces": "O",
+        "provider": "T",
+        "responsible_provider": "T",
+        "fee": 39.24,
+        "lab_fee": 0.0,
+        "status": "completed",
+        "itype_raw": ""
+      }
+    ],
+    "source_assurance": {
+      "status": "present",
+      "detail": "tdi.itype = ''"
+    }
+  },
+  "other_ledger_rows": [],
+  "perio_exams": {
+    "items": [
+      {
+        "exam_num": 1,
+        "date": "2002-04-08",
+        "provider": "T",
+        "date_certified": null,
+        "pocket": {
+          "point_count": 144,
+          "sites_total": 192,
+          "teeth_no_value_fdi": [
+            18,
+            23,
+            24,
+            27,
+            28,
+            37,
+            36,
+            47
+          ],
+          "value_min": 1,
+          "value_max": 3,
+          "by_tooth_fdi": {
+            "18": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "17": [
+              1,
+              2,
+              3,
+              2,
+              1,
+              3
+            ],
+            "16": [
+              3,
+              1,
+              2,
+              3,
+              1,
+              2
+            ],
+            "15": [
+              2,
+              1,
+              2,
+              2,
+              1,
+              2
+            ],
+            "14": [
+              2,
+              1,
+              2,
+              2,
+              1,
+              3
+            ],
+            "13": [
+              1,
+              2,
+              2,
+              3,
+              1,
+              2
+            ],
+            "12": [
+              2,
+              2,
+              2,
+              2,
+              1,
+              2
+            ],
+            "11": [
+              2,
+              1,
+              1,
+              2,
+              1,
+              2
+            ],
+            "21": [
+              2,
+              2,
+              1,
+              2,
+              1,
+              2
+            ],
+            "22": [
+              1,
+              2,
+              2,
+              2,
+              1,
+              2
+            ],
+            "23": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "24": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "25": [
+              2,
+              1,
+              3,
+              2,
+              1,
+              3
+            ],
+            "26": [
+              3,
+              2,
+              2,
+              3,
+              2,
+              2
+            ],
+            "27": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "28": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "38": [
+              2,
+              2,
+              2,
+              2,
+              2,
+              2
+            ],
+            "37": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "36": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "35": [
+              1,
+              2,
+              2,
+              2,
+              2,
+              2
+            ],
+            "34": [
+              2,
+              1,
+              3,
+              3,
+              3,
+              2
+            ],
+            "33": [
+              3,
+              1,
+              2,
+              2,
+              2,
+              1
+            ],
+            "32": [
+              2,
+              1,
+              2,
+              2,
+              1,
+              2
+            ],
+            "31": [
+              2,
+              1,
+              2,
+              2,
+              1,
+              2
+            ],
+            "41": [
+              2,
+              1,
+              2,
+              2,
+              1,
+              2
+            ],
+            "42": [
+              2,
+              1,
+              2,
+              2,
+              1,
+              2
+            ],
+            "43": [
+              2,
+              1,
+              2,
+              2,
+              1,
+              2
+            ],
+            "44": [
+              2,
+              1,
+              2,
+              2,
+              2,
+              1
+            ],
+            "45": [
+              2,
+              1,
+              3,
+              2,
+              1,
+              3
+            ],
+            "46": [
+              3,
+              2,
+              2,
+              3,
+              2,
+              2
+            ],
+            "47": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "48": [
+              2,
+              1,
+              2,
+              2,
+              2,
+              2
+            ]
+          },
+          "sites_5mm_plus": []
+        },
+        "bleeding": {
+          "point_count": 0,
+          "sites_total": 192,
+          "teeth_no_value_fdi": [
+            18,
+            17,
+            16,
+            15,
+            14,
+            13,
+            12,
+            11,
+            21,
+            22,
+            23,
+            24,
+            25,
+            26,
+            27,
+            28,
+            38,
+            37,
+            36,
+            35,
+            34,
+            33,
+            32,
+            31,
+            41,
+            42,
+            43,
+            44,
+            45,
+            46,
+            47,
+            48
+          ],
+          "value_min": null,
+          "value_max": null,
+          "by_tooth_fdi": {
+            "18": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "17": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "16": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "15": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "14": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "13": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "12": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "11": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "21": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "22": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "23": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "24": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "25": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "26": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "27": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "28": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "38": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "37": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "36": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "35": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "34": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "33": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "32": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "31": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "41": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "42": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "43": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "44": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "45": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "46": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "47": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "48": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ]
+          }
+        },
+        "recession": {
+          "point_count": 0,
+          "sites_total": 192,
+          "teeth_no_value_fdi": [
+            18,
+            17,
+            16,
+            15,
+            14,
+            13,
+            12,
+            11,
+            21,
+            22,
+            23,
+            24,
+            25,
+            26,
+            27,
+            28,
+            38,
+            37,
+            36,
+            35,
+            34,
+            33,
+            32,
+            31,
+            41,
+            42,
+            43,
+            44,
+            45,
+            46,
+            47,
+            48
+          ],
+          "value_min": null,
+          "value_max": null,
+          "by_tooth_fdi": {
+            "18": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "17": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "16": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "15": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "14": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "13": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "12": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "11": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "21": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "22": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "23": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "24": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "25": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "26": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "27": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "28": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "38": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "37": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "36": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "35": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "34": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "33": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "32": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "31": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "41": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "42": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "43": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "44": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "45": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "46": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "47": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "48": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ]
+          }
+        },
+        "attachment": {
+          "point_count": 144,
+          "sites_total": 192,
+          "teeth_no_value_fdi": [
+            18,
+            23,
+            24,
+            27,
+            28,
+            37,
+            36,
+            47
+          ],
+          "value_min": 1,
+          "value_max": 3,
+          "by_tooth_fdi": {
+            "18": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "17": [
+              1,
+              2,
+              3,
+              2,
+              1,
+              3
+            ],
+            "16": [
+              3,
+              1,
+              2,
+              3,
+              1,
+              2
+            ],
+            "15": [
+              2,
+              1,
+              2,
+              2,
+              1,
+              2
+            ],
+            "14": [
+              2,
+              1,
+              2,
+              2,
+              1,
+              3
+            ],
+            "13": [
+              1,
+              2,
+              2,
+              3,
+              1,
+              2
+            ],
+            "12": [
+              2,
+              2,
+              2,
+              2,
+              1,
+              2
+            ],
+            "11": [
+              2,
+              1,
+              1,
+              2,
+              1,
+              2
+            ],
+            "21": [
+              2,
+              2,
+              1,
+              2,
+              1,
+              2
+            ],
+            "22": [
+              1,
+              2,
+              2,
+              2,
+              1,
+              2
+            ],
+            "23": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "24": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "25": [
+              2,
+              1,
+              3,
+              2,
+              1,
+              3
+            ],
+            "26": [
+              3,
+              2,
+              2,
+              3,
+              2,
+              2
+            ],
+            "27": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "28": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "38": [
+              2,
+              2,
+              2,
+              2,
+              2,
+              2
+            ],
+            "37": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "36": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "35": [
+              1,
+              2,
+              2,
+              2,
+              2,
+              2
+            ],
+            "34": [
+              2,
+              1,
+              3,
+              3,
+              3,
+              2
+            ],
+            "33": [
+              3,
+              1,
+              2,
+              2,
+              2,
+              1
+            ],
+            "32": [
+              2,
+              1,
+              2,
+              2,
+              1,
+              2
+            ],
+            "31": [
+              2,
+              1,
+              2,
+              2,
+              1,
+              2
+            ],
+            "41": [
+              2,
+              1,
+              2,
+              2,
+              1,
+              2
+            ],
+            "42": [
+              2,
+              1,
+              2,
+              2,
+              1,
+              2
+            ],
+            "43": [
+              2,
+              1,
+              2,
+              2,
+              1,
+              2
+            ],
+            "44": [
+              2,
+              1,
+              2,
+              2,
+              2,
+              1
+            ],
+            "45": [
+              2,
+              1,
+              3,
+              2,
+              1,
+              3
+            ],
+            "46": [
+              3,
+              2,
+              2,
+              3,
+              2,
+              2
+            ],
+            "47": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            "48": [
+              2,
+              1,
+              2,
+              2,
+              2,
+              2
+            ]
+          }
+        },
+        "furcation": {
+          "point_count": 0,
+          "sites_total": 96,
+          "teeth_no_value_fdi": [
+            18,
+            17,
+            16,
+            15,
+            14,
+            13,
+            12,
+            11,
+            21,
+            22,
+            23,
+            24,
+            25,
+            26,
+            27,
+            28,
+            38,
+            37,
+            36,
+            35,
+            34,
+            33,
+            32,
+            31,
+            41,
+            42,
+            43,
+            44,
+            45,
+            46,
+            47,
+            48
+          ],
+          "value_min": null,
+          "value_max": null,
+          "by_tooth_fdi": {
+            "18": [
+              null,
+              null,
+              null
+            ],
+            "17": [
+              null,
+              null,
+              null
+            ],
+            "16": [
+              null,
+              null,
+              null
+            ],
+            "15": [
+              null,
+              null,
+              null
+            ],
+            "14": [
+              null,
+              null,
+              null
+            ],
+            "13": [
+              null,
+              null,
+              null
+            ],
+            "12": [
+              null,
+              null,
+              null
+            ],
+            "11": [
+              null,
+              null,
+              null
+            ],
+            "21": [
+              null,
+              null,
+              null
+            ],
+            "22": [
+              null,
+              null,
+              null
+            ],
+            "23": [
+              null,
+              null,
+              null
+            ],
+            "24": [
+              null,
+              null,
+              null
+            ],
+            "25": [
+              null,
+              null,
+              null
+            ],
+            "26": [
+              null,
+              null,
+              null
+            ],
+            "27": [
+              null,
+              null,
+              null
+            ],
+            "28": [
+              null,
+              null,
+              null
+            ],
+            "38": [
+              null,
+              null,
+              null
+            ],
+            "37": [
+              null,
+              null,
+              null
+            ],
+            "36": [
+              null,
+              null,
+              null
+            ],
+            "35": [
+              null,
+              null,
+              null
+            ],
+            "34": [
+              null,
+              null,
+              null
+            ],
+            "33": [
+              null,
+              null,
+              null
+            ],
+            "32": [
+              null,
+              null,
+              null
+            ],
+            "31": [
+              null,
+              null,
+              null
+            ],
+            "41": [
+              null,
+              null,
+              null
+            ],
+            "42": [
+              null,
+              null,
+              null
+            ],
+            "43": [
+              null,
+              null,
+              null
+            ],
+            "44": [
+              null,
+              null,
+              null
+            ],
+            "45": [
+              null,
+              null,
+              null
+            ],
+            "46": [
+              null,
+              null,
+              null
+            ],
+            "47": [
+              null,
+              null,
+              null
+            ],
+            "48": [
+              null,
+              null,
+              null
+            ]
+          }
+        },
+        "mobility": {
+          "point_count": 0,
+          "sites_total": 32,
+          "teeth_no_value_fdi": [
+            18,
+            17,
+            16,
+            15,
+            14,
+            13,
+            12,
+            11,
+            21,
+            22,
+            23,
+            24,
+            25,
+            26,
+            27,
+            28,
+            38,
+            37,
+            36,
+            35,
+            34,
+            33,
+            32,
+            31,
+            41,
+            42,
+            43,
+            44,
+            45,
+            46,
+            47,
+            48
+          ],
+          "value_min": null,
+          "value_max": null,
+          "by_tooth_fdi": {
+            "18": [
+              null
+            ],
+            "17": [
+              null
+            ],
+            "16": [
+              null
+            ],
+            "15": [
+              null
+            ],
+            "14": [
+              null
+            ],
+            "13": [
+              null
+            ],
+            "12": [
+              null
+            ],
+            "11": [
+              null
+            ],
+            "21": [
+              null
+            ],
+            "22": [
+              null
+            ],
+            "23": [
+              null
+            ],
+            "24": [
+              null
+            ],
+            "25": [
+              null
+            ],
+            "26": [
+              null
+            ],
+            "27": [
+              null
+            ],
+            "28": [
+              null
+            ],
+            "38": [
+              null
+            ],
+            "37": [
+              null
+            ],
+            "36": [
+              null
+            ],
+            "35": [
+              null
+            ],
+            "34": [
+              null
+            ],
+            "33": [
+              null
+            ],
+            "32": [
+              null
+            ],
+            "31": [
+              null
+            ],
+            "41": [
+              null
+            ],
+            "42": [
+              null
+            ],
+            "43": [
+              null
+            ],
+            "44": [
+              null
+            ],
+            "45": [
+              null
+            ],
+            "46": [
+              null
+            ],
+            "47": [
+              null
+            ],
+            "48": [
+              null
+            ]
+          }
+        },
+        "mag": {
+          "point_count": 0,
+          "sites_total": 64,
+          "teeth_no_value_fdi": [
+            18,
+            17,
+            16,
+            15,
+            14,
+            13,
+            12,
+            11,
+            21,
+            22,
+            23,
+            24,
+            25,
+            26,
+            27,
+            28,
+            38,
+            37,
+            36,
+            35,
+            34,
+            33,
+            32,
+            31,
+            41,
+            42,
+            43,
+            44,
+            45,
+            46,
+            47,
+            48
+          ],
+          "value_min": null,
+          "value_max": null,
+          "by_tooth_fdi": {
+            "18": [
+              null,
+              null
+            ],
+            "17": [
+              null,
+              null
+            ],
+            "16": [
+              null,
+              null
+            ],
+            "15": [
+              null,
+              null
+            ],
+            "14": [
+              null,
+              null
+            ],
+            "13": [
+              null,
+              null
+            ],
+            "12": [
+              null,
+              null
+            ],
+            "11": [
+              null,
+              null
+            ],
+            "21": [
+              null,
+              null
+            ],
+            "22": [
+              null,
+              null
+            ],
+            "23": [
+              null,
+              null
+            ],
+            "24": [
+              null,
+              null
+            ],
+            "25": [
+              null,
+              null
+            ],
+            "26": [
+              null,
+              null
+            ],
+            "27": [
+              null,
+              null
+            ],
+            "28": [
+              null,
+              null
+            ],
+            "38": [
+              null,
+              null
+            ],
+            "37": [
+              null,
+              null
+            ],
+            "36": [
+              null,
+              null
+            ],
+            "35": [
+              null,
+              null
+            ],
+            "34": [
+              null,
+              null
+            ],
+            "33": [
+              null,
+              null
+            ],
+            "32": [
+              null,
+              null
+            ],
+            "31": [
+              null,
+              null
+            ],
+            "41": [
+              null,
+              null
+            ],
+            "42": [
+              null,
+              null
+            ],
+            "43": [
+              null,
+              null
+            ],
+            "44": [
+              null,
+              null
+            ],
+            "45": [
+              null,
+              null
+            ],
+            "46": [
+              null,
+              null
+            ],
+            "47": [
+              null,
+              null
+            ],
+            "48": [
+              null,
+              null
+            ]
+          }
+        },
+        "point_count": 144,
+        "extent": "partial"
+      }
+    ],
+    "source_assurance": {
+      "status": "present",
+      "detail": "Perio table, positional byte arrays decoded per site. DateCertified blank in all Fictional Data rows."
+    }
+  },
+  "clinical_notes": {
+    "items": [
+      {
+        "date": "2004-06-11",
+        "chart_num": 1,
+        "chart_date": "2002-04-08",
+        "chart_certified": null,
+        "key_type": 1,
+        "note_type": 1,
+        "ref_number": 1,
+        "tooth_fdi": null,
+        "operator": "M",
+        "signed_off": null,
+        "text": "[Date]08/Apr/2002\r\nNp exam- Patient has seen specialist regarding tongue swelling, #25 should be replaced not fitting well, discoloration incisal 1/3 of central incisors, areas of recession thru out mouth, some with abrasion, $41 are arefer to specialist will only get worse with time, bone loss- eventual tooth loss Doctor recommends sulcabrush to use gently in this area, one area of decay #34 old amalgam rest trim 38m amalgam ect.......\r\n"
+      },
+      {
+        "date": "2004-06-11",
+        "chart_num": 1,
+        "chart_date": "2002-04-08",
+        "chart_certified": null,
+        "key_type": 1,
+        "note_type": 3,
+        "ref_number": 41,
+        "tooth_fdi": 25,
+        "operator": "M",
+        "signed_off": null,
+        "text": "[Date]08/Apr/2002 [Type]Restoration [Desc]Existing Condition [Tooth]25 [Surf]MBODL [Mat]ME [Pvdr]M\r\n#25 ill fitting"
+      },
+      {
+        "date": "2004-06-11",
+        "chart_num": 2,
+        "chart_date": "2002-04-15",
+        "chart_certified": null,
+        "key_type": 1,
+        "note_type": 3,
+        "ref_number": 44,
+        "tooth_fdi": 13,
+        "operator": "T",
+        "signed_off": null,
+        "text": "[Date]15/Apr/2002 [Code]23112 [Type]Restoration [Desc]Permanent Anterior Bond Tooth Coloured 2 Surfaces Rest. [Tooth]13 [Surf]BI [Mat]PL [Pvdr]T\r\ntooth color shade a3 "
+      }
+    ],
+    "excluded_deleted_or_superseded": 0,
+    "source_assurance": {
+      "status": "present",
+      "detail": "Notes WHERE IsDeleted=0 AND IsLatest=1, joined to Charts on KeyNumber=ChartNum. IsSignedOff is NULL throughout Fictional Data."
+    }
+  },
+  "imaging": {
+    "items": [],
+    "source_assurance": {
+      "status": "indeterminate",
+      "detail": "Imaging tables are readable but hold zero rows database-wide (AImage=0, AImageVersion=0, TDIImageLink=0, Imaging=0, Document=0). 9 AImageToothNumber rows reference images that no longer exist, so Fictional Data once had images and ships without them. Cannot distinguish 'none recorded' from 'not visible to this driver'; treat as indeterminate until the imaging spike resolves it. Manual upload is the only radiograph source for now."
+    }
+  }
+}

@@ -1,0 +1,211 @@
+{
+  "source": {
+    "pms": "ABELDent",
+    "version": "15.1.0 Freemium",
+    "dataset": "Fictional Data (CA)",
+    "notation": {
+      "tdi.itooth": "FDI",
+      "Notes.ToothNumber": "FDI",
+      "Perio arrays": "Universal 1-32, converted to FDI here"
+    }
+  },
+  "patient": {
+    "pid": 33,
+    "surname": "ROSCO",
+    "given": "PATRICA",
+    "dob": "1973-02-02",
+    "gender": "F",
+    "dentist": "T",
+    "inactive": false,
+    "non_patient": false,
+    "source_assurance": {
+      "status": "present",
+      "detail": "pat row"
+    }
+  },
+  "coverage": {
+    "items": [
+      {
+        "slot": "1",
+        "plan_id": "GWL",
+        "plan_name": "Great West Life",
+        "carrier_id": "GWL",
+        "carrier_name": "Great-West Life Assurance Company",
+        "carrier_supports_multipage_preds": false,
+        "certificate": "6767890",
+        "group": null,
+        "subscriber_pid": null,
+        "relation_to_subscriber": "I",
+        "active": true,
+        "expiry": null,
+        "inherited_from_subscriber": false
+      },
+      {
+        "slot": "2",
+        "plan_id": "TOYOTAM",
+        "plan_name": "Toyota - Managment Team",
+        "carrier_id": "NATIONAL",
+        "carrier_name": "National Life Assurance Company of Can.",
+        "carrier_supports_multipage_preds": false,
+        "certificate": null,
+        "group": null,
+        "subscriber_pid": 34,
+        "relation_to_subscriber": "S",
+        "active": true,
+        "expiry": null,
+        "inherited_from_subscriber": true
+      }
+    ],
+    "source_assurance": {
+      "status": "present",
+      "detail": "ixi joined to nsp (plan) and ins (carrier). Family members carry a blank plan id and point at the subscriber via ixisubpid."
+    }
+  },
+  "planned_procedures": {
+    "items": [
+      {
+        "itrid": 99999999,
+        "date": "2004-09-10",
+        "code": "27211",
+        "description": "Porcelain/Ceramic/Polymer Glass Fused Metal Based Crown",
+        "needs_xrays_flag": null,
+        "tooth_fdi": 11,
+        "tooth_universal": 8,
+        "surfaces": null,
+        "provider": "T",
+        "responsible_provider": "T",
+        "fee": 581.0,
+        "lab_fee": 0.0,
+        "status": "planned_unverified_T",
+        "itype_raw": "T"
+      },
+      {
+        "itrid": 99999999,
+        "date": "2004-12-09",
+        "code": "26101",
+        "description": "Indirect Angulated/Transmucosal pre-fabricated abutment",
+        "needs_xrays_flag": null,
+        "tooth_fdi": 11,
+        "tooth_universal": 8,
+        "surfaces": null,
+        "provider": "T",
+        "responsible_provider": "T",
+        "fee": 338.04,
+        "lab_fee": 0.0,
+        "status": "planned_unverified_T",
+        "itype_raw": "T"
+      }
+    ],
+    "source_assurance": {
+      "status": "present",
+      "detail": "tdi.itype IN ('P','T'). T is unverified \u2014 see itype_note."
+    },
+    "itype_note": "T rows use sentinel itrid 99999999, P rows 99999998. Resolve T and I by diff-probe before any rule depends on them."
+  },
+  "completed_procedures": {
+    "items": [
+      {
+        "itrid": 247,
+        "date": "2004-09-08",
+        "code": "01103",
+        "description": "Exam & Diagnosis Complete Permanent Dentition",
+        "needs_xrays_flag": null,
+        "tooth_fdi": null,
+        "tooth_universal": null,
+        "surfaces": null,
+        "provider": "T",
+        "responsible_provider": "T",
+        "fee": 112.58,
+        "lab_fee": 0.0,
+        "status": "completed",
+        "itype_raw": ""
+      },
+      {
+        "itrid": 248,
+        "date": "2004-09-08",
+        "code": "11101",
+        "description": "Polishing One Unit of Time",
+        "needs_xrays_flag": null,
+        "tooth_fdi": null,
+        "tooth_universal": null,
+        "surfaces": null,
+        "provider": "T",
+        "responsible_provider": "T",
+        "fee": 32.96,
+        "lab_fee": 0.0,
+        "status": "completed",
+        "itype_raw": ""
+      },
+      {
+        "itrid": 249,
+        "date": "2004-09-08",
+        "code": "11111",
+        "description": "Scaling One Unit of Time",
+        "needs_xrays_flag": null,
+        "tooth_fdi": null,
+        "tooth_universal": null,
+        "surfaces": null,
+        "provider": "T",
+        "responsible_provider": "T",
+        "fee": 47.09,
+        "lab_fee": 0.0,
+        "status": "completed",
+        "itype_raw": ""
+      }
+    ],
+    "source_assurance": {
+      "status": "present",
+      "detail": "tdi.itype = ''"
+    }
+  },
+  "other_ledger_rows": [],
+  "perio_exams": {
+    "items": [],
+    "source_assurance": {
+      "status": "none_recorded",
+      "detail": "Perio table, positional byte arrays decoded per site. DateCertified blank in all Fictional Data rows."
+    }
+  },
+  "clinical_notes": {
+    "items": [
+      {
+        "date": "2004-06-21",
+        "chart_num": 1,
+        "chart_date": "2004-04-14",
+        "chart_certified": null,
+        "key_type": 1,
+        "note_type": 1,
+        "ref_number": 1,
+        "tooth_fdi": null,
+        "operator": "T",
+        "signed_off": null,
+        "text": "[Date]14/Apr/2004\r\nSevere discolouration, discussed replacing 11\r\n"
+      },
+      {
+        "date": "2004-06-21",
+        "chart_num": 1,
+        "chart_date": "2004-04-14",
+        "chart_certified": null,
+        "key_type": 1,
+        "note_type": 1,
+        "ref_number": 1,
+        "tooth_fdi": null,
+        "operator": "T",
+        "signed_off": null,
+        "text": "[Date]21/Jun/2004\r\nexam, 1u sc, 1u pol: recommended pt come every 3 months for perio tx / pt. agrees/ : smokes yes"
+      }
+    ],
+    "excluded_deleted_or_superseded": 0,
+    "source_assurance": {
+      "status": "present",
+      "detail": "Notes WHERE IsDeleted=0 AND IsLatest=1, joined to Charts on KeyNumber=ChartNum. IsSignedOff is NULL throughout Fictional Data."
+    }
+  },
+  "imaging": {
+    "items": [],
+    "source_assurance": {
+      "status": "indeterminate",
+      "detail": "Imaging tables are readable but hold zero rows database-wide (AImage=0, AImageVersion=0, TDIImageLink=0, Imaging=0, Document=0). 9 AImageToothNumber rows reference images that no longer exist, so Fictional Data once had images and ships without them. Cannot distinguish 'none recorded' from 'not visible to this driver'; treat as indeterminate until the imaging spike resolves it. Manual upload is the only radiograph source for now."
+    }
+  }
+}

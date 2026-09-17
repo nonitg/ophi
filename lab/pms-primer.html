@@ -193,11 +193,10 @@ ul.plain li { margin-bottom: 0.45rem; }
   flex-wrap: wrap;
   font-size: var(--step--1);
   color: var(--ink-faint);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  font-weight: 500;
   margin-bottom: 1rem;
 }
-.spec-head .src { font-family: "IBM Plex Mono", monospace; text-transform: none; letter-spacing: 0; }
+.spec-head .src { font-family: "IBM Plex Mono", monospace; }
 
 .scroll { overflow-x: auto; }
 
@@ -243,8 +242,7 @@ tr:last-child td { border-bottom: 0; }
   font-family: "IBM Plex Sans", sans-serif;
   font-size: var(--step--1);
   color: var(--ink-faint);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  font-weight: 500;
   margin: 0.9rem 0 0.35rem;
 }
 .arch-label:first-child { margin-top: 0; }
@@ -279,22 +277,20 @@ tr:last-child td { border-bottom: 0; }
 
 /* ---------- callout ---------- */
 .note {
-  border-left: 3px solid var(--accent);
-  background: var(--surface);
-  padding: 1rem 1.15rem;
-  margin: 1.75rem 0;
-  border-radius: 0 5px 5px 0;
+  margin: 2rem 0;
+  padding-top: 0.95rem;
+  border-top: 1px solid var(--rule-strong);
 }
-.note p { font-size: 0.96rem; }
+.note p { font-size: 0.96rem; color: var(--ink-muted); }
+.note p + p { margin-top: 0.7rem; }
 .note .label {
   font-family: "IBM Plex Sans", sans-serif;
   font-size: var(--step--1);
   font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  letter-spacing: 0.005em;
   color: var(--accent);
   display: block;
-  margin-bottom: 0.4rem;
+  margin-bottom: 0.45rem;
 }
 
 footer {

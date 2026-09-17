@@ -150,6 +150,46 @@ Ready-made cases: **33** = crown planned with *no perio chart at all*; **6** = p
   `sys.sql_modules` (341 modules) is unexamined and is the next highest-yield target — per
   `01-ingestion.md` Step 1, a vendor view or proc is the closest thing to a supported contract.
 
+## M0 artifact — `lab/tools/chart_dump.py` `[M]`
+
+One command, zero manual steps, ~25 s: every patient with planned work → `fixtures/abeldent/fictional/<pid>.json`
+with patient, coverage, planned/completed procedures, decoded perio, clinical notes, imaging, each
+section carrying a `source_assurance` (`present` / `none_recorded` / `indeterminate`).
+**14 patients have planned work, not the ≥20 the M0 exit asks for.** The other 6 come from the
+Step 6 probe catalogue (enter plans through the UI); that is fixture authoring, not a blocker.
+
+Findings from building it:
+
+- **Clinical notes live in `Notes`, not `Charts`.** `Charts(patID, ChartNum, Date, DateClosed,
+  DateCertified, ChartDesc)` is a per-visit header; `Notes.KeyType=1` + `KeyNumber` joins to
+  `Charts.ChartNum` (163/171 rows). `NoteType 1` = free-text visit note, `NoteType 3` = procedure
+  note carrying `ToothNumber` (78 rows), `NoteType 2` (`KeyType 2`) = treatment-plan note (2 rows).
+  `RefNumber` does **not** join `tdi.itrid` (1/88 coincidental). `IsSignedOff` is NULL throughout;
+  `IsDeleted`/`IsLatest` are populated and must be filtered.
+- **`Notes.ToothNumber` is FDI**, like `tdi.itooth`: patient 56 has core+post on #14 (2005-06-08)
+  and "Insert Notes … Margins very good" on #14 two weeks later. Only `Perio` is Universal.
+- **Perio position→tooth mapping cross-checked against the ledger.** Patient 5's `0xFF` teeth decode
+  to FDI 23 and 24; her plan has pontics (62502) at exactly 23 and 24. The Universal-order inference
+  in finding 4 is now corroborated, not just inferred.
+- **`Perio` is not always a full exam.** Patient 6's only exam has **1 point of 192**. The dump
+  classifies `extent` as `full_mouth` (≥150) / `partial` (≥24) / `spot_check`; thresholds are
+  placeholders for the SME to set.
+- **Planned rows use sentinel transaction ids**: `itype='P'` → `itrid=99999998`, `itype='T'` →
+  `99999999`. `I` rows (3, patient 9) have real itrids on same-day exam/scale/polish. `T` and `I`
+  still unresolved; the dump labels them `planned_unverified_T` / `unverified_I`.
+- **Insurance chain:** `ixi.ixiplanid` → `nsp.nid` (plan: `nplanname`, `nplnno`, `ninscoid`) →
+  `ins.inscoid` (carrier). **Dependants have a blank `ixiplanid` and point at the subscriber via
+  `ixisubpid`**; the plan is on the subscriber's own `ixi` row. The dump resolves and flags this as
+  `inherited_from_subscriber`. Sun Life is `ins.inscoid='SUNLIFE'`, plan `SU254221`.
+- **Imaging: Fictional Data *had* images.** `AImageToothNumber` holds 9 rows (FDI teeth) pointing at
+  `ImageID`s that no longer exist in `AImage`. `AImageType` vocabulary: Radiographic, Panoramic,
+  Cephalametric, Intraoral, CR, Template, Portrait, Digital Camera — no periapical/bitewing split at
+  the type level. Images were stripped from the dataset; this does not settle whether a live install
+  keeps pixel metadata in `AImage`/`AImageVersion.FileName` (the schema says yes). Imaging spike still
+  open; dump reports `indeterminate`.
+- Every `Perio.DateCertified` and `Charts.DateCertified` (bar one) is NULL in Fictional Data, so
+  certification filters cannot be tested against this corpus.
+
 ## Still unverified
 
 - `tdi.itype` values `T` and `I`.
@@ -157,5 +197,6 @@ Ready-made cases: **33** = crown planned with *no perio chart at all*; **6** = p
   The third-molar inference is strong but is inference; confirm by entering a known exam through
   the UI and diffing (Step 6).
 - Whether the OData/HL7 surfaces are reachable, and on which editions.
+- Whether a live install populates `AImage`/`AImageVersion` (Fictional Data ships images stripped).
 - The EULA text. `C:\ABELDent\abeladvantage.chm` (48 MB) is on the box and unread.
   **This is still week-1 action #3 and it is still open.**

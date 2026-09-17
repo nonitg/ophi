@@ -1,0 +1,3 @@
+lab/out/
+.playwright-mcp/
+__pycache__/

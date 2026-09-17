@@ -14,6 +14,13 @@ CDCP preauthorization copilot for Canadian dental clinics.
 
 ---
 
+## Status — 2026-09-17
+
+Research and plan complete. Lab sandbox live (`lab/vm/`). **M0 artifact exists:**
+`lab/tools/chart_dump.py` dumps 14 planned-work patients to `fixtures/abeldent/fictional/` in one
+command. Perio point-count and clinical notes read cleanly; imaging is `indeterminate` (K7 still
+open on radiographs). Lab findings in `docs/research/abeldent-schema.md`. No product code yet.
+
 ## Context
 
 Canadian dental clinics submit preauthorizations to Sun Life for CDCP treatment. Today it is manual:

@@ -54,9 +54,12 @@ user_exec() {
   local marker='___COLOMBUS_UDONE___' out i
   printf '%s\n' "$1" | "$UTMCTL" file push "$VM_UUID" "$GUEST_DIR\\_ucmd.ps1" >/dev/null 2>&1 \
     || die "guest agent not responding"
+  # schtasks /run is a silent no-op while the previous run is still exiting, so back-to-back
+  # calls used to hang until the pull loop timed out. Wait for the task to go idle first.
+  ps_exec "for (\$i=0; \$i -lt 100; \$i++) { if ((schtasks /query /tn ColombusRun /fo csv /nh) -notmatch 'Running') { break }; Start-Sleep -Milliseconds 200 }" >/dev/null
   "$UTMCTL" exec "$VM_UUID" --cmd "$CMD_EXE" /c \
     "del $GUEST_DIR\\out\\_ulast.txt 2>nul & schtasks /run /tn ColombusRun" >/dev/null 2>&1
-  for i in $(seq 1 200); do
+  for i in $(seq 1 300); do
     out="$("$UTMCTL" file pull "$VM_UUID" "$GUEST_DIR\\out\\_ulast.txt" 2>/dev/null)"
     case "$out" in *"$marker"*) printf '%s\n' "${out%$marker*}"; return 0 ;; esac
   done

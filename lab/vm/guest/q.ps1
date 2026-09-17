@@ -61,7 +61,9 @@ try {
     foreach ($dt in $ds.Tables) {
         $rows = $dt | Select-Object -Property $dt.Columns.ColumnName
         switch ($As) {
-            'json'  { if ($null -eq $rows) { '[]' } else { , $rows | ConvertTo-Json -Depth 5 -Compress } }
+            # -InputObject @() keeps the result an array even for 0 or 1 rows; piping would
+            # unroll it into a bare object (1 row) or a {value,Count} wrapper (N rows).
+            'json'  { if ($null -eq $rows) { '[]' } else { ConvertTo-Json -InputObject @($rows) -Depth 5 -Compress } }
             'csv'   { $rows | ConvertTo-Csv -NoTypeInformation }
             'table' { $rows | Format-Table -AutoSize | Out-String -Width 400 }
         }
