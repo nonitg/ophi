@@ -1,0 +1,149 @@
+- generic [active] [ref=f508e1]:
+  - banner [ref=f508e2]:
+    - generic [ref=f508e3]:
+      - link [ref=f508e4] [cursor=pointer]:
+        - /url: /
+        - img "Canadian Dental Association" [ref=f508e5]
+      - search [ref=f508e6]:
+        - generic [ref=f508e7]:
+          - generic [ref=f508e8]: Site search
+          - searchbox "Search" [ref=f508e10]
+        - button "Submit search" [ref=f508e13]
+      - generic [ref=f508e15]:
+        - navigation "Language selector" [ref=f508e16]:
+          - list [ref=f508e17]:
+            - listitem [ref=f508e18]:
+              - link "Français" [ref=f508e19] [cursor=pointer]:
+                - /url: /fr/404
+        - navigation "Utility navigation" [ref=f508e21]:
+          - list [ref=f508e22]:
+            - listitem [ref=f508e23]:
+              - link "FAQs" [ref=f508e24] [cursor=pointer]:
+                - /url: /for-the-public/faqs
+            - listitem [ref=f508e25]:
+              - link "Contact Us" [ref=f508e26] [cursor=pointer]:
+                - /url: /about-cda/contact-us
+      - button "Login" [ref=f508e28] [cursor=pointer]
+    - navigation "Primary navigation" [ref=f508e33]:
+      - list [ref=f508e34]:
+        - listitem [ref=f508e35]:
+          - button "For the Public" [ref=f508e36] [cursor=pointer]
+        - listitem [ref=f508e37]:
+          - button "For Dental Professionals" [ref=f508e38] [cursor=pointer]
+        - listitem [ref=f508e39]:
+          - button "For Prospective Dentists" [ref=f508e40] [cursor=pointer]
+        - listitem [ref=f508e41]:
+          - button "Policy & Advocacy" [ref=f508e42] [cursor=pointer]
+        - listitem [ref=f508e43]:
+          - button "Media" [ref=f508e44] [cursor=pointer]
+        - listitem [ref=f508e45]:
+          - button "About CDA" [ref=f508e46] [cursor=pointer]
+  - main [ref=f508e47]:
+    - generic [ref=f508e48]:
+      - generic [ref=f508e50]:
+        - img "Error - 404" [ref=f508e52]
+        - heading "Oops!" [level=1] [ref=f508e55]
+        - heading "It looks like this page could use a filling." [level=2] [ref=f508e58]
+        - paragraph [ref=f508e61]: We can't seem to find the page you're looking for. Don't worry though - we're here to help you get back on track!
+        - search [ref=f508e63]:
+          - generic [ref=f508e64]:
+            - generic [ref=f508e65]: Site search
+            - searchbox "Search" [ref=f508e67]
+          - button "Submit search" [ref=f508e70]
+      - generic [ref=f508e73]:
+        - generic [ref=f508e74]:
+          - heading "Popular destinations" [level=3] [ref=f508e76]
+          - generic [ref=f508e78]:
+            - generic [ref=f508e79]:
+              - article [ref=f508e80]:
+                - link [ref=f508e81] [cursor=pointer]:
+                  - /url: /home
+                  - img "house" [ref=f508e83]
+                  - heading "CDA Home Page" [level=4] [ref=f508e84]
+              - article [ref=f508e86]:
+                - link [ref=f508e87] [cursor=pointer]:
+                  - /url: /for-the-public
+                  - img "icon-for-the-public" [ref=f508e89]
+                  - heading "For the Public" [level=4] [ref=f508e90]
+              - article [ref=f508e92]:
+                - link [ref=f508e93] [cursor=pointer]:
+                  - /url: https://services.cda-adc.ca/
+                  - img "icon-support-services" [ref=f508e95]
+                  - heading "Practice Support Services" [level=4] [ref=f508e96]
+            - generic [ref=f508e97]:
+              - article [ref=f508e98]:
+                - link [ref=f508e99] [cursor=pointer]:
+                  - /url: /media-room/statements/public-statement
+                  - img "icon-bell" [ref=f508e101]
+                  - heading "Public Statements" [level=4] [ref=f508e102]
+              - article [ref=f508e104]:
+                - link [ref=f508e105] [cursor=pointer]:
+                  - /url: /media-room/news-releases
+                  - img "icon-news-releases" [ref=f508e107]
+                  - heading "News Releases" [level=4] [ref=f508e108]
+              - article [ref=f508e110]:
+                - link [ref=f508e111] [cursor=pointer]:
+                  - /url: /for-prospective-dentists/dat
+                  - img "icon-dat" [ref=f508e113]
+                  - heading "Dental Aptitude Test" [level=4] [ref=f508e114]
+        - generic [ref=f508e115]:
+          - heading "Need additional help?" [level=3] [ref=f508e117]
+          - generic [ref=f508e119]: We’re here to help you find what you're looking for. Contact us and we’ll do our best to point you in the right direction.
+          - link "Contact us" [ref=f508e122] [cursor=pointer]:
+            - /url: /about-cda/contact-us
+  - contentinfo [ref=f508e124]:
+    - generic:
+      - generic:
+        - 'img "Pattern: Honeycomb, Semi-Transparent"'
+    - generic [ref=f508e125]:
+      - img "Canadian Dental Association" [ref=f508e127]
+      - paragraph [ref=f508e129]: The Canadian Dental Association (CDA) is an association that has no regulatory role. It is a federally incorporated not-for-profit organization whose corporate members are Canada's provincial and territorial dental associations (PTDAs). CDA represents over 21,000 practising dentists nationwide and is a trusted brand and source of information for and about the dental profession on national and international issues.
+      - paragraph [ref=f508e131]:
+        - link "Learn more about CDA" [ref=f508e132] [cursor=pointer]:
+          - /url: /about-cda
+    - generic [ref=f508e133]:
+      - heading "The national voice for dentists." [level=3] [ref=f508e135]
+      - generic [ref=f508e137]:
+        - img "Alberta Dental Association" [ref=f508e139]
+        - img "BC Dental Association" [ref=f508e141]
+        - img "Manitoba Dental Association" [ref=f508e143]
+        - img "New Brunswick Dental Society" [ref=f508e145]
+        - img "Newfoundland and Labrador Dental Association" [ref=f508e147]
+        - img "Nova Scotia Dental Association" [ref=f508e149]
+        - img "Northwest Territories & Nunavut Dental Association" [ref=f508e151]
+        - img "Ontario Dental Association" [ref=f508e153]
+        - img "Dental Association of Prince Edward Island" [ref=f508e155]
+        - img "The College of Dental Surgeons of Saskatchewan" [ref=f508e157]
+        - img "Yukon Dental Association" [ref=f508e159]
+    - generic [ref=f508e161]:
+      - paragraph [ref=f508e164]: © 2026 Canadian Dental Association. All rights reserved.
+      - navigation "Legal, policy related navigation" [ref=f508e167]:
+        - list [ref=f508e168]:
+          - listitem [ref=f508e169]:
+            - link "Privacy Policy" [ref=f508e170] [cursor=pointer]:
+              - /url: /privacy-policy
+          - listitem [ref=f508e171]:
+            - link "Website Privacy Policy" [ref=f508e172] [cursor=pointer]:
+              - /url: /website-privacy-policy
+          - listitem [ref=f508e173]:
+            - link "Terms of Use" [ref=f508e174] [cursor=pointer]:
+              - /url: /terms-of-use
+          - listitem [ref=f508e175]:
+            - link "Accessibility" [ref=f508e176] [cursor=pointer]:
+              - /url: /accessible
+      - navigation "Social navigation" [ref=f508e178]:
+        - link [ref=f508e180] [cursor=pointer]:
+          - /url: https://www.facebook.com/Canadian-Dental-Association
+          - img "Follow us on Facebook" [ref=f508e182]
+        - link [ref=f508e184] [cursor=pointer]:
+          - /url: https://www.instagram.com/cdndentalassoc/
+          - img "Follow us on Instagram" [ref=f508e186]
+        - link [ref=f508e188] [cursor=pointer]:
+          - /url: https://x.com/CdnDentalAssoc
+          - img "Follow us on X" [ref=f508e190]
+        - link [ref=f508e192] [cursor=pointer]:
+          - /url: https://www.linkedin.com/company/canadian-dental-association/
+          - img "Follow us on LinkedIn" [ref=f508e194]
+        - link [ref=f508e196] [cursor=pointer]:
+          - /url: https://www.youtube.com/@CanadianDentalAssociationCDA
+          - img "YouTube" [ref=f508e198]

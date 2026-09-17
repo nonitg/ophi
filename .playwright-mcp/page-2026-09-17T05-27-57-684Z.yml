@@ -1,0 +1,166 @@
+- generic [active] [ref=f444e1]:
+  - generic [ref=f444e4]:
+    - banner [ref=f444e10]:
+      - generic:
+        - link "Skip to client sign in" [ref=f444e11] [cursor=pointer]:
+          - /url: "#signinbutton"
+        - link "Skip to content" [ref=f444e12] [cursor=pointer]:
+          - /url: "#main-content"
+        - link "Skip to footer" [ref=f444e13] [cursor=pointer]:
+          - /url: "#footer"
+      - generic [ref=f444e16]:
+        - button "open menu" [ref=f444e17] [cursor=pointer]
+        - link [ref=f444e20] [cursor=pointer]:
+          - /url: /en/
+          - img "Sun Life" [ref=f444e21]
+    - navigation "Breadcrumb" [ref=f444e23]:
+      - list [ref=f444e24]:
+        - listitem [ref=f444e25]:
+          - link "Home" [ref=f444e26] [cursor=pointer]:
+            - /url: /sl/cdcp/en/
+          - generic [aria-hidden] [ref=f444e27]: /
+        - listitem [ref=f444e28]:
+          - link "Oral health provider":
+            - /url: ""
+    - main [ref=f444e29]:
+      - generic [ref=f444e32]:
+        - heading "Oral health provider" [level=1] [ref=f444e35]
+        - generic [ref=f444e40]:
+          - heading "You're invited to participate in the Canadian Dental Care Plan (CDCP)" [level=2] [ref=f444e41]
+          - generic [ref=f444e42]:
+            - paragraph [ref=f444e43]: Oral health providers that participate in the CDCP can help millions of Canadians by offering oral health care services to individuals that previously had limited access due to costs.
+            - paragraph [ref=f444e44]: Take a look at the resources available to gain more insight into the plan.
+        - generic [ref=f444e46]:
+          - heading "How to participate in the CDCP" [level=2] [ref=f444e47]
+          - paragraph [ref=f444e48]:
+            - strong [ref=f444e49]: Oral health providers can confirm their participation by signing up with Sun Life or by participating on a claim-by-claim basis.
+          - paragraph [ref=f444e50]: All oral health providers who treat CDCP clients need to agree to bill and can receive payment directly from Sun Life for CDCP services covered under the plan. There is no way for CDCP clients to receive reimbursement from Sun Life.
+        - generic [ref=f444e54]:
+          - generic [ref=f444e56]:
+            - heading "Signing up to the CDCP" [level=3] [ref=f444e57]
+            - paragraph [ref=f444e58]:
+              - text: Oral health providers can sign up online on Sun Life Direct. They can
+              - link "sign in opens in a new tab" [ref=f444e59] [cursor=pointer]:
+                - /url: https://www.sunnet.sunlife.com/signin/provider/e/home.wca?
+                - text: sign in
+                - generic "opens in a new tab"
+              - text: to their existing Sun Life Direct account and select the “Sign up” button to confirm their participation.
+            - paragraph [ref=f444e61]:
+              - text: Don’t have a Sun Life Direct account? Simply print and complete the
+              - link "PDF provider participation form opens in a new tab" [ref=f444e62] [cursor=pointer]:
+                - /url: /content/dam/sunlife/regional/canada/documents/cxo/cdcp/paper-provider-participation-form-e.pdf
+                - generic [ref=f444e63]: PDF
+                - text: provider participation form
+                - generic "opens in a new tab"
+              - text: ", then mail it back to the address provided."
+            - heading "Advantages of signing up for the CDCP" [level=4] [ref=f444e65]
+            - paragraph [ref=f444e66]: "Oral health providers who sign up to participate in the CDCP can:"
+            - list [ref=f444e67]:
+              - listitem [ref=f444e68]: Confirm coverage for CDCP clients through Sun Life Direct.
+              - listitem [ref=f444e69]: Appear in the CDCP Provider Search Tool.
+            - paragraph [ref=f444e70]:
+              - strong [ref=f444e71]: Providers have the option to opt-out at any time by contacting Sun Life’s CDCP Contact Centre at 1-888-888-8110
+              - text: .
+          - generic [ref=f444e73]:
+            - heading "Participating on a claim-by-claim basis" [level=3] [ref=f444e74]
+            - paragraph [ref=f444e75]: "Oral health providers can use their current processes to submit a CDCP claim to Sun Life as long as they can receive payment directly from Sun Life. When submitting a claim, the Explanation of Benefit (EOB) will include a notice of acceptance:"
+            - paragraph [ref=f444e76]:
+              - text: “By having made this submission, you agree to be subject to the terms of the
+              - link "CDCP claims processing and payment terms (Billing agreement)" [ref=f444e77] [cursor=pointer]:
+                - /url: /sl/cdcp/en/provider/claims-processing-and-payment-terms/
+              - text: . Should you wish to withdraw your submission, you are able to do so electronically if it is done on the same day as the submission was made, or otherwise by contacting Sun Life’s CDCP Contact Centre at 1-888-888-8110.”
+            - paragraph [ref=f444e78]: Oral health providers can confirm coverage for CDCP clients using an EDI estimate or by contacting the Sun Life CDCP Contact Centre at 1-888-888-8110.
+            - paragraph [ref=f444e79]:
+              - strong [ref=f444e80]: Claim-by-claim providers can decide to formally sign up to the CDCP at any time
+              - text: .
+        - heading "Resources" [level=2] [ref=f444e83]
+        - generic [ref=f444e85]:
+          - generic [ref=f444e87]:
+            - heading "Dental benefit grids" [level=3] [ref=f444e88]
+            - paragraph [ref=f444e90]: Find the procedure codes and CDCP established fees for oral health care services.
+            - link "Go to dental benefit grids" [ref=f444e92] [cursor=pointer]:
+              - /url: /sl/cdcp/en/provider/dental-benefit-grids/
+          - generic [ref=f444e94]:
+            - heading "Claims processing and payment terms" [level=3] [ref=f444e95]
+            - paragraph [ref=f444e97]: Details regarding the CDCP claims process and payment terms.
+            - link "CDCP claims processing and payment terms (Billing agreement)" [ref=f444e99] [cursor=pointer]:
+              - /url: /sl/cdcp/en/provider/claims-processing-and-payment-terms/
+          - generic [ref=f444e101]:
+            - heading "Additional resources" [level=3] [ref=f444e102]
+            - paragraph [ref=f444e104]: View additional documents that contain information that supports CDCP providers.
+            - link "Go to additional resources" [ref=f444e106] [cursor=pointer]:
+              - /url: /sl/cdcp/en/provider/additional-resources/
+          - generic [ref=f444e108]:
+            - heading "Newsletters" [level=3] [ref=f444e109]
+            - paragraph [ref=f444e111]: Latest news on the CDCP.
+            - link "Go to Newsletters" [ref=f444e113] [cursor=pointer]:
+              - /url: /sl/cdcp/en/provider/newsletters/
+        - paragraph [ref=f444e116]:
+          - text: For additional information, check out the
+          - link "CDCP dental benefits guide opens in a new tab" [ref=f444e117] [cursor=pointer]:
+            - /url: https://www.canada.ca/en/services/benefits/dental/dental-care-plan/guide.html
+            - text: CDCP dental benefits guide
+            - generic "opens in a new tab"
+          - text: .
+    - contentinfo [ref=f444e124]:
+      - generic [ref=f444e126]:
+        - generic [ref=f444e127]:
+          - separator [aria-hidden] [ref=f444e128]
+          - generic [ref=f444e129]:
+            - button "Member" [ref=f444e131] [cursor=pointer]
+            - button "Oral health provider" [ref=f444e134] [cursor=pointer]
+            - button "Support" [ref=f444e137] [cursor=pointer]
+        - generic [ref=f444e139]:
+          - separator [aria-hidden] [ref=f444e140]
+          - generic [ref=f444e142]:
+            - paragraph [ref=f444e143]: The Canadian Dental Care Plan is a federal government program. Sun Life’s role with the CDCP is to provide dental claims processing services.
+            - paragraph [ref=f444e144]:
+              - text: For more information about the CDCP, visit the
+              - link "Government of Canada opens in a new tab" [ref=f444e145] [cursor=pointer]:
+                - /url: https://www.canada.ca/en/services/benefits/dental/dental-care-plan.html
+                - text: Government of Canada
+                - generic "opens in a new tab"
+              - text: website.
+            - paragraph [ref=f444e147]: Life’s brighter under the sun
+            - paragraph [ref=f444e148]: © Sun Life Assurance Company of Canada. All rights reserved.
+        - generic [ref=f444e149]:
+          - separator [aria-hidden] [ref=f444e150]
+          - generic [ref=f444e151]:
+            - list [ref=f444e152]:
+              - listitem [ref=f444e153] [cursor=pointer]:
+                - link "Legalopens in a new tab" [ref=f444e154]:
+                  - /url: https://www.sunlife.com/sl/pslf-canada/en/legal/
+                  - text: Legal
+                  - generic "opens in a new tab"
+              - listitem [ref=f444e156] [cursor=pointer]:
+                - link "Privacyopens in a new tab" [ref=f444e157]:
+                  - /url: https://www.sunlife.com/sl/pslf-canada/en/privacy/
+                  - text: Privacy
+                  - generic "opens in a new tab"
+              - listitem [ref=f444e159] [cursor=pointer]:
+                - button "Cookie Settings" [ref=f444e160]
+              - listitem [ref=f444e162] [cursor=pointer]:
+                - link "Securityopens in a new tab" [ref=f444e163]:
+                  - /url: https://www.sunlife.com/sl/pslf-canada/en/security/
+                  - text: Security
+                  - generic "opens in a new tab"
+              - listitem [ref=f444e165] [cursor=pointer]:
+                - link "Accessibilityopens in a new tab" [ref=f444e166]:
+                  - /url: https://www.sunlife.ca/en/about-us/accessibility-commitment/
+                  - text: Accessibility
+                  - generic "opens in a new tab"
+            - generic [ref=f444e167]: SLF
+  - region "Your privacy is important to us" [ref=f444e170]:
+    - dialog "Your privacy is important to us" [ref=f444e171]:
+      - generic [ref=f444e173]:
+        - generic [ref=f444e175]:
+          - heading "Your privacy is important to us" [level=2] [ref=f444e176]
+          - generic [ref=f444e177]:
+            - text: We use cookies and similar technologies to help us understand how people browse our site, improve your experience and show you relevant content. Select "Accept all" or close this banner to agree. To choose which ones to allow, select "Manage preferences".
+            - link "How we protect your privacy, opens in a new tab" [ref=f444e178] [cursor=pointer]:
+              - /url: https://www.sunlife.com/sl/pslf-canada/en/privacy/our-global-privacy-commitment/
+              - text: How we protect your privacy
+        - generic [ref=f444e180]:
+          - button "Manage preferences, Opens the preference center dialog" [ref=f444e181] [cursor=pointer]: Manage preferences
+          - button "Accept all" [ref=f444e182] [cursor=pointer]
+      - button "Close" [ref=f444e184] [cursor=pointer]

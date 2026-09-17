@@ -1,0 +1,136 @@
+- generic [active] [ref=f501e1]:
+  - generic [ref=f501e4]:
+    - banner [ref=f501e10]:
+      - generic:
+        - link "Skip to client sign in" [ref=f501e11] [cursor=pointer]:
+          - /url: "#signinbutton"
+        - link "Skip to content" [ref=f501e12] [cursor=pointer]:
+          - /url: "#main-content"
+        - link "Skip to footer" [ref=f501e13] [cursor=pointer]:
+          - /url: "#footer"
+      - generic [ref=f501e16]:
+        - button "open menu" [ref=f501e17] [cursor=pointer]
+        - link [ref=f501e22] [cursor=pointer]:
+          - /url: /en/
+          - img "Sun Life" [ref=f501e23]
+    - navigation "Breadcrumb" [ref=f501e25]:
+      - list [ref=f501e26]:
+        - listitem [ref=f501e27]:
+          - link "Home" [ref=f501e28] [cursor=pointer]:
+            - /url: /sl/cdcp/en/
+          - generic [aria-hidden] [ref=f501e29]: /
+        - listitem [ref=f501e30]:
+          - link "Oral health provider" [ref=f501e31] [cursor=pointer]:
+            - /url: /sl/cdcp/en/provider/
+          - generic [aria-hidden] [ref=f501e32]: /
+        - listitem [ref=f501e33]:
+          - link "Additional Resources" [ref=f501e34] [cursor=pointer]:
+            - /url: /sl/cdcp/en/provider/additional-resources/
+          - generic [aria-hidden] [ref=f501e35]: /
+        - listitem [ref=f501e36]:
+          - link "Claims verification program":
+            - /url: ""
+    - main [ref=f501e37]:
+      - generic [ref=f501e40]:
+        - heading "Claims verification program" [level=1] [ref=f501e43]
+        - generic [ref=f501e45]:
+          - paragraph [ref=f501e46]:
+            - text: The Claims verification program is intended to confirm that claims are submitted in accordance with the Canadian Dental Care Plan (CDCP) Claims Processing and Payment Terms (Billing Agreement). The Program is performed through risk-based methodologies and will be considered on a pre- and post- verification basis. It is not designed to be biased towards oral health providers who have more patients or submit more claims. The process will be reviewed regularly to verify that it is fair and objective. Additional information on the Program including the appeal process can be found at the
+            - link "Sun Life CDCP Public Website" [ref=f501e47] [cursor=pointer]:
+              - /url: /sl/cdcp/en/
+            - text: .
+          - paragraph [ref=f501e48]: The Claims verification program has the following objectives
+          - list [ref=f501e49]:
+            - listitem [ref=f501e50]: Detect administrative claim submission errors.
+            - listitem [ref=f501e51]: Detect inaccurate claims and recover overpayments.
+            - listitem [ref=f501e52]: Confirm oral health providers have retained the appropriate supporting documentation as required by their provincial/territorial regulatory bodies and the CDCP.
+            - listitem [ref=f501e53]: Ensure claimed treatments or services were received by CDCP clients.
+            - listitem [ref=f501e54]: Validate oral health providers are in good standing with their regulatory bodies.
+            - listitem [ref=f501e55]: Confirm the ineligibility of an oral health provider to submit future claims to the CDCP, if found to have intentionally submitted false or incomplete information to receive benefits or payments.
+        - generic [ref=f501e57]:
+          - heading "Oral Health Provider Responsibilities" [level=2] [ref=f501e58]
+          - paragraph [ref=f501e59]:
+            - text: As part of providing care to CDCP clients, the oral health provider agrees to co-operate with Sun Life in claims verification activities. Additional documentation or CDCP client records may be asked for to support a claimed expense. Documentation requested will be relevant to the treatment being verified and will be in line with industry standards. The oral health provider is required to provide the requested documentation within twenty-one (21) calendar days from the time of the initial request. The following are
+            - strong [ref=f501e60]: examples
+            - text: "of documentation that could be requested:"
+          - list [ref=f501e61]:
+            - listitem [ref=f501e62]: CDCP client chart / records
+            - listitem [ref=f501e63]: CDCP client radiographs / photographs
+            - listitem [ref=f501e64]: Daily appointment records / Evidence of financial transactions
+            - listitem [ref=f501e65]: Laboratory invoices / receipts
+            - listitem [ref=f501e66]: Evidence of additional coverage (e.g., coordination of benefits)
+          - paragraph [ref=f501e67]: An oral health provider is required to retain CDCP claims documentation for a minimum of two (2) years following the claim submission date. In the absence of supporting documentation from the oral health provider, a verification decision will be made.
+          - paragraph [ref=f501e68]: Verification findings could lead to payment corrections, either through the CDCP Benefits Administrator providing the oral health provider with additional payment or seeking reimbursement of an overpayment. In the event of an overpayment, Sun Life will provide written notice of the verification decision. If payment is not received within 30 days of notice of the verification decision, an overpayment could be reimbursed through an offset against future eligible claims. Sun Life will not pursue reimbursement with the oral health provider if the overpayment is a result of a misrepresentation by a CDCP client.
+          - paragraph [ref=f501e69]: Verifications findings will be shared with the oral health provider. The oral health provider will be able to request a reconsideration of a verification finding by Sun Life. If the provider does not agree with the reconsideration decision, they can appeal it to Health Canada.
+          - heading "Daily Claims Verification" [level=2] [ref=f501e70]
+          - paragraph [ref=f501e71]: Sun Life will review claims submitted by oral health providers on the next business day from the claim submission date. Sun Life may temporarily hold or delay payment pending the verification of the claim.
+          - heading "Client Confirmation" [level=2] [ref=f501e72]
+          - paragraph [ref=f501e73]: Sun Life will send a confirmation letter to a CDCP client to verify they received the submitted services. This verification will be performed on a post-payment basis and will not impact the payment schedule for providers.
+          - paragraph [ref=f501e74]: If the CDCP client is unable to validate the services, Sun Life will contact the oral health provider to request supporting documentation as referred to above.
+          - heading "Desk Claims Verification" [level=2] [ref=f501e75]
+          - paragraph [ref=f501e76]: The Desk Claims Verification is a review and assessment of a defined sample of claims to ensure compliance with the CDCP Claims Processing and Payment Terms. Oral health providers are asked to supply all requested supporting documentation and the validation of the CDCP client’s records, per the examples listed above. Sun Life will select a small sample of claims to be verified and only expand the sample if additional concerns arise.
+          - heading "Escalated Verification (On-site)" [level=2] [ref=f501e77]
+          - paragraph [ref=f501e78]: If all prior verifications conducted are insufficient to verify compliance with the CDCP Claim Processing and Payment Terms (Billing Agreement), Health Canada will first consult with the relevant provincial or territorial regulatory body on the appropriate next steps to be taken. For some provincial and territorial regulatory bodies, this could be in the form of a formal complaint to be investigated by the regulatory body. For others, an on-site verification could be considered, as one of a number of steps that could be followed.
+          - paragraph [ref=f501e79]: On-site verifications will only be completed at the request of Health Canada, who will define the scope of the verifications. Verifications will be done with advance notice and solely to determine compliance with the CDCP Claims Processing and Payment Terms.
+    - contentinfo [ref=f501e85]:
+      - generic [ref=f501e87]:
+        - generic [ref=f501e88]:
+          - separator [aria-hidden] [ref=f501e89]
+          - generic [ref=f501e90]:
+            - button "Member" [ref=f501e92] [cursor=pointer]
+            - button "Oral health provider" [ref=f501e97] [cursor=pointer]
+            - button "Support" [ref=f501e102] [cursor=pointer]
+        - generic [ref=f501e106]:
+          - separator [aria-hidden] [ref=f501e107]
+          - generic [ref=f501e109]:
+            - paragraph [ref=f501e110]: The Canadian Dental Care Plan is a federal government program. Sun Life’s role with the CDCP is to provide dental claims processing services.
+            - paragraph [ref=f501e111]:
+              - text: For more information about the CDCP, visit the
+              - link "Government of Canada opens in a new tab" [ref=f501e112] [cursor=pointer]:
+                - /url: https://www.canada.ca/en/services/benefits/dental/dental-care-plan.html
+                - text: Government of Canada
+                - img "opens in a new tab" [ref=f501e114]
+              - text: website.
+            - paragraph [ref=f501e116]: Life’s brighter under the sun
+            - paragraph [ref=f501e117]: © Sun Life Assurance Company of Canada. All rights reserved.
+        - generic [ref=f501e118]:
+          - separator [aria-hidden] [ref=f501e119]
+          - generic [ref=f501e120]:
+            - list [ref=f501e121]:
+              - listitem [ref=f501e122] [cursor=pointer]:
+                - link "Legal opens in a new tab" [ref=f501e123]:
+                  - /url: https://www.sunlife.com/sl/pslf-canada/en/legal/
+                  - text: Legal
+                  - img "opens in a new tab" [ref=f501e124]
+              - listitem [ref=f501e127] [cursor=pointer]:
+                - link "Privacy opens in a new tab" [ref=f501e128]:
+                  - /url: https://www.sunlife.com/sl/pslf-canada/en/privacy/
+                  - text: Privacy
+                  - img "opens in a new tab" [ref=f501e129]
+              - listitem [ref=f501e132] [cursor=pointer]:
+                - button "Cookie Settings" [ref=f501e133]
+              - listitem [ref=f501e135] [cursor=pointer]:
+                - link "Security opens in a new tab" [ref=f501e136]:
+                  - /url: https://www.sunlife.com/sl/pslf-canada/en/security/
+                  - text: Security
+                  - img "opens in a new tab" [ref=f501e137]
+              - listitem [ref=f501e140] [cursor=pointer]:
+                - link "Accessibility opens in a new tab" [ref=f501e141]:
+                  - /url: https://www.sunlife.ca/en/about-us/accessibility-commitment/
+                  - text: Accessibility
+                  - img "opens in a new tab" [ref=f501e142]
+            - generic [ref=f501e144]: SLF
+  - region "Your privacy is important to us" [ref=f501e147]:
+    - dialog "Your privacy is important to us" [ref=f501e148]:
+      - generic [ref=f501e150]:
+        - generic [ref=f501e152]:
+          - heading "Your privacy is important to us" [level=2] [ref=f501e153]
+          - generic [ref=f501e154]:
+            - text: We use cookies and similar technologies to help us understand how people browse our site, improve your experience and show you relevant content. Select "Accept all" or close this banner to agree. To choose which ones to allow, select "Manage preferences".
+            - link "How we protect your privacy, opens in a new tab" [ref=f501e155] [cursor=pointer]:
+              - /url: https://www.sunlife.com/sl/pslf-canada/en/privacy/our-global-privacy-commitment/
+              - text: How we protect your privacy
+        - generic [ref=f501e159]:
+          - button "Manage preferences, Opens the preference center dialog" [ref=f501e160] [cursor=pointer]: Manage preferences
+          - button "Accept all" [ref=f501e161] [cursor=pointer]
+      - button "Close" [ref=f501e163] [cursor=pointer]

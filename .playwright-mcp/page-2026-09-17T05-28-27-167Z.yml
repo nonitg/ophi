@@ -1,0 +1,92 @@
+- generic [ref=f466e4]:
+  - banner [ref=f466e10]:
+    - generic:
+      - link "Skip to client sign in" [ref=f466e11] [cursor=pointer]:
+        - /url: "#signinbutton"
+      - link "Skip to content" [ref=f466e12] [cursor=pointer]:
+        - /url: "#main-content"
+      - link "Skip to footer" [ref=f466e13] [cursor=pointer]:
+        - /url: "#footer"
+    - generic [ref=f466e16]:
+      - button "open menu" [ref=f466e17] [cursor=pointer]
+      - link [ref=f466e22] [cursor=pointer]:
+        - /url: /en/
+        - img "Sun Life" [ref=f466e23]
+  - navigation "Breadcrumb" [ref=f466e25]:
+    - list [ref=f466e26]:
+      - listitem [ref=f466e27]:
+        - link "Home" [ref=f466e28] [cursor=pointer]:
+          - /url: /sl/cdcp/en/
+        - generic [aria-hidden] [ref=f466e29]: /
+      - listitem [ref=f466e30]:
+        - link "Oral health provider" [ref=f466e31] [cursor=pointer]:
+          - /url: /sl/cdcp/en/provider/
+        - generic [aria-hidden] [ref=f466e32]: /
+      - listitem [ref=f466e33]:
+        - link "Newsletters":
+          - /url: ""
+  - main [ref=f466e34]:
+    - generic [ref=f466e37]:
+      - heading "Newsletters" [level=1] [ref=f466e40]
+      - paragraph [ref=f466e43]: Newsletters are published to provide information to oral health providers on the Canadian Dental Care Plan (CDCP) policy changes, fee updates and other relevant information. These will be added as they become available.
+      - generic [ref=f466e45]:
+        - paragraph [ref=f466e46]:
+          - link "Canadian Dental Care Plan Oral Health Provider Newsletter Volume 1 – May 29, 2025" [ref=f466e47] [cursor=pointer]:
+            - /url: /sl/cdcp/en/provider/newsletters/cdcp-newsletter-1-05212025/
+        - paragraph [ref=f466e48]:
+          - link "Canadian Dental Care Plan Oral Health Provider Newsletter Volume 2 – November 4, 2025" [ref=f466e49] [cursor=pointer]:
+            - /url: /sl/cdcp/en/provider/newsletters/cdcp-newsletter-2-10282025/
+        - paragraph [ref=f466e50]:
+          - link "Canadian Dental Care Plan Oral Health Provider Newsletter Volume 3 – March 3, 2026" [ref=f466e51] [cursor=pointer]:
+            - /url: /sl/cdcp/en/provider/newsletters/cdcp-newsletter-3-03032026/
+        - paragraph [ref=f466e52]:
+          - link "Canadian Dental Care Plan Oral Health Provider Newsletter Volume 4 – June 23, 2026" [ref=f466e53] [cursor=pointer]:
+            - /url: /sl/cdcp/en/provider/newsletters/cdcp-newsletter-4-06232026/
+  - contentinfo [ref=f466e59]:
+    - generic [ref=f466e61]:
+      - generic [ref=f466e62]:
+        - separator [aria-hidden] [ref=f466e63]
+        - generic [ref=f466e64]:
+          - button "Member" [ref=f466e66] [cursor=pointer]
+          - button "Oral health provider" [ref=f466e71] [cursor=pointer]
+          - button "Support" [ref=f466e76] [cursor=pointer]
+      - generic [ref=f466e80]:
+        - separator [aria-hidden] [ref=f466e81]
+        - generic [ref=f466e83]:
+          - paragraph [ref=f466e84]: The Canadian Dental Care Plan is a federal government program. Sun Life’s role with the CDCP is to provide dental claims processing services.
+          - paragraph [ref=f466e85]:
+            - text: For more information about the CDCP, visit the
+            - link "Government of Canada opens in a new tab" [ref=f466e86] [cursor=pointer]:
+              - /url: https://www.canada.ca/en/services/benefits/dental/dental-care-plan.html
+              - text: Government of Canada
+              - img "opens in a new tab" [ref=f466e88]
+            - text: website.
+          - paragraph [ref=f466e90]: Life’s brighter under the sun
+          - paragraph [ref=f466e91]: © Sun Life Assurance Company of Canada. All rights reserved.
+      - generic [ref=f466e92]:
+        - separator [aria-hidden] [ref=f466e93]
+        - generic [ref=f466e94]:
+          - list [ref=f466e95]:
+            - listitem [ref=f466e96] [cursor=pointer]:
+              - link "Legal opens in a new tab" [ref=f466e97]:
+                - /url: https://www.sunlife.com/sl/pslf-canada/en/legal/
+                - text: Legal
+                - img "opens in a new tab" [ref=f466e98]
+            - listitem [ref=f466e101] [cursor=pointer]:
+              - link "Privacy opens in a new tab" [ref=f466e102]:
+                - /url: https://www.sunlife.com/sl/pslf-canada/en/privacy/
+                - text: Privacy
+                - img "opens in a new tab" [ref=f466e103]
+            - listitem [ref=f466e106] [cursor=pointer]:
+              - button "Cookie settings" [ref=f466e107]
+            - listitem [ref=f466e109] [cursor=pointer]:
+              - link "Security opens in a new tab" [ref=f466e110]:
+                - /url: https://www.sunlife.com/sl/pslf-canada/en/security/
+                - text: Security
+                - img "opens in a new tab" [ref=f466e111]
+            - listitem [ref=f466e114] [cursor=pointer]:
+              - link "Accessibility opens in a new tab" [ref=f466e115]:
+                - /url: https://www.sunlife.ca/en/about-us/accessibility-commitment/
+                - text: Accessibility
+                - img "opens in a new tab" [ref=f466e116]
+          - generic [ref=f466e118]: SLF

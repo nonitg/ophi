@@ -1,0 +1,605 @@
+<title>Reading the Chart</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap">
+
+<style>
+:root {
+  /* Neutrals biased green toward the accent — clinical, not corporate grey. */
+  --ground:      #F6F8F7;
+  --surface:     #FFFFFF;
+  --surface-alt: #EDF1EF;
+  --ink:         #16201C;
+  --ink-muted:   #5B6A64;
+  --ink-faint:   #5F6E68;
+  --rule:        #D9E1DD;
+  --rule-strong: #B9C7C1;
+  --accent:      #0F6E5C;
+  --accent-soft: #DCEDE8;
+  /* Semantic, deliberately separate from the accent hue. */
+  --absent:      #A8432B;
+  --absent-soft: #F6E3DE;
+  --stale:       #8A6410;
+  --stale-soft:  #F6EDD8;
+
+  --measure: 68ch;
+  --step--1: clamp(0.78rem, 0.76rem + 0.1vw, 0.84rem);
+  --step-0:  clamp(1rem, 0.97rem + 0.15vw, 1.09rem);
+  --step-1:  clamp(1.2rem, 1.1rem + 0.4vw, 1.4rem);
+  --step-2:  clamp(1.5rem, 1.3rem + 0.9vw, 2rem);
+  --step-3:  clamp(1.95rem, 1.6rem + 1.7vw, 3rem);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ground:      #0F1513;
+    --surface:     #17201D;
+    --surface-alt: #1E2926;
+    --ink:         #E4EDE9;
+    --ink-muted:   #9EAEA8;
+    --ink-faint:   #8B9B95;
+    --rule:        #2A3733;
+    --rule-strong: #3D4C47;
+    --accent:      #5AC4A8;
+    --accent-soft: #16302A;
+    --absent:      #E08267;
+    --absent-soft: #37211B;
+    --stale:       #D9AC4E;
+    --stale-soft:  #332A15;
+  }
+}
+:root[data-theme="dark"] {
+  --ground:      #0F1513;
+  --surface:     #17201D;
+  --surface-alt: #1E2926;
+  --ink:         #E4EDE9;
+  --ink-muted:   #9EAEA8;
+  --ink-faint:   #8B9B95;
+  --rule:        #2A3733;
+  --rule-strong: #3D4C47;
+  --accent:      #5AC4A8;
+  --accent-soft: #16302A;
+  --absent:      #E08267;
+  --absent-soft: #37211B;
+  --stale:       #D9AC4E;
+  --stale-soft:  #332A15;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  background: var(--ground);
+  color: var(--ink);
+  font-family: "Source Serif 4", Georgia, "Times New Roman", serif;
+  font-size: var(--step-0);
+  line-height: 1.62;
+  -webkit-font-smoothing: antialiased;
+}
+
+.wrap {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding-inline: max(20px, 4vw);
+  padding-block: 0 5rem;
+}
+
+/* Prose runs in a narrow measure; specimens break out wider. */
+.col { max-width: var(--measure); }
+
+h1, h2, h3, .eyebrow, .ui, table, .spec {
+  font-family: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+code, .mono, .byte, .tooth b {
+  font-family: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+
+/* ---------- masthead ---------- */
+header.mast {
+  border-bottom: 1px solid var(--rule);
+  padding-block: clamp(2.5rem, 6vw, 4.5rem) clamp(1.75rem, 4vw, 2.75rem);
+}
+.kicker {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: var(--step--1);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin: 0 0 1.1rem;
+}
+h1 {
+  font-family: "Source Serif 4", Georgia, serif;
+  font-weight: 600;
+  font-size: var(--step-3);
+  line-height: 1.08;
+  letter-spacing: -0.015em;
+  text-wrap: balance;
+  margin: 0 0 1rem;
+}
+.standfirst {
+  font-size: var(--step-1);
+  color: var(--ink-muted);
+  max-width: 58ch;
+  margin: 0;
+  text-wrap: pretty;
+}
+
+/* ---------- sections ---------- */
+section { padding-block: clamp(2.25rem, 5vw, 3.5rem); border-bottom: 1px solid var(--rule); }
+section:last-of-type { border-bottom: 0; }
+
+.eyebrow {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  font-size: var(--step--1);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-bottom: 0.7rem;
+}
+/* The eyebrow's tag is the real table this concept lives in — structure carrying fact. */
+.eyebrow .tag {
+  font-family: "IBM Plex Mono", monospace;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--accent);
+  background: var(--accent-soft);
+  padding: 0.15em 0.5em;
+  border-radius: 3px;
+}
+h2 {
+  font-family: "Source Serif 4", Georgia, serif;
+  font-weight: 600;
+  font-size: var(--step-2);
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  margin: 0 0 0.9rem;
+  text-wrap: balance;
+}
+h3 {
+  font-size: var(--step-0);
+  font-weight: 600;
+  letter-spacing: 0.005em;
+  margin: 2rem 0 0.5rem;
+}
+p { margin: 0 0 1.05rem; }
+p:last-child { margin-bottom: 0; }
+strong { font-weight: 600; }
+em.term { font-style: normal; font-weight: 600; color: var(--accent); }
+
+code {
+  font-size: 0.87em;
+  background: var(--surface-alt);
+  padding: 0.12em 0.36em;
+  border-radius: 3px;
+}
+
+ul.plain { margin: 0 0 1.05rem; padding-left: 1.1rem; }
+ul.plain li { margin-bottom: 0.45rem; }
+
+/* ---------- specimen blocks ---------- */
+.spec {
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  padding: clamp(1rem, 2.5vw, 1.6rem);
+  margin: 1.75rem 0;
+}
+.spec-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+  flex-wrap: wrap;
+  font-size: var(--step--1);
+  color: var(--ink-faint);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+}
+.spec-head .src { font-family: "IBM Plex Mono", monospace; text-transform: none; letter-spacing: 0; }
+
+.scroll { overflow-x: auto; }
+
+table { border-collapse: collapse; width: 100%; font-size: 0.9rem; }
+th, td { text-align: left; padding: 0.5rem 0.75rem 0.5rem 0; border-bottom: 1px solid var(--rule); vertical-align: top; }
+th { font-weight: 600; font-size: var(--step--1); letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-faint); }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; font-family: "IBM Plex Mono", monospace; padding-right: 1rem; }
+td.mono { font-family: "IBM Plex Mono", monospace; font-size: 0.85rem; }
+tr:last-child td { border-bottom: 0; }
+
+.pill {
+  display: inline-block;
+  font-family: "IBM Plex Sans", sans-serif;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  padding: 0.16em 0.5em;
+  border-radius: 3px;
+  white-space: nowrap;
+}
+.pill.gap    { background: var(--absent-soft); color: var(--absent); }
+.pill.stale  { background: var(--stale-soft);  color: var(--stale); }
+.pill.ok     { background: var(--accent-soft); color: var(--accent); }
+
+/* ---------- tooth chart ---------- */
+.arch { display: grid; grid-template-columns: repeat(16, minmax(0, 1fr)); gap: 3px; }
+.arch + .arch { margin-top: 0.5rem; }
+.tooth {
+  background: var(--surface-alt);
+  border: 1px solid var(--rule);
+  border-radius: 3px;
+  padding: 0.3rem 0.1rem;
+  text-align: center;
+  line-height: 1.25;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: clamp(0.58rem, 1.1vw, 0.72rem);
+}
+.tooth b { display: block; font-weight: 600; color: var(--ink); }
+.tooth span { display: block; color: var(--ink-faint); font-size: 0.85em; }
+.tooth.flag { background: var(--accent-soft); border-color: var(--accent); }
+.tooth.flag b { color: var(--accent); }
+.arch-label {
+  font-family: "IBM Plex Sans", sans-serif;
+  font-size: var(--step--1);
+  color: var(--ink-faint);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin: 0.9rem 0 0.35rem;
+}
+.arch-label:first-child { margin-top: 0; }
+
+/* ---------- perio grid ---------- */
+.perio { display: grid; grid-template-columns: repeat(32, minmax(0, 1fr)); gap: 2px; min-width: 620px; }
+.pcol { display: grid; grid-template-rows: auto repeat(6, 1fr); gap: 2px; }
+.pcol .lbl {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.58rem;
+  text-align: center;
+  color: var(--ink-faint);
+  padding-bottom: 2px;
+}
+.byte {
+  aspect-ratio: 1;
+  min-height: 15px;
+  border-radius: 2px;
+  display: grid;
+  place-items: center;
+  font-size: 0.62rem;
+  font-weight: 500;
+  color: var(--ink);
+  background: var(--surface-alt);
+}
+.byte.absent { background: repeating-linear-gradient(45deg, var(--absent-soft) 0 3px, transparent 3px 6px); color: transparent; }
+.byte.d5 { background: var(--stale-soft);  color: var(--stale);  font-weight: 600; }
+.byte.d6 { background: var(--absent-soft); color: var(--absent); font-weight: 600; }
+.legend { display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 1rem; font-size: var(--step--1); color: var(--ink-muted); font-family: "IBM Plex Sans", sans-serif; }
+.legend span { display: inline-flex; align-items: center; gap: 0.4rem; }
+.swatch { width: 0.85rem; height: 0.85rem; border-radius: 2px; display: inline-block; }
+
+/* ---------- callout ---------- */
+.note {
+  border-left: 3px solid var(--accent);
+  background: var(--surface);
+  padding: 1rem 1.15rem;
+  margin: 1.75rem 0;
+  border-radius: 0 5px 5px 0;
+}
+.note p { font-size: 0.96rem; }
+.note .label {
+  font-family: "IBM Plex Sans", sans-serif;
+  font-size: var(--step--1);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
+  display: block;
+  margin-bottom: 0.4rem;
+}
+
+footer {
+  padding-block: 2.5rem;
+  color: var(--ink-faint);
+  font-family: "IBM Plex Sans", sans-serif;
+  font-size: var(--step--1);
+  border-top: 1px solid var(--rule);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+</style>
+
+<div class="wrap">
+
+<header class="mast">
+  <p class="kicker">Colombus · lab notes</p>
+  <h1>Reading the Chart</h1>
+  <p class="standfirst">What a dental practice management system actually is, taught through the one on our lab machine — ABELDent 15.1, its Fictional Data set, and the four subsystems every PMS turns out to be.</p>
+</header>
+
+<section>
+  <div class="col">
+    <div class="eyebrow"><span>Orientation</span></div>
+    <h2>A PMS is four systems wearing one coat</h2>
+    <p>A practice management system looks like a single application and is not. It is a schedule, a clinical chart, a money ledger, and an insurance module, joined by nothing more than a shared patient ID. Each was built by different people in a different decade, and each stores its data in a shape that made sense to <em class="term">that</em> subsystem alone.</p>
+    <p>That seam is the entire reason Colombus exists. A preauthorization needs evidence from three of the four at once, in three different formats, and a human currently does that join by opening four screens and comparing dates by eye.</p>
+    <p>Everything below is measured from the real install, not from the manual. Where a table name appears in the margin, that is where the concept actually lives on disk.</p>
+  </div>
+</section>
+
+<section>
+  <div class="col">
+    <div class="eyebrow"><span>Subsystem one · the schedule</span><span class="tag">apt</span></div>
+    <h2>Chairs multiplied by time</h2>
+    <p>The front desk's world. An appointment carries a patient, a provider, a column (the operatory — the physical chair), a start time, and a duration counted in <em class="term">units</em> rather than minutes. Ten to fifteen minutes per unit, set per practice.</p>
+    <p>An appointment also carries <code>Work to do</code> — a free-text line like <code>consult</code>. That is a plan expressed as a string, not a link to a procedure record. The schedule knows what is <em class="term">supposed</em> to happen. It does not know what the chart says, and nothing reconciles the two.</p>
+  </div>
+</section>
+
+<section>
+  <div class="eyebrow"><span>Subsystem two · the clinical chart</span><span class="tag">Perio</span><span class="tag">Charts</span><span class="tag">Notes</span></div>
+  <div class="col">
+    <h2>Three stores people call one thing</h2>
+    <p>"The chart" is shorthand for three unrelated data structures.</p>
+
+    <h3>The odontogram</h3>
+    <p>Per-tooth, per-surface state: what is present, what is restored, what is missing. A tooth has five named surfaces, so a restoration is identified as a tooth plus a surface combination — <code>#46 MO</code> is the mesial and occlusal surfaces of the lower right first molar.</p>
+
+    <h3>The periodontal chart</h3>
+    <p>Six pocket-depth measurements per tooth, taken with a graduated probe, plus recession, bleeding, suppuration, mobility and furcation. Thirty-two teeth times six sites is <strong>192 measurements</strong> for one full-mouth exam. A hygienist calls them out and someone types them in.</p>
+    <p>ABELDent stores this exam not as 192 rows but as a fixed-width binary column: <code>Pocket char(192)</code>, one byte per site, the value being the depth in millimetres, with <code>0xFF</code> for a site that has no reading. Here is one real exam from the Fictional Data set, decoded:</p>
+  </div>
+
+  <div class="spec">
+    <div class="spec-head">
+      <span>Periodontal exam · patient 155 · exam 1 of 3 · 2004-12-13</span>
+      <span class="src">Perio.Pocket → varbinary(192)</span>
+    </div>
+    <div class="scroll"><div class="perio" id="periogrid"></div></div>
+    <div class="legend">
+      <span><i class="swatch" style="background:var(--surface-alt)"></i> 1–4 mm, healthy</span>
+      <span><i class="swatch" style="background:var(--stale-soft)"></i> 5 mm</span>
+      <span><i class="swatch" style="background:var(--absent-soft)"></i> 6 mm and deeper</span>
+      <span><i class="swatch" style="background:repeating-linear-gradient(45deg,var(--absent-soft) 0 3px,transparent 3px 6px)"></i> no reading — tooth absent or not probed</span>
+    </div>
+  </div>
+
+  <div class="col">
+    <p>Read it as a clinician would: each column is a tooth, each cell a probe site. The hatched columns are teeth that are gone — and the pattern of which ones are gone is itself diagnostic. Here, eight are missing, including all four third molars. Three sites reach 5–7 mm, which is the depth at which a pocket stops being a crevice and starts being a disease.</p>
+
+    <div class="note">
+      <span class="label">Why the count matters more than the depths</span>
+      <p>A full-mouth exam of 192 points and a twelve-point spot check are opposite clinical statements, and nothing but the count separates them. A rule that asks "is there periodontal charting?" gets <em class="term">yes</em> from both. A rule that asks "how many sites were recorded, and when?" does not. Our extractor reports the point count as a first-class field for exactly this reason.</p>
+    </div>
+
+    <h3>Clinical notes</h3>
+    <p>Free text, sometimes templated, carrying flags for deleted, superseded and signed-off. This is where the reason for a crown actually lives — in prose, written for another clinician, never for a payer. It is the least structured and most load-bearing part of the record.</p>
+  </div>
+</section>
+
+<section>
+  <div class="col">
+    <div class="eyebrow"><span>Subsystem three · the ledger</span><span class="tag">tdi</span></div>
+    <h2>Every procedure has two lives</h2>
+    <p>A procedure exists first as a <em class="term">plan</em> — proposed, unbilled, no money moved — and later as a <em class="term">completed</em> entry. Both live in the same table, in the same shape, separated by one flag.</p>
+  </div>
+
+  <div class="spec">
+    <div class="spec-head">
+      <span>The treatment ledger, by item type</span>
+      <span class="src">tdi.itype</span>
+    </div>
+    <div class="scroll">
+      <table>
+        <thead><tr><th>Flag</th><th class="num">Rows</th><th>Meaning</th><th>Consequence</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">' '</td><td class="num">598</td><td>Completed and posted</td><td>Billable. Money has moved.</td></tr>
+          <tr><td class="mono">'P'</td><td class="num">32</td><td>Planned</td><td>Proposed only. What a preauth is <em>about</em>.</td></tr>
+          <tr><td class="mono">'T'</td><td class="num">7</td><td>Unidentified</td><td>Also planned in practice — one of our crown cases is a <code>T</code>.</td></tr>
+          <tr><td class="mono">'I'</td><td class="num">3</td><td>Unidentified</td><td>Unknown. No rule may depend on it yet.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="col">
+    <p>Reading a planned crown as a completed one is <strong>the</strong> classic PMS integration bug. It is a single character, it is undocumented, and two of its four values are still unidentified on our own lab machine. We will not guess them — we will change something in the application and watch which rows move.</p>
+    <p>A ledger row also carries both a <code>Provider</code> and a <code>Responsible Provider</code>: who performed the work, and who owns the patient. On a preauthorization those are frequently different people, and only one of them is the treating dentist of record.</p>
+  </div>
+</section>
+
+<section>
+  <div class="col">
+    <div class="eyebrow"><span>Subsystem four · insurance</span><span class="tag">ixi</span><span class="tag">ins</span><span class="tag">nsj</span></div>
+    <h2>A claim asks to be paid. A predetermination asks permission.</h2>
+    <p>A patient holds one or more <em class="term">coverages</em>: a carrier, a policy, a group number, a certificate number, and a relationship to whoever actually holds the plan — often a parent or a spouse, who may not be a patient of the practice at all.</p>
+    <p>Two transactions run over the same wire in the same format. A <strong>claim</strong> says <em>this was done, pay me.</em> A <strong>predetermination</strong> says <em>this is proposed, will you cover it?</em> — same message, different transaction code, no money. In the industry the words preauthorization, predetermination and pre-estimate are used interchangeably; they are the same submission.</p>
+    <p>Colombus operates only on the second. We assemble the packet. A human at the practice submits it, because the rules governing that wire require the treating dentist to be the sender of record.</p>
+  </div>
+</section>
+
+<section>
+  <div class="eyebrow"><span>The trap</span><span class="tag">notation</span></div>
+  <div class="col">
+    <h2>Two numbering systems, one database</h2>
+    <p>Teeth are numbered, and the world does not agree on how. Canada uses <strong>FDI</strong> two-digit notation: first digit the quadrant, second the position from the midline, so <code>46</code> is the lower-right first molar. North American software frequently uses <strong>Universal</strong> numbering, a simple 1–32 sweep starting at the upper right third molar.</p>
+    <p>Both are in ABELDent, in different subsystems. The ledger records teeth in FDI. The periodontal arrays are indexed in Universal order. Joining a planned crown to the perio evidence for that same tooth requires a conversion that nothing in the database tells you is necessary.</p>
+  </div>
+
+  <div class="spec">
+    <div class="spec-head">
+      <span>Both notations, aligned · highlighted: the seven crowns planned in Fictional Data</span>
+      <span class="src">tdi.itooth = FDI · Perio index = Universal</span>
+    </div>
+    <p class="arch-label">Upper arch — patient's right to left</p>
+    <div class="arch" id="archUpper"></div>
+    <p class="arch-label">Lower arch</p>
+    <div class="arch" id="archLower"></div>
+    <div class="legend">
+      <span><b class="mono">46</b>&nbsp;FDI, as the ledger stores it</span>
+      <span><span class="mono" style="color:var(--ink-faint)">30</span>&nbsp;Universal, as the perio array is indexed</span>
+      <span><i class="swatch" style="background:var(--accent-soft);border:1px solid var(--accent)"></i> has a crown planned in our test data</span>
+    </div>
+  </div>
+
+  <div class="col">
+    <div class="note">
+      <span class="label">The failure this produces</span>
+      <p>Tooth <code>36</code> in FDI is Universal index 19. Read the perio array at index 36 instead and you are either out of bounds or reading a different tooth's measurements — and in neither case does anything throw. You get a confident, wrong answer about a tooth the patient may not even have. This is why the conversion belongs in one tested function and never at a call site.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="eyebrow"><span>Putting it together</span><span class="tag">the join</span></div>
+  <div class="col">
+    <h2>What a preauthorization actually costs a human</h2>
+    <p>Here is the whole job. A crown is proposed on tooth 36. The documentation rules ask for a recent radiograph of that tooth, periodontal charting, and a clinical note establishing why a filling will not hold. Three pieces of evidence:</p>
+  </div>
+
+  <div class="spec">
+    <div class="spec-head">
+      <span>Seven patients with a planned crown</span>
+      <span class="src">Abel_FictionalCA · measured 2026-09-17</span>
+    </div>
+    <div class="scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>Patient</th>
+            <th class="num">Crowns</th>
+            <th class="num">Coverage</th>
+            <th>Perio</th>
+            <th class="num">Notes</th>
+            <th>Radiographs</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>WATSON, NORMA</td><td class="num">6</td><td class="num">1</td><td><span class="pill stale">2002</span></td><td class="num">3</td><td><span class="pill gap">none</span></td></tr>
+          <tr><td>WATSON, CHARLES</td><td class="num">1</td><td class="num">1</td><td><span class="pill stale">2004</span></td><td class="num">0</td><td><span class="pill gap">none</span></td></tr>
+          <tr><td>ROSCO, PATRICA</td><td class="num">1</td><td class="num">2</td><td><span class="pill gap">no exam</span></td><td class="num">2</td><td><span class="pill gap">none</span></td></tr>
+          <tr><td>PROVOST, JOHN</td><td class="num">1</td><td class="num">1</td><td><span class="pill ok">2005</span></td><td class="num">11</td><td><span class="pill gap">none</span></td></tr>
+          <tr><td>YOKOYAMA, SUMI</td><td class="num">1</td><td class="num">1</td><td><span class="pill ok">2005</span></td><td class="num">13</td><td><span class="pill gap">none</span></td></tr>
+          <tr><td>RANDAL, KRIS</td><td class="num">1</td><td class="num">1</td><td><span class="pill ok">2006</span></td><td class="num">9</td><td><span class="pill gap">none</span></td></tr>
+          <tr><td>MILLER, BOB</td><td class="num">1</td><td class="num">1</td><td><span class="pill ok">2006</span></td><td class="num">8</td><td><span class="pill gap">none</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="col">
+    <p>Six columns, four subsystems, one patient per row. Assembling that by hand for one case is a ten-minute job across four screens; the practice does it while the patient is still in the chair. Assembling it wrongly means a denial, a resubmission, and a patient who was told something that turned out not to be true.</p>
+    <p>Note the last column. <strong>Every radiograph table in this database is empty.</strong> That is the finding that most shapes the build — and it forces a distinction we have to carry in the type system, not in a comment:</p>
+
+    <div class="note">
+      <span class="label">Two sentences that must never collapse into one</span>
+      <p><em>"This patient has no radiograph of #36."</em><br>
+      <em>"This software cannot see radiographs."</em></p>
+      <p>The first is a documentation gap the practice can fix. The second is our limitation, and reporting it as the first would fabricate a gap that does not exist. Every section of every bundle we produce carries an assurance flag saying which of the two it is.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="col">
+    <div class="eyebrow"><span>The limit</span><span class="tag">no table holds this</span></div>
+    <h2>The measurements that exist in no chart</h2>
+    <p>The documentation criteria for a crown include the crown-to-root ratio, the absence of furcation involvement, the distance from the restoration margin to the alveolar crest, and the height of the ferrule. Four measurements, all of them radiographic.</p>
+    <p>None of them is a field in ABELDent. None of them is a field in any practice management system, because a dentist makes them by looking at the film. No amount of reading the database produces them, and extracting them from the image is a different product.</p>
+    <p>So we do not try. The packet renders them as attributed clinical judgment — the dentist confirms each criterion, and the document says who assessed what, on which tooth, on which date. That single decision removes image analysis from scope, puts the clinical assertion in the hands of the person legally responsible for it, and produces a stronger audit record than a generated paragraph ever would.</p>
+
+    <div class="note">
+      <span class="label">The line we hold everywhere</span>
+      <p>Colombus never says approved, eligible, or covered. It says: <em>the criteria require a periapical within twelve months; the most recent periapical of #46 is dated 2023-11-14.</em> Every statement is about documentation completeness against a cited rule — never about what a payer will do.</p>
+    </div>
+  </div>
+</section>
+
+<footer class="col">
+  <p>Measured on the lab VM, 2026-09-17 · ABELDent 15.1.0 Freemium, Fictional Data (no patient data, real or otherwise) · Full schema findings in <code>docs/research/abeldent-schema.md</code></p>
+</footer>
+
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  // Universal 1-32 -> FDI. Universal sweeps clockwise from the upper right third molar.
+  var TO_FDI = [18,17,16,15,14,13,12,11,21,22,23,24,25,26,27,28,
+                38,37,36,35,34,33,32,31,41,42,43,44,45,46,47,48];
+
+  // Teeth with a crown planned in the Fictional Data set, as FDI (tdi.itooth).
+  var PLANNED = [11,12,13,16,21,24,26,36];
+
+  // ---- tooth chart -------------------------------------------------------
+  function toothCell(universal) {
+    var fdi = TO_FDI[universal - 1];
+    var el = document.createElement("div");
+    el.className = "tooth" + (PLANNED.indexOf(fdi) > -1 ? " flag" : "");
+    var b = document.createElement("b");
+    b.textContent = fdi;
+    var s = document.createElement("span");
+    s.textContent = universal;
+    el.appendChild(b);
+    el.appendChild(s);
+    el.title = "FDI " + fdi + " · Universal " + universal;
+    return el;
+  }
+
+  var upper = document.getElementById("archUpper");
+  var lower = document.getElementById("archLower");
+  var i;
+  // Upper arch reads 1..16 left to right; lower arch reads 32..17.
+  for (i = 1; i <= 16; i++) { upper.appendChild(toothCell(i)); }
+  for (i = 32; i >= 17; i--) { lower.appendChild(toothCell(i)); }
+
+  // ---- perio grid --------------------------------------------------------
+  // Real Perio.Pocket bytes, patient 155, exam 1. 192 bytes, 0xFF = no reading.
+  var POCKET_HEX =
+    "FFFFFFFFFFFF030303070604FFFFFFFFFFFF030203030204FFFFFFFFFFFF030203040204" +
+    "030203040203030203030204030203040203030203030203030203030203030203030204" +
+    "030203030203030203030204030303030203FFFFFFFFFFFFFFFFFFFFFFFF030303040304" +
+    "FFFFFFFFFFFF030303040204030203030203030203030203030203050203030203030203" +
+    "030203040204040203030204040203030203040203030203030204030304FFFFFFFFFFFF" +
+    "030403030303FFFFFFFFFFFF";
+
+  function bytes(hex) {
+    var out = [];
+    for (var j = 0; j < hex.length; j += 2) { out.push(parseInt(hex.substr(j, 2), 16)); }
+    return out;
+  }
+
+  var raw = bytes(POCKET_HEX);
+  var grid = document.getElementById("periogrid");
+
+  for (var t = 0; t < 32; t++) {
+    var col = document.createElement("div");
+    col.className = "pcol";
+
+    var lbl = document.createElement("div");
+    lbl.className = "lbl";
+    lbl.textContent = TO_FDI[t];
+    col.appendChild(lbl);
+
+    for (var site = 0; site < 6; site++) {
+      var mm = raw[t * 6 + site];
+      var cell = document.createElement("div");
+      cell.className = "byte";
+      if (mm === 0xFF) {
+        cell.className += " absent";
+        cell.textContent = "·";
+        cell.title = "FDI " + TO_FDI[t] + " site " + (site + 1) + " — no reading";
+      } else {
+        if (mm >= 6) { cell.className += " d6"; }
+        else if (mm === 5) { cell.className += " d5"; }
+        cell.textContent = mm;
+        cell.title = "FDI " + TO_FDI[t] + " site " + (site + 1) + " — " + mm + " mm";
+      }
+      col.appendChild(cell);
+    }
+    grid.appendChild(col);
+  }
+})();
+</script>

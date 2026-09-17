@@ -1,0 +1,101 @@
+- generic [ref=e4]:
+  - banner [ref=e10]:
+    - generic:
+      - link "Skip to client sign in" [ref=e11] [cursor=pointer]:
+        - /url: "#signinbutton"
+      - link "Skip to content" [ref=e12] [cursor=pointer]:
+        - /url: "#main-content"
+      - link "Skip to footer" [ref=e13] [cursor=pointer]:
+        - /url: "#footer"
+    - generic [ref=e16]:
+      - button "open menu" [ref=e17] [cursor=pointer]
+      - link [ref=e22] [cursor=pointer]:
+        - /url: /en/
+        - img "Sun Life" [ref=e23]
+  - navigation "Breadcrumb" [ref=e25]:
+    - list [ref=e26]:
+      - listitem [ref=e27]:
+        - link "Home" [ref=e28] [cursor=pointer]:
+          - /url: /sl/cdcp/en/
+        - generic [aria-hidden] [ref=e29]: /
+      - listitem [ref=e30]:
+        - link "Oral health provider" [ref=e31] [cursor=pointer]:
+          - /url: /sl/cdcp/en/provider/
+        - generic [aria-hidden] [ref=e32]: /
+      - listitem [ref=e33]:
+        - link "Dental benefit grids":
+          - /url: ""
+  - main [ref=e34]:
+    - generic [ref=e37]:
+      - heading "Dental benefit grids" [level=1] [ref=e40]
+      - generic [ref=e42]:
+        - paragraph [ref=e43]: Information on the Canadian Dental Care Plan (CDCP) dental procedure codes, pricing and policies for participating providers.
+        - paragraph [ref=e44]: NEW - 2026 CDCP dental benefits grids are now available. These grids will apply for all services rendered as of April 1, 2026.
+      - generic [ref=e46]:
+        - heading "Oral health providers designation legend:" [level=2] [ref=e47]
+        - list [ref=e48]:
+          - listitem [ref=e49]: Denturists (DD)
+          - listitem [ref=e50]: Dental hygienists (DH)
+          - listitem [ref=e51]: General practitioners and specialists (GPSP)
+          - listitem [ref=e52]: Oral and maxillofacial surgeons (OMFS)
+      - generic [ref=e56]:
+        - combobox "Filter by Province/Territory" [ref=e62]:
+          - generic [aria-hidden]: Filter by Province/Territory
+          - generic [ref=e63]: All
+        - combobox "Filter by Year" [ref=e71]:
+          - generic [aria-hidden]: Filter by Year
+          - generic [ref=e72]: All
+      - table [ref=e79]:
+        - rowgroup [ref=e80]:
+          - row [ref=e81]:
+            - columnheader "Name" [ref=e82]
+            - columnheader "Province/Territory" [ref=e83]
+            - columnheader "Year" [ref=e84]
+  - contentinfo [ref=e90]:
+    - generic [ref=e92]:
+      - generic [ref=e93]:
+        - separator [aria-hidden] [ref=e94]
+        - generic [ref=e95]:
+          - button "Member" [ref=e97] [cursor=pointer]
+          - button "Oral health provider" [ref=e102] [cursor=pointer]
+          - button "Support" [ref=e107] [cursor=pointer]
+      - generic [ref=e111]:
+        - separator [aria-hidden] [ref=e112]
+        - generic [ref=e114]:
+          - paragraph [ref=e115]: The Canadian Dental Care Plan is a federal government program. Sun Life’s role with the CDCP is to provide dental claims processing services.
+          - paragraph [ref=e116]:
+            - text: For more information about the CDCP, visit the
+            - link "Government of Canada opens in a new tab" [ref=e117] [cursor=pointer]:
+              - /url: https://www.canada.ca/en/services/benefits/dental/dental-care-plan.html
+              - text: Government of Canada
+              - img "opens in a new tab" [ref=e119]
+            - text: website.
+          - paragraph [ref=e121]: Life’s brighter under the sun
+          - paragraph [ref=e122]: © Sun Life Assurance Company of Canada. All rights reserved.
+      - generic [ref=e123]:
+        - separator [aria-hidden] [ref=e124]
+        - generic [ref=e125]:
+          - list [ref=e126]:
+            - listitem [ref=e127] [cursor=pointer]:
+              - link "Legal opens in a new tab" [ref=e128]:
+                - /url: https://www.sunlife.com/sl/pslf-canada/en/legal/
+                - text: Legal
+                - img "opens in a new tab" [ref=e129]
+            - listitem [ref=e132] [cursor=pointer]:
+              - link "Privacy opens in a new tab" [ref=e133]:
+                - /url: https://www.sunlife.com/sl/pslf-canada/en/privacy/
+                - text: Privacy
+                - img "opens in a new tab" [ref=e134]
+            - listitem [ref=e137] [cursor=pointer]:
+              - button "Cookie settings" [ref=e138]
+            - listitem [ref=e140] [cursor=pointer]:
+              - link "Security opens in a new tab" [ref=e141]:
+                - /url: https://www.sunlife.com/sl/pslf-canada/en/security/
+                - text: Security
+                - img "opens in a new tab" [ref=e142]
+            - listitem [ref=e145] [cursor=pointer]:
+              - link "Accessibility opens in a new tab" [ref=e146]:
+                - /url: https://www.sunlife.ca/en/about-us/accessibility-commitment/
+                - text: Accessibility
+                - img "opens in a new tab" [ref=e147]
+          - generic [ref=e149]: SLF

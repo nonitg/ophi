@@ -1,0 +1,385 @@
+- generic [active] [ref=f389e1]:
+  - generic [ref=f389e3]:
+    - generic [ref=f389e5]:
+      - generic [ref=f389e6]: Privacy Preferences of CBC.
+      - paragraph [ref=f389e7]:
+        - text: We and select advertising partners collect some of your data in order to give you a better experience through personalized content and advertising. To limit the collection of your data, please modify your privacy preferences. You can learn more in our
+        - link "Privacy Notice (new window)" [ref=f389e8] [cursor=pointer]:
+          - /url: https://cbc.radio-canada.ca/en/impact-and-accountability/privacy/privacy-notice
+          - text: Privacy Notice
+          - generic [ref=f389e9]: (new window)
+        - text: .
+    - generic [ref=f389e10]:
+      - button "Modify my preferences" [ref=f389e11] [cursor=pointer]
+      - button "Close" [ref=f389e12] [cursor=pointer]
+  - generic [ref=f389e14]:
+    - generic [ref=f389e15]:
+      - banner [ref=f389e19]:
+        - generic:
+          - link "Skip to Main Content" [ref=f389e20] [cursor=pointer]:
+            - /url: "#content"
+          - link "Accessibility Help" [ref=f389e21] [cursor=pointer]:
+            - /url: https://cbchelp.cbc.ca/hc/en-ca/categories/31606111569053-Accessibility
+        - dialog "CBC main navigation" [ref=f389e22]:
+          - button [aria-hidden]
+          - generic [ref=f389e23]:
+            - button "Menu" [ref=f389e24] [cursor=pointer]
+            - link "CBC Gem" [ref=f389e28] [cursor=pointer]:
+              - /url: https://gem.cbc.ca/
+            - link "CBC Listen" [ref=f389e32] [cursor=pointer]:
+              - /url: https://www.cbc.ca/listen
+          - link "CBC Home Page" [ref=f389e37] [cursor=pointer]:
+            - /url: /
+          - generic [ref=f389e56]:
+            - button "Search" [ref=f389e57] [cursor=pointer]
+            - button [ref=f389e62] [cursor=pointer]
+        - navigation "CBC news" [ref=f389e68]:
+          - list [ref=f389e70]:
+            - listitem [ref=f389e71]:
+              - link "news" [ref=f389e73] [cursor=pointer]:
+                - /url: /news
+            - listitem [ref=f389e79]:
+              - link "Top Stories" [ref=f389e80] [cursor=pointer]:
+                - /url: /news
+            - listitem [ref=f389e81]:
+              - link "Local" [ref=f389e82] [cursor=pointer]:
+                - /url: /news/local
+            - listitem [ref=f389e83]:
+              - link "Climate" [ref=f389e84] [cursor=pointer]:
+                - /url: /news/climate
+            - listitem [ref=f389e85]:
+              - link "World" [ref=f389e86] [cursor=pointer]:
+                - /url: /news/world
+            - listitem [ref=f389e87]:
+              - link "Canada" [ref=f389e88] [cursor=pointer]:
+                - /url: /news/canada
+            - listitem [ref=f389e89]:
+              - link "Politics" [ref=f389e90] [cursor=pointer]:
+                - /url: /news/politics
+            - listitem [ref=f389e91]:
+              - link "Indigenous" [ref=f389e92] [cursor=pointer]:
+                - /url: /news/indigenous
+            - listitem [ref=f389e93]:
+              - link "Business" [ref=f389e94] [cursor=pointer]:
+                - /url: /news/business
+            - listitem [ref=f389e95]:
+              - button "More from news canada" [ref=f389e97] [cursor=pointer]: More
+      - alert [ref=f389e102]: More dental patients, providers baffled by lack of consistency in national plan's coverage | CBC News Loaded
+    - main [ref=f389e104]:
+      - generic [ref=f389e105]:
+        - generic [ref=f389e108]:
+          - link "Montreal" [ref=f389e110] [cursor=pointer]:
+            - /url: /news/canada/montreal
+          - heading "More dental patients, providers baffled by lack of consistency in national plan's coverage" [level=1] [ref=f389e111]
+          - heading "Health Canada says plan still new, working with associations to make improvements" [level=2] [ref=f389e112]
+          - generic [ref=f389e113]:
+            - figure [ref=f389e114]
+            - generic [ref=f389e117]:
+              - link "Leah Hendry" [ref=f389e119] [cursor=pointer]:
+                - /url: /author/leah-hendry-1.3322920
+              - text: · CBC News ·
+              - time [ref=f389e120]: "Posted: Jun 04, 2026 4:00 AM EDT | Last Updated: June 4"
+          - generic [ref=f389e121]:
+            - generic [ref=f389e122]:
+              - button "Play audio" [ref=f389e124] [cursor=pointer]:
+                - img "Play" [ref=f389e125]
+              - img "Text to Speech Icon" [ref=f389e131]
+              - generic [ref=f389e132]:
+                - generic [ref=f389e133]: Listen to this article
+                - generic [ref=f389e134]: Estimated 6 minutes
+              - button "More information" [ref=f389e136] [cursor=pointer]
+            - figure "Dr. Melvin Lee, an Ottawa dentist, works on a patient who is enrolled in the Canadian Dental Care Plan. He thinks Health Canada should consult with front-line dentists more frequently to better understand what needs to be improved or tweaked in the plan. (Jason MacLellan/CBC)" [ref=f389e139]:
+              - img "Dentist and hygienist leaning over patient at dentist office." [ref=f389e142]
+            - heading "Social Sharing" [level=2] [ref=f389e145]
+            - generic [ref=f389e146]:
+              - paragraph [ref=f389e147]: Cameron Brown knows how important first impressions are when searching for a job.
+              - paragraph [ref=f389e148]: So when he got a letter on his 65th birthday saying he qualified for the Canadian Dental Care Plan (CDCP) last year, he was thrilled.
+              - paragraph [ref=f389e149]: Brown had two teeth that needed to be replaced.
+              - paragraph [ref=f389e151]: But when his dentist submitted the pre-authorization request for dentures, it was turned down.
+              - paragraph [ref=f389e152]: “First of all, they said it wasn’t essential,” said Brown.
+              - paragraph [ref=f389e153]: “I remember my sister saying well, ‘He’s an unemployed senior, how do they expect him to get work with two missing front teeth off to the side?’”
+              - paragraph [ref=f389e154]: His sister ended up fronting the bill, to the tune of $1,000.
+              - paragraph [ref=f389e155]: Brown’s dentist appealed the insurance provider’s decision, but that request was also rejected.
+              - paragraph [ref=f389e156]: “I never got a penny from them,” said Cameron, who lives in Toronto.
+              - generic [ref=f389e158]:
+                - figure [ref=f389e159]:
+                  - img "Man with white hair and glasses" [ref=f389e162]
+                - paragraph [ref=f389e163]: Cameron Brown, a low-income senior who lives in Toronto, badly needed dentures, but was turned down for coverage under the Canadian Dental Care Plan. (Submitted by Cameron Brown)
+              - paragraph [ref=f389e164]:
+                - text: Brown is one of dozens of Canadians who contacted CBC following a
+                - link "story" [ref=f389e165] [cursor=pointer]:
+                  - /url: https://www.cbc.ca/news/canada/montreal/dental-work-national-plan-coverage-9.7212333
+                - text: last month about the challenges many dental patients and providers are experiencing getting coverage under the national plan.
+              - paragraph [ref=f389e166]: The CDCP was rolled out by the federal government in 2024 to help improve access to dental care for uninsured Canadians with a household income under $90,000 a year.
+              - paragraph [ref=f389e167]:
+                - text: But questions around
+                - link "eligibility" [ref=f389e168] [cursor=pointer]:
+                  - /url: https://www.canada.ca/en/services/benefits/dental/dental-care-plan/qualify.html
+                - text: and a lack of clarity about why some patients are denied coverage remain major barriers.
+              - heading "Growing pains?" [level=2] [ref=f389e169]
+              - paragraph [ref=f389e170]: More than 6.5 million Canadians are eligible for care under the CDCP.
+              - paragraph [ref=f389e172]: As of April 2026, more than 4.3 million people have already received care, totalling over $6 billion in claims, according to Health Canada.
+              - paragraph [ref=f389e173]: It’s a lot of money, but the federal government has assured the Canadian Dental Association the long-term sustainability of the program is not at risk, said the association's president, Dr. Kirk Preston.
+              - paragraph [ref=f389e174]: But consistency and predictability around what is and isn't covered continue to be problems, said Preston.
+              - paragraph [ref=f389e175]: Some people have cancelled treatment because they don’t have the time or energy to go through a lengthy appeals process if their pre-authorization request is rejected, he added.
+              - paragraph [ref=f389e176]: “When treatment is postponed or denied, the consequences can lead to irreversible tooth loss, often leading to more complex dental issues,” said Preston.
+              - paragraph [ref=f389e177]: Dr. Melvin Lee runs a dental clinic in downtown Ottawa.
+              - paragraph [ref=f389e178]: His office has run into similar challenges trying to get pre-approval for crowns. More complex procedures, such as crowns or dentures, need to be pre-authorized before treatment can proceed.
+              - generic [ref=f389e180]:
+                - figure:
+                  - generic:
+                    - generic:
+                      - img "Dentist in his exam room smiling"
+                - paragraph [ref=f389e181]: Ottawa dentist Dr. Melvin Lee says all but one of the pre-determination requests his office sent in for crowns was rejected by Sun Life, which administers the CDCP and processes claims. (Jason MacLellan/CBC)
+              - paragraph [ref=f389e182]: Out of dozens of requests, all but one was denied by insurance provider Sun Life, which administers the CDCP and processes claims.
+              - paragraph [ref=f389e183]: “It’s tremendously frustrating when we’re receiving rejection after rejection after rejection without any details or instructions, recommendations, action items as to why such a pre-determination was rejected,” said Lee.
+              - paragraph [ref=f389e184]: He thinks Health Canada should consult with front-line dentists more frequently about the challenges they are having with the program to figure out what needs to be improved.
+              - heading "Basic, preventive care also limited" [level=2] [ref=f389e185]
+              - paragraph [ref=f389e186]: The government also needs to clear up how much coverage patients receive for basic, preventive care, said Kathryn Taylor, a dental administrator with 40 years of experience.
+              - paragraph [ref=f389e187]: “The periodontal part of the plan is woefully inadequate,” said Taylor, who works at a dental office in Victoria, B.C.
+              - paragraph [ref=f389e188]: Periodontal care includes cleaning, scaling, root planing, polishing and fluoride. These treatments can help prevent gum disease as well as tooth and bone loss.
+              - paragraph [ref=f389e189]: Dental plans that are privately or employee funded usually have a set amount of cleaning that’s covered in a calendar year, said Taylor. But some patients need to go more often, so many plans have an annual maximum.
+              - paragraph [ref=f389e190]: But the CDCP’s fee guide does not mirror anything Taylor has seen provincially.
+              - paragraph [ref=f389e191]: Even cases she thought would be a slam dunk to qualify for more coverage were denied, with no justification other than they do not meet the criteria.
+              - paragraph [ref=f389e192]: “So we’re having to educate patients about what they’re going to have to pay because there will always be a balance,” said Taylor.
+              - paragraph [ref=f389e193]: She thinks the CDCP should set an annual limit. That makes it clearer for patients and may also help avoid any potential abuse.
+              - paragraph [ref=f389e194]: “You don’t have carte blanche to do everything,” said Taylor. “There are practitioners out there that will over treat.”
+              - paragraph [ref=f389e195]: She also says Sun Life needs to ensure only procedures that are medically necessary are approved.
+              - generic [ref=f389e197]:
+                - figure:
+                  - generic:
+                    - generic:
+                      - img "Elderly lady with white hair smiling on balcony"
+                - paragraph [ref=f389e198]: Sharon Cameron, who lives in Mont-Saint-Hilaire, Que., is worried the national dental plan may be scrapped if it's abused. (Submitted by Sharon Cameron)
+              - paragraph [ref=f389e199]: Sharon Cameron is worried some dentists may be exploiting the program.
+              - paragraph [ref=f389e200]: Like Brown, Cameron, who is in her 70s, was relieved to get coverage under the CDCP. She’d been cautious with her teeth, but was grateful to have a cleaning and X-rays done.
+              - paragraph [ref=f389e201]: But after her exam, she was told she needed some fillings replaced and was given options for an action plan.
+              - paragraph [ref=f389e202]: “One of them, total, after seven appointments, would have been $11,411,” said Cameron, who lives in Mont-Saint-Hilaire, Que.
+              - paragraph [ref=f389e203]: She felt the action plan was a money grab.
+              - paragraph [ref=f389e204]: “Is there anyone really monitoring the dentist and what they’re doing here?” said Cameron, who fears the CDCP will be scrapped if it's abused.
+              - paragraph [ref=f389e205]: “I don’t want to lose it. It’s very important to people, but it has to not be misused.”
+              - heading "Checklists, videos available" [level=2] [ref=f389e206]
+              - paragraph [ref=f389e207]: A spokesperson for Health Canada said there is a “robust” verification process to make sure that only procedures that meet the plan's criteria are covered.
+              - paragraph [ref=f389e208]: There are also safeguards in place, including audits, to avoid abuse.
+              - paragraph [ref=f389e209]:
+                - text: Health Canada says CDCP members and dental care providers can review the benefits
+                - link "guide" [ref=f389e210] [cursor=pointer]:
+                  - /url: https://www.canada.ca/en/services/benefits/dental/dental-care-plan/guide.html
+                - text: online. There are videos and checklists available.
+              - paragraph [ref=f389e211]: The federal government meets with national and provincial-territorial associations regularly to share information, gather their feedback and improve the plan’s administration and processes, said Karine LeBlanc, a spokesperson for Health Canada.
+              - paragraph [ref=f389e212]: “We’ll continue to work with associations to explore what additional tools may be helpful,” said LeBlanc in an email to CBC.
+              - paragraph [ref=f389e213]: Brown hopes the government can sort out the confusion.
+              - paragraph [ref=f389e214]: “I know there are people out there who need these kinds of services," he said.
+              - paragraph [ref=f389e215]: “They need someone to go in there and make it work.”
+          - generic [ref=f389e216]:
+            - heading "ABOUT THE AUTHOR" [level=2] [ref=f389e217]
+            - generic [ref=f389e218]:
+              - figure [ref=f389e220]
+              - generic [ref=f389e223]:
+                - link "Leah Hendry" [ref=f389e224] [cursor=pointer]:
+                  - /url: /author/leah-hendry-1.3322920
+                - paragraph [ref=f389e225]: Journalist
+            - paragraph [ref=f389e226]: Leah Hendry is an investigative reporter with CBC in Montreal. She specializes in health and social issues. She has previously worked as a reporter for CBC in Vancouver and Winnipeg. You can email story ideas or tips to montrealinvestigates@cbc.ca.
+            - list
+          - generic [ref=f389e227]:
+            - generic [ref=f389e228]:
+              - link "CBC's Journalistic Standards and Practices" [ref=f389e229] [cursor=pointer]:
+                - /url: https://cbc.radio-canada.ca/en/vision/governance/journalistic-standards-and-practices
+              - generic [ref=f389e230]: ·
+              - link "About CBC News" [ref=f389e231] [cursor=pointer]:
+                - /url: /news/about-cbc-news-1.1294364
+            - link "Corrections and clarifications" [ref=f389e232] [cursor=pointer]:
+              - /url: /news/corrections-clarifications-1.5893564
+            - generic [ref=f389e233]: ·
+            - link "Submit a news tip" [ref=f389e234] [cursor=pointer]:
+              - /url: /news/email-cbc-contact-phone-tips-news-story-1.6466536
+            - generic [ref=f389e235]: ·
+            - button "Report error" [ref=f389e236] [cursor=pointer]
+          - generic [ref=f389e242]:
+            - heading "Related Stories" [level=2] [ref=f389e243]
+            - list [ref=f389e244]:
+              - listitem [ref=f389e245]:
+                - link "Federal health minister voices concern as Alberta implements dual-practice health-care model" [ref=f389e246] [cursor=pointer]:
+                  - /url: /news/canada/edmonton/federal-health-minister-alberta-dual-practice-health-care-model-9.7310498
+              - listitem [ref=f389e248]:
+                - link "Health minister admits N.B.'s new virtual care service falls short for francophone users" [ref=f389e249] [cursor=pointer]:
+                  - /url: /news/canada/new-brunswick/bilingual-virtual-healthcare-complaints-9.7312268
+              - listitem [ref=f389e251]:
+                - link "Thousands of Nova Scotians denied heating assistance would have qualified if not for cut" [ref=f389e252] [cursor=pointer]:
+                  - /url: /news/canada/nova-scotia/heating-assistance-rebate-program-income-data-9.7324563
+              - listitem [ref=f389e254]:
+                - link "Nanaimo couple raises concerns after 3 home care visits cancelled by Island Health" [ref=f389e255] [cursor=pointer]:
+                  - /url: /news/canada/british-columbia/nanaimo-family-concerns-three-visits-cancelled-island-health-9.7339076
+              - listitem [ref=f389e257]:
+                - 'link "Patients face challenges when seeking medical care not offered in Nova Scotia: audit" [ref=f389e258] [cursor=pointer]':
+                  - /url: /news/canada/nova-scotia/audit-finds-challenges-out-of-province-care-9.7345168
+        - generic [ref=f389e356]:
+          - generic [ref=f389e357]:
+            - heading "Comments" [level=2] [ref=f389e358]
+            - paragraph [ref=f389e359]: Comments are typically open between 6 a.m. and 11:30 p.m. ET. Comments may be unavailable based on different considerations, including moderation capacity, the type of moderation needed, and legal concerns.
+            - paragraph [ref=f389e360]: To encourage thoughtful and respectful conversations, full names will appear with each submission to CBC's online communities. CBC does not endorse the opinions expressed in comments.
+            - paragraph [ref=f389e361]:
+              - text: Comments are moderated according to our
+              - link "Submission Guidelines" [ref=f389e362] [cursor=pointer]:
+                - /url: https://www.cbc.ca/aboutcbc/discover/submissions.html
+              - text: . To learn more about commenting, visit our
+              - link "Getting Started" [ref=f389e363] [cursor=pointer]:
+                - /url: https://cbchelp.cbc.ca/hc/en-ca/articles/14116025677211-Commenting-on-a-CBC-Article
+              - text: guide or the
+              - link "CBC Help Centre" [ref=f389e364] [cursor=pointer]:
+                - /url: https://cbchelp.cbc.ca/hc/en-ca/sections/115000541654-About-Commenting-on-CBC-ca
+              - text: .
+          - generic [ref=f389e365]:
+            - generic [ref=f389e367]:
+              - heading "Become a CBC Account Holder" [level=2] [ref=f389e368]
+              - paragraph [ref=f389e369]:
+                - text: Join the conversation
+                - link "Create account" [ref=f389e370] [cursor=pointer]:
+                  - /url: /account/signup?referrer=https://www.cbc.ca/news/canada/montreal/national-plan-coverage-lack-of-consistency-9.7222032
+            - paragraph [ref=f389e376]: Already have an account?
+    - contentinfo "CBC Footer" [ref=f389e464]:
+      - generic [ref=f389e465]:
+        - heading "Footer Links" [level=2] [ref=f389e466]
+        - generic [ref=f389e467]:
+          - heading "My Account" [level=3] [ref=f389e468]
+          - list [ref=f389e469]:
+            - listitem [ref=f389e470]:
+              - link "Profile" [ref=f389e471] [cursor=pointer]:
+                - /url: /account/login
+            - listitem [ref=f389e472]:
+              - link "CBC Gem" [ref=f389e473] [cursor=pointer]:
+                - /url: https://gem.cbc.ca/benefits/
+            - listitem [ref=f389e474]:
+              - link "Newsletters" [ref=f389e475] [cursor=pointer]:
+                - /url: https://subscriptions.cbc.ca/listmanagement
+            - listitem [ref=f389e476]:
+              - link "About CBC Accounts" [ref=f389e477] [cursor=pointer]:
+                - /url: /account/features
+        - generic [ref=f389e478]:
+          - heading "Connect with CBC" [level=3] [ref=f389e479]
+          - list [ref=f389e480]:
+            - listitem [ref=f389e481]:
+              - link "Facebook" [ref=f389e482] [cursor=pointer]:
+                - /url: https://www.facebook.com/cbc/
+            - listitem [ref=f389e483]:
+              - link "X" [ref=f389e484] [cursor=pointer]:
+                - /url: https://x.com/cbc/
+            - listitem [ref=f389e485]:
+              - link "YouTube" [ref=f389e486] [cursor=pointer]:
+                - /url: https://www.youtube.com/user/CBCtv
+            - listitem [ref=f389e487]:
+              - link "Instagram" [ref=f389e488] [cursor=pointer]:
+                - /url: https://www.instagram.com/cbc/?hl=en
+            - listitem [ref=f389e489]:
+              - link "Mobile" [ref=f389e490] [cursor=pointer]:
+                - /url: https://cbchelp.cbc.ca/hc/en-ca/categories/115000249853-Help-with-CBC-Apps
+            - listitem [ref=f389e491]:
+              - link "RSS" [ref=f389e492] [cursor=pointer]:
+                - /url: https://www.cbc.ca/rss/
+            - listitem [ref=f389e493]:
+              - link "Podcasts" [ref=f389e494] [cursor=pointer]:
+                - /url: /radio/podcasts
+        - generic [ref=f389e495]:
+          - heading "Contact CBC" [level=3] [ref=f389e496]
+          - list [ref=f389e497]:
+            - listitem [ref=f389e498]:
+              - link "Submit Feedback" [ref=f389e499] [cursor=pointer]:
+                - /url: https://cbchelp.cbc.ca/hc/en-ca/requests/new
+            - listitem [ref=f389e500]:
+              - link "Help Centre" [ref=f389e501] [cursor=pointer]:
+                - /url: https://cbchelp.cbc.ca/hc/en-ca
+          - paragraph [ref=f389e502]: Audience Relations, CBC P.O. Box 500 Station A Toronto, ON Canada, M5W 1E6
+          - paragraph [ref=f389e503]: "Toll-free (Canada only): 1-866-306-4636"
+        - generic [ref=f389e504]:
+          - heading "About CBC" [level=3] [ref=f389e505]
+          - list [ref=f389e506]:
+            - listitem [ref=f389e507]:
+              - link "Corporate Info" [ref=f389e508] [cursor=pointer]:
+                - /url: https://cbc.radio-canada.ca/en
+            - listitem [ref=f389e509]:
+              - link "Sitemap" [ref=f389e510] [cursor=pointer]:
+                - /url: /sitemap
+            - listitem [ref=f389e511]:
+              - link "Reuse & Permission" [ref=f389e512] [cursor=pointer]:
+                - /url: https://cbchelp.cbc.ca/hc/en-ca/sections/203864688-Using-or-licensing-CBC-content
+            - listitem [ref=f389e513]:
+              - link "Terms of Use" [ref=f389e514] [cursor=pointer]:
+                - /url: https://cbc.radio-canada.ca/en/vision/governance/terms-of-use-digital-services
+            - listitem [ref=f389e515]:
+              - link "Privacy Notice" [ref=f389e516] [cursor=pointer]:
+                - /url: https://www.cbc.ca/account/privacy
+            - listitem [ref=f389e517]:
+              - button "Privacy Preferences" [ref=f389e518] [cursor=pointer]
+            - listitem [ref=f389e519]:
+              - link "Jobs" [ref=f389e520] [cursor=pointer]:
+                - /url: https://cbc.radio-canada.ca/en/working-with-us/jobs/
+            - listitem [ref=f389e521]:
+              - link "Our Unions" [ref=f389e522] [cursor=pointer]:
+                - /url: https://cbc.radio-canada.ca/en/vision/unions-associations
+            - listitem [ref=f389e523]:
+              - link "Independent Producers" [ref=f389e524] [cursor=pointer]:
+                - /url: https://www.cbc.ca/independentproducers/
+            - listitem [ref=f389e525]:
+              - link "Political Ads Registry" [ref=f389e526] [cursor=pointer]:
+                - /url: https://cbc.radio-canada.ca/en/impact-and-accountability/regulatory/political-ads-registry
+            - listitem [ref=f389e527]:
+              - link "AdChoices" [ref=f389e528] [cursor=pointer]:
+                - /url: https://youradchoices.ca
+        - generic [ref=f389e529]:
+          - heading "Services" [level=3] [ref=f389e530]
+          - list [ref=f389e531]:
+            - listitem [ref=f389e532]:
+              - link "Ombudsman" [ref=f389e533] [cursor=pointer]:
+                - /url: https://cbc.radio-canada.ca/en/ombudsman/
+            - listitem [ref=f389e534]:
+              - link "Corrections and Clarifications" [ref=f389e535] [cursor=pointer]:
+                - /url: https://www.cbc.ca/news/corrections-clarifications-1.5893564
+            - listitem [ref=f389e536]:
+              - link "Public Appearances" [ref=f389e537] [cursor=pointer]:
+                - /url: https://www.cbc.ca/news/public-appearances-1.4969965
+            - listitem [ref=f389e538]:
+              - link "Commercial Services" [ref=f389e539] [cursor=pointer]:
+                - /url: https://cbc.radio-canada.ca/en/services/commercial-services/
+            - listitem [ref=f389e540]:
+              - link "CBC Shop" [ref=f389e541] [cursor=pointer]:
+                - /url: https://www.cbcshop.ca/
+            - listitem [ref=f389e542]:
+              - link "Doing Business with Us" [ref=f389e543] [cursor=pointer]:
+                - /url: https://cbc.radio-canada.ca/en/working-with-us/partners-and-suppliers/
+            - listitem [ref=f389e544]:
+              - link "Renting Facilities" [ref=f389e545] [cursor=pointer]:
+                - /url: https://cbc.ca/torontostudios
+            - listitem [ref=f389e546]:
+              - link "Radio Canada International" [ref=f389e547] [cursor=pointer]:
+                - /url: https://ici.radio-canada.ca/rci/en
+            - listitem [ref=f389e548]:
+              - link "CBC Lite" [ref=f389e549] [cursor=pointer]:
+                - /url: https://www.cbc.ca/lite
+        - generic [ref=f389e550]:
+          - heading "Accessibility" [level=3] [ref=f389e551]
+          - generic [ref=f389e552]:
+            - paragraph [ref=f389e553]: It is a priority for CBC to create products that are accessible to all in Canada including people with visual, hearing, motor and cognitive challenges.
+            - paragraph [ref=f389e554]:
+              - text: Closed Captioning and Described Video is available for many CBC shows offered on
+              - link "CBC Gem" [ref=f389e555] [cursor=pointer]:
+                - /url: https://gem.cbc.ca/
+              - text: .
+            - list [ref=f389e556]:
+              - listitem [ref=f389e557]:
+                - link "About CBC Accessibility" [ref=f389e558] [cursor=pointer]:
+                  - /url: https://cbchelp.cbc.ca/hc/en-ca/categories/31606111569053-Accessibility
+              - listitem [ref=f389e559]:
+                - link "Accessibility Feedback" [ref=f389e560] [cursor=pointer]:
+                  - /url: https://cbchelp.cbc.ca/hc/en-ca/requests/new?ticket_form_id=114094023354
+      - list [ref=f389e562]:
+        - listitem [ref=f389e563]:
+          - link "CBC/Radio-Canada":
+            - /url: https://cbc.radio-canada.ca/en
+            - figure
+        - listitem [ref=f389e564]:
+          - img "copyright" [ref=f389e565]: ©
+          - text: 2026 CBC/Radio-Canada. All rights reserved.
+        - listitem [ref=f389e566]:
+          - link "Visitez Radio-Canada.ca" [ref=f389e567] [cursor=pointer]:
+            - /url: https://ici.radio-canada.ca/
+    - text: "|"

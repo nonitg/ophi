@@ -1,0 +1,147 @@
+- generic [ref=f480e4]:
+  - banner [ref=f480e10]:
+    - generic:
+      - link "Skip to client sign in" [ref=f480e11] [cursor=pointer]:
+        - /url: "#signinbutton"
+      - link "Skip to content" [ref=f480e12] [cursor=pointer]:
+        - /url: "#main-content"
+      - link "Skip to footer" [ref=f480e13] [cursor=pointer]:
+        - /url: "#footer"
+    - generic [ref=f480e16]:
+      - button "open menu" [ref=f480e17] [cursor=pointer]
+      - link [ref=f480e22] [cursor=pointer]:
+        - /url: /en/
+        - img "Sun Life" [ref=f480e23]
+  - navigation "Breadcrumb" [ref=f480e25]:
+    - list [ref=f480e26]:
+      - listitem [ref=f480e27]:
+        - link "Home" [ref=f480e28] [cursor=pointer]:
+          - /url: /sl/cdcp/en/
+        - generic [aria-hidden] [ref=f480e29]: /
+      - listitem [ref=f480e30]:
+        - link "Oral health provider" [ref=f480e31] [cursor=pointer]:
+          - /url: /sl/cdcp/en/provider/
+        - generic [aria-hidden] [ref=f480e32]: /
+      - listitem [ref=f480e33]:
+        - link "Newsletters" [ref=f480e34] [cursor=pointer]:
+          - /url: /sl/cdcp/en/provider/newsletters/
+        - generic [aria-hidden] [ref=f480e35]: /
+      - listitem [ref=f480e36]:
+        - link "CDCP Oral Health Provider Newsletter Vol. 4 – June 23, 2026":
+          - /url: ""
+  - main [ref=f480e37]:
+    - article [ref=f480e42]:
+      - heading "CDCP Oral Health Provider Newsletter Vol. 4 – June 23, 2026" [level=1] [ref=f480e43]
+      - paragraph [ref=f480e45]:
+        - emphasis [ref=f480e46]: This message was created jointly with the Government of Canada.
+      - generic [ref=f480e50]:
+        - generic [ref=f480e52]:
+          - 'heading "Canadian Dental Care Plan: Oral Health Provider News" [level=2] [ref=f480e53]'
+          - paragraph [ref=f480e54]: This is your periodic oral health provider update to help keep you and your staff informed of the latest Canadian Dental Care Plan (CDCP) news.
+          - heading "CDCP Statistics at a glance as of May 31, 2026:" [level=3] [ref=f480e55]:
+            - text: CDCP Statistics at a glance
+            - generic [ref=f480e56]: "as of May 31, 2026:"
+          - list [ref=f480e57]:
+            - listitem [ref=f480e58]: More than 4.4 million Canadians have received services since the launch of the CDCP
+            - listitem [ref=f480e59]: Over 28,000 eligible oral health providers are participating in the CDCP
+            - listitem [ref=f480e60]: More than 6.5 million Canadians have been deemed eligible for CDCP services
+          - paragraph [ref=f480e61]:
+            - text: CDCP statistics are updated on a monthly basis and are found on
+            - link "the Government of Canada CDCP statistics webpage opens in a new tab" [ref=f480e62] [cursor=pointer]:
+              - /url: https://www.canada.ca/en/services/benefits/dental/dental-care-plan/statistics.html
+              - text: the Government of Canada CDCP statistics webpage
+              - img "opens in a new tab" [ref=f480e64]
+            - text: .
+          - heading "Post-Payment Verification Process" [level=3] [ref=f480e66]
+          - list [ref=f480e67]:
+            - listitem [ref=f480e68]: As part of ongoing program integrity measures, a new post-treatment and post-payment verification process is put in place to provide additional assurance that CDCP services were received, and payments were issued appropriately.
+            - listitem [ref=f480e69]: Starting this summer, Health Canada will contact a small number of CDCP members and providers by mail to confirm that services claimed were received and that payments were issued by Sun Life. These letters will contain a prepaid return envelope.
+            - listitem [ref=f480e70]: Participation in this process does not impact member eligibility or coverage, nor does it affect provider participation in the CDCP.
+          - heading "Submitting Claims for Immediate and Transitional Dentures under the CDCP" [level=3] [ref=f480e71]
+          - paragraph [ref=f480e72]: The CDCP provides coverage for certain removable prosthodontic appliances, including immediate and provisional/transitional dentures designed for insertion following tooth extractions. To ensure claims are processed accurately and without delay, providers should be aware of key requirements and timelines associated with these services.
+          - paragraph [ref=f480e73]: When submitting a claim for a removable prosthodontic appliance, the date of service must reflect the date the appliance is inserted, not the date it was fabricated. In cases where insertion is completed by another provider—such as an oral surgeon—the provider who fabricated the appliance may need to confirm that extractions were completed and verify the insertion date before submitting the claim to Sun Life. Failing to complete this step could result in the recovery of payments.
+          - paragraph [ref=f480e74]: "The CDCP has also established specific timelines for the insertion of these appliances:"
+          - list [ref=f480e75]:
+            - listitem [ref=f480e76]: Provisional or transitional dentures, intended as short-term dentures before long-term dentures, must be inserted within 7 days of extractions.
+            - listitem [ref=f480e77]: Immediate dentures should be inserted within 45 days of extractions.
+          - paragraph [ref=f480e78]: Adhering to these timelines is essential to meet CDCP requirements and ensure eligibility for reimbursement.
+          - paragraph [ref=f480e79]: In some circumstances, partial reimbursement may be considered for non-inserted dentures. Providers are encouraged to consult the CDCP Dental Benefits Guide (section 6.6.5.2) for full details on eligibility and reimbursement conditions.
+          - heading "Reminders of Changes Implemented in December 2025:" [level=3] [ref=f480e80]
+          - paragraph [ref=f480e81]:
+            - strong [ref=f480e82]: "Frequency Limits for Services: Removal of Same-provider and Same-office Requirements"
+          - paragraph [ref=f480e83]: Frequency limit rules no longer take into account whether exams, restorations, and some denture related services are performed by the same provider or within the same office.
+          - paragraph [ref=f480e84]: "For example, the previous rule for restorations stated: ‘once per tooth surface in any 24-month period by the same provider or a different provider in the same office.’ Under the new rule, this now reads: ‘once per tooth surface in any 24-month period.’"
+          - paragraph [ref=f480e85]:
+            - text: "Benefit categories impacted by this change include but are not limited to: examinations, restorations, and denture-related services such as reline/rebases, repairs, and tissue conditioning."
+            - strong [ref=f480e86]: "Note:"
+            - text: While provider and location requirements have been removed, other frequency limitations, age-specific rules, exclusions, and material-specific coverage rules continue to apply. Providers should regularly consult the
+            - link "CDCP Dental Benefits Guide opens in a new tab" [ref=f480e87] [cursor=pointer]:
+              - /url: https://www.canada.ca/en/services/benefits/dental/dental-care-plan/guide.html
+              - text: CDCP Dental Benefits Guide
+              - img "opens in a new tab" [ref=f480e89]
+            - text: and the CDCP Dental Benefit Grids to ensure compliance.
+          - paragraph [ref=f480e91]:
+            - strong [ref=f480e92]: Denture Coverage
+          - paragraph [ref=f480e93]: Changes to the coverage for new dentures have been made to streamline the process for adjudicating dentures and addressing patient needs while respecting established guidelines. New dentures are not eligible for coverage within 24 months of a reline or rebase on an existing denture, given that the reline or rebase will have extended the life of the denture.
+          - paragraph [ref=f480e94]: For example, if a patient’s existing denture was relined on December 15, 2025, the patient will not be eligible for a new denture under the CDCP until December 16, 2027. This rule applies regardless of other denture frequency limits.
+          - paragraph [ref=f480e95]: Providers will need to take this rule into account when treatment planning and assessing the best way to handle maintaining dentures that are nearing the end of their life.
+        - paragraph [ref=f480e98]:
+          - text: To learn more call 1-888-888-8110, visit
+          - link "Sun Life's CDCP website opens in a new tab" [ref=f480e99] [cursor=pointer]:
+            - /url: https://www.sunlife.ca/sl/cdcp/en/?WT.mc_id=en-ca:direct:promo_email:provideremail:preautandresources
+            - text: Sun Life's CDCP website
+            - img "opens in a new tab" [ref=f480e101]
+          - text: or the
+          - link "Government of Canada CDCP website opens in a new tab" [ref=f480e103] [cursor=pointer]:
+            - /url: https://www.canada.ca/en/services/benefits/dental/dental-care-plan/providers.html
+            - text: Government of Canada CDCP website
+            - img "opens in a new tab" [ref=f480e105]
+          - text: .
+  - contentinfo [ref=f480e112]:
+    - generic [ref=f480e114]:
+      - generic [ref=f480e115]:
+        - separator [aria-hidden] [ref=f480e116]
+        - generic [ref=f480e117]:
+          - button "Member" [ref=f480e119] [cursor=pointer]
+          - button "Oral health provider" [ref=f480e124] [cursor=pointer]
+          - button "Support" [ref=f480e129] [cursor=pointer]
+      - generic [ref=f480e133]:
+        - separator [aria-hidden] [ref=f480e134]
+        - generic [ref=f480e136]:
+          - paragraph [ref=f480e137]: The Canadian Dental Care Plan is a federal government program. Sun Life’s role with the CDCP is to provide dental claims processing services.
+          - paragraph [ref=f480e138]:
+            - text: For more information about the CDCP, visit the
+            - link "Government of Canada opens in a new tab" [ref=f480e139] [cursor=pointer]:
+              - /url: https://www.canada.ca/en/services/benefits/dental/dental-care-plan.html
+              - text: Government of Canada
+              - img "opens in a new tab" [ref=f480e141]
+            - text: website.
+          - paragraph [ref=f480e143]: Life’s brighter under the sun
+          - paragraph [ref=f480e144]: © Sun Life Assurance Company of Canada. All rights reserved.
+      - generic [ref=f480e145]:
+        - separator [aria-hidden] [ref=f480e146]
+        - generic [ref=f480e147]:
+          - list [ref=f480e148]:
+            - listitem [ref=f480e149] [cursor=pointer]:
+              - link "Legal opens in a new tab" [ref=f480e150]:
+                - /url: https://www.sunlife.com/sl/pslf-canada/en/legal/
+                - text: Legal
+                - img "opens in a new tab" [ref=f480e151]
+            - listitem [ref=f480e154] [cursor=pointer]:
+              - link "Privacy opens in a new tab" [ref=f480e155]:
+                - /url: https://www.sunlife.com/sl/pslf-canada/en/privacy/
+                - text: Privacy
+                - img "opens in a new tab" [ref=f480e156]
+            - listitem [ref=f480e159] [cursor=pointer]:
+              - button "Cookie settings" [ref=f480e160]
+            - listitem [ref=f480e162] [cursor=pointer]:
+              - link "Security opens in a new tab" [ref=f480e163]:
+                - /url: https://www.sunlife.com/sl/pslf-canada/en/security/
+                - text: Security
+                - img "opens in a new tab" [ref=f480e164]
+            - listitem [ref=f480e167] [cursor=pointer]:
+              - link "Accessibility opens in a new tab" [ref=f480e168]:
+                - /url: https://www.sunlife.ca/en/about-us/accessibility-commitment/
+                - text: Accessibility
+                - img "opens in a new tab" [ref=f480e169]
+          - generic [ref=f480e171]: SLF

@@ -1,0 +1,95 @@
+- generic [ref=f15e4]:
+  - banner [ref=f15e10]:
+    - generic:
+      - link "Skip to client sign in" [ref=f15e11] [cursor=pointer]:
+        - /url: "#signinbutton"
+      - link "Skip to content" [ref=f15e12] [cursor=pointer]:
+        - /url: "#main-content"
+      - link "Skip to footer" [ref=f15e13] [cursor=pointer]:
+        - /url: "#footer"
+    - generic [ref=f15e16]:
+      - button "open menu" [ref=f15e17] [cursor=pointer]
+      - link [ref=f15e20] [cursor=pointer]:
+        - /url: /en/
+        - img "Sun Life" [ref=f15e21]
+  - main [ref=f15e22]:
+    - generic [ref=f15e25]:
+      - heading "Important Update on Preauthorization" [level=1] [ref=f15e28]
+      - generic [ref=f15e30]:
+        - paragraph [ref=f15e31]: Since November 1, 2024, providers have been able to submit Canadian Dental Care Plan (CDCP) preauthorization requests for services that require prior approval. The preauthorization process is not to determine if the provider’s proposed treatment is the right treatment — that decision is between the provider and their patient. Instead, this process confirms if the proposed treatment or service meets the CDCP coverage criteria and will be covered by the plan.
+        - paragraph [ref=f15e32]: The CDCP preauthorization process is different from private insurance plans, and an adjustment period is expected.
+        - paragraph [ref=f15e33]: Health Canada and Sun Life are aware of challenges providers have faced over the last month. We are actively working to simplify the process, where possible, and provide more clarity about the details and documentation required as part of the submission. Some improvements are already in place, while others will take a bit more time to implement.
+        - heading "Missing documentation and EDI attachments" [level=2] [ref=f15e34]:
+          - text: Missing documentation and EDI attachments
+          - strong
+        - paragraph [ref=f15e35]: We appreciate the large number of preauthorization requests being submitted through the Electronic Data Interchange (EDI). However, most requests are being sent without the necessary attachments or missing documentation. This seems to be caused by a variety of issues, from an awareness gap to technical issues.
+        - paragraph [ref=f15e36]: We encourage providers to verify if their practice management software (PMS) fully supports the submission of attachments and note sections through EDI. Your PMS vendor should be able to assist you and provide training to you and your staff, if needed.
+        - paragraph [ref=f15e37]:
+          - strong [ref=f15e38]: "Important note:"
+          - text: If your PMS does not support the submission of attachments through EDI, please submit your preauthorization requests and all supporting documentation by mail only – See
+          - link "How to submit CDCP claims and preauthorization requests during a postal disruption" [ref=f15e39] [cursor=pointer]:
+            - /url: /sl/cdcp/en/support/oral-health-provider-faq/#postal-strike
+          - text: .
+        - heading "Resubmitting requests due to missing documentation" [level=2] [ref=f15e40]:
+          - text: Resubmitting requests due to missing documentation
+          - strong
+        - paragraph [ref=f15e41]:
+          - text: If your preauthorization request(s) was denied because some or all documentation required was missing, you will need to
+          - strong [ref=f15e42]: resubmit it to Sun Life
+          - text: with the required documentation. This will not be considered a reconsideration request.
+        - paragraph [ref=f15e43]: Make sure to include all required documentation, including treatment plan details and information about how your patient’s basic needs have been or will be addressed (e.g. control of periodontal disease and decay). Clinical notes can help provide important details not included in the claim form and/or any related x-rays or photographs submitted.
+        - paragraph [ref=f15e44]: We acknowledge that this adds an extra additional administrative step for you and your staff, but it is currently the most effective way for your request to be assessed.
+        - heading "Not all requests will be approved" [level=2] [ref=f15e45]
+        - paragraph [ref=f15e46]:
+          - text: The CDCP is a publicly funded program aimed at improving public health outcomes while managing public funds responsibly. Its coverage criteria may be more stringent in terms of what is approved through preauthorization, compared to other plans, and
+          - strong [ref=f15e47]: not all requests will be approved
+          - text: .
+        - paragraph [ref=f15e48]: Health Canada and Sun Life are committed to working with oral health provider associations and providers alike to ensure the CDCP is successfully implemented. We appreciate the feedback we have received and thank you for your collaboration and patience.
+  - contentinfo [ref=f15e54]:
+    - generic [ref=f15e56]:
+      - generic [ref=f15e57]:
+        - separator [aria-hidden] [ref=f15e58]
+        - generic [ref=f15e59]:
+          - button "Member" [ref=f15e61] [cursor=pointer]
+          - button "Oral health provider" [ref=f15e64] [cursor=pointer]
+          - button "Support" [ref=f15e67] [cursor=pointer]
+      - generic [ref=f15e69]:
+        - separator [aria-hidden] [ref=f15e70]
+        - generic [ref=f15e72]:
+          - paragraph [ref=f15e73]: The Canadian Dental Care Plan is a federal government program. Sun Life’s role with the CDCP is to provide dental claims processing services.
+          - paragraph [ref=f15e74]:
+            - text: For more information about the CDCP, visit the
+            - link "Government of Canada opens in a new tab" [ref=f15e75] [cursor=pointer]:
+              - /url: https://www.canada.ca/en/services/benefits/dental/dental-care-plan.html
+              - text: Government of Canada
+              - generic "opens in a new tab"
+            - text: website.
+          - paragraph [ref=f15e77]: Life’s brighter under the sun
+          - paragraph [ref=f15e78]: © Sun Life Assurance Company of Canada. All rights reserved.
+      - generic [ref=f15e79]:
+        - separator [aria-hidden] [ref=f15e80]
+        - generic [ref=f15e81]:
+          - list [ref=f15e82]:
+            - listitem [ref=f15e83] [cursor=pointer]:
+              - link "Legalopens in a new tab" [ref=f15e84]:
+                - /url: https://www.sunlife.com/sl/pslf-canada/en/legal/
+                - text: Legal
+                - generic "opens in a new tab"
+            - listitem [ref=f15e86] [cursor=pointer]:
+              - link "Privacyopens in a new tab" [ref=f15e87]:
+                - /url: https://www.sunlife.com/sl/pslf-canada/en/privacy/
+                - text: Privacy
+                - generic "opens in a new tab"
+            - listitem [ref=f15e89] [cursor=pointer]:
+              - button "Cookie settings" [ref=f15e90]
+            - listitem [ref=f15e92] [cursor=pointer]:
+              - link "Securityopens in a new tab" [ref=f15e93]:
+                - /url: https://www.sunlife.com/sl/pslf-canada/en/security/
+                - text: Security
+                - generic "opens in a new tab"
+            - listitem [ref=f15e95] [cursor=pointer]:
+              - link "Accessibilityopens in a new tab" [ref=f15e96]:
+                - /url: https://www.sunlife.ca/en/about-us/accessibility-commitment/
+                - text: Accessibility
+                - generic "opens in a new tab"
+          - generic [ref=f15e97]: SLF

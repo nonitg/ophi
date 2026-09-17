@@ -1,0 +1,158 @@
+#!/bin/bash
+# vm — one command surface for the ABELDent lab VM.
+#
+# Transport is the QEMU guest agent via utmctl, not SSH: it needs zero configuration
+# inside the guest, survives reboots, and works before networking is set up. Commands
+# run as NT AUTHORITY\SYSTEM. Screenshots are the one exception — session 0 cannot see
+# the desktop, so `shot` bounces through a scheduled task in the interactive session.
+set -uo pipefail
+
+HERE="$(cd "$(dirname "$0")" && pwd)"
+LAB="$(cd "$HERE/.." && pwd)"
+UTMCTL="${UTMCTL:-/Applications/UTM.app/Contents/MacOS/utmctl}"
+VM_UUID="${VM_UUID:-44469FC2-B636-412D-8441-9A4A9B04E537}"
+GUEST_DIR='C:\colombus'
+
+CMD_EXE='C:\Windows\System32\cmd.exe'
+
+die() { echo "error: $*" >&2; exit 1; }
+
+# utmctl exits 0 even when the guest file is still locked by the writer, so success is
+# judged on content, not exit code. Each utmctl round trip is ~200ms, which is the delay.
+pull_retry() {
+  local path="$1" i out
+  for i in $(seq 1 "${2:-40}"); do
+    out="$("$UTMCTL" file pull "$VM_UUID" "$path" 2>/dev/null)"
+    if [ -n "$out" ]; then printf '%s\n' "$out"; return 0; fi
+  done
+  return 1
+}
+
+# Run PowerShell in the guest, return its combined output.
+# A sentinel line marks completion — without it a partially-flushed file reads as done.
+ps_exec() {
+  local marker='___COLOMBUS_DONE___' out
+  printf '%s\n%s\n' "$1" "Write-Output '$marker'" \
+    | "$UTMCTL" file push "$VM_UUID" "$GUEST_DIR\\_cmd.ps1" >/dev/null 2>&1 \
+    || die "guest agent not responding — is the VM running?"
+  "$UTMCTL" exec "$VM_UUID" --cmd "$CMD_EXE" /c \
+    "del $GUEST_DIR\\out\\_last.txt 2>nul & powershell -NoProfile -ExecutionPolicy Bypass -File $GUEST_DIR\\_cmd.ps1 > $GUEST_DIR\\out\\_last.txt 2>&1" \
+    >/dev/null 2>&1
+  local i
+  for i in $(seq 1 120); do
+    out="$("$UTMCTL" file pull "$VM_UUID" "$GUEST_DIR\\out\\_last.txt" 2>/dev/null)"
+    case "$out" in *"$marker"*) printf '%s\n' "${out%$marker*}"; return 0 ;; esac
+  done
+  echo "timed out waiting for guest command" >&2
+  printf '%s\n' "$out"
+  return 1
+}
+
+# Run PowerShell as the logged-on user instead of SYSTEM, via the ColombusRun task.
+# Required for anything touching ABELDent's LocalDB or the desktop.
+user_exec() {
+  local marker='___COLOMBUS_UDONE___' out i
+  printf '%s\n' "$1" | "$UTMCTL" file push "$VM_UUID" "$GUEST_DIR\\_ucmd.ps1" >/dev/null 2>&1 \
+    || die "guest agent not responding"
+  "$UTMCTL" exec "$VM_UUID" --cmd "$CMD_EXE" /c \
+    "del $GUEST_DIR\\out\\_ulast.txt 2>nul & schtasks /run /tn ColombusRun" >/dev/null 2>&1
+  for i in $(seq 1 200); do
+    out="$("$UTMCTL" file pull "$VM_UUID" "$GUEST_DIR\\out\\_ulast.txt" 2>/dev/null)"
+    case "$out" in *"$marker"*) printf '%s\n' "${out%$marker*}"; return 0 ;; esac
+  done
+  echo "timed out — is ColombusRun registered? run: $0 setup-user" >&2
+  printf '%s\n' "$out"; return 1
+}
+
+cmd="${1:-help}"; shift || true
+
+case "$cmd" in
+
+exec)   ps_exec "$*" ;;
+uexec)  user_exec "$*" ;;
+
+# One-time: register the task that runs commands in the logged-on user's session.
+setup-user)
+  ps_exec "\$u = (Get-CimInstance Win32_ComputerSystem).UserName
+if (-not \$u) { 'no interactive user logged on'; exit 1 }
+\$run = 'powershell -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File $GUEST_DIR\\run-user.ps1'
+\$shot = 'powershell -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File $GUEST_DIR\\shot.ps1'
+schtasks /create /tn ColombusRun /ru \$u /it /f /sc once /st 00:00 /tr \$run
+schtasks /create /tn ColombusShot /ru \$u /it /f /sc once /st 00:00 /tr \$shot
+'registered for ' + \$u"
+  ;;
+
+# Read-only SQL against the ABELDent database. Usage: vm sql "<query>" [db] [json|csv|table]
+sql)
+  q="${1:?usage: vm sql \"<query>\" [database] [json|csv|table]}"
+  db="${2:-master}"; as="${3:-table}"
+  q_b64="$(printf '%s' "$q" | base64)"
+  # Must run as the logged-on user — LocalDB instances are per-user.
+  user_exec "\$q=[Text.Encoding]::UTF8.GetString([Convert]::FromBase64String('$q_b64'))
+& $GUEST_DIR\\q.ps1 -Query \$q -Database '$db' -As '$as'"
+  ;;
+
+# Copy the guest-side scripts in.
+sync)
+  ps_exec "New-Item -ItemType Directory -Force -Path $GUEST_DIR\\out | Out-Null; 'ok'" >/dev/null
+  for f in "$HERE"/guest/*.ps1; do
+    "$UTMCTL" file push "$VM_UUID" "$GUEST_DIR\\$(basename "$f")" < "$f" >/dev/null \
+      && echo "pushed $(basename "$f")"
+  done
+  ;;
+
+push)   "$UTMCTL" file push "$VM_UUID" "${2:?usage: vm push <local> <guestpath>}" < "${1:?}" && echo "pushed -> $2" ;;
+get)    pull_retry "${1:?usage: vm get <guestpath>}" ;;
+
+# Pull a named artifact out of C:\colombus\out into lab/out.
+pull)
+  mkdir -p "$LAB/out"
+  name="${1:?usage: vm pull <filename in C:\\colombus\\out>}"
+  pull_retry "$GUEST_DIR\\out\\$name" > "$LAB/out/$name" && echo "$LAB/out/$name"
+  ;;
+
+# One-time: register the screenshot task in the interactive session.
+setup-shot)
+  ps_exec "\$u = (Get-CimInstance Win32_ComputerSystem).UserName
+schtasks /create /tn ColombusShot /ru \$u /tr 'powershell -NoProfile -WindowStyle Hidden -File $GUEST_DIR\\shot.ps1' /sc once /st 00:00 /it /f
+'registered for ' + \$u"
+  ;;
+
+# Capture the guest desktop into lab/out and print the path.
+shot)
+  mkdir -p "$LAB/out"
+  ts="$(date +%H%M%S)"
+  ps_exec "Remove-Item $GUEST_DIR\\out\\shot.png -ErrorAction SilentlyContinue
+schtasks /run /tn ColombusShot | Out-Null
+for (\$i=0; \$i -lt 30; \$i++) { if (Test-Path $GUEST_DIR\\out\\shot.png) { break }; Start-Sleep -Milliseconds 300 }
+if (Test-Path $GUEST_DIR\\out\\shot.png) { 'ok' } else { 'FAILED - run: vm setup-shot' }" >/dev/null
+  "$UTMCTL" file pull "$VM_UUID" "$GUEST_DIR\\out\\shot.png" > "$LAB/out/shot-$ts.png" 2>/dev/null
+  if [ -s "$LAB/out/shot-$ts.png" ]; then echo "$LAB/out/shot-$ts.png"
+  else rm -f "$LAB/out/shot-$ts.png"; die "no screenshot — run: $0 setup-shot"; fi
+  ;;
+
+inspect) ps_exec "& $GUEST_DIR\\inspect.ps1" ;;
+
+status)
+  "$UTMCTL" status "$VM_UUID"
+  "$UTMCTL" ip-address "$VM_UUID" 2>/dev/null | head -1
+  ;;
+
+help|*)
+  cat <<'EOF'
+vm <command>
+
+  exec '<powershell>'   run PowerShell in the guest (as SYSTEM), print output
+  sql '<query>' [db] [json|csv|table]
+                        read-only query against the ABELDent database
+  sync                  push lab/vm/guest/*.ps1 into C:\colombus
+  push <local> <guest>  copy a file in
+  get <guestpath>       print a guest file to stdout
+  pull <name>           copy C:\colombus\out\<name> -> lab/out/
+  setup-shot            one-time: register the screenshot task
+  shot                  capture the guest desktop -> lab/out/
+  inspect               run the Step-0 recon script
+  status                VM power state + IP
+EOF
+  ;;
+esac

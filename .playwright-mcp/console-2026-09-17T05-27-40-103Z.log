@@ -1,0 +1,349 @@
+[     942ms] [WARNING] [GPT] PubAdsService.setTargeting is deprecated, use googletag.setConfig({targeting: ...}) instead.
+https://goo.gle/gpt-message#170 @ https://securepubads.g.doubleclick.net/pagead/managed/js/gpt/m202609150101/pubads_impl.js?cb=122881078:22
+[    1347ms] Error: Minified React error #418; visit https://reactjs.org/docs/error-decoder.html?invariant=418 for the full message or use the non-minified dev environment for full errors and additional helpful warnings.
+    at av (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:57917)
+    at i (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:132592)
+    at uF (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:110576)
+    at ux (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:105643)
+    at E (https://www.cbc.ca/a/scripts/oc-vendor.fc37b35ab6e3b5d5.js:1:181635)
+    at MessagePort.x (https://www.cbc.ca/a/scripts/oc-vendor.fc37b35ab6e3b5d5.js:1:182156)
+[    1347ms] Error: Minified React error #418; visit https://reactjs.org/docs/error-decoder.html?invariant=418 for the full message or use the non-minified dev environment for full errors and additional helpful warnings.
+    at av (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:57917)
+    at i (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:132592)
+    at uF (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:110576)
+    at ux (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:105643)
+    at E (https://www.cbc.ca/a/scripts/oc-vendor.fc37b35ab6e3b5d5.js:1:181635)
+    at MessagePort.x (https://www.cbc.ca/a/scripts/oc-vendor.fc37b35ab6e3b5d5.js:1:182156)
+[    1347ms] Error: Minified React error #418; visit https://reactjs.org/docs/error-decoder.html?invariant=418 for the full message or use the non-minified dev environment for full errors and additional helpful warnings.
+    at av (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:57917)
+    at i (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:132592)
+    at uF (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:110576)
+    at ux (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:105643)
+    at E (https://www.cbc.ca/a/scripts/oc-vendor.fc37b35ab6e3b5d5.js:1:181635)
+    at MessagePort.x (https://www.cbc.ca/a/scripts/oc-vendor.fc37b35ab6e3b5d5.js:1:182156)
+[    1347ms] Error: Minified React error #418; visit https://reactjs.org/docs/error-decoder.html?invariant=418 for the full message or use the non-minified dev environment for full errors and additional helpful warnings.
+    at av (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:57917)
+    at i (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:132592)
+    at uF (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:110576)
+    at ux (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:105643)
+    at E (https://www.cbc.ca/a/scripts/oc-vendor.fc37b35ab6e3b5d5.js:1:181635)
+    at MessagePort.x (https://www.cbc.ca/a/scripts/oc-vendor.fc37b35ab6e3b5d5.js:1:182156)
+[    1347ms] Error: Minified React error #418; visit https://reactjs.org/docs/error-decoder.html?invariant=418 for the full message or use the non-minified dev environment for full errors and additional helpful warnings.
+    at av (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:57917)
+    at i (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:132592)
+    at uF (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:110576)
+    at ux (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:105643)
+    at E (https://www.cbc.ca/a/scripts/oc-vendor.fc37b35ab6e3b5d5.js:1:181635)
+    at MessagePort.x (https://www.cbc.ca/a/scripts/oc-vendor.fc37b35ab6e3b5d5.js:1:182156)
+[    1347ms] Error: Minified React error #418; visit https://reactjs.org/docs/error-decoder.html?invariant=418 for the full message or use the non-minified dev environment for full errors and additional helpful warnings.
+    at av (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:57917)
+    at i (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:132592)
+    at uF (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:110576)
+    at ux (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:105643)
+    at E (https://www.cbc.ca/a/scripts/oc-vendor.fc37b35ab6e3b5d5.js:1:181635)
+    at MessagePort.x (https://www.cbc.ca/a/scripts/oc-vendor.fc37b35ab6e3b5d5.js:1:182156)
+[    1347ms] Error: Minified React error #418; visit https://reactjs.org/docs/error-decoder.html?invariant=418 for the full message or use the non-minified dev environment for full errors and additional helpful warnings.
+    at av (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:57917)
+    at i (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:132592)
+    at uF (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:110576)
+    at ux (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:105643)
+    at E (https://www.cbc.ca/a/scripts/oc-vendor.fc37b35ab6e3b5d5.js:1:181635)
+    at MessagePort.x (https://www.cbc.ca/a/scripts/oc-vendor.fc37b35ab6e3b5d5.js:1:182156)
+[    1347ms] Error: Minified React error #418; visit https://reactjs.org/docs/error-decoder.html?invariant=418 for the full message or use the non-minified dev environment for full errors and additional helpful warnings.
+    at av (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:57917)
+    at i (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:132592)
+    at uF (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:110576)
+    at ux (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:105643)
+    at E (https://www.cbc.ca/a/scripts/oc-vendor.fc37b35ab6e3b5d5.js:1:181635)
+    at MessagePort.x (https://www.cbc.ca/a/scripts/oc-vendor.fc37b35ab6e3b5d5.js:1:182156)
+[    1347ms] Error: Minified React error #418; visit https://reactjs.org/docs/error-decoder.html?invariant=418 for the full message or use the non-minified dev environment for full errors and additional helpful warnings.
+    at av (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:57917)
+    at i (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:132592)
+    at uF (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:110576)
+    at ux (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:105643)
+    at E (https://www.cbc.ca/a/scripts/oc-vendor.fc37b35ab6e3b5d5.js:1:181635)
+    at MessagePort.x (https://www.cbc.ca/a/scripts/oc-vendor.fc37b35ab6e3b5d5.js:1:182156)
+[    1347ms] Error: Minified React error #418; visit https://reactjs.org/docs/error-decoder.html?invariant=418 for the full message or use the non-minified dev environment for full errors and additional helpful warnings.
+    at av (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:57917)
+    at i (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:132592)
+    at uF (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:110576)
+    at ux (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:105643)
+    at E (https://www.cbc.ca/a/scripts/oc-vendor.fc37b35ab6e3b5d5.js:1:181635)
+    at MessagePort.x (https://www.cbc.ca/a/scripts/oc-vendor.fc37b35ab6e3b5d5.js:1:182156)
+[    1347ms] Error: Minified React error #418; visit https://reactjs.org/docs/error-decoder.html?invariant=418 for the full message or use the non-minified dev environment for full errors and additional helpful warnings.
+    at av (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:57917)
+    at i (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:132592)
+    at uF (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:110576)
+    at ux (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:105643)
+    at E (https://www.cbc.ca/a/scripts/oc-vendor.fc37b35ab6e3b5d5.js:1:181635)
+    at MessagePort.x (https://www.cbc.ca/a/scripts/oc-vendor.fc37b35ab6e3b5d5.js:1:182156)
+[    1347ms] Error: Minified React error #418; visit https://reactjs.org/docs/error-decoder.html?invariant=418 for the full message or use the non-minified dev environment for full errors and additional helpful warnings.
+    at av (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:57917)
+    at i (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:132592)
+    at uF (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:110576)
+    at ux (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:105643)
+    at E (https://www.cbc.ca/a/scripts/oc-vendor.fc37b35ab6e3b5d5.js:1:181635)
+    at MessagePort.x (https://www.cbc.ca/a/scripts/oc-vendor.fc37b35ab6e3b5d5.js:1:182156)
+[    1347ms] Error: Minified React error #418; visit https://reactjs.org/docs/error-decoder.html?invariant=418 for the full message or use the non-minified dev environment for full errors and additional helpful warnings.
+    at av (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:57917)
+    at i (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:132592)
+    at uF (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:110576)
+    at ux (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:105643)
+    at E (https://www.cbc.ca/a/scripts/oc-vendor.fc37b35ab6e3b5d5.js:1:181635)
+    at MessagePort.x (https://www.cbc.ca/a/scripts/oc-vendor.fc37b35ab6e3b5d5.js:1:182156)
+[    1347ms] Error: Minified React error #418; visit https://reactjs.org/docs/error-decoder.html?invariant=418 for the full message or use the non-minified dev environment for full errors and additional helpful warnings.
+    at av (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:57917)
+    at i (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:132592)
+    at uF (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:110576)
+    at ux (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:105643)
+    at E (https://www.cbc.ca/a/scripts/oc-vendor.fc37b35ab6e3b5d5.js:1:181635)
+    at MessagePort.x (https://www.cbc.ca/a/scripts/oc-vendor.fc37b35ab6e3b5d5.js:1:182156)
+[    1347ms] Error: Minified React error #418; visit https://reactjs.org/docs/error-decoder.html?invariant=418 for the full message or use the non-minified dev environment for full errors and additional helpful warnings.
+    at av (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:57917)
+    at i (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:132592)
+    at uF (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:110576)
+    at ux (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:105643)
+    at E (https://www.cbc.ca/a/scripts/oc-vendor.fc37b35ab6e3b5d5.js:1:181635)
+    at MessagePort.x (https://www.cbc.ca/a/scripts/oc-vendor.fc37b35ab6e3b5d5.js:1:182156)
+[    1347ms] Error: Minified React error #418; visit https://reactjs.org/docs/error-decoder.html?invariant=418 for the full message or use the non-minified dev environment for full errors and additional helpful warnings.
+    at av (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:57917)
+    at i (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:132592)
+    at uF (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:110576)
+    at ux (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:105643)
+    at E (https://www.cbc.ca/a/scripts/oc-vendor.fc37b35ab6e3b5d5.js:1:181635)
+    at MessagePort.x (https://www.cbc.ca/a/scripts/oc-vendor.fc37b35ab6e3b5d5.js:1:182156)
+[    1347ms] Error: Minified React error #418; visit https://reactjs.org/docs/error-decoder.html?invariant=418 for the full message or use the non-minified dev environment for full errors and additional helpful warnings.
+    at av (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:57917)
+    at i (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:132592)
+    at uF (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:110576)
+    at ux (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:105643)
+    at E (https://www.cbc.ca/a/scripts/oc-vendor.fc37b35ab6e3b5d5.js:1:181635)
+    at MessagePort.x (https://www.cbc.ca/a/scripts/oc-vendor.fc37b35ab6e3b5d5.js:1:182156)
+[    1347ms] Error: Minified React error #418; visit https://reactjs.org/docs/error-decoder.html?invariant=418 for the full message or use the non-minified dev environment for full errors and additional helpful warnings.
+    at av (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:57917)
+    at i (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:132592)
+    at uF (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:110576)
+    at ux (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:105643)
+    at E (https://www.cbc.ca/a/scripts/oc-vendor.fc37b35ab6e3b5d5.js:1:181635)
+    at MessagePort.x (https://www.cbc.ca/a/scripts/oc-vendor.fc37b35ab6e3b5d5.js:1:182156)
+[    1347ms] Error: Minified React error #418; visit https://reactjs.org/docs/error-decoder.html?invariant=418 for the full message or use the non-minified dev environment for full errors and additional helpful warnings.
+    at av (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:57917)
+    at i (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:132592)
+    at uF (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:110576)
+    at ux (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:105643)
+    at E (https://www.cbc.ca/a/scripts/oc-vendor.fc37b35ab6e3b5d5.js:1:181635)
+    at MessagePort.x (https://www.cbc.ca/a/scripts/oc-vendor.fc37b35ab6e3b5d5.js:1:182156)
+[    1347ms] Error: Minified React error #418; visit https://reactjs.org/docs/error-decoder.html?invariant=418 for the full message or use the non-minified dev environment for full errors and additional helpful warnings.
+    at av (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:57917)
+    at i (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:132592)
+    at uF (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:110576)
+    at ux (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:105643)
+    at E (https://www.cbc.ca/a/scripts/oc-vendor.fc37b35ab6e3b5d5.js:1:181635)
+    at MessagePort.x (https://www.cbc.ca/a/scripts/oc-vendor.fc37b35ab6e3b5d5.js:1:182156)
+[    1347ms] Error: Minified React error #418; visit https://reactjs.org/docs/error-decoder.html?invariant=418 for the full message or use the non-minified dev environment for full errors and additional helpful warnings.
+    at av (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:57917)
+    at i (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:132592)
+    at uF (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:110576)
+    at ux (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:105643)
+    at E (https://www.cbc.ca/a/scripts/oc-vendor.fc37b35ab6e3b5d5.js:1:181635)
+    at MessagePort.x (https://www.cbc.ca/a/scripts/oc-vendor.fc37b35ab6e3b5d5.js:1:182156)
+[    1347ms] Error: Minified React error #418; visit https://reactjs.org/docs/error-decoder.html?invariant=418 for the full message or use the non-minified dev environment for full errors and additional helpful warnings.
+    at av (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:57917)
+    at i (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:132592)
+    at uF (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:110576)
+    at ux (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:105643)
+    at E (https://www.cbc.ca/a/scripts/oc-vendor.fc37b35ab6e3b5d5.js:1:181635)
+    at MessagePort.x (https://www.cbc.ca/a/scripts/oc-vendor.fc37b35ab6e3b5d5.js:1:182156)
+[    1347ms] Error: Minified React error #418; visit https://reactjs.org/docs/error-decoder.html?invariant=418 for the full message or use the non-minified dev environment for full errors and additional helpful warnings.
+    at av (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:57917)
+    at i (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:132592)
+    at uF (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:110576)
+    at ux (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:105643)
+    at E (https://www.cbc.ca/a/scripts/oc-vendor.fc37b35ab6e3b5d5.js:1:181635)
+    at MessagePort.x (https://www.cbc.ca/a/scripts/oc-vendor.fc37b35ab6e3b5d5.js:1:182156)
+[    1347ms] Error: Minified React error #418; visit https://reactjs.org/docs/error-decoder.html?invariant=418 for the full message or use the non-minified dev environment for full errors and additional helpful warnings.
+    at av (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:57917)
+    at i (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:132592)
+    at uF (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:110576)
+    at ux (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:105643)
+    at E (https://www.cbc.ca/a/scripts/oc-vendor.fc37b35ab6e3b5d5.js:1:181635)
+    at MessagePort.x (https://www.cbc.ca/a/scripts/oc-vendor.fc37b35ab6e3b5d5.js:1:182156)
+[    1347ms] Error: Minified React error #418; visit https://reactjs.org/docs/error-decoder.html?invariant=418 for the full message or use the non-minified dev environment for full errors and additional helpful warnings.
+    at av (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:57917)
+    at i (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:132592)
+    at uF (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:110576)
+    at ux (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:105643)
+    at E (https://www.cbc.ca/a/scripts/oc-vendor.fc37b35ab6e3b5d5.js:1:181635)
+    at MessagePort.x (https://www.cbc.ca/a/scripts/oc-vendor.fc37b35ab6e3b5d5.js:1:182156)
+[    1347ms] Error: Minified React error #418; visit https://reactjs.org/docs/error-decoder.html?invariant=418 for the full message or use the non-minified dev environment for full errors and additional helpful warnings.
+    at av (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:57917)
+    at i (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:132592)
+    at uF (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:110576)
+    at ux (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:105643)
+    at E (https://www.cbc.ca/a/scripts/oc-vendor.fc37b35ab6e3b5d5.js:1:181635)
+    at MessagePort.x (https://www.cbc.ca/a/scripts/oc-vendor.fc37b35ab6e3b5d5.js:1:182156)
+[    1347ms] Error: Minified React error #418; visit https://reactjs.org/docs/error-decoder.html?invariant=418 for the full message or use the non-minified dev environment for full errors and additional helpful warnings.
+    at av (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:57917)
+    at i (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:132592)
+    at uF (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:110576)
+    at ux (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:105643)
+    at E (https://www.cbc.ca/a/scripts/oc-vendor.fc37b35ab6e3b5d5.js:1:181635)
+    at MessagePort.x (https://www.cbc.ca/a/scripts/oc-vendor.fc37b35ab6e3b5d5.js:1:182156)
+[    1348ms] Error: Minified React error #418; visit https://reactjs.org/docs/error-decoder.html?invariant=418 for the full message or use the non-minified dev environment for full errors and additional helpful warnings.
+    at av (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:57917)
+    at i (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:132592)
+    at uF (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:110576)
+    at ux (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:105643)
+    at E (https://www.cbc.ca/a/scripts/oc-vendor.fc37b35ab6e3b5d5.js:1:181635)
+    at MessagePort.x (https://www.cbc.ca/a/scripts/oc-vendor.fc37b35ab6e3b5d5.js:1:182156)
+[    1348ms] Error: Minified React error #418; visit https://reactjs.org/docs/error-decoder.html?invariant=418 for the full message or use the non-minified dev environment for full errors and additional helpful warnings.
+    at av (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:57917)
+    at i (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:132592)
+    at uF (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:110576)
+    at ux (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:105643)
+    at E (https://www.cbc.ca/a/scripts/oc-vendor.fc37b35ab6e3b5d5.js:1:181635)
+    at MessagePort.x (https://www.cbc.ca/a/scripts/oc-vendor.fc37b35ab6e3b5d5.js:1:182156)
+[    1348ms] Error: Minified React error #418; visit https://reactjs.org/docs/error-decoder.html?invariant=418 for the full message or use the non-minified dev environment for full errors and additional helpful warnings.
+    at av (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:57917)
+    at i (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:132592)
+    at uF (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:110576)
+    at ux (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:105643)
+    at E (https://www.cbc.ca/a/scripts/oc-vendor.fc37b35ab6e3b5d5.js:1:181635)
+    at MessagePort.x (https://www.cbc.ca/a/scripts/oc-vendor.fc37b35ab6e3b5d5.js:1:182156)
+[    1348ms] Error: Minified React error #418; visit https://reactjs.org/docs/error-decoder.html?invariant=418 for the full message or use the non-minified dev environment for full errors and additional helpful warnings.
+    at av (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:57917)
+    at i (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:132592)
+    at uF (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:110576)
+    at ux (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:105643)
+    at E (https://www.cbc.ca/a/scripts/oc-vendor.fc37b35ab6e3b5d5.js:1:181635)
+    at MessagePort.x (https://www.cbc.ca/a/scripts/oc-vendor.fc37b35ab6e3b5d5.js:1:182156)
+[    1348ms] Error: Minified React error #418; visit https://reactjs.org/docs/error-decoder.html?invariant=418 for the full message or use the non-minified dev environment for full errors and additional helpful warnings.
+    at av (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:57917)
+    at i (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:132592)
+    at uF (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:110576)
+    at ux (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:105643)
+    at E (https://www.cbc.ca/a/scripts/oc-vendor.fc37b35ab6e3b5d5.js:1:181635)
+    at MessagePort.x (https://www.cbc.ca/a/scripts/oc-vendor.fc37b35ab6e3b5d5.js:1:182156)
+[    1348ms] Error: Minified React error #418; visit https://reactjs.org/docs/error-decoder.html?invariant=418 for the full message or use the non-minified dev environment for full errors and additional helpful warnings.
+    at av (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:57917)
+    at i (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:132592)
+    at uF (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:110576)
+    at ux (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:105643)
+    at E (https://www.cbc.ca/a/scripts/oc-vendor.fc37b35ab6e3b5d5.js:1:181635)
+    at MessagePort.x (https://www.cbc.ca/a/scripts/oc-vendor.fc37b35ab6e3b5d5.js:1:182156)
+[    1348ms] Error: Minified React error #418; visit https://reactjs.org/docs/error-decoder.html?invariant=418 for the full message or use the non-minified dev environment for full errors and additional helpful warnings.
+    at av (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:57917)
+    at i (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:132592)
+    at uF (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:110576)
+    at ux (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:105643)
+    at E (https://www.cbc.ca/a/scripts/oc-vendor.fc37b35ab6e3b5d5.js:1:181635)
+    at MessagePort.x (https://www.cbc.ca/a/scripts/oc-vendor.fc37b35ab6e3b5d5.js:1:182156)
+[    1348ms] Error: Minified React error #418; visit https://reactjs.org/docs/error-decoder.html?invariant=418 for the full message or use the non-minified dev environment for full errors and additional helpful warnings.
+    at av (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:57917)
+    at i (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:132592)
+    at uF (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:110576)
+    at ux (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:105643)
+    at E (https://www.cbc.ca/a/scripts/oc-vendor.fc37b35ab6e3b5d5.js:1:181635)
+    at MessagePort.x (https://www.cbc.ca/a/scripts/oc-vendor.fc37b35ab6e3b5d5.js:1:182156)
+[    1348ms] Error: Minified React error #418; visit https://reactjs.org/docs/error-decoder.html?invariant=418 for the full message or use the non-minified dev environment for full errors and additional helpful warnings.
+    at av (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:57917)
+    at i (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:132592)
+    at uF (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:110576)
+    at ux (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:105643)
+    at E (https://www.cbc.ca/a/scripts/oc-vendor.fc37b35ab6e3b5d5.js:1:181635)
+    at MessagePort.x (https://www.cbc.ca/a/scripts/oc-vendor.fc37b35ab6e3b5d5.js:1:182156)
+[    1348ms] Error: Minified React error #418; visit https://reactjs.org/docs/error-decoder.html?invariant=418 for the full message or use the non-minified dev environment for full errors and additional helpful warnings.
+    at av (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:57917)
+    at i (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:132592)
+    at uF (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:110576)
+    at ux (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:105643)
+    at E (https://www.cbc.ca/a/scripts/oc-vendor.fc37b35ab6e3b5d5.js:1:181635)
+    at MessagePort.x (https://www.cbc.ca/a/scripts/oc-vendor.fc37b35ab6e3b5d5.js:1:182156)
+[    1349ms] Error: Minified React error #418; visit https://reactjs.org/docs/error-decoder.html?invariant=418 for the full message or use the non-minified dev environment for full errors and additional helpful warnings.
+    at av (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:57917)
+    at i (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:132592)
+    at uF (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:110576)
+    at ux (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:105643)
+    at E (https://www.cbc.ca/a/scripts/oc-vendor.fc37b35ab6e3b5d5.js:1:181635)
+    at MessagePort.x (https://www.cbc.ca/a/scripts/oc-vendor.fc37b35ab6e3b5d5.js:1:182156)
+[    1349ms] Error: Minified React error #418; visit https://reactjs.org/docs/error-decoder.html?invariant=418 for the full message or use the non-minified dev environment for full errors and additional helpful warnings.
+    at av (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:57917)
+    at i (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:132592)
+    at uF (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:110576)
+    at ux (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:105643)
+    at E (https://www.cbc.ca/a/scripts/oc-vendor.fc37b35ab6e3b5d5.js:1:181635)
+    at MessagePort.x (https://www.cbc.ca/a/scripts/oc-vendor.fc37b35ab6e3b5d5.js:1:182156)
+[    1349ms] Error: Minified React error #418; visit https://reactjs.org/docs/error-decoder.html?invariant=418 for the full message or use the non-minified dev environment for full errors and additional helpful warnings.
+    at av (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:57917)
+    at i (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:132592)
+    at uF (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:110576)
+    at ux (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:105643)
+    at E (https://www.cbc.ca/a/scripts/oc-vendor.fc37b35ab6e3b5d5.js:1:181635)
+    at MessagePort.x (https://www.cbc.ca/a/scripts/oc-vendor.fc37b35ab6e3b5d5.js:1:182156)
+[    1349ms] Error: Minified React error #418; visit https://reactjs.org/docs/error-decoder.html?invariant=418 for the full message or use the non-minified dev environment for full errors and additional helpful warnings.
+    at av (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:57917)
+    at i (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:132592)
+    at uF (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:110576)
+    at ux (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:105643)
+    at E (https://www.cbc.ca/a/scripts/oc-vendor.fc37b35ab6e3b5d5.js:1:181635)
+    at MessagePort.x (https://www.cbc.ca/a/scripts/oc-vendor.fc37b35ab6e3b5d5.js:1:182156)
+[    1349ms] Error: Minified React error #418; visit https://reactjs.org/docs/error-decoder.html?invariant=418 for the full message or use the non-minified dev environment for full errors and additional helpful warnings.
+    at av (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:57917)
+    at i (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:132592)
+    at uF (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:110576)
+    at ux (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:105643)
+    at E (https://www.cbc.ca/a/scripts/oc-vendor.fc37b35ab6e3b5d5.js:1:181635)
+    at MessagePort.x (https://www.cbc.ca/a/scripts/oc-vendor.fc37b35ab6e3b5d5.js:1:182156)
+[    1349ms] Error: Minified React error #418; visit https://reactjs.org/docs/error-decoder.html?invariant=418 for the full message or use the non-minified dev environment for full errors and additional helpful warnings.
+    at av (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:57917)
+    at i (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:132592)
+    at uF (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:110576)
+    at ux (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:105643)
+    at E (https://www.cbc.ca/a/scripts/oc-vendor.fc37b35ab6e3b5d5.js:1:181635)
+    at MessagePort.x (https://www.cbc.ca/a/scripts/oc-vendor.fc37b35ab6e3b5d5.js:1:182156)
+[    1349ms] Error: Minified React error #418; visit https://reactjs.org/docs/error-decoder.html?invariant=418 for the full message or use the non-minified dev environment for full errors and additional helpful warnings.
+    at av (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:57917)
+    at i (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:132592)
+    at uF (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:110576)
+    at ux (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:105643)
+    at E (https://www.cbc.ca/a/scripts/oc-vendor.fc37b35ab6e3b5d5.js:1:181635)
+    at MessagePort.x (https://www.cbc.ca/a/scripts/oc-vendor.fc37b35ab6e3b5d5.js:1:182156)
+[    1349ms] Error: Minified React error #418; visit https://reactjs.org/docs/error-decoder.html?invariant=418 for the full message or use the non-minified dev environment for full errors and additional helpful warnings.
+    at av (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:57917)
+    at i (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:132592)
+    at uF (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:110576)
+    at ux (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:105643)
+    at E (https://www.cbc.ca/a/scripts/oc-vendor.fc37b35ab6e3b5d5.js:1:181635)
+    at MessagePort.x (https://www.cbc.ca/a/scripts/oc-vendor.fc37b35ab6e3b5d5.js:1:182156)
+[    1349ms] Error: Minified React error #422; visit https://reactjs.org/docs/error-decoder.html?invariant=422 for the full message or use the non-minified dev environment for full errors and additional helpful warnings.
+    at ow (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:88635)
+    at i (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:132795)
+    at uF (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:110576)
+    at ux (https://www.cbc.ca/a/scripts/oc-vendor-react.c204533c0b4132a5.js:1:105643)
+    at E (https://www.cbc.ca/a/scripts/oc-vendor.fc37b35ab6e3b5d5.js:1:181635)
+    at MessagePort.x (https://www.cbc.ca/a/scripts/oc-vendor.fc37b35ab6e3b5d5.js:1:182156)
+[    1519ms] [WARNING] Viafoura: TCF API is available on this site but CMP Integration is not enabled in Admin (tcf_api_cmp_integration). Please enable it for proper consent gating. @ https://browser.sentry-cdn.com/7.44.1/bundle.tracing.min.js:1
+[    3557ms] [WARNING] [GPT] Slot.getTargeting is deprecated, use Slot.getConfig('targeting') instead.
+https://goo.gle/gpt-message#201 @ https://browser.sentry-cdn.com/7.44.1/bundle.tracing.min.js:1
+[    3563ms] [WARNING] This ad's html cannot be accessed using the getHtml method on googletag.Slot. Returning the empty string instead. @ https://browser.sentry-cdn.com/7.44.1/bundle.tracing.min.js:1
+[    3563ms] [WARNING] This ad's html cannot be accessed using the getHtml method on googletag.Slot. Returning the empty string instead. @ https://browser.sentry-cdn.com/7.44.1/bundle.tracing.min.js:1
+[    3563ms] [WARNING] This ad's html cannot be accessed using the getHtml method on googletag.Slot. Returning the empty string instead. @ https://browser.sentry-cdn.com/7.44.1/bundle.tracing.min.js:1
+[    3563ms] [WARNING] This ad's html cannot be accessed using the getHtml method on googletag.Slot. Returning the empty string instead. @ https://browser.sentry-cdn.com/7.44.1/bundle.tracing.min.js:1
+[    3563ms] [WARNING] This ad's html cannot be accessed using the getHtml method on googletag.Slot. Returning the empty string instead. @ https://browser.sentry-cdn.com/7.44.1/bundle.tracing.min.js:1
+[    3563ms] [WARNING] This ad's html cannot be accessed using the getHtml method on googletag.Slot. Returning the empty string instead. @ https://browser.sentry-cdn.com/7.44.1/bundle.tracing.min.js:1
+[    3571ms] [WARNING] This ad's html cannot be accessed using the getHtml method on googletag.Slot. Returning the empty string instead. @ https://browser.sentry-cdn.com/7.44.1/bundle.tracing.min.js:1
+[    3571ms] [WARNING] This ad's html cannot be accessed using the getHtml method on googletag.Slot. Returning the empty string instead. @ https://browser.sentry-cdn.com/7.44.1/bundle.tracing.min.js:1
+[    3571ms] [WARNING] This ad's html cannot be accessed using the getHtml method on googletag.Slot. Returning the empty string instead. @ https://browser.sentry-cdn.com/7.44.1/bundle.tracing.min.js:1
+[    3571ms] [WARNING] This ad's html cannot be accessed using the getHtml method on googletag.Slot. Returning the empty string instead. @ https://browser.sentry-cdn.com/7.44.1/bundle.tracing.min.js:1
+[    3571ms] [WARNING] This ad's html cannot be accessed using the getHtml method on googletag.Slot. Returning the empty string instead. @ https://browser.sentry-cdn.com/7.44.1/bundle.tracing.min.js:1
+[    3571ms] [WARNING] This ad's html cannot be accessed using the getHtml method on googletag.Slot. Returning the empty string instead. @ https://browser.sentry-cdn.com/7.44.1/bundle.tracing.min.js:1
+[    7227ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ https://us.shb-sync.com/76193a03-069b-4536-bc35-499b8e20d2af.gif?puid=[UID]&gdpr=0&gdpr_consent=&ccpa=&redir=https%3A%2F%2Fhb.trustedstack.com%2Fcksync.php%3Fcs%3D61%26type%3Dtst%26ovsid%3D%5BUID%5D%26gdpr%3D0%26gdpr_consent%3D%26ccpa%3D:0
+[    7239ms] [ERROR] Failed to load resource: the server responded with a status of 422 () @ https://match.sharethrough.com/FGMrCMMc/v1?gdpr=&gdpr_consent=&us_privacy=&gpp=&gpp_sid=&redirectUri=https%3A%2F%2Fpbs-bunny.receptivity.io%2Fsetuid%3Fbidder%3Dsharethrough%26gdpr%3D%26gdpr_consent%3D%26gpp%3D%26gpp_sid%3D%26f%3Di%26uid%3D%24UID:0
+[    7239ms] [ERROR] Failed to load resource: the server responded with a status of 422 () @ https://match.sharethrough.com/FGMrCMMc/v1?gdpr=&gdpr_consent=&us_privacy=&gpp=&gpp_sid=&redirectUri=https%3A%2F%2Fpbs-bunny.receptivity.io%2Fsetuid%3Fbidder%3Dsharethrough%26gdpr%3D%26gdpr_consent%3D%26gpp%3D%26gpp_sid%3D%26f%3Di%26uid%3D%24UID:0
+[    7248ms] [ERROR] Failed to load resource: net::ERR_NAME_NOT_RESOLVED @ https://su.addthis.com/red/usync?pid=11124&puid=73897c91-870e-44a1-a94b-8d1b3178633c&url=https%3a%2f%2fmatch.adsrvr.org%2ftrack%2fcmf%2fgeneric%3fttd_pid%3daddthis:0
+[    7254ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ https://us.shb-sync.com/76193a03-069b-4536-bc35-499b8e20d2af.gif?puid=[UID]&gdpr=0&gdpr_consent=&ccpa=&redir=https%3A%2F%2Fhb.trustedstack.com%2Fcksync.php%3Fcs%3D61%26type%3Dtst%26ovsid%3D%5BUID%5D%26gdpr%3D0%26gdpr_consent%3D%26ccpa%3D:0
+[    7272ms] [ERROR] Failed to load resource: the server responded with a status of 400 () @ https://eb2.3lift.com/xuid?idenv=:0
+[    7280ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ https://us.shb-sync.com/76193a03-069b-4536-bc35-499b8e20d2af.gif?puid=[UID]&gdpr=0&gdpr_consent=&ccpa=&redir=https%3A%2F%2Fhb.trustedstack.com%2Fcksync.php%3Fcs%3D61%26type%3Dtst%26ovsid%3D%5BUID%5D%26gdpr%3D0%26gdpr_consent%3D%26ccpa%3D:0
+[    7322ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ https://us.shb-sync.com/76193a03-069b-4536-bc35-499b8e20d2af.gif?puid=[UID]&gdpr=0&gdpr_consent=&ccpa=&redir=https%3A%2F%2Fhb.trustedstack.com%2Fcksync.php%3Fcs%3D61%26type%3Dtst%26ovsid%3D%5BUID%5D%26gdpr%3D0%26gdpr_consent%3D%26ccpa%3D:0
+[    7373ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ https://us.shb-sync.com/76193a03-069b-4536-bc35-499b8e20d2af.gif?puid=[UID]&gdpr=0&gdpr_consent=&ccpa=&redir=https%3A%2F%2Fhb.trustedstack.com%2Fcksync.php%3Fcs%3D61%26type%3Dtst%26ovsid%3D%5BUID%5D%26gdpr%3D0%26gdpr_consent%3D%26ccpa%3D:0
+[    9042ms] [ERROR] Failed to load resource: net::ERR_TOO_MANY_REDIRECTS @ https://user-sync.fwmrm.net/ad/u?mode=user-register&dspid=143&dspuid=24047716-0abf-6b5f-9309-3649d7df8bf9&gdpr=0&gdpr_consent=:0
