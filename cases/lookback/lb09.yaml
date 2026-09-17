@@ -1,0 +1,88 @@
+# Look-Back history — fictional. Outcome block is what the clinic recorded; gaps are re-derived by the engine.
+id: lb09
+as_of: '2025-12-18'
+patient:
+  id: L009
+  name: Grace Mwangi
+  dob: '1976-02-05'
+provider:
+  name: Dr. Priya Lau
+  licence: ON-48213
+treatment:
+  code: '27201'
+  description: Crown, porcelain/ceramic
+  tooth: 14
+  planned: '2025-11-17'
+  fee_cents: 98500
+dentition:
+  missing:
+  - 18
+  - 28
+  - 38
+  - 48
+history:
+- code: '01202'
+  date: '2025-11-17'
+radiographs:
+- view: PA
+  tooth: 14
+  date: '2025-11-17'
+- view: BW
+  side: right
+  teeth:
+  - 14
+  - 15
+  - 16
+  - 17
+  - 44
+  - 45
+  - 46
+  - 47
+  date: '2025-11-17'
+- view: BW
+  side: left
+  teeth:
+  - 24
+  - 25
+  - 26
+  - 27
+  - 34
+  - 35
+  - 36
+  - 37
+  date: '2025-11-17'
+perio_charts:
+- date: '2025-11-17'
+  sites: 6
+  depth: 3
+tx_plans:
+- pending:
+  - '27201'
+  completed:
+  - '01202'
+  date: '2025-11-17'
+assertions:
+- criterion: no_active_perio
+  date: '2025-12-17'
+- criterion: crown_root_ratio
+  date: '2025-12-17'
+- criterion: no_furcation
+  date: '2025-12-17'
+- criterion: margin_3mm
+  date: '2025-12-17'
+- criterion: ferrule_1_5mm
+  date: '2025-12-17'
+- criterion: mesiodistal_space
+  date: '2025-12-17'
+- criterion: no_adjunctive_needed
+  date: '2025-12-17'
+- criterion: extensively_restored
+  date: '2025-12-17'
+- criterion: active_disease_addressed
+  date: '2025-12-17'
+outcome:
+  submitted: '2025-12-18'
+  decision: approved
+  denial_text: null
+  resubmitted: false
+  resubmitted_decision: null

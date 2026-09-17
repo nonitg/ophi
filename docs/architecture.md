@@ -1,0 +1,94 @@
+# Architecture — MVP
+
+What was built, how the pieces fit, and where this MVP deliberately differs from `PLAN.md`.
+
+## One sentence
+
+A rule pack (data) is evaluated by a deterministic engine over a typed artifact index built from a
+patient's chart; humans add assertions and confirmations; the engine re-runs; a packet is assembled
+and independently verified; the dentist signs; staff submit.
+
+## Data flow
+
+```
+casegen YAML ──► Case (CDM) ──► proposer adds unconfirmed TX_PLAN_DETAILS ──► + user assertions/confirmations
+                                                                                      │
+                                                    RulePack (YAML, hashed) ──► engine.assess ──► Assessment
+                                                                                      │
+                     web screens ◄── service.CaseView ◄───────────────────────────────┘
+                          │
+                          ├── packet.build ──► out dir (index, form, plates, perio, narrative, manifest, preview.pdf)
+                          └── verify.verify_packet (separate code) ──► VerifyReport
+```
+
+## The pieces
+
+**CDM (`colombus/cdm`).** FHIR names where they exist, dental-first where FHIR is weak (`PerioExam`,
+`DentitionState`). Every artifact carries `Provenance`; every section carries `SourceAssurance`
+(`Present | AbsentConfirmed | Unknown | Degraded`). Tooth numbers are FDI internally; the number as
+written and the declared notation are kept so nothing is inferred from "16".
+
+**Rule pack (`packs/cdcp/<version>/pack.yaml`, `colombus/rules`).** Two layers. `schedule` mirrors
+the grid: which codes always need preauth, the code family, exclusions, frequency limits, retired
+codes. `requirements` encode the documentation matrix and the Guide's crown criteria using a closed
+vocabulary: `find` (artifact query), `fact` (deterministic predicate over case fields), `one_of`,
+`require_all`, `not_escalated`, `provided_by_packet`, plus `escalations` (PSR thresholds that demand a
+different requirement) and `applies_when`. Every requirement and every assertion criterion cites its
+clause. The loader hashes the YAML; every assessment records the hash.
+
+**Engine (`colombus/engine`).**
+- `leaves.py` resolves `find` queries: radiograph by view/tooth/laterality, complete perio chart (6
+  sites on every present tooth), PSR coverage, 6-site measurements for the requested tooth (and any
+  sextant an escalation demanded), clinician assertions. Absent evidence is `unsatisfied` only when
+  the source vouches for the section; `Unknown`/`Degraded` yields `indeterminate`.
+- `recency.py` evaluates 12 calendar months and 365 days; disagreement yields `at_risk`. Every match
+  carries `expires_on`.
+- `facts.py`: age, tooth class, adjacent molars missing, per-tooth and per-client frequency, pending
+  basic treatment, retired lab codes.
+- `evaluate.py`: escalations first (precedence order), then the boolean tree. `require_all` takes the
+  worst status; `one_of` takes the best, and when nothing passes reports the cheapest, closest
+  near-miss with its shortfall.
+- `assess.py`: schedule gate → verdict enum → ranked actions (blocking first; missing evidence before
+  confirmations; then unblock count, effort, requirement id) → deadlines → completeness counter.
+
+**Proposer (`colombus/extract`).** Heuristic sentence matcher for plan language in signed-off notes.
+Every proposal carries a verbatim quote checked as an exact substring; otherwise it is dropped.
+Proposals produce `satisfied_pending_confirmation` until confirmed. `DeidentifiedNote` is the only
+input type a model-backed proposer may accept.
+
+**Service (`colombus/service.py`).** Loads a case, applies stored human inputs as artifacts, re-runs
+the engine. Assertions and confirmations invalidate any prior sign-off. Sign-off is refused unless the
+verdict is READY. Append-only audit log.
+
+**Packet (`colombus/packet`) and verifier (`colombus/verify`).** Assembler writes an ASCII index,
+the treatment form (the one file that carries patient identity), image plates (8-bit greyscale PNG,
+150–300 DPI, never upsampled), a perio table, the rationale as DOCX + ASCII TXT, and `manifest.json`
+with sha256/bytes/spec checks per file. The verifier reopens every file with no shared code and
+re-checks the CDAnet limits (≤30 files, ≤7 MB), image spec, hashes, ASCII, attestation hash.
+
+**Look-Back (`colombus/lookback.py`).** For each past submission, judges the chart as it stood on the
+submission date and reports: submitted, denied, denied with a documentation gap, never resubmitted.
+Denial text is displayed verbatim but never trusted for classification.
+
+## Statuses and verdicts
+
+Per requirement: `satisfied · at_risk · satisfied_pending_confirmation · unsatisfied · indeterminate ·
+not_applicable`. Overall: `PREAUTH_NOT_REQUIRED · EXCLUDED_AS_CODED · BLOCKED · NEEDS_INPUT ·
+READY_WITH_RISKS · READY_TO_SUBMIT`. No score, no probability.
+
+## Deviations from PLAN.md, on purpose
+
+| Plan | MVP | Why |
+|---|---|---|
+| Next.js web app | FastAPI + Jinja2 server-rendered HTML, hand-written CSS | One process, zero build step, offline-capable demo. The screens are the plan's five; the front end can be replaced without touching the engine. |
+| Python 3.12 | Python 3.13 (what the machine has) | No 3.12-only dependency. |
+| Postgres rule store, 60 s cache | Rule pack loaded from the repo, content-hashed | One pack, one clinic, no deploy pipeline yet. The loading seam (`rules/loader.py`) is where Postgres goes. |
+| LLM extraction (Haiku) + Sonnet escalation | Heuristic proposer | Same contract, same verbatim-quote filter, no API key needed for the demo. `Proposer` protocol is the seam. |
+| ABELDent driver → CDM | casegen YAML → CDM | The Fictional Data fixture shape is still changing in the lab session (see PLAN.md status). `IChartSource` is the seam; the casegen cases are the golden corpus the plan asked for anyway. |
+| Verdict `EXCLUDED_AS_CODED` not in the plan's enum | Added | Appendix E exclusions are the highest-value early exit; the plan lists it under "encode with high confidence". |
+
+## Things the MVP does not do
+
+Transmit to any payer. Read a live PMS. Analyse images. Predict approval. Generate prose with a
+language model. Endodontics or any non-crown category. Multi-clinic tenancy or authentication (the
+actor dropdown is a demo device).

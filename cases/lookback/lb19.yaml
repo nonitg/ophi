@@ -1,0 +1,88 @@
+# Look-Back history — fictional. Outcome block is what the clinic recorded; gaps are re-derived by the engine.
+id: lb19
+as_of: '2026-04-01'
+patient:
+  id: L019
+  name: Ava Thompson
+  dob: '1976-08-08'
+provider:
+  name: Dr. Priya Lau
+  licence: ON-48213
+treatment:
+  code: '27211'
+  description: Crown, porcelain fused to metal
+  tooth: 21
+  planned: '2026-02-05'
+  fee_cents: 128500
+dentition:
+  missing:
+  - 18
+  - 28
+  - 38
+  - 48
+history:
+- code: '01202'
+  date: '2026-02-05'
+radiographs:
+- view: PA
+  tooth: 21
+  date: '2026-02-05'
+- view: BW
+  side: right
+  teeth:
+  - 14
+  - 15
+  - 16
+  - 17
+  - 44
+  - 45
+  - 46
+  - 47
+  date: '2026-02-05'
+- view: BW
+  side: left
+  teeth:
+  - 24
+  - 25
+  - 26
+  - 27
+  - 34
+  - 35
+  - 36
+  - 37
+  date: '2026-02-05'
+perio_charts:
+- date: '2026-02-05'
+  sites: 6
+  depth: 3
+tx_plans:
+- pending:
+  - '27211'
+  completed:
+  - '01202'
+  date: '2026-02-05'
+assertions:
+- criterion: no_active_perio
+  date: '2026-03-31'
+- criterion: crown_root_ratio
+  date: '2026-03-31'
+- criterion: no_furcation
+  date: '2026-03-31'
+- criterion: margin_3mm
+  date: '2026-03-31'
+- criterion: ferrule_1_5mm
+  date: '2026-03-31'
+- criterion: mesiodistal_space
+  date: '2026-03-31'
+- criterion: no_adjunctive_needed
+  date: '2026-03-31'
+- criterion: extensively_restored
+  date: '2026-03-31'
+- criterion: active_disease_addressed
+  date: '2026-03-31'
+outcome:
+  submitted: '2026-04-01'
+  decision: denied
+  denial_text: Denied as per the plan criteria.
+  resubmitted: true
+  resubmitted_decision: approved

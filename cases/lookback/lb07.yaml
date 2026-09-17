@@ -1,0 +1,76 @@
+# Look-Back history — fictional. Outcome block is what the clinic recorded; gaps are re-derived by the engine.
+id: lb07
+as_of: '2025-11-22'
+patient:
+  id: L007
+  name: Priyanka Rao
+  dob: '1951-11-01'
+provider:
+  name: Dr. Priya Lau
+  licence: ON-48213
+treatment:
+  code: '27301'
+  description: Crown, cast metal
+  tooth: 46
+  planned: '2025-10-20'
+  fee_cents: 112000
+dentition:
+  missing:
+  - 18
+  - 28
+  - 38
+  - 48
+history:
+- code: '01202'
+  date: '2025-10-20'
+radiographs:
+- view: PA
+  tooth: 46
+  date: '2025-10-20'
+- view: BW
+  side: right
+  teeth:
+  - 14
+  - 15
+  - 16
+  - 17
+  - 44
+  - 45
+  - 46
+  - 47
+  date: '2025-10-20'
+perio_charts:
+- date: '2025-10-20'
+  sites: 6
+  depth: 3
+tx_plans:
+- pending:
+  - '27301'
+  completed:
+  - '01202'
+  date: '2025-10-20'
+assertions:
+- criterion: no_active_perio
+  date: '2025-11-21'
+- criterion: crown_root_ratio
+  date: '2025-11-21'
+- criterion: no_furcation
+  date: '2025-11-21'
+- criterion: margin_3mm
+  date: '2025-11-21'
+- criterion: ferrule_1_5mm
+  date: '2025-11-21'
+- criterion: mesiodistal_space
+  date: '2025-11-21'
+- criterion: no_adjunctive_needed
+  date: '2025-11-21'
+- criterion: extensively_restored
+  date: '2025-11-21'
+- criterion: active_disease_addressed
+  date: '2025-11-21'
+outcome:
+  submitted: '2025-11-22'
+  decision: denied
+  denial_text: Required radiographs not received.
+  resubmitted: true
+  resubmitted_decision: approved

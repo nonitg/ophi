@@ -1,0 +1,88 @@
+# Look-Back history — fictional. Outcome block is what the clinic recorded; gaps are re-derived by the engine.
+id: lb22
+as_of: '2026-05-04'
+patient:
+  id: L022
+  name: Lucas Moreau
+  dob: '1954-02-15'
+provider:
+  name: Dr. Priya Lau
+  licence: ON-48213
+treatment:
+  code: '27301'
+  description: Crown, cast metal
+  tooth: 36
+  planned: '2026-04-06'
+  fee_cents: 112000
+dentition:
+  missing:
+  - 18
+  - 28
+  - 38
+  - 48
+history:
+- code: '01202'
+  date: '2026-04-06'
+radiographs:
+- view: PA
+  tooth: 36
+  date: '2026-04-06'
+- view: BW
+  side: right
+  teeth:
+  - 14
+  - 15
+  - 16
+  - 17
+  - 44
+  - 45
+  - 46
+  - 47
+  date: '2026-04-06'
+- view: BW
+  side: left
+  teeth:
+  - 24
+  - 25
+  - 26
+  - 27
+  - 34
+  - 35
+  - 36
+  - 37
+  date: '2026-04-06'
+perio_charts:
+- date: '2026-04-06'
+  sites: 4
+  depth: 3
+tx_plans:
+- pending:
+  - '27301'
+  completed:
+  - '01202'
+  date: '2026-04-06'
+assertions:
+- criterion: no_active_perio
+  date: '2026-05-03'
+- criterion: crown_root_ratio
+  date: '2026-05-03'
+- criterion: no_furcation
+  date: '2026-05-03'
+- criterion: margin_3mm
+  date: '2026-05-03'
+- criterion: ferrule_1_5mm
+  date: '2026-05-03'
+- criterion: mesiodistal_space
+  date: '2026-05-03'
+- criterion: no_adjunctive_needed
+  date: '2026-05-03'
+- criterion: extensively_restored
+  date: '2026-05-03'
+- criterion: active_disease_addressed
+  date: '2026-05-03'
+outcome:
+  submitted: '2026-05-04'
+  decision: denied
+  denial_text: Periodontal charting not provided.
+  resubmitted: true
+  resubmitted_decision: approved

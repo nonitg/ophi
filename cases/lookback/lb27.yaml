@@ -1,0 +1,88 @@
+# Look-Back history — fictional. Outcome block is what the clinic recorded; gaps are re-derived by the engine.
+id: lb27
+as_of: '2026-06-27'
+patient:
+  id: L027
+  name: Leila Farahani
+  dob: '1973-05-05'
+provider:
+  name: Dr. Priya Lau
+  licence: ON-48213
+treatment:
+  code: '27301'
+  description: Crown, cast metal
+  tooth: 46
+  planned: '2026-02-28'
+  fee_cents: 112000
+dentition:
+  missing:
+  - 18
+  - 28
+  - 38
+  - 48
+history:
+- code: '01202'
+  date: '2026-02-28'
+radiographs:
+- view: PA
+  tooth: 46
+  date: '2024-01-12'
+- view: BW
+  side: right
+  teeth:
+  - 14
+  - 15
+  - 16
+  - 17
+  - 44
+  - 45
+  - 46
+  - 47
+  date: '2026-02-28'
+- view: BW
+  side: left
+  teeth:
+  - 24
+  - 25
+  - 26
+  - 27
+  - 34
+  - 35
+  - 36
+  - 37
+  date: '2026-02-28'
+perio_charts:
+- date: '2026-02-28'
+  sites: 6
+  depth: 3
+tx_plans:
+- pending:
+  - '27301'
+  completed:
+  - '01202'
+  date: '2026-02-28'
+assertions:
+- criterion: no_active_perio
+  date: '2026-06-26'
+- criterion: crown_root_ratio
+  date: '2026-06-26'
+- criterion: no_furcation
+  date: '2026-06-26'
+- criterion: margin_3mm
+  date: '2026-06-26'
+- criterion: ferrule_1_5mm
+  date: '2026-06-26'
+- criterion: mesiodistal_space
+  date: '2026-06-26'
+- criterion: no_adjunctive_needed
+  date: '2026-06-26'
+- criterion: extensively_restored
+  date: '2026-06-26'
+- criterion: active_disease_addressed
+  date: '2026-06-26'
+outcome:
+  submitted: '2026-06-27'
+  decision: denied
+  denial_text: Required radiographs not received.
+  resubmitted: false
+  resubmitted_decision: null

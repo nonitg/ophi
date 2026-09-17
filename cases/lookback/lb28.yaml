@@ -1,0 +1,88 @@
+# Look-Back history — fictional. Outcome block is what the clinic recorded; gaps are re-derived by the engine.
+id: lb28
+as_of: '2026-07-07'
+patient:
+  id: L028
+  name: Caleb Robinson
+  dob: '1978-08-08'
+provider:
+  name: Dr. Priya Lau
+  licence: ON-48213
+treatment:
+  code: '27211'
+  description: Crown, porcelain fused to metal
+  tooth: 37
+  planned: '2026-03-13'
+  fee_cents: 128500
+dentition:
+  missing:
+  - 18
+  - 28
+  - 38
+  - 48
+history:
+- code: '01202'
+  date: '2026-03-13'
+radiographs:
+- view: PA
+  tooth: 37
+  date: '2026-03-13'
+- view: BW
+  side: right
+  teeth:
+  - 14
+  - 15
+  - 16
+  - 17
+  - 44
+  - 45
+  - 46
+  - 47
+  date: '2026-03-13'
+- view: BW
+  side: left
+  teeth:
+  - 24
+  - 25
+  - 26
+  - 27
+  - 34
+  - 35
+  - 36
+  - 37
+  date: '2026-03-13'
+perio_charts:
+- date: '2026-03-13'
+  sites: 6
+  depth: 3
+tx_plans:
+- pending:
+  - '27211'
+  completed:
+  - '01202'
+  date: '2026-03-13'
+assertions:
+- criterion: no_active_perio
+  date: '2026-07-06'
+- criterion: crown_root_ratio
+  date: '2026-07-06'
+- criterion: no_furcation
+  date: '2026-07-06'
+- criterion: margin_3mm
+  date: '2026-07-06'
+- criterion: ferrule_1_5mm
+  date: '2026-07-06'
+- criterion: mesiodistal_space
+  date: '2026-07-06'
+- criterion: no_adjunctive_needed
+  date: '2026-07-06'
+- criterion: extensively_restored
+  date: '2026-07-06'
+- criterion: active_disease_addressed
+  date: '2026-07-06'
+outcome:
+  submitted: '2026-07-07'
+  decision: denied
+  denial_text: Denied as per the plan criteria.
+  resubmitted: false
+  resubmitted_decision: null

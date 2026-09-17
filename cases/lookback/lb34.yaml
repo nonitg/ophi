@@ -1,0 +1,88 @@
+# Look-Back history — fictional. Outcome block is what the clinic recorded; gaps are re-derived by the engine.
+id: lb34
+as_of: '2026-09-04'
+patient:
+  id: L034
+  name: Kofi Mensah
+  dob: '1966-03-23'
+provider:
+  name: Dr. Priya Lau
+  licence: ON-48213
+treatment:
+  code: '27201'
+  description: Crown, porcelain/ceramic
+  tooth: 21
+  planned: '2026-08-06'
+  fee_cents: 98500
+dentition:
+  missing:
+  - 18
+  - 28
+  - 38
+  - 48
+history:
+- code: '01202'
+  date: '2026-08-06'
+radiographs:
+- view: PA
+  tooth: 21
+  date: '2026-08-06'
+- view: BW
+  side: right
+  teeth:
+  - 14
+  - 15
+  - 16
+  - 17
+  - 44
+  - 45
+  - 46
+  - 47
+  date: '2026-08-06'
+- view: BW
+  side: left
+  teeth:
+  - 24
+  - 25
+  - 26
+  - 27
+  - 34
+  - 35
+  - 36
+  - 37
+  date: '2026-08-06'
+perio_charts:
+- date: '2026-08-06'
+  sites: 4
+  depth: 3
+tx_plans:
+- pending:
+  - '27201'
+  completed:
+  - '01202'
+  date: '2026-08-06'
+assertions:
+- criterion: no_active_perio
+  date: '2026-09-03'
+- criterion: crown_root_ratio
+  date: '2026-09-03'
+- criterion: no_furcation
+  date: '2026-09-03'
+- criterion: margin_3mm
+  date: '2026-09-03'
+- criterion: ferrule_1_5mm
+  date: '2026-09-03'
+- criterion: mesiodistal_space
+  date: '2026-09-03'
+- criterion: no_adjunctive_needed
+  date: '2026-09-03'
+- criterion: extensively_restored
+  date: '2026-09-03'
+- criterion: active_disease_addressed
+  date: '2026-09-03'
+outcome:
+  submitted: '2026-09-04'
+  decision: denied
+  denial_text: Denied as per the plan criteria.
+  resubmitted: false
+  resubmitted_decision: null

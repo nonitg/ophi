@@ -37,7 +37,8 @@ def run_all(cases_dir: Path, expected_dir: Path, write: bool = False) -> tuple[b
     exp_dir = expected_dir / pack.version
     exp_dir.mkdir(parents=True, exist_ok=True)
     lines, ok, false_ready = [], True, []
-    files = sorted(cases_dir.rglob("*.yaml"))
+    # Look-Back history is judged as of each submission date by colombus.lookback, not here.
+    files = sorted(f for f in cases_dir.rglob("*.yaml") if "lookback" not in f.parts)
     for f in files:
         a = assess_file(f)
         got = snapshot(a)

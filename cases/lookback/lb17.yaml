@@ -1,0 +1,88 @@
+# Look-Back history — fictional. Outcome block is what the clinic recorded; gaps are re-derived by the engine.
+id: lb17
+as_of: '2026-03-08'
+patient:
+  id: L017
+  name: Zara Qureshi
+  dob: '1995-07-09'
+provider:
+  name: Dr. Priya Lau
+  licence: ON-48213
+treatment:
+  code: '27211'
+  description: Crown, porcelain fused to metal
+  tooth: 46
+  planned: '2026-02-12'
+  fee_cents: 128500
+dentition:
+  missing:
+  - 18
+  - 28
+  - 38
+  - 48
+history:
+- code: '01202'
+  date: '2026-02-12'
+radiographs:
+- view: PA
+  tooth: 46
+  date: '2026-02-12'
+- view: BW
+  side: right
+  teeth:
+  - 14
+  - 15
+  - 16
+  - 17
+  - 44
+  - 45
+  - 46
+  - 47
+  date: '2026-02-12'
+- view: BW
+  side: left
+  teeth:
+  - 24
+  - 25
+  - 26
+  - 27
+  - 34
+  - 35
+  - 36
+  - 37
+  date: '2026-02-12'
+perio_charts:
+- date: '2026-02-12'
+  sites: 6
+  depth: 3
+tx_plans:
+- pending:
+  - '27211'
+  completed:
+  - '01202'
+  date: '2026-02-12'
+assertions:
+- criterion: no_active_perio
+  date: '2026-03-07'
+- criterion: crown_root_ratio
+  date: '2026-03-07'
+- criterion: no_furcation
+  date: '2026-03-07'
+- criterion: margin_3mm
+  date: '2026-03-07'
+- criterion: ferrule_1_5mm
+  date: '2026-03-07'
+- criterion: mesiodistal_space
+  date: '2026-03-07'
+- criterion: no_adjunctive_needed
+  date: '2026-03-07'
+- criterion: extensively_restored
+  date: '2026-03-07'
+- criterion: active_disease_addressed
+  date: '2026-03-07'
+outcome:
+  submitted: '2026-03-08'
+  decision: approved
+  denial_text: null
+  resubmitted: false
+  resubmitted_decision: null
