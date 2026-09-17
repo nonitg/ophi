@@ -659,7 +659,7 @@ rubber-stamps produces a wrong submission; a false negative produces a manual ch
 7. **First clinic runs in shadow mode for two weeks** — real charts, nothing shown to the user, SME
    reviews every divergence. Then reveal.
 
-**Effort: 6 eng-weeks** (harness + casegen + corpus v1 + LLM eval), run in parallel from week 3.
+**Effort: 6 eng-weeks** (harness + casegen + corpus v1 + LLM eval), run in parallel from M1.
 
 ## 7. Failure modes and guardrails
 
@@ -704,22 +704,22 @@ Enforced in code:
 | **Prompt injection from chart free text** | Note text never reaches the system prompt. Delimited, `strict` output schema, plus the substring-verification filter — **a structural defence, not a prompt defence.** |
 | **PHI leakage into logs or the repo** | `DeidentifiedCaseView` type boundary at the LLM client; pre-commit PHI/secret scanner; dev environment gated to refuse non-fictional data sources; structured logging that cannot serialize a `Patient`. |
 | **Model/API drift** | Pin model IDs in config, not code. Every assessment records model id, prompt hash, engine version, ruleset hash. Full eval suite runs against any model change before it ships. |
-| **USC&LS licensing** | Licensed from CDA (`uscls@cda-adc.ca`), **must not be redistributed in a public repo.** Code sets live in a private package seeded from the licensed file; open code references codes by id only. **Procurement lead time — start week 1.** |
+| **USC&LS licensing** | Licensed from CDA (`uscls@cda-adc.ca`), **must not be redistributed in a public repo.** Code sets live in a private package seeded from the licensed file; open code references codes by id only. **Procurement lead time — start first.** |
 
 ## Sequencing and effort
 
-| Phase | Weeks | Workstream | Eng-weeks |
-|---|---|---|---|
-| 0 | 1–2 | Canonical model, notation + sextant libraries, ruleset schema + linter | 5 |
-| 1 | 2–5 | Rule engine, matcher, version store, shadow-run job | 8 |
-| 2 | 3–6 (parallel) | **Eval harness, casegen DSL, golden corpus v1, adversarial set** | 6 |
-| 3 | 6–8 | LLM extraction + substring validator + escalation path | 4 |
-| 4 | 7–10 | Narrative drafting, grounding validator, review/attestation UX | 5 |
-| 5 | 9–11 | Packet assembly, image spec normalization, independent verifier | 4 |
-| 6 | 11–13 | Publish gate, Rules Explorer (read-only), drift watcher, anti-template monitor | 4 |
-| | | **Total** | **36** |
+| Phase | Workstream | Eng-weeks |
+|---|---|---|
+| 0 | Canonical model, notation + sextant libraries, ruleset schema + linter | 5 |
+| 1 | Rule engine, matcher, version store, shadow-run job | 8 |
+| 2 (parallel with 1) | **Eval harness, casegen DSL, golden corpus v1, adversarial set** | 6 |
+| 3 | LLM extraction + substring validator + escalation path | 4 |
+| 4 | Narrative drafting, grounding validator, review/attestation UX | 5 |
+| 5 | Packet assembly, image spec normalization, independent verifier | 4 |
+| 6 | Publish gate, Rules Explorer (read-only), drift watcher, anti-template monitor | 4 |
+| | **Total** | **36** |
 
-**Cut list if behind (in order):** the full Rules Studio editor (already deferred), expiry
+**Cut list if over scope (in order):** the full Rules Studio editor (already deferred), expiry
 forecasting, physical-delivery/stone-model handling, the LLM "explain this" panel, Palmer parsing.
 
 **Must not be cut under any circumstances:** the eval harness, the grounding validator, the

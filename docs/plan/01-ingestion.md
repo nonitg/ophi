@@ -1,6 +1,6 @@
 # Ingestion Layer Plan
 
-v0.1 · 2026-09-17 · target: clinic-usable by 2026-12-15
+v0.1 · written 2026-09-17
 
 ## Three decisions that drive everything else
 
@@ -11,7 +11,7 @@ v0.1 · 2026-09-17 · target: clinic-usable by 2026-12-15
    YAML + a signed query pack, gated at runtime by a schema fingerprint. When ABELDent v15.3 moves a
    column we fail closed with a precise diagnostic and ship a new pack — not a new binary.
 3. **`IChartSource` is the product.** ABELDent is the first driver, not the architecture. If Sikka,
-   ClearDent or Open Dental becomes the right answer in month 5, that is a 2–3 week driver, not a
+   ClearDent or Open Dental becomes the right answer later, that is a 2–3 week driver, not a
    rewrite.
 
 ## 1. Schema discovery
@@ -200,7 +200,7 @@ provenance must be auditable and we must **report disagreement rather than silen
 
 **TOP UNKNOWN:** radiographs may live entirely in a third-party imaging system (the ABELDent bridge
 is outbound launch-with-context, so pixel data is likely not ABELDent's). Budget a dedicated
-**imaging discovery spike (1 eng-week, week 2)**; design a second interface `IImagingSource` with
+**imaging discovery spike (1 eng-week, early)**; design a second interface `IImagingSource` with
 per-vendor drivers. **Manual upload via the cloud UI is the always-available fallback and must exist
 in v1 regardless.**
 
@@ -360,12 +360,12 @@ all.** Design v1 so this is a renderer swap, not a re-architecture.
 
 **Legal:** under Ontario PHIPA we are most likely an agent/electronic service provider of the
 custodian; requires a written agreement, breach-notification terms, and likely a PIA.
-**Start the legal workstream in week 2, not week 10.**
+**Start the legal workstream early, not at the end.**
 
 ## 5. Build vs buy: Sikka
 
 **Call: BUILD the direct reader for v1. Do not buy Sikka.** Run a one-week time-boxed diligence
-spike in parallel. **Decision deadline 2026-10-15.**
+spike in parallel; decide before the agent's data layer is committed.
 
 Why build wins today:
 - **US data residency with no SOC 2 or HIPAA claim in their own FAQ** is close to disqualifying for a
@@ -479,20 +479,20 @@ another reverse-engineering exercise).
 |---|---|---|---|---|---|
 | R1 | ABELDent disclaims third-party DB integrations; may object or block | H | H | Clinic-consented architecture (clinic grants the account, clinic owns the journal); write-free; no inbound ports; open partnership track; CDM makes a pivot a 2–3 week move | Written objection from ABELDent, or a pilot clinic's IT refusing |
 | R2 | Schema drift on PMS update breaks extraction silently | H | H | `SchemaGuard` daily + at startup; fail closed per-entity with a named diagnostic; golden fixtures in CI; query packs shipped independently of binaries; canary ring | Any fingerprint mismatch in the field |
-| R3 | **Fictional Data is sparse** (no perio charts, no images, no CDCP fields) | H | H | Probe catalogue doubles as fixture authoring — we enter perio charts, plans, notes, referrals through the UI ourselves; arrange a 2-hour read-only "schema audit" with a friendly clinic exporting **schema metadata and row counts only, zero PHI** | Week 3: any required entity unproduceable in Freemium |
-| R4 | **Radiographs not in the ABELDent DB at all** | H | H | 1 eng-week imaging spike in week 2; `IImagingSource`; per-vendor drivers later; **manual upload fallback ships in v1 regardless** | Spike concludes no capture date is reachable from ABELDent |
-| R5 | Freemium schema != Local Plus v15 / Cloud v15 | M | H | Obtain a paid/NFR trial or reseller v15 instance by week 4; fingerprint both; query packs per major version | No v15 instance by 2026-10-15 |
-| R6 | Legal exposure from reverse engineering (EULA) | M | H | Counsel review week 1; **no IL decompilation without sign-off**; rely on lawful-possession artifacts, catalog views, XEvents on our own instance, UI-driven diffing; document methodology defensively | Counsel flags any technique |
+| R3 | **Fictional Data is sparse** (no perio charts, no images, no CDCP fields) | H | H | Probe catalogue doubles as fixture authoring — we enter perio charts, plans, notes, referrals through the UI ourselves; arrange a 2-hour read-only "schema audit" with a friendly clinic exporting **schema metadata and row counts only, zero PHI** | Any required entity unproduceable in Freemium |
+| R4 | **Radiographs not in the ABELDent DB at all** | H | H | 1 eng-week imaging spike, early; `IImagingSource`; per-vendor drivers later; **manual upload fallback ships in v1 regardless** | Spike concludes no capture date is reachable from ABELDent |
+| R5 | Freemium schema != Local Plus v15 / Cloud v15 | M | H | Obtain a paid/NFR trial or reseller v15 instance early; fingerprint both; query packs per major version | No v15 instance obtainable |
+| R6 | Legal exposure from reverse engineering (EULA) | M | H | Counsel review first; **no IL decompilation without sign-off**; rely on lawful-possession artifacts, catalog views, XEvents on our own instance, UI-driven diffing; document methodology defensively | Counsel flags any technique |
 | R7 | SQL Express contention degrades the clinic's PMS | M | H | Concurrency 1, `LOCK_TIMEOUT 5000`, `DEADLOCK_PRIORITY LOW`, MAXDOP 1, keyset pagination, quiet hours, blocking-chain auto-pause; `BackupSnapshotSource` escape hatch | Any observed block of an ABELDent session > 2 s |
 | R8 | Windows auth / service account friction in workgroup clinics | H | M | Installer handles all three modes; password to LSA secret store only; `colombusctl test-sql`; documented IT runbook | >30 min install in the first pilot |
 | R9 | PHI leaks into logs, telemetry, or LLM prompts | M | VH | Redaction sink + CI test that **fails the build** on PHI patterns; minimized bundles; Canadian-region inference with no-training terms; access journal | Any PHI found in any log |
 | R10 | Canadian-region LLM inference unavailable for target models | M | M | Verify Bedrock ca-central-1 / Azure Canada East / Vertex northamerica-northeast1 now; provider interface in the reasoning layer; worst case run smaller models in-region and reserve cross-border for de-identified content | Verification negative |
-| R11 | USC&LS licence not granted in time | M | M | Runtime-loaded code set, codes-only degraded mode, render clinic's own descriptions; enquiry sent week 1 | No response by 2026-10-31 |
+| R11 | USC&LS licence not granted in time | M | M | Runtime-loaded code set, codes-only degraded mode, render clinic's own descriptions; enquiry sent first | No response after repeated follow-up |
 | R12 | Deletes/voids invisible -> we assert a reversed procedure | M | H | `HashSweep` reconciliation; XEvents capture of the vendor's own void/status predicates so our filters match theirs; `asOf` + freshness budget, refetch before assembly | Any fixture showing a voided row surviving our filter |
 | R13 | Windows 10 EOL on clinic hardware; unpatched OS hosting PHI | M | M | Installer pre-flight check; report OS/patch state in health; Win11 or ESU as a documented prerequisite | Any pilot clinic on unsupported Win10 without ESU |
-| R14 | **No pilot clinic -> we build against fiction and are wrong** | H | H | Recruit a design-partner clinic by **week 4** even for read-only schema validation. **Founder-owned, hard-dated milestone, not an engineering task** | No clinic conversation booked by 2026-10-10 |
+| R14 | **No pilot clinic -> we build against fiction and are wrong** | H | H | Recruit a design-partner clinic early, even for read-only schema validation. **Founder-owned milestone, not an engineering task** | No clinic conversation booked by M1 |
 
-## Effort and sequencing (2–4 engineers, 12 weeks)
+## Effort and sequencing (2–4 engineers)
 
 | Workstream | Eng-weeks |
 |---|---|
@@ -508,17 +508,16 @@ another reverse-engineering exercise).
 | Sikka diligence + ABELDent partnership + USC&LS + legal | 1.5 |
 | **Total** | **~29** |
 
-At 2.5 engineers on ingestion, ~12 weeks — the full runway with no slack.
 **Cut here first if needed: drop `HashSweep` reconciliation and the Tier A change feed, ship pure
 on-demand extraction.** Removes ~3 eng-weeks; costs only the proactive worklist.
 
-**Milestones:** W2 first end-to-end query from the probe CLI against Fictional Data. W4 `Patient` +
-`PlannedProcedure` in CDM, TCK green, design-partner clinic booked, Sikka answers in. W6 perio +
-imaging metadata mapped, imaging spike concluded. W8 agent installs from MSI on a clean Windows VM,
-enrols, serves a bundle to a stub cloud. W10 SchemaGuard, redaction CI, access journal, self-update
-ring. W12 full bundle for the CDCP demo scenario, end to end, zero PHI, on the lab machine.
+**Stages, in order:** (1) first end-to-end query from the probe CLI against Fictional Data. (2) `Patient` +
+`PlannedProcedure` in CDM, TCK green, design-partner clinic booked, Sikka answers in. (3) perio +
+imaging metadata mapped, imaging spike concluded. (4) agent installs from MSI on a clean Windows VM,
+enrols, serves a bundle to a stub cloud. (5) SchemaGuard, redaction CI, access journal, self-update
+ring. (6) full bundle for the CDCP demo scenario, end to end, zero PHI, on the lab machine.
 
-## Open assumptions (all week-1 emails or week-2 lab experiments; none open past week 4)
+## Open assumptions (all cheap emails or lab experiments; close them before M1)
 
 Vendor-side: whether the DB contains views/procs we can rely on; whether any `rowversion` or
 maintained modified-date columns exist; whether Fictional Data contains perio exams, radiograph links

@@ -12,7 +12,7 @@ product. **These two readings cannot both be true.**
 *transactions* per underlying *case*. That still leaves unique cases per clinic uncertain, and unique
 cases are what the product is priced against.)
 **Falsifiable in two days for $0:** ask 10 office managers *"how many CDCP predeterminations did your
-office submit last month?"* Do it in Week 1. **Nothing else in this plan matters if the answer is
+office submit last month?"* Do it first. **Nothing else in this plan matters if the answer is
 "two."**
 
 **0.2 — Crowns are the beachhead. Partial dentures are not.**
@@ -113,8 +113,7 @@ licence number, timestamp, and the assertions they made. Then the closing line:
 | Eval harness + audit log | see section 4 | 3.0 |
 | **Total** | | **33.0** |
 
-3 engineers x 13 weeks = 39 gross, ~33 net after holidays and overhead. **Zero slack.** First thing
-cut on a slip is the *generated* rationale — fall back to template plus verbatim chart quotes. Less
+This is more than three engineers comfortably carry in one release. First thing cut if v1 runs over is the *generated* rationale — fall back to template plus verbatim chart quotes. Less
 impressive, still sells.
 
 ## 2. Product surface for v1
@@ -167,25 +166,27 @@ Screen 3, enforced structurally in five places:
    and from the #1 complaint about AI verification** ("verified benefits don't match what's paid").
    Put it in the style guide and enforce it in code review.
 
-## 3. Three-month build sequence (2026-09-17 -> 2026-12-18)
+## 3. Build sequence
 
 Team: **3 engineers + 1 founder.** Eng A = ingestion/Windows. Eng B = reasoning/rules. Eng C =
 product/web. Founder = compliance + BD + SME wrangling.
 *(If only 2 engineers: cut the generated rationale entirely and ship template+quotes, cut the
-Look-Back product to permanent-spreadsheet, move the pilot install to mid-January.)*
+Look-Back product to permanent-spreadsheet.)*
 
-### Week 1 — the $0 actions that must happen before any code
-| When | Action | Owner |
-|---|---|---|
-| **Sep 18 (tomorrow)** | Email `uscls@cda-adc.ca` requesting the USC&LS procedure-code licence. **Longest calendar lead time in the plan, lowest cost.** | Founder |
-| Sep 18–24 | Call 10 office managers via officemanagers.ca and ODAA: *"How many CDCP predeterminations did you submit last month?"* **Resolves 0.1.** | Founder |
-| Sep 21 | File an ATIP request with Health Canada on CDCP administration vendor contracts and any planned intake-validation capability. Free, ~30-day turnaround, **directly tests the Olive scenario.** | Founder |
-| Sep 22 | Book a Smilepass demo *through an advisor, not from a Colombus address.* Map exactly what they do on predeterminations. | Founder |
-| Sep 23 | Email ABELDent partnerships: integration guidance + warm intros to 3 reference customers. Do not disclose the wedge. | Founder |
+### The $0 actions that must happen before any code, in order
+| Action | Owner |
+|---|---|
+| Email `uscls@cda-adc.ca` requesting the USC&LS procedure-code licence. **Longest calendar lead time in the plan, lowest cost.** | Founder |
+| Call 10 office managers via officemanagers.ca and ODAA: *"How many CDCP predeterminations did you submit last month?"* **Resolves 0.1.** | Founder |
+| File an ATIP request with Health Canada on CDCP administration vendor contracts and any planned intake-validation capability. Free, ~30-day turnaround, **directly tests the Olive scenario.** | Founder |
+| Book a Smilepass demo *through an advisor, not from a Colombus address.* Map exactly what they do on predeterminations. | Founder |
+| Email ABELDent partnerships: integration guidance + warm intros to 3 reference customers. Do not disclose the wedge. | Founder |
 
 ### Milestones
 
-**M0 — "Read the chart" · Fri 2026-10-02 (Wk 1–2)**
+Stages with falsifiable exits, in order. No dates: the calendar follows the work.
+
+**M0 — "Read the chart"**
 Ingestion: ABELDent Freemium SQL Server schema mapped; read-only service account; 6 entities extracted
 from Fictional Data. Reasoning: rule-pack DSL designed with an explicit **payer-adapter seam** (2 days
 — this is the Alberta hedge and it costs almost nothing now, a rewrite later). Product: repo, CI,
@@ -194,9 +195,9 @@ Canadian-region infra, auth. Compliance: USC&LS request sent; PHIPA counsel enga
 **Exit (falsifiable):** for >=20 Fictional Data patients, extract planned procedure + tooth + all
 radiograph metadata (type/tooth/date) + perio exam with point-count + clinical note text, **zero
 manual steps.** If imaging metadata or perio point-count cannot be read, **this is a kill-level
-finding — escalate Oct 2, not later.**
+finding — escalate immediately.**
 
-**M1 — "First verdict" · Fri 2026-10-16 (Wk 3–4)**
+**M1 — "First verdict"**
 Reasoning: 12 crown rules (27xxx) transcribed and encoded, each with source citation. Evidence matcher
 for structured fields. Clinician Assertions model. Product: Screen 2, ugly but real. BD: SME billing
 coordinator contracted (~$70/hr, 6–8 hrs/wk). First manual Look-Back on 2 friendly clinics' exported
@@ -205,7 +206,7 @@ denial reports — **spreadsheet, no product.**
 "ready" and the SME says "would be denied."** **False-ready is the unforgivable error and is tracked
 separately from accuracy forever.**
 
-**M2 — "The packet" · Fri 2026-10-30 (Wk 6)**
+**M2 — "The packet"**
 Product: packet PDF renderer. Reasoning: rationale drafter v1 **with provenance gating live from day
 one, not a later hardening pass.** Ingestion: image file retrieval + render; local agent skeleton as a
 Windows service. Compliance: PHIPA agent/ESP agreement template drafted.
@@ -214,7 +215,7 @@ Windows service. Compliance: PHIPA agent/ESP agreement template drafted.
 10 packets on the rubric. **Median >=3/4 on Completeness and Correctness, and 0 hallucinated clinical
 claims across all 30 scorings.**
 
-**M3 — "The Friday Five" · Fri 2026-11-13 (Wk 8)**
+**M3 — "The Friday Five"**
 Product: Screens 1, 3, 5. Email digest. Sign-off record with diff capture. Reasoning: endodontic rules
 (32xxx/33xxx) — 10 rules. Ingestion: agent hardened; outbound-only TLS; no inbound ports; tray UI. BD:
 demo rehearsed; first 10 prospect demos booked.
@@ -224,26 +225,26 @@ it.**
 recorded) reach a signed packet without asking for help. Playwright visual regression green on 12
 canonical cases.
 
-**M4 — "Look-Back + lockdown" · Fri 2026-11-27 (Wk 10)**
+**M4 — "Look-Back + lockdown"**
 Product: Screen 4 productized. Security: pen-test of the local agent, secrets handling, encryption at
 rest/in transit, Canadian-region inference confirmed with a signed DPA. Reasoning: one **non-CDCP
 adapter stub** (Canada Life) to prove the seam is real.
 **Exit:** Look-Back runs unattended on a 12-month Fictional Data history and reproduces the SME's
 manual spreadsheet result **within +/-10%** on "denials with a documentation gap."
 
-**M5 — "First install" · Fri 2026-12-11 (Wk 12)**
+**M5 — "First install"**
 Install at pilot clinic #1. Shadow mode on 40% of cases. Instrumentation live.
 **Exit:** local agent runs 7 days on a real practice server with **zero unplanned restarts and zero
 inbound firewall changes required.**
 
-**M6 — "Pilot running" · Fri 2026-12-18 (Wk 13)**
+**M6 — "Pilot running"**
 2 clinics live. Weekly Outcome Sweep in use.
 **Exit:** >=10 real cases through Case Review -> sign-off, and >=1 outcome recorded via the Outcome
 Sweep.
 
-### What does NOT fit in three months — be honest internally and externally
-SOC 2 Type 2 (needs a 3–12 month observation window; Type 1 by ~Feb 2027 at the earliest, so **no DSO
-deal before H2 2027**). Any second PMS (Dentrix/Open Dental are 6–10 eng-weeks each). CDAnet
+### What is NOT in v1 — be honest internally and externally
+SOC 2 Type 2 (needs a 3–12 month observation window after Type 1, so **no DSO deal until well after
+the pilot**). Any second PMS (Dentrix/Open Dental are 6–10 eng-weeks each). CDAnet
 transmission. PMS write-back. Approval prediction. Radiographic image analysis. Partial dentures.
 Quebec (Law 25 PIA not started) and Alberta (statutory Information Manager Agreement) — **pilot clinics
 must be Ontario, with BC as the fallback.** Multi-payer adapters beyond the stub. Self-serve signup and
@@ -254,15 +255,15 @@ billing. Mobile.
 Goal: the team works for **10 consecutive days with no external input** and still knows whether it is
 getting better.
 
-**4.1 Synthetic case corpus — 150 cases by Dec 11.** From Fictional Data plus hand-authored
+**4.1 Synthetic case corpus — 150 cases before first install.** From Fictional Data plus hand-authored
 perturbations: 90 crown, 45 endo, 15 adversarial. By construction: ~35% ready, ~45% single gap, ~15%
 multi-gap, ~5% not-covered-as-coded. Each case is `(chart state, proposed procedure) -> golden output
 (verdict, gap list, required evidence, rationale rubric)`. **Golden labels authored by the SME, not by
 the engineers who wrote the rules.**
 
 **4.2 The SME.** A part-time or retired **dental insurance/billing coordinator** at ~$70/hr, 6–8
-hrs/week from Week 3. Plus a **general dentist advisor** at ~$250/hr, 2 hrs/month, for clinical
-plausibility of rationales. **~$12,000 over the quarter. Highest-leverage non-engineering spend in the
+hrs/week from M1. Plus a **general dentist advisor** at ~$250/hr, 2 hrs/month, for clinical
+plausibility of rationales. **~$12,000 over the build. Highest-leverage non-engineering spend in the
 plan, and available immediately — it does not require a clinic.**
 
 **4.3 The rubric: "Would a billing coordinator submit this packet as-is?"** Score 0–4 each:
@@ -295,7 +296,7 @@ from.
 **4.8 Cold-open test, weekly.** A team member who did not build the feature uses the app for 15 minutes
 with no instructions, narrating. Recorded. **The cheapest substitute for user research that exists.**
 
-**4.9 Paid external coordinator panels — Week 6 and Week 11.** 3 coordinators x $100 x 45 minutes,
+**4.9 Paid external coordinator panels — at M2 and again before M5.** 3 coordinators x $100 x 45 minutes,
 scoring packets on the rubric. Recruited from office-manager Facebook groups and ODAA. **Zero PHI,
 zero clinic, real external signal. Do not skip these because "we don't have a pilot yet."**
 
@@ -303,7 +304,7 @@ zero clinic, real external signal. Do not skip these because "we don't have a pi
 
 ### Landing the first 3–5 clinics, ranked by cost
 1. **ABELDent itself.** Their customers are the only ones we can serve. Ask for integration guidance
-   and three warm intros. Week 1.
+   and three warm intros. First.
 2. **Coordinators, not dentists.** The office manager is the champion; the dentist signs.
    officemanagers.ca (**which publishes its own CDCP preauthorization factsheet — they are already
    organized around this exact pain**), ODAA, local study clubs.
@@ -314,7 +315,7 @@ zero clinic, real external signal. Do not skip these because "we don't have a pi
    owners.
 5. **No paid advertising.** Not at $4.2k ACV, not yet.
 
-**Funnel target: 25 conversations -> 8 Look-Backs -> 4 pilots signed by 2027-01-31, all Ontario.**
+**Funnel target: 25 conversations -> 8 Look-Backs -> 4 pilots signed, all Ontario.**
 
 ### The honest statistical reality — say this out loud in the team
 4 clinics x ~75 preauths/dentist/yr over 90 days ~= **150 cases total.** Nowhere near enough to prove a
@@ -347,8 +348,8 @@ PHIPA **agent + electronic service provider** designation, clinic as HIC, permit
 written out. Explicit **"Colombus does not transmit to any payer."** Data minimization schedule naming
 every table and field read. Radiographs handled as metadata plus rendered copies, with a stated
 retention window. Subprocessor list with Canadian residency attestation, **including the LLM inference
-endpoint** — this is the sharp edge; confirm the endpoint and DPA by Sep 30 or design PHI redaction
-before egress as the fallback. Breach notification timelines. Right to audit. Data return and
+endpoint** — this is the sharp edge; confirm the endpoint and DPA before the first install, or design PHI
+redaction before egress as the fallback. Breach notification timelines. Right to audit. Data return and
 destruction within 30 days of termination. **Measurement rights** — de-identified outcome data may be
 aggregated and published; clinic named only with consent. Shadow-mode consent. **Clinical
 responsibility clause: the dentist is solely responsible for clinical content and submission
@@ -357,7 +358,7 @@ convenience on 14 days' notice** (removes purchase anxiety). **Pre-agreed conver
 pilot start, auto-converting unless they opt out** — this is how you avoid a second sales cycle. Named
 contact for a weekly 20-minute call.
 
-### Numeric success criteria (assess 2027-03-31)
+### Numeric success criteria (assess after the pilots' first full quarter)
 | Metric | Threshold |
 |---|---|
 | Eligible CDCP preauth cases flowing through Colombus | **>=70%** |
@@ -400,12 +401,12 @@ time saved.** Rank the pitch:
    as a hypothesis, not a claim.
 
 ### Packaging
-| Tier | Price | Contents | Ships |
+| Tier | Price | Contents | When |
 |---|---|---|---|
-| **Look-Back** | Free, quarterly, <=200 past cases | Retrospective denial analysis | Nov 2026 |
-| **Colombus Core** | **$349/mo/location** | CDCP gap-check, packet assembly, Look-Back, audit log, 1 PMS connection | Dec 2026 |
-| **Colombus Multi-Payer** | **$549/mo/location** | Carrier adapters: Canada Life, Desjardins, Alberta Blue Cross, TELUS AdjudiCare, Beneva | ~Q3 2027 |
-| **Group/DSO** | ~$249/location, min 10 | Requires SOC 2 Type 2 | H2 2027 |
+| **Look-Back** | Free, quarterly, <=200 past cases | Retrospective denial analysis | M4 |
+| **Colombus Core** | **$349/mo/location** | CDCP gap-check, packet assembly, Look-Back, audit log, 1 PMS connection | M6 |
+| **Colombus Multi-Payer** | **$549/mo/location** | Carrier adapters: Canada Life, Desjardins, Alberta Blue Cross, TELUS AdjudiCare, Beneva | After v1 |
+| **Group/DSO** | ~$249/location, min 10 | Requires SOC 2 Type 2 | After SOC 2 Type 2 |
 
 **Founding-clinic terms:** first 5 pilots free for 90 days, then **$249/mo locked for 12 months**,
 signed at pilot start.
@@ -421,14 +422,14 @@ self-serve motion.** At $4.2k ACV you need a channel: ABELDent, a DSO, or a bill
 
 ## 7. Kill criteria
 
-**K1 — Volume. By Oct 2.** If 10 office managers report a median of **<2 CDCP predeterminations per
+**K1 — Volume. Test first.** If 10 office managers report a median of **<2 CDCP predeterminations per
 month**, the addressable work does not exist. **Stop.** (Cheapest kill in the plan — do it first.)
 
-**K2 — Recoverability. By Mar 31, 2027.** If Look-Backs across >=10 clinics and >=300 real denials show
+**K2 — Recoverability.** If Look-Backs across >=10 clinics and >=300 real denials show
 **<8% documentation-recoverable**, the revenue story collapses, the price ceiling drops to ~$149, and
 this is a feature, not a company. **Stop, or sell it to someone who already has distribution.**
 
-**K3 — Wrong denial mechanism. By Jan 31, 2027.** If **<30% of crown denials are attributable to
+**K3 — Wrong denial mechanism.** If **<30% of crown denials are attributable to
 missing or insufficient documentation** — i.e. they would be denied with a perfect packet because the
 tooth simply does not meet criteria — the premise is inverted. **Pivot** to a pre-treatment-planning
 coverage advisor ("don't propose this, propose that") — a different, smaller, but real product.
@@ -442,52 +443,52 @@ provider bulletins, CDA/ODA member communications, the ATIP response.
 vendor (the Cohere Health pattern), **pivot immediately** — sell into that vendor as the provider-side
 complement, or exit.
 
-**K6 — Smilepass ships it. By Mar 31, 2027.** They already have ABELDent integration, CDCP awareness,
+**K6 — Smilepass ships it.** They already have ABELDent integration, CDCP awareness,
 and distribution. If they ship predetermination submission with gap-checking, we are 12 months behind
 on integrations with a narrower product. Either we have a wedge they structurally cannot copy (the
 Clinician Assertions liability artifact and evidence depth are the candidates) or **stop.**
 
-**K7 — Ingestion is impossible. By Oct 2.** If imaging metadata, perio point-count and clinical notes
+**K7 — Ingestion is impossible.** If imaging metadata, perio point-count and clinical notes
 cannot be read out of ABELDent reliably and licensably, the entire local-agent thesis is broken.
-**Week 2 kill. Cheapest of all.**
+**Early kill. Cheapest of all.**
 
-**K8 — USC&LS licence denied or priced prohibitively. By Oct 31.** Without the right to store and
+**K8 — USC&LS licence denied or priced prohibitively.** Without the right to store and
 display the procedure code set, the product is unshippable as designed.
 
 **K9 — One hallucinated clinical finding reaches a real submission. Stop shipping.** Root cause.
 Seriously reconsider whether generative rationale belongs in v1 at all, versus template plus verbatim
 chart quotes. **One-strike rule.**
 
-**K10 — Adoption. Day 60 of pilot.** If <50% of eligible cases flow through Colombus in 3+ of 4
+**K10 — Adoption. Two months into the pilot.** If <50% of eligible cases flow through Colombus in 3+ of 4
 clinics, staff will not use it. **No accuracy improvement fixes that.**
 
 ## 8. Sequenced risk register (P: 0–1, I: 1–5)
 
-| # | Risk | P | I | Score | Cheapest next action | Owner | By |
-|---|---|---|---|---|---|---|---|
-| 1 | **Recoverability <8%** — the whole pricing thesis | 0.40 | 5 | **2.00** | Manual spreadsheet Look-Back on 2 friendly clinics' denial exports. No product needed. | Founder + SME | **Oct 16** |
-| 2 | **No distribution at $4.2k ACV** | 0.50 | 4 | **2.00** | 20 discovery calls + ABELDent partnerships conversation | Founder | **Oct 31** |
-| 3 | **Per-clinic preauth volume is 30x lower than modelled** | 0.35 | 5 | **1.75** | 10 phone calls to office managers. Zero cost. | Founder | **Oct 2** |
-| 4 | **Payer fixes it at intake / contracts a vendor** (Olive scenario) | 0.35 | 5 | **1.75** | Subscribe to CDCP provider bulletins; file the ATIP request; call two Sun Life provider-relations contacts | Founder | **Sep 25** |
-| 5 | **ABELDent read access blocked or fragile** | 0.35 | 5 | **1.75** | 2-day DB spike on Freemium; email ABELDent integration team same week; design an ODBC/report-export fallback | Eng A | **Sep 25** |
-| 6 | **Smilepass/Cleer ship predetermination submission** | 0.45 | 3.5 | **1.58** | Book a Smilepass demo through an advisor; map their predetermination behaviour precisely | Founder | **Oct 2** |
-| 7 | **Staff adoption failure (system stacking)** | 0.40 | 4 | **1.60** | Email-first architecture (already in the design); weekly cold-open tests; paid coordinator panel Week 6 | Eng C + Founder | **Oct 30** |
-| 8 | **Hallucinated clinical content -> trust/liability incident** | 0.30 | 5 | **1.50** | Make provenance gating a blocking M2 feature, not M4 polish; unsourced-claim rate on the dashboard from the first generated sentence | Eng B | **Oct 30** |
+| # | Risk | P | I | Score | Cheapest next action | Owner |
+|---|---|---|---|---|---|---|
+| 1 | **Recoverability <8%** — the whole pricing thesis | 0.40 | 5 | **2.00** | Manual spreadsheet Look-Back on 2 friendly clinics' denial exports. No product needed. | Founder + SME |
+| 2 | **No distribution at $4.2k ACV** | 0.50 | 4 | **2.00** | 20 discovery calls + ABELDent partnerships conversation | Founder |
+| 3 | **Per-clinic preauth volume is 30x lower than modelled** | 0.35 | 5 | **1.75** | 10 phone calls to office managers. Zero cost. | Founder |
+| 4 | **Payer fixes it at intake / contracts a vendor** (Olive scenario) | 0.35 | 5 | **1.75** | Subscribe to CDCP provider bulletins; file the ATIP request; call two Sun Life provider-relations contacts | Founder |
+| 5 | **ABELDent read access blocked or fragile** | 0.35 | 5 | **1.75** | 2-day DB spike on Freemium; email ABELDent integration team at the same time; design an ODBC/report-export fallback | Eng A |
+| 6 | **Smilepass/Cleer ship predetermination submission** | 0.45 | 3.5 | **1.58** | Book a Smilepass demo through an advisor; map their predetermination behaviour precisely | Founder |
+| 7 | **Staff adoption failure (system stacking)** | 0.40 | 4 | **1.60** | Email-first architecture (already in the design); weekly cold-open tests; paid coordinator panel at M2 | Eng C + Founder |
+| 8 | **Hallucinated clinical content -> trust/liability incident** | 0.30 | 5 | **1.50** | Make provenance gating a blocking M2 feature, not M4 polish; unsourced-claim rate on the dashboard from the first generated sentence | Eng B |
 
 **Tracked but outside the top 8:** CDCP provincial erosion beyond Alberta (P 0.5 x I 3 — mitigated by
 building the adapter seam in M0 for ~2 engineer-days); the compliance calendar — USC&LS / PHIPA /
-Law 25 / SOC 2 (P 0.4 x I 3 — mitigated by sending the USC&LS email tomorrow and explicitly deferring
-Quebec and SOC 2); PHI-safe Canadian-region LLM inference (P 0.3 x I 4 — confirm endpoint and DPA by
-Sep 30, pre-egress redaction as fallback).
+Law 25 / SOC 2 (P 0.4 x I 3 — mitigated by sending the USC&LS email first and explicitly deferring
+Quebec and SOC 2); PHI-safe Canadian-region LLM inference (P 0.3 x I 4 — confirm endpoint and DPA before
+first install, pre-egress redaction as fallback).
 
 ## 9. Unverified assumptions ledger — track these on a wall
 
 | # | Assumption | Status | Test |
 |---|---|---|---|
-| A1 | ~75 preauths/dentist/yr, not ~2.4 | **Contradicted by one source** | 10 phone calls, Week 1 |
+| A1 | ~75 preauths/dentist/yr, not ~2.4 | **Contradicted by one source** | 10 phone calls, first |
 | A2 | 20% of denials are documentation-recoverable | Unverified; the most important thing to measure | Look-Back on >=10 clinics |
 | A3 | Avg CDCP-rate preauth case value ~$900 | Modelled, not measured. Reconciles to the $140–180M national figure, so at least self-consistent | Extract from pilot fee schedules |
-| A4 | Coordinators will do a weekly Outcome Sweep | Unverified, and it gates all measurement | Test in Week 6 coordinator panel |
-| A5 | Denial reason text is usable enough to classify | **Evidence says often not** ("as per the plan criteria") | Manual Look-Back, Oct 16 |
+| A4 | Coordinators will do a weekly Outcome Sweep | Unverified, and it gates all measurement | Test in the M2 coordinator panel |
+| A5 | Denial reason text is usable enough to classify | **Evidence says often not** ("as per the plan criteria") | Manual Look-Back |
 | A6 | ABELDent stores radiograph tooth number and type as queryable metadata | Unverified; if false, gap detection on imaging degrades sharply | M0 spike |
 | A7 | Denied preauth -> patient does not proceed (lost case) | Pure hypothesis. **Potentially the largest dollar in the business.** | Pilot instrumentation |
