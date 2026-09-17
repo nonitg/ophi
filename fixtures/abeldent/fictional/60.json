@@ -78,31 +78,16 @@
         "bridge_group": null,
         "deleted_raw": 0,
         "appt": 1,
-        "applied": 0,
+        "applied": 1,
         "plan_num": 1,
         "plan": {
           "date": "2004-07-13",
           "description": "crn",
           "state": 1
         },
-        "status": "planned",
-        "financial_mirror": {
-          "itrid": 99999998,
-          "date": "2026-09-17",
-          "code": "27211",
-          "description": "Porcelain/Ceramic/Polymer Glass Fused Metal Based Crown",
-          "needs_xrays_flag": null,
-          "tooth_fdi": 16,
-          "tooth_universal": 3,
-          "surfaces": null,
-          "provider": "T",
-          "responsible_provider": "T",
-          "fee": 581.0,
-          "lab_fee": 0.0,
-          "status": "planned",
-          "itype_raw": "P"
-        },
-        "financial_mirror_match": "code_tooth"
+        "status": "planned_applied",
+        "financial_mirror": null,
+        "financial_mirror_match": null
       },
       {
         "trans_id": 1410,
@@ -121,36 +106,21 @@
         "bridge_group": null,
         "deleted_raw": 0,
         "appt": 1,
-        "applied": 0,
+        "applied": 1,
         "plan_num": 1,
         "plan": {
           "date": "2004-07-13",
           "description": "crn",
           "state": 1
         },
-        "status": "planned",
-        "financial_mirror": {
-          "itrid": 99999998,
-          "date": "2026-09-17",
-          "code": "99111",
-          "description": "Commercial Laboratory Procedures",
-          "needs_xrays_flag": null,
-          "tooth_fdi": null,
-          "tooth_universal": null,
-          "surfaces": null,
-          "provider": "T",
-          "responsible_provider": "T",
-          "fee": 0.0,
-          "lab_fee": 0.0,
-          "status": "planned",
-          "itype_raw": "P"
-        },
-        "financial_mirror_match": "code_tooth"
+        "status": "planned_applied",
+        "financial_mirror": null,
+        "financial_mirror_match": null
       }
     ],
     "source_assurance": {
       "status": "present",
-      "detail": "Transactions WHERE Type='P' (all Deleted values, see deleted_raw), joined to Plans on PlanNum. Transactions is the clinical chart ledger (what the Treatment view shows); tdi is the financial ledger. Planned items entered through the modern Treatment view are mirrored into tdi (itype 'P', sentinel itrid 99999998); older fictional plans exist only in Transactions, so financial_mirror is null for them. bridge_group is Transactions.Grp: 0/null for single units; for bridge units it is the 1..n position within the bridge (retainer, pontic, ...). Consecutive rows with ascending Grp starting at 1 form one bridge; Grp is not a shared bridge id."
+      "detail": "Transactions WHERE Type='P' (all Deleted values, see deleted_raw), joined to Plans on PlanNum. status planned_applied = Applied=1: the item has been posted as completed and a Type=' ' row exists for it. Transactions is the clinical chart ledger (what the Treatment view shows); tdi is the financial ledger. Planned items entered through the modern Treatment view are mirrored into tdi (itype 'P', sentinel itrid 99999998); older fictional plans exist only in Transactions, so financial_mirror is null for them. bridge_group is Transactions.Grp: 0/null for single units; for bridge units it is the 1..n position within the bridge (retainer, pontic, ...). Consecutive rows with ascending Grp starting at 1 form one bridge; Grp is not a shared bridge id."
     }
   },
   "completed_procedures": {
@@ -176,7 +146,8 @@
         "chart_num": 1,
         "status": "completed",
         "financial_mirror": null,
-        "financial_mirror_match": null
+        "financial_mirror_match": "unmatched",
+        "duplicate_of": null
       },
       {
         "trans_id": 245,
@@ -199,7 +170,8 @@
         "chart_num": 1,
         "status": "completed",
         "financial_mirror": null,
-        "financial_mirror_match": null
+        "financial_mirror_match": "unmatched",
+        "duplicate_of": null
       },
       {
         "trans_id": 246,
@@ -222,7 +194,8 @@
         "chart_num": 2,
         "status": "completed",
         "financial_mirror": null,
-        "financial_mirror_match": null
+        "financial_mirror_match": "unmatched",
+        "duplicate_of": null
       },
       {
         "trans_id": 1279,
@@ -260,7 +233,8 @@
           "status": "completed",
           "itype_raw": ""
         },
-        "financial_mirror_match": "code_tooth_date"
+        "financial_mirror_match": "code_tooth_date",
+        "duplicate_of": null
       },
       {
         "trans_id": 1317,
@@ -298,7 +272,8 @@
           "status": "completed",
           "itype_raw": ""
         },
-        "financial_mirror_match": "code_tooth_date"
+        "financial_mirror_match": "code_tooth_date",
+        "duplicate_of": null
       },
       {
         "trans_id": 1365,
@@ -336,7 +311,8 @@
           "status": "completed",
           "itype_raw": ""
         },
-        "financial_mirror_match": "code_tooth_date"
+        "financial_mirror_match": "code_tooth_date",
+        "duplicate_of": null
       },
       {
         "trans_id": 1407,
@@ -359,7 +335,8 @@
         "chart_num": 5,
         "status": "completed",
         "financial_mirror": null,
-        "financial_mirror_match": null
+        "financial_mirror_match": "unmatched",
+        "duplicate_of": 2407
       },
       {
         "trans_id": 1408,
@@ -382,12 +359,91 @@
         "chart_num": 5,
         "status": "completed",
         "financial_mirror": null,
-        "financial_mirror_match": null
+        "financial_mirror_match": "unmatched",
+        "duplicate_of": 2408
+      },
+      {
+        "trans_id": 2407,
+        "date": "2026-09-17",
+        "code": "27211",
+        "description": "Porcelain/Ceramic/Polymer Glass Fused Metal Based Crown",
+        "chart_code": 203,
+        "tooth_fdi": 16,
+        "tooth_universal": 3,
+        "surfaces": null,
+        "provider": "T",
+        "responsible_provider": "T",
+        "fee": 581.0,
+        "phase": 1,
+        "item_num": 0,
+        "bridge_group": null,
+        "deleted_raw": 0,
+        "appt": 1,
+        "applied": 0,
+        "chart_num": 5,
+        "status": "completed",
+        "financial_mirror": {
+          "itrid": 1269,
+          "date": "2026-09-17",
+          "code": "27211",
+          "description": "Porcelain/Ceramic/Polymer Glass Fused Metal Based Crown",
+          "needs_xrays_flag": null,
+          "tooth_fdi": 16,
+          "tooth_universal": 3,
+          "surfaces": null,
+          "provider": "T",
+          "responsible_provider": "T",
+          "fee": 581.0,
+          "lab_fee": 0.0,
+          "status": "completed",
+          "itype_raw": ""
+        },
+        "financial_mirror_match": "code_tooth_date",
+        "duplicate_of": null
+      },
+      {
+        "trans_id": 2408,
+        "date": "2026-09-17",
+        "code": "99111",
+        "description": "Commercial Laboratory Procedures",
+        "chart_code": 248,
+        "tooth_fdi": null,
+        "tooth_universal": null,
+        "surfaces": null,
+        "provider": "T",
+        "responsible_provider": "T",
+        "fee": 0.0,
+        "phase": 1,
+        "item_num": 0,
+        "bridge_group": null,
+        "deleted_raw": 0,
+        "appt": 1,
+        "applied": 0,
+        "chart_num": 5,
+        "status": "completed",
+        "financial_mirror": {
+          "itrid": 1270,
+          "date": "2026-09-17",
+          "code": "99111",
+          "description": "Commercial Laboratory Procedures",
+          "needs_xrays_flag": null,
+          "tooth_fdi": null,
+          "tooth_universal": null,
+          "surfaces": null,
+          "provider": "T",
+          "responsible_provider": "T",
+          "fee": 0.0,
+          "lab_fee": 0.0,
+          "status": "completed",
+          "itype_raw": ""
+        },
+        "financial_mirror_match": "code_tooth_date",
+        "duplicate_of": null
       }
     ],
     "source_assurance": {
       "status": "present",
-      "detail": "Transactions WHERE Type=' ' AND Code<>'' AND Deleted=0. financial_mirror is the tdi row (itype='') with the same code and tooth, matched on posting date first and equal fee second (financial_mirror_match says which); null when tdi never posted it. bridge_group is Transactions.Grp: 0/null for single units; for bridge units it is the 1..n position within the bridge (retainer, pontic, ...). Consecutive rows with ascending Grp starting at 1 form one bridge; Grp is not a shared bridge id."
+      "detail": "Transactions WHERE Type=' ' AND Code<>'' AND Deleted=0. financial_mirror is the tdi row (itype='') with the same code and tooth, matched on posting date first and equal fee second (financial_mirror_match: code_tooth_date, code_tooth_fee_nearest within 400 days, or unmatched); each tdi row mirrors at most one clinical row. duplicate_of points a same-day chart companion row (Appt=0, Phase=0) at its appointment posting; count only rows with duplicate_of null. bridge_group is Transactions.Grp: 0/null for single units; for bridge units it is the 1..n position within the bridge (retainer, pontic, ...). Consecutive rows with ascending Grp starting at 1 form one bridge; Grp is not a shared bridge id."
     }
   },
   "odontogram_conditions": {
@@ -2195,7 +2251,9 @@
         "tooth_fdi": null,
         "operator": "M",
         "signed_off": null,
-        "text": "[Date]26/Aug/2004\r\nAPF topical fluoride  foam application  1-min / advised pt not to eat drink rinse for 30 min after: 2 bw taken and interpeted"
+        "view_only": null,
+        "text": "[Date]26/Aug/2004\r\nAPF topical fluoride  foam application  1-min / advised pt not to eat drink rinse for 30 min after: 2 bw taken and interpeted",
+        "text_format": "plain"
       },
       {
         "date": "2004-08-26",
@@ -2208,7 +2266,9 @@
         "tooth_fdi": 14,
         "operator": "M",
         "signed_off": null,
-        "text": "Z100 A2: Citanest Plain 4% 1 carp"
+        "view_only": null,
+        "text": "Z100 A2: Citanest Plain 4% 1 carp",
+        "text_format": "plain"
       },
       {
         "date": "2004-10-06",
@@ -2221,13 +2281,45 @@
         "tooth_fdi": 27,
         "operator": "T",
         "signed_off": null,
-        "text": "Septa 1:200000 2 carp: Tetric Filtek C4: deep fill "
+        "view_only": null,
+        "text": "Septa 1:200000 2 carp: Tetric Filtek C4: deep fill ",
+        "text_format": "plain"
+      },
+      {
+        "date": "2026-09-17",
+        "chart_num": 5,
+        "chart_date": "2026-09-17",
+        "chart_certified": null,
+        "key_type": 1,
+        "note_type": 1,
+        "ref_number": 0,
+        "tooth_fdi": null,
+        "operator": "T",
+        "signed_off": false,
+        "view_only": false,
+        "text": "Colombus probe: fractured MB cusp #16, crown recommended",
+        "text_format": "rtf"
+      },
+      {
+        "date": "2026-09-17",
+        "chart_num": 5,
+        "chart_date": "2026-09-17",
+        "chart_certified": null,
+        "key_type": 1,
+        "note_type": 1,
+        "ref_number": 0,
+        "tooth_fdi": null,
+        "operator": "T",
+        "signed_off": false,
+        "view_only": true,
+        "text": "Colombus probe SIGNED: #16 crown rationale",
+        "text_format": "rtf"
       }
     ],
-    "excluded_deleted_or_superseded": 0,
+    "excluded_deleted_or_superseded": 1,
     "source_assurance": {
       "status": "present",
-      "detail": "Notes WHERE IsDeleted=0 AND IsLatest=1, joined to Charts on KeyNumber=ChartNum. IsSignedOff is NULL throughout Fictional Data."
+      "detail": "Notes WHERE IsDeleted=0 AND IsLatest=1, joined to Charts on KeyNumber=ChartNum. Edits and 'make view only' create a new row and mark the old one IsDeleted=1/IsLatest=0, so the filter keeps current versions only. Modern notes are RTF and are converted to text here (text_format)."
     }
   },
   "imaging": {

@@ -25,6 +25,7 @@ Usage:
 """
 import argparse
 import json
+import re
 import subprocess
 import sys
 from collections import defaultdict
@@ -92,6 +93,9 @@ def in_list(pids):
 
 
 def assurance(status, detail):
+    """Lab vocabulary -> CDM SourceAssurance (docs/plan/01-ingestion.md): present=Present,
+    none_recorded=AbsentConfirmed, indeterminate=Unknown. No Degraded case arises in the lab yet.
+    Provenance (query id, extractedAt) is added by the agent's mapper, not here."""
     return {"status": status, "detail": detail}
 
 
@@ -134,7 +138,7 @@ def fetch(pids):
         f"FROM Perio WHERE patID IN ({P}) ORDER BY patID, ExamNum")
     out["notes"] = sql(
         f"SELECT n.PatID, {d('n.Date', 'Date')}, n.KeyType, n.KeyNumber, n.RefNumber, n.NoteType, "
-        f"n.ToothNumber, n.OperatorID, n.IsSignedOff, n.Note, "
+        f"n.ToothNumber, n.OperatorID, n.IsSignedOff, n.IsViewOnly, n.Note, "
         f"{d('c.Date', 'ChartDate')}, {d('c.DateCertified', 'ChartCertified')}, c.ChartDesc "
         f"FROM Notes n LEFT JOIN Charts c ON c.patID = n.PatID AND c.ChartNum = n.KeyNumber AND n.KeyType = 1 "
         f"WHERE n.PatID IN ({P}) AND n.IsDeleted = 0 AND n.IsLatest = 1 ORDER BY n.PatID, n.Date")
@@ -251,9 +255,29 @@ def coverage_section(pid, raw):
     }
 
 
+def mark_same_day_duplicates(completed):
+    """Posting a planned item from the Treatment view leaves two Type=' ' rows for one procedure:
+    the appointment posting (Appt=1) and a chart companion (Appt=0, Phase=0) written at planning
+    time. Same code, tooth, date and fee. Keep the Appt=1 row primary; point the other at it."""
+    primary = {}
+    for it in completed:
+        it["duplicate_of"] = None
+        if it["appt"]:
+            primary.setdefault((it["code"], it["tooth_fdi"], it["date"], it["fee"]), it["trans_id"])
+    for it in completed:
+        if not it["appt"] and not it["phase"]:
+            it["duplicate_of"] = primary.get((it["code"], it["tooth_fdi"], it["date"], it["fee"]))
+    return completed
+
+
 def ledger_sections(tx, tdi):
-    planned = [planned_item(r, tdi) for r in tx if tx_type(r) == "P"]
-    completed = [completed_item(r, tdi) for r in tx if is_completed(r)]
+    used = set()  # one tdi row mirrors at most one clinical row
+    planned = [planned_item(r, tdi, used) for r in tx if tx_type(r) == "P"]
+    # Appointment postings (Appt=1) claim their tdi mirror before planning-time companions can.
+    done_rows = sorted((r for r in tx if is_completed(r)), key=lambda r: 0 if r["Appt"] else 1)
+    completed = [completed_item(r, tdi, used) for r in done_rows]
+    completed.sort(key=lambda it: (it["date"], it["trans_id"]))
+    completed = mark_same_day_duplicates(completed)
     conditions = [condition_item(r) for r in tx if is_condition(r)]
     other = [other_item(r) for r in tx if tx_type(r) not in ("", "P")]
     return {
@@ -262,6 +286,7 @@ def ledger_sections(tx, tdi):
             "source_assurance": assurance(
                 "present" if planned else "none_recorded",
                 "Transactions WHERE Type='P' (all Deleted values, see deleted_raw), joined to Plans on PlanNum. "
+                "status planned_applied = Applied=1: the item has been posted as completed and a Type=' ' row exists for it. "
                 + LEDGER_NOTE + " " + GRP_NOTE),
         },
         "completed_procedures": {
@@ -270,7 +295,8 @@ def ledger_sections(tx, tdi):
                 "present" if completed else "none_recorded",
                 "Transactions WHERE Type=' ' AND Code<>'' AND Deleted=0. financial_mirror is the tdi row "
                 "(itype='') with the same code and tooth, matched on posting date first and equal fee second "
-                "(financial_mirror_match says which); null when tdi never posted it. " + GRP_NOTE),
+                "(financial_mirror_match: code_tooth_date, code_tooth_fee_nearest within 400 days, or unmatched); each tdi row mirrors at most one clinical row. duplicate_of points a same-day "
+                "chart companion row (Appt=0, Phase=0) at its appointment posting; count only rows with duplicate_of null. " + GRP_NOTE),
         },
         "odontogram_conditions": {
             "items": conditions,
@@ -300,7 +326,7 @@ def notes_section(pid, raw):
         "items": notes,
         "excluded_deleted_or_superseded": excluded,
         "source_assurance": assurance("present" if notes else "none_recorded",
-                                      "Notes WHERE IsDeleted=0 AND IsLatest=1, joined to Charts on KeyNumber=ChartNum. IsSignedOff is NULL throughout Fictional Data."),
+                                      "Notes WHERE IsDeleted=0 AND IsLatest=1, joined to Charts on KeyNumber=ChartNum. Edits and 'make view only' create a new row and mark the old one IsDeleted=1/IsLatest=0, so the filter keeps current versions only. Modern notes are RTF and are converted to text here (text_format)."),
     }
 
 
@@ -341,17 +367,19 @@ def tx_row(r):
     }
 
 
-def planned_item(r, tdi):
+def planned_item(r, tdi, used=None):
     plan = None
     if r["PlanNum"]:
         plan = {"date": r["PlanDate"], "description": s(r["PlanDescr"]), "state": r["PlanState"]}
-    mirror, how = financial_mirror(r, tdi, planned=True)
-    return {**tx_row(r), "plan_num": r["PlanNum"], "plan": plan, "status": "planned",
+    mirror, how = financial_mirror(r, tdi, planned=True, used=used)
+    # Applied flips to 1 when the planned item is posted as done; the P row itself stays.
+    status = "planned_applied" if r["Applied"] else "planned"
+    return {**tx_row(r), "plan_num": r["PlanNum"], "plan": plan, "status": status,
             "financial_mirror": mirror, "financial_mirror_match": how}
 
 
-def completed_item(r, tdi):
-    mirror, how = financial_mirror(r, tdi, planned=False)
+def completed_item(r, tdi, used=None):
+    mirror, how = financial_mirror(r, tdi, planned=False, used=used)
     return {**tx_row(r), "chart_num": r["ChartNum"], "status": "completed",
             "financial_mirror": mirror, "financial_mirror_match": how}
 
@@ -374,23 +402,43 @@ def other_item(r):
     return {**tx_row(r), "plan_num": r["PlanNum"], "status": TX_TYPE.get(t, f"unknown_{t}"), "type_raw": t}
 
 
-def financial_mirror(r, tdi, planned):
+MIRROR_WINDOW_DAYS = 400  # Fictional Data charts up to ~5 months before tdi posts; be generous, not infinite
+
+
+def days_between(a, b):
+    from datetime import date
+    return abs((date.fromisoformat(a) - date.fromisoformat(b)).days)
+
+
+def financial_mirror(r, tdi, planned, used=None):
     """The tdi row mirroring a Transactions row, plus how it was matched.
 
-    Same code and tooth always. Planned rows match tdi itype P/T regardless of date. Completed
-    rows prefer the same posting date; Fictional Data often charts a procedure months before tdi
-    posts it (pid 8: charted 2003-06-27, posted 2003-11-21), so fall back to an equal fee and say so."""
+    Same code and tooth always, and each tdi row mirrors at most one clinical row (`used`).
+    Planned rows match tdi itype P/T. Completed rows take the same posting date, else the nearest
+    posting within MIRROR_WINDOW_DAYS with the same fee (Fictional Data charts months before it
+    posts: pid 8 charted 2003-06-27, posted 2003-11-21), else 'unmatched'."""
+    used = used if used is not None else set()
     code, fdi = s(r["Code"]), fdi_or_none(r["ToothNum"])
-    cands = [t for t in tdi if s(t["ijcode"]) == code and fdi_or_none(t["itooth"]) == fdi]
+    cands = [t for t in tdi if s(t["ijcode"]) == code and fdi_or_none(t["itooth"]) == fdi
+             and (t["itrid"], t["idate"], t["ijcode"], t["itooth"]) not in used]
     if planned:
         hit = next((t for t in cands if t["itype"].strip() in ("P", "T")), None)
-        return (proc_row(hit), "code_tooth") if hit else (None, None)
+        return _take(hit, used, "code_tooth")
     posted = [t for t in cands if t["itype"].strip() == ""]
     hit = next((t for t in posted if t["idate"] == r["Date"]), None)
     if hit:
-        return proc_row(hit), "code_tooth_date"
-    hit = next((t for t in posted if (t["iefee"] or 0) == (r["Billed"] or 0)), None)
-    return (proc_row(hit), "code_tooth_fee") if hit else (None, None)
+        return _take(hit, used, "code_tooth_date")
+    same_fee = [t for t in posted if (t["iefee"] or 0) == (r["Billed"] or 0)
+                and days_between(t["idate"], r["Date"]) <= MIRROR_WINDOW_DAYS]
+    hit = min(same_fee, key=lambda t: days_between(t["idate"], r["Date"]), default=None)
+    return _take(hit, used, "code_tooth_fee_nearest") if hit else (None, "unmatched")
+
+
+def _take(hit, used, how):
+    if not hit:
+        return None, None
+    used.add((hit["itrid"], hit["idate"], hit["ijcode"], hit["itooth"]))
+    return proc_row(hit), how
 
 
 def proc_row(r):
@@ -426,13 +474,82 @@ def cov_row(r, sub_rows=()):
     }
 
 
+# Notes written through the modern Clinical Note Builder are stored as RTF (with an embedded
+# theme blob); Fictional Data notes are plain text. A rule must never quote RTF control words.
+RTF_GROUP_SKIP = {"fonttbl", "colortbl", "stylesheet", "listtable", "listoverridetable", "info",
+                  "themedata", "colorschememapping", "pict", "object", "header", "footer"}
+RTF_WORD = re.compile(r"\\([a-z]+)(-?\d+)? ?|\\'([0-9a-f]{2})|\\(.)", re.S)
+RTF_SPACE = {"par": "\n", "line": "\n", "tab": "\t", "~": " ", "emdash": "\u2014", "endash": "\u2013",
+             "lquote": "\u2018", "rquote": "\u2019", "ldblquote": "\u201c", "rdblquote": "\u201d", "bullet": "\u2022"}
+
+
+def rtf_group_is_skipped(rtf, i):
+    """Called at an opening brace: destination groups ({\\*...}) and the known tables are noise."""
+    if rtf.startswith("{\\*", i):
+        return True
+    m = re.match(r"\{\\([a-z]+)", rtf[i:i + 24])
+    return bool(m and m.group(1) in RTF_GROUP_SKIP)
+
+
+def rtf_to_text(rtf):
+    out, i, depth, skipped, pending_uc = [], 0, 0, [], 0
+    while i < len(rtf):
+        ch = rtf[i]
+        if ch == "{":
+            depth += 1
+            if rtf_group_is_skipped(rtf, i):
+                skipped.append(depth)
+            i += 1
+        elif ch == "}":
+            if skipped and skipped[-1] == depth:
+                skipped.pop()
+            depth -= 1
+            i += 1
+        elif ch == "\\":
+            m = RTF_WORD.match(rtf, i)
+            if not m:
+                i += 1
+                continue
+            word, num, hexch, lit = m.groups()
+            if not skipped:
+                if pending_uc and (hexch or lit == "'"):
+                    pending_uc -= 1  # the fallback char after \uN belongs to the unicode escape
+                elif word == "u" and num:
+                    out.append(chr(int(num) % 65536)); pending_uc = 1
+                elif word in RTF_SPACE:
+                    out.append(RTF_SPACE[word])
+                elif hexch:
+                    out.append(bytes.fromhex(hexch).decode("cp1252", "replace"))
+                elif lit in RTF_SPACE:
+                    out.append(RTF_SPACE[lit])
+                elif lit in ("\\", "{", "}"):
+                    out.append(lit)
+            i = m.end()
+        else:
+            if not skipped and ch not in "\r\n":
+                if pending_uc:
+                    pending_uc -= 1
+                else:
+                    out.append(ch)
+            i += 1
+    return "".join(out).strip()
+
+
+def note_text(raw):
+    if raw and raw.lstrip().startswith("{\\rtf"):
+        return rtf_to_text(raw), "rtf"
+    return raw, "plain"
+
+
 def note_row(r):
+    text, fmt = note_text(r["Note"])
     return {
         "date": r["Date"], "chart_num": r["KeyNumber"] if r["KeyType"] == 1 else None,
         "chart_date": r["ChartDate"], "chart_certified": r["ChartCertified"],
         "key_type": r["KeyType"], "note_type": r["NoteType"], "ref_number": r["RefNumber"],
         "tooth_fdi": fdi_or_none(r["ToothNumber"]), "operator": (r["OperatorID"] or "").strip(),
-        "signed_off": r["IsSignedOff"], "text": r["Note"],
+        "signed_off": r["IsSignedOff"], "view_only": r.get("IsViewOnly"),
+        "text": text, "text_format": fmt,
     }
 
 

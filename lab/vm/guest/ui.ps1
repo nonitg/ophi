@@ -103,7 +103,75 @@ function FocusedElement {
     if ($f) { 'focus: ' + (Describe $f) } else { 'focus: none' }
 }
 
+# WinForms AutomationIds are HWNDs and change every time a dialog opens, so fields are located
+# by their label: the EDIT control on the same row, to the right of the STATIC named $Name.
+function FieldByLabel {
+    $scope = Win
+    if (-not $scope) { return $null }
+    # Several controls can share the label text (dashboard TextBlocks, headers); take the first
+    # on-screen label that actually has an edit box on its row.
+    $edits = @()
+    foreach ($e in $scope.FindAll('Descendants', $true_)) {
+        if ($e.Current.ClassName -match 'EDIT|TextBox' -and -not [double]::IsInfinity($e.Current.BoundingRectangle.X)) { $edits += $e }
+    }
+    $labels = $scope.FindAll('Descendants', (New-Object System.Windows.Automation.PropertyCondition($A::NameProperty, $Name)))
+    foreach ($label in $labels) {
+        $lr = $label.Current.BoundingRectangle
+        if ([double]::IsInfinity($lr.X) -or $label.Current.IsOffscreen) { continue }
+        $best = $null
+        foreach ($e in $edits) {
+            $r = $e.Current.BoundingRectangle
+            if ([Math]::Abs(($r.Y + $r.Height / 2) - ($lr.Y + $lr.Height / 2)) -lt 8 -and $r.X -gt $lr.X) {
+                if (-not $best -or $r.X -lt $best.Current.BoundingRectangle.X) { $best = $e }
+            }
+        }
+        if ($best) { return $best }
+    }
+    $null
+}
+
+function SetField($e, $text) {
+    $p = $null
+    if ($e.TryGetCurrentPattern([System.Windows.Automation.ValuePattern]::Pattern, [ref]$p) -and -not $p.Current.IsReadOnly) {
+        $p.SetValue($text); Start-Sleep -Milliseconds 150
+        if ($p.Current.Value -eq $text) { return 'set: ' + (Describe $e) }
+    }
+    try { $e.SetFocus() } catch { ClickCentre $e | Out-Null }
+    Start-Sleep -Milliseconds 150
+    # Legacy WinForms TextBoxes do not bind Ctrl+A; select Home..End instead.
+    [System.Windows.Forms.SendKeys]::SendWait('{HOME}+{END}{BACKSPACE}')
+    if ($text) { [System.Windows.Forms.SendKeys]::SendWait($text) }
+    Start-Sleep -Milliseconds 150
+    $now = if ($p) { $p.Current.Value } else { '?' }
+    'typed; value now [' + $now + '] on ' + (Describe $e)
+}
+
+# Guard: never send blind clicks or keystrokes while a claims/submission window is in front.
+# A stray keystroke once opened Print/Submit Claims -> Select Transactions to Submit; a blind click
+# there could transmit a claim. Named clicks on 'Cancel' remain allowed.
+function ForegroundIsSubmission {
+    $f = $A::FocusedElement
+    while ($f -and $f.Current.ControlType -ne [System.Windows.Automation.ControlType]::Window) {
+        $f = [System.Windows.Automation.TreeWalker]::ControlViewWalker.GetParent($f)
+    }
+    $titles = @()
+    if ($f) { $titles += $f.Current.Name }
+    foreach ($w in $root.FindAll('Children', $true_)) { if (-not $w.Current.IsOffscreen) { $titles += $w.Current.Name } }
+    foreach ($t in $titles) { if ($t -match 'Submit|CDAnet|Print Forms|EDI|Claim') { return $t } }
+    $null
+}
+
+if ($Verb -in 'clickxy', 'dblclick', 'keys', 'type') {
+    $blocked = ForegroundIsSubmission
+    if ($blocked) { "REFUSED: '$blocked' is open; cancel it by name first (scripts/vm-dismiss-submit-dialogs.sh)"; exit 1 }
+}
+
 switch ($Verb) {
+    'setfield' {
+        $e = FieldByLabel
+        if (-not $e) { "no edit found beside label '$Name'"; exit 1 }
+        SetField $e $Text
+    }
     'windows' {
         foreach ($w in $root.FindAll('Children', $true_)) {
             if ($w.Current.Name) { Describe $w }
@@ -141,33 +209,12 @@ switch ($Verb) {
         if ($Id -or $Name) {
             $e = Find
             if (-not $e) { "not found: id='$Id' name='$Name'"; exit 1 }
-            $p = $null
-            if ($e.TryGetCurrentPattern([System.Windows.Automation.ValuePattern]::Pattern, [ref]$p) -and -not $p.Current.IsReadOnly) {
-                $p.SetValue($Text); 'set value on ' + (Describe $e); break
-            }
-            try { $e.SetFocus() } catch { ClickCentre $e | Out-Null }
-            Start-Sleep -Milliseconds 150
+            SetField $e $Text
+        } else {
+            [System.Windows.Forms.SendKeys]::SendWait('^a')
+            [System.Windows.Forms.SendKeys]::SendWait($Text)
+            "typed '$Text' into the focused control"
         }
-        [System.Windows.Forms.SendKeys]::SendWait('^a')
-        [System.Windows.Forms.SendKeys]::SendWait($Text)
-        "typed '$Text'"
-    }
-    'close' {
-        # Close a top-level window through its WindowPattern; clicking the X of a WPF window that
-        # ignores mouse input from another session does nothing.
-        $sig = '[DllImport("user32.dll")] public static extern bool PostMessage(IntPtr h, uint m, IntPtr w, IntPtr l);'
-        $u = Add-Type -MemberDefinition $sig -Name U -Namespace W32 -PassThru
-        $n = 0
-        foreach ($w in $root.FindAll('Children', $true_)) {
-            if ($w.Current.Name -notlike "$Window*") { continue }
-            $h = [IntPtr]$w.Current.NativeWindowHandle
-            "closing '{0}' hwnd={1} offscreen={2}" -f $w.Current.Name, $h, $w.Current.IsOffscreen
-            $p = $null
-            if ($w.TryGetCurrentPattern([System.Windows.Automation.WindowPattern]::Pattern, [ref]$p)) { try { $p.Close() } catch { 'pattern close failed: ' + $_.Exception.Message } }
-            [void]$u::PostMessage($h, 0x10, [IntPtr]::Zero, [IntPtr]::Zero)   # WM_CLOSE
-            $n++
-        }
-        if ($n -eq 0) { "no window like '$Window*'"; exit 1 }
     }
     'clickxy'  { ClickXY $X $Y }
     'rclick'   { RClickXY $X $Y }

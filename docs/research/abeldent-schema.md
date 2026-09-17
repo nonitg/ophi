@@ -105,21 +105,21 @@ when UI probes wrote new ledger rows after it was first authored.
 
 | pid | Patient | Planned crowns | Teeth (FDI) | Completed | Coverages | Perio exams | Last perio | Notes |
 |---|---|---|---|---|---|---|---|---|
-| 5 | WATSON, NORMA | **6** | #11,#12,#13,#16,#21,#26 | 4 | 1 | 1 | 2002-04-08 | 3 |
-| 6 | WATSON, CHARLES | 1 | #16 | 2 | 1 | 1 | 2004-07-13 | **0** |
-| 7 | JONES, LENNY | 1 | #22 | 5 | 1 | **0** | — | 2 |
-| 8 | JONES, KAREN | 1 | #46 | 4 | **0** | 3 | 2003-06-27 | 3 |
-| 9 | SMITH, JEANETTE | 1 | #17 | 19 | 1 | **0** | — | 6 |
-| 33 | ROSCO, PATRICA | 1 (`itype='T'`) | #11 | 3 | 2 | **0** | — | 2 |
-| 56 | PROVOST, JOHN | 2 | #14,#26 | 37 | 1 | 2 | 2005-12-14 | 11 |
-| 60 | MARTIN, BETTY | 2 | #16,#26 | 8 | **0** | 1 | 2004-07-13 | 3 |
+| 5 | WATSON, NORMA | 6 | #11,#12,#13,#16,#21,#26 | 4 | 1 | 1 | 2002-04-08 | 3 |
+| 6 | WATSON, CHARLES | 1 | #16 | 2 | 1 | 1 | 2004-07-13 | 0 |
+| 7 | JONES, LENNY | 1 | #22 | 5 | 1 | 0 | — | 2 |
+| 8 | JONES, KAREN | 1 | #46 | 4 | 0 | 3 | 2003-06-27 | 3 |
+| 9 | SMITH, JEANETTE | 1 | #17 | 19 | 1 | 0 | — | 6 |
+| 33 | ROSCO, PATRICA | 1 (`tdi.itype='T'`) | #11 | 3 | 2 | 0 | — | 2 |
+| 56 | PROVOST, JOHN | 2 | #14,#26 | 33 | 1 | 2 | 2005-12-14 | 11 |
+| 60 | MARTIN, BETTY | 2 | #16,#26 | 8 | 0 | 1 | 2004-07-13 | 5 |
 | 158 | YOKOYAMA, SUMI | 1 | #24 | 34 | 1 | 2 | 2005-12-14 | 13 |
-| 160 | CHERSKI, MATHEW | 1 | #26 | 33 | 1 | 3 | 2007-12-17 | 13 |
+| 160 | CHERSKI, MATHEW | 1 | #26 | 32 | 1 | 3 | 2007-12-17 | 13 |
 | 162 | RANDAL, KRIS | 1 | #26 | 33 | 1 | 2 | 2006-12-14 | 9 |
 | 163 | GALATIO, CHRISTA | 1 | #16 | 36 | 1 | 3 | 2007-12-17 | 13 |
 | 164 | GOERTSEN, SUSAN | 1 | #36 | 29 | 1 | 3 | 2007-12-17 | 10 |
 | 165 | MILLER, BOB | 1 | #36 | 43 | 1 | 3 | 2006-12-14 | 8 |
-| 166 | ESPENHAIN, VALERIE | 1 | #46 | 30 | **0** | 2 | 2005-12-14 | 9 |
+| 166 | ESPENHAIN, VALERIE | 1 | #46 | 30 | 0 | 2 | 2005-12-14 | 9 |
 
 Codes present: `27211` (porcelain/ceramic fused to metal crown) and `27215`.
 Ready-made cases: 33 = crown planned with *no perio chart at all*; 6 = perio but *zero notes*;
@@ -172,7 +172,7 @@ treatment lives in the clinical one.** Established by a diff-after-action probe:
 |---|---|---|
 | What it holds | Everything the chart shows: odontogram conditions (Decay, Existing Condition…), planned items, completed procedures, radiographs taken | Billable postings and their planned estimates |
 | Planned item | `Type='P'`, `PlanNum>0` → `Plans(PatID, PlanNum, Date, Descr, State)`, `Phase`, `ItemNum` | `itype='P'`, sentinel `itrid=99999998` (`'T'`→`99999999`) |
-| Completed item | `Type=' '`, `ChartNum>0` → `Charts` visit header, `Billed` cents | `itype=''`, real `itrid`, `iefee` cents |
+| Completed item | `Type=' '`, `Code<>''`, `ChartNum>0` → `Charts` visit header, `Billed` cents; the source `P` row flips `Applied=1` | `itype=''`, real `itrid` (= `trn.tno`), `iefee` cents |
 | Tooth | `ToothNum` FDI | `itooth` FDI |
 | Bridge units | `Grp` = unit position 1..n within a bridge (retainers 67211, pontics 62501/2); restarts at 1 per bridge, so it is not a bridge id | — |
 | Planned crowns in Fictional Data | **15 patients** (`Type='P' AND Code LIKE '27%'`) | 7 patients |
@@ -218,6 +218,76 @@ wraps snapshot+diff. `lab/vm/guest/ui.ps1` (via `scripts/ui`) drives ABELDent th
 Automation for menus, sidebar, toolbars and dialogs, and by screen coordinates for view bodies,
 which are not exposed. The Perio panel is a hosted Win32 dialog and did not accept typed digits;
 perio data entry by automation is open.
+
+### Completing a planned item — what "post to today" writes `[M]`
+
+Probe: Treatment view → select the planned 27211 #16 row → first Planned-Treatment toolbar button
+→ both the crown and its auto-added 99111 lab line moved to Today's Treatment. Database effect:
+
+| Table | Change |
+|---|---|
+| `Transactions` | planned rows **kept**, `Type='P'` unchanged, **`Applied` 0→1**; two new rows `Type=' '`, `ChartNum=5`, `Phase=1`, `Appt=1`, `Applied=0`, `Billed=58100/0`, `DatePosted=today` |
+| `tdi` | the two sentinel `itrid=99999998` planned rows **deleted**; two real rows `itrid=1269/1270`, `itype=''`, `iefee=58100/0` |
+| `trn` | two financial postings `tno=1269/1270` (`tpid`, `tdate`, `tamount`, `tdid`, `ttref='B'`) |
+| `BillNumbers`, `TransactionStatus`, `TransactionLocations` | one row each per posting; `TransactionStatus.RemainingAmount=58100` (receivable) |
+
+So: **planned-and-not-done = `Type='P' AND Applied=0`; done = a `Type=' '` row with `Code<>''`.**
+`tdi.itrid` equals `trn.tno` for posted items; the clinical `TransID` is a different sequence.
+
+Two things to plan around:
+- **Planning through the Treatment view also writes a `Type=' '` companion pair** (`ChartNum=5`,
+  `Phase=0`, `Appt=0`, full fee) at planning time, which then coexists with the real posting. In
+  Fictional Data `Appt=0/Phase=0` rows (148) are mostly genuine billed completions entered on the
+  financial side, so `Appt` alone cannot tell the two apart. `chart_dump.py` flags same-day rows
+  with equal code/tooth/date/fee as `duplicate_of` the `Appt=1` posting. Whether the companion is
+  an odontogram overlay or a version artefact needs a probe that plans through the odontogram
+  instead of the Treatment view.
+- `Appt` takes 0/1/2/3 and `Phase` 0/1 across the data; meaning of 2/3 unknown.
+
+### Clinical notes — what a hand-entered note writes `[M]`
+
+Probe: Chart view → select the planned 27211 #16 row → note icon → Clinical Note Builder → type →
+Save. Result: one `Notes` row (`KeyType=1`, `KeyNumber=5` = today's `Charts.ChartNum`,
+`NoteType=1`, `RefNumber=0`, `ToothNumber` **not set** even though a tooth row was selected,
+`IsSignedOff=0`, `IsViewOnly=0`), one `NotesLog` row (`Action='Inserted'`, full copy of the note).
+
+- **Modern notes are RTF.** The Note Builder stores `{\rtf1 …}` with an embedded theme blob (~6 KB
+  for one sentence). Fictional Data notes are plain text. `chart_dump.py` converts RTF to text
+  (`text_format: rtf|plain`); nothing downstream may quote RTF control words.
+- **Edits are versions, not updates.** "Make View Only" inserted a new row (`IsViewOnly=1`,
+  `IsLatest=1`) and flipped the previous row to `IsDeleted=1, IsLatest=0`. So `IsDeleted=1` means
+  *superseded*, not *user deleted*. `WHERE IsLatest=1` is the correct current-version filter;
+  `IsDeleted=0` alone would also work today but for the wrong reason.
+- **Sign Off is disabled until a signature is drawn**; the app announces "Clinical notes are
+  automatically made view only daily at 11:59 PM". Expect `IsViewOnly=1` on essentially every
+  note older than a day in a live practice, and `IsSignedOff=1` only where the office uses
+  signature capture.
+- `NotesLog` is a full insert/update audit trail (Action, LogTimeStamp, HostName, ProgramName).
+  Useful for Look-Back ("was this note written after the denial?"), not for evidence.
+
+### Imaging — what the Freemium Imaging view does `[M]`
+
+The Imaging view is ABELDent's own module, not only a bridge launcher. Its add-image action opens
+**Radiographic Templates** (PA-6 Horizontal, and others from `ImageTemplateDesign`, 9 designs with
+`ImageTemplateDesignDefaultTeeth` = 228 slot→tooth defaults). Capturing into a slot calls a TWAIN
+scanner (errors on the VM). Saving the empty mount wrote one `ImageTemplate` row
+(`PatientId`, `ImageTemplateDesignId=8`, `CreatedBy`, `CreatedDate`). No file-import path was
+found in the bounded probe, so **no `AImage`/`AImageVersion` row has yet been produced on this
+install** and the pixel/metadata question stays open. What the schema promises when acquisition
+does happen: `AImage(ImageTypeID→AImageType: Radiographic/Panoramic/Cephalametric/Intraoral/CR/…,
+PatientId, CreatedDate, DeviceName)`, `AImageVersion(FileName, Format, FileDateCreated)`,
+`AImageToothNumber(ImageID, ToothNumber FDI)`, `AImageChartAssociation(ChartNumber)`.
+**Next imaging step:** a live-install screenshot of one `AImage` row, or a TWAIN virtual device
+on the VM. Until then radiograph *events* come from `Transactions.ChartCode=242` and pixels from
+manual upload.
+
+### Lab operations `[M]`
+
+LocalDB stops itself minutes after ABELDent closes; `q.ps1` now starts it on demand. ABELDent
+relaunched by automation must not be a child of the `ColombusRun` task (the task stays "Running"
+and blocks all later calls); launch via `explorer.exe <exe>`. WinForms dialogs (Patient
+Selection) expose HWND-based AutomationIds that change per open; `scripts/ui setfield -Name
+'<label>'` locates the edit by its label instead. Perio data entry by automation remains open.
 
 ## M0 artifact — `lab/tools/chart_dump.py` `[M]`
 

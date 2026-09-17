@@ -16,10 +16,30 @@ CDCP preauthorization copilot for Canadian dental clinics.
 
 ## Status — 2026-09-17
 
-Research and plan complete. Lab sandbox live (`lab/vm/`). **M0 artifact exists:** `lab/tools/chart_dump.py` dumps
-24 planned-work patients to `fixtures/abeldent/fictional/` in one command — reading planned work from
-`Transactions`, which clears the >=20 M0 bar. Perio point-count and clinical notes read cleanly; imaging is
-`indeterminate` (K7 still open on radiographs). Lab findings in `docs/research/abeldent-schema.md`.
+Research and plan complete. Lab sandbox live (`lab/vm/`), with a UI driver (`scripts/ui`) and a
+whole-database diff-probe (`scripts/probe-step`) that turn one click in ABELDent into a per-column
+list of what changed. Findings in `docs/research/abeldent-schema.md`.
+
+**M0 "Read the chart" scorecard** (`lab/tools/chart_dump.py` → `fixtures/abeldent/fictional/`):
+
+| Exit criterion | State |
+|---|---|
+| ≥20 patients, zero manual steps | **24**, one command, ~20 s. Source is the clinical ledger `Transactions`, not `tdi` — the financial ledger under-reads planned work by half |
+| Planned procedure + tooth | Yes. FDI and Universal. Planned-and-not-done = `Type='P' AND Applied=0`, established by a completion probe |
+| Perio exam with point count | Yes. Decoder verified byte-for-byte against the on-screen chart |
+| Clinical note text | Yes. Current-version filter established by a note probe; modern notes are RTF and are converted |
+| Radiograph metadata (type/tooth/date) | **Open.** Schema has it (`AImage`, `AImageVersion`, `AImageToothNumber`); Fictional Data ships images stripped and the Freemium Imaging view acquires via TWAIN only. Radiograph *events* (taken, billed, dated) do come from the ledger. K7 narrows to "see one `AImage` row on a live install"; manual upload is primary for pixels |
+
+**Other M0 body items:**
+
+| Item | State |
+|---|---|
+| Read-only service account | Not applicable to Freemium: LocalDB is per-user and invisible to a service account. Read-only is enforced in the lab tooling instead (keyword rail + always-rolled-back transaction in `q.ps1`). Decision on Express vs LocalDB for the shipped agent still open |
+| Rule DSL with payer-adapter seam | Done in the reasoning core (below) |
+| Repo, CI, Canadian infra, auth | Repo yes. No CI, no cloud infra, no auth yet |
+
+Not resolved in the lab: `Type` values `I`/`T`, the planning-time `Type=' '` companion rows,
+perio data entry by automation, the ABELDent EULA (founder item).
 
 **Reasoning core is under way** (commit 78c1c5f): ~2,500 lines of Python in `colombus/` — deterministic engine
 (1,024), CDM models (348), rule pack schema + loader (295), casegen DSL (184), notation/sextants (134),

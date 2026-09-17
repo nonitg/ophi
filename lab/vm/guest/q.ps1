@@ -13,9 +13,13 @@ param(
 $ErrorActionPreference = 'Stop'
 
 if (-not $AllowWrite) {
-    $forbidden = 'INSERT|UPDATE|DELETE|DROP|ALTER|CREATE|TRUNCATE|MERGE|GRANT|REVOKE|BACKUP|RESTORE|EXEC\b|EXECUTE\b|sp_|xp_'
-    if ($Query -match "(?im)^\s*($forbidden)" -or $Query -match "(?im);\s*($forbidden)") {
-        throw "REFUSED: query looks like a write or a proc call. Re-run with -AllowWrite if that is genuinely intended."
+    # Rail 1: no write/DDL/proc keyword anywhere in the text once string literals and comments are
+    # removed. Word boundaries keep column names like Deleted or DatePosted legal. INTO blocks
+    # SELECT ... INTO; WITH-prefixed DML and leading comments no longer slip past a line-start check.
+    $bare = $Query -replace "'([^']|'')*'", "''" -replace '/\*[\s\S]*?\*/', ' ' -replace '--[^\r\n]*', ' '
+    $forbidden = '\b(INSERT|UPDATE|DELETE|DROP|ALTER|CREATE|TRUNCATE|MERGE|GRANT|REVOKE|BACKUP|RESTORE|EXEC|EXECUTE|INTO|OPENROWSET|OPENQUERY|BULK|DBCC|KILL|SHUTDOWN|WRITETEXT|UPDATETEXT|ENABLE|DISABLE)\b|\b(sp_|xp_)\w+'
+    if ($bare -match "(?i)$forbidden") {
+        throw "REFUSED: query contains '$($Matches[0])'. Re-run with -AllowWrite if that is genuinely intended."
     }
 }
 
@@ -41,17 +45,28 @@ if ($Server -match '^\(localdb\)\\(.+)$') {
     $sqllocaldb = Get-ChildItem "$env:ProgramFiles\Microsoft SQL Server\*\Tools\Binn\SqlLocalDB.exe" -ErrorAction SilentlyContinue |
         Sort-Object FullName -Descending | Select-Object -First 1
     if (-not $sqllocaldb) { throw 'SqlLocalDB.exe not found — cannot resolve the LocalDB pipe.' }
-    $info = & $sqllocaldb.FullName info $inst
-    $pipe = ($info | Select-String 'Instance pipe name:\s*(\S+)').Matches.Groups[1].Value
-    if (-not $pipe) { throw "LocalDB instance '$inst' is not running (start ABELDent, or: SqlLocalDB start $inst)." }
+    # LocalDB stops itself a few minutes after the last connection closes (i.e. whenever ABELDent
+    # is not running). Starting it is a read-only act on the data and is what ABELDent itself does.
+    $pipe = $null
+    foreach ($attempt in 1..2) {
+        $info = & $sqllocaldb.FullName info $inst 2>&1
+        $m = $info | Select-String 'Instance pipe name:\s*(\S+)'
+        if ($m) { $pipe = $m.Matches[0].Groups[1].Value; break }
+        if ($attempt -eq 1) { & $sqllocaldb.FullName start $inst | Out-Null; Start-Sleep -Seconds 3 }
+    }
+    if (-not $pipe) { throw "LocalDB instance '$inst' is not running and could not be started: $($info -join ' ')" }
     $Server = $pipe
 }
 
 $cs = "Server=$Server;Database=$Database;Integrated Security=SSPI;TrustServerCertificate=True;Connect Timeout=15;Application Name=ColombusProbe"
 $cn = New-Object System.Data.SqlClient.SqlConnection $cs
 $cn.Open()
+# Rail 2: everything runs inside a transaction that is always rolled back, so even a query that
+# slips past rail 1 leaves the vendor database exactly as it was.
+$tx = if ($AllowWrite) { $null } else { $cn.BeginTransaction() }
 try {
     $cmd = $cn.CreateCommand()
+    $cmd.Transaction = $tx
     $cmd.CommandText = $Query
     $cmd.CommandTimeout = $Timeout
     $da = New-Object System.Data.SqlClient.SqlDataAdapter $cmd
@@ -69,4 +84,4 @@ try {
         }
     }
 }
-finally { $cn.Close() }
+finally { if ($tx) { $tx.Rollback() }; $cn.Close() }

@@ -10,4 +10,7 @@ for a in "$@"; do
     *)  args="$args '${a//\'/\'\'}'" ;;
   esac
 done
-./lab/vm/vm uexec "& C:\colombus\ui.ps1$args"
+out="$(./lab/vm/vm uexec "& C:\colombus\ui.ps1$args")"
+printf '%s\n' "$out"
+# The guest exit code does not travel back through the scheduled task; judge on content.
+case "$out" in *"not found"*|*"no edit found"*|*"timeout:"*|*"unknown verb"*|*"Exception"*) exit 1 ;; esac

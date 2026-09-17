@@ -97,6 +97,7 @@ Summarized vs Production Totals).
 
 ### Step 6 — Diff-after-action probes (5 days, ongoing) — **tooling built**: `lab/tools/probe.py snapshot|diff`, `scripts/probe-step`, `lab/vm/guest/ui.ps1` (UI Automation).
 `probe snapshot`: per table, `SELECT <pk>, HASHBYTES('SHA2_256', CONCAT_WS('|', <all cols>))` into
+**Lab deviation, deliberate:** `lab/tools/probe.py` hashes the live app database (there is only LocalDB on Freemium, no second instance) and stores snapshots as host-side JSON in `lab/out/probe/`, not in a `ColombusProbe` database. Nothing is created in the vendor database.
 `ColombusProbe`. Fast pre-pass: row count + `CHECKSUM_AGG(BINARY_CHECKSUM(*))` per table to find
 changed tables, then row-level hash only on those. Protocol: write a YAML describing the action ->
 `probe snapshot A` -> perform the action in the UI -> `probe snapshot B` -> `probe diff A B` ->

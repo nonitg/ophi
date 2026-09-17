@@ -57,7 +57,7 @@
           "description": "prep 46",
           "state": 3
         },
-        "status": "planned",
+        "status": "planned_applied",
         "financial_mirror": null,
         "financial_mirror_match": null
       },
@@ -85,7 +85,7 @@
           "description": "prep 46",
           "state": 3
         },
-        "status": "planned",
+        "status": "planned_applied",
         "financial_mirror": null,
         "financial_mirror_match": null
       },
@@ -113,7 +113,7 @@
           "description": "op 14",
           "state": 3
         },
-        "status": "planned",
+        "status": "planned_applied",
         "financial_mirror": null,
         "financial_mirror_match": null
       },
@@ -141,7 +141,7 @@
           "description": "prep 46",
           "state": 3
         },
-        "status": "planned",
+        "status": "planned_applied",
         "financial_mirror": null,
         "financial_mirror_match": null
       },
@@ -169,7 +169,7 @@
           "description": "op 25,27",
           "state": 3
         },
-        "status": "planned",
+        "status": "planned_applied",
         "financial_mirror": null,
         "financial_mirror_match": null
       },
@@ -197,14 +197,14 @@
           "description": "op 25,27",
           "state": 3
         },
-        "status": "planned",
+        "status": "planned_applied",
         "financial_mirror": null,
         "financial_mirror_match": null
       }
     ],
     "source_assurance": {
       "status": "present",
-      "detail": "Transactions WHERE Type='P' (all Deleted values, see deleted_raw), joined to Plans on PlanNum. Transactions is the clinical chart ledger (what the Treatment view shows); tdi is the financial ledger. Planned items entered through the modern Treatment view are mirrored into tdi (itype 'P', sentinel itrid 99999998); older fictional plans exist only in Transactions, so financial_mirror is null for them. bridge_group is Transactions.Grp: 0/null for single units; for bridge units it is the 1..n position within the bridge (retainer, pontic, ...). Consecutive rows with ascending Grp starting at 1 form one bridge; Grp is not a shared bridge id."
+      "detail": "Transactions WHERE Type='P' (all Deleted values, see deleted_raw), joined to Plans on PlanNum. status planned_applied = Applied=1: the item has been posted as completed and a Type=' ' row exists for it. Transactions is the clinical chart ledger (what the Treatment view shows); tdi is the financial ledger. Planned items entered through the modern Treatment view are mirrored into tdi (itype 'P', sentinel itrid 99999998); older fictional plans exist only in Transactions, so financial_mirror is null for them. bridge_group is Transactions.Grp: 0/null for single units; for bridge units it is the 1..n position within the bridge (retainer, pontic, ...). Consecutive rows with ascending Grp starting at 1 form one bridge; Grp is not a shared bridge id."
     }
   },
   "completed_procedures": {
@@ -229,23 +229,9 @@
         "applied": 0,
         "chart_num": 1,
         "status": "completed",
-        "financial_mirror": {
-          "itrid": 540,
-          "date": "2005-06-08",
-          "code": "25731",
-          "description": "Prefabricated Retentive Post One Post",
-          "needs_xrays_flag": null,
-          "tooth_fdi": 46,
-          "tooth_universal": 30,
-          "surfaces": null,
-          "provider": "T",
-          "responsible_provider": "T",
-          "fee": 108.66,
-          "lab_fee": 0.0,
-          "status": "completed",
-          "itype_raw": ""
-        },
-        "financial_mirror_match": "code_tooth_fee"
+        "financial_mirror": null,
+        "financial_mirror_match": "unmatched",
+        "duplicate_of": null
       },
       {
         "trans_id": 725,
@@ -267,23 +253,9 @@
         "applied": 0,
         "chart_num": 1,
         "status": "completed",
-        "financial_mirror": {
-          "itrid": 541,
-          "date": "2005-06-08",
-          "code": "23602",
-          "description": "Tooth Coloured Core For Crown - Acid Etch",
-          "needs_xrays_flag": null,
-          "tooth_fdi": 46,
-          "tooth_universal": 30,
-          "surfaces": null,
-          "provider": "T",
-          "responsible_provider": "T",
-          "fee": 231.07,
-          "lab_fee": 0.0,
-          "status": "completed",
-          "itype_raw": ""
-        },
-        "financial_mirror_match": "code_tooth_fee"
+        "financial_mirror": null,
+        "financial_mirror_match": "unmatched",
+        "duplicate_of": null
       },
       {
         "trans_id": 726,
@@ -305,23 +277,9 @@
         "applied": 0,
         "chart_num": 1,
         "status": "completed",
-        "financial_mirror": {
-          "itrid": 617,
-          "date": "2005-06-22",
-          "code": "27211",
-          "description": "Porcelain/Ceramic/Polymer Glass Fused Metal Based Crown",
-          "needs_xrays_flag": null,
-          "tooth_fdi": 46,
-          "tooth_universal": 30,
-          "surfaces": null,
-          "provider": "T",
-          "responsible_provider": "T",
-          "fee": 581.0,
-          "lab_fee": 0.0,
-          "status": "completed",
-          "itype_raw": ""
-        },
-        "financial_mirror_match": "code_tooth_fee"
+        "financial_mirror": null,
+        "financial_mirror_match": "unmatched",
+        "duplicate_of": null
       },
       {
         "trans_id": 743,
@@ -344,7 +302,8 @@
         "chart_num": 1,
         "status": "completed",
         "financial_mirror": null,
-        "financial_mirror_match": null
+        "financial_mirror_match": "unmatched",
+        "duplicate_of": null
       },
       {
         "trans_id": 744,
@@ -366,23 +325,9 @@
         "applied": 0,
         "chart_num": 1,
         "status": "completed",
-        "financial_mirror": {
-          "itrid": 973,
-          "date": "2006-06-19",
-          "code": "23313",
-          "description": "Permanent Bicuspid Bond Tooth Coloured 3 Surface Rest.",
-          "needs_xrays_flag": null,
-          "tooth_fdi": 14,
-          "tooth_universal": 5,
-          "surfaces": "MDO",
-          "provider": "T",
-          "responsible_provider": "T",
-          "fee": 147.14,
-          "lab_fee": 0.0,
-          "status": "completed",
-          "itype_raw": ""
-        },
-        "financial_mirror_match": "code_tooth_fee"
+        "financial_mirror": null,
+        "financial_mirror_match": "unmatched",
+        "duplicate_of": null
       },
       {
         "trans_id": 746,
@@ -420,7 +365,8 @@
           "status": "completed",
           "itype_raw": ""
         },
-        "financial_mirror_match": "code_tooth_date"
+        "financial_mirror_match": "code_tooth_date",
+        "duplicate_of": null
       },
       {
         "trans_id": 747,
@@ -458,7 +404,8 @@
           "status": "completed",
           "itype_raw": ""
         },
-        "financial_mirror_match": "code_tooth_date"
+        "financial_mirror_match": "code_tooth_date",
+        "duplicate_of": null
       },
       {
         "trans_id": 748,
@@ -496,7 +443,8 @@
           "status": "completed",
           "itype_raw": ""
         },
-        "financial_mirror_match": "code_tooth_date"
+        "financial_mirror_match": "code_tooth_date",
+        "duplicate_of": null
       },
       {
         "trans_id": 749,
@@ -534,7 +482,8 @@
           "status": "completed",
           "itype_raw": ""
         },
-        "financial_mirror_match": "code_tooth_date"
+        "financial_mirror_match": "code_tooth_date",
+        "duplicate_of": null
       },
       {
         "trans_id": 750,
@@ -572,7 +521,8 @@
           "status": "completed",
           "itype_raw": ""
         },
-        "financial_mirror_match": "code_tooth_date"
+        "financial_mirror_match": "code_tooth_date",
+        "duplicate_of": null
       },
       {
         "trans_id": 751,
@@ -610,7 +560,8 @@
           "status": "completed",
           "itype_raw": ""
         },
-        "financial_mirror_match": "code_tooth_date"
+        "financial_mirror_match": "code_tooth_date",
+        "duplicate_of": null
       },
       {
         "trans_id": 833,
@@ -648,7 +599,8 @@
           "status": "completed",
           "itype_raw": ""
         },
-        "financial_mirror_match": "code_tooth_date"
+        "financial_mirror_match": "code_tooth_date",
+        "duplicate_of": null
       },
       {
         "trans_id": 834,
@@ -686,7 +638,8 @@
           "status": "completed",
           "itype_raw": ""
         },
-        "financial_mirror_match": "code_tooth_date"
+        "financial_mirror_match": "code_tooth_date",
+        "duplicate_of": null
       },
       {
         "trans_id": 868,
@@ -724,7 +677,8 @@
           "status": "completed",
           "itype_raw": ""
         },
-        "financial_mirror_match": "code_tooth_date"
+        "financial_mirror_match": "code_tooth_date",
+        "duplicate_of": null
       },
       {
         "trans_id": 871,
@@ -762,7 +716,8 @@
           "status": "completed",
           "itype_raw": ""
         },
-        "financial_mirror_match": "code_tooth_date"
+        "financial_mirror_match": "code_tooth_date",
+        "duplicate_of": null
       },
       {
         "trans_id": 930,
@@ -800,7 +755,8 @@
           "status": "completed",
           "itype_raw": ""
         },
-        "financial_mirror_match": "code_tooth_date"
+        "financial_mirror_match": "code_tooth_date",
+        "duplicate_of": null
       },
       {
         "trans_id": 931,
@@ -838,7 +794,8 @@
           "status": "completed",
           "itype_raw": ""
         },
-        "financial_mirror_match": "code_tooth_date"
+        "financial_mirror_match": "code_tooth_date",
+        "duplicate_of": null
       },
       {
         "trans_id": 932,
@@ -876,7 +833,8 @@
           "status": "completed",
           "itype_raw": ""
         },
-        "financial_mirror_match": "code_tooth_date"
+        "financial_mirror_match": "code_tooth_date",
+        "duplicate_of": null
       },
       {
         "trans_id": 933,
@@ -914,7 +872,8 @@
           "status": "completed",
           "itype_raw": ""
         },
-        "financial_mirror_match": "code_tooth_date"
+        "financial_mirror_match": "code_tooth_date",
+        "duplicate_of": null
       },
       {
         "trans_id": 934,
@@ -952,7 +911,8 @@
           "status": "completed",
           "itype_raw": ""
         },
-        "financial_mirror_match": "code_tooth_date"
+        "financial_mirror_match": "code_tooth_date",
+        "duplicate_of": null
       },
       {
         "trans_id": 1065,
@@ -990,7 +950,8 @@
           "status": "completed",
           "itype_raw": ""
         },
-        "financial_mirror_match": "code_tooth_date"
+        "financial_mirror_match": "code_tooth_date",
+        "duplicate_of": null
       },
       {
         "trans_id": 1080,
@@ -1028,7 +989,8 @@
           "status": "completed",
           "itype_raw": ""
         },
-        "financial_mirror_match": "code_tooth_date"
+        "financial_mirror_match": "code_tooth_date",
+        "duplicate_of": null
       },
       {
         "trans_id": 1081,
@@ -1066,7 +1028,8 @@
           "status": "completed",
           "itype_raw": ""
         },
-        "financial_mirror_match": "code_tooth_date"
+        "financial_mirror_match": "code_tooth_date",
+        "duplicate_of": null
       },
       {
         "trans_id": 1082,
@@ -1104,7 +1067,8 @@
           "status": "completed",
           "itype_raw": ""
         },
-        "financial_mirror_match": "code_tooth_date"
+        "financial_mirror_match": "code_tooth_date",
+        "duplicate_of": null
       },
       {
         "trans_id": 1083,
@@ -1142,7 +1106,8 @@
           "status": "completed",
           "itype_raw": ""
         },
-        "financial_mirror_match": "code_tooth_date"
+        "financial_mirror_match": "code_tooth_date",
+        "duplicate_of": null
       },
       {
         "trans_id": 1084,
@@ -1180,7 +1145,8 @@
           "status": "completed",
           "itype_raw": ""
         },
-        "financial_mirror_match": "code_tooth_date"
+        "financial_mirror_match": "code_tooth_date",
+        "duplicate_of": null
       },
       {
         "trans_id": 1085,
@@ -1202,23 +1168,9 @@
         "applied": 0,
         "chart_num": 6,
         "status": "completed",
-        "financial_mirror": {
-          "itrid": 1182,
-          "date": "2007-12-17",
-          "code": "23313",
-          "description": "Permanent Bicuspid Bond Tooth Coloured 3 Surface Rest.",
-          "needs_xrays_flag": null,
-          "tooth_fdi": 25,
-          "tooth_universal": 13,
-          "surfaces": "MDO",
-          "provider": "M",
-          "responsible_provider": "T",
-          "fee": 147.14,
-          "lab_fee": 0.0,
-          "status": "completed",
-          "itype_raw": ""
-        },
-        "financial_mirror_match": "code_tooth_fee"
+        "financial_mirror": null,
+        "financial_mirror_match": "unmatched",
+        "duplicate_of": null
       },
       {
         "trans_id": 1086,
@@ -1240,23 +1192,9 @@
         "applied": 0,
         "chart_num": 6,
         "status": "completed",
-        "financial_mirror": {
-          "itrid": 1183,
-          "date": "2007-12-17",
-          "code": "23322",
-          "description": "Permanent Molar Bond Tooth Coloured 2 Surface Rest.",
-          "needs_xrays_flag": null,
-          "tooth_fdi": 27,
-          "tooth_universal": 15,
-          "surfaces": "MO",
-          "provider": "M",
-          "responsible_provider": "T",
-          "fee": 147.14,
-          "lab_fee": 0.0,
-          "status": "completed",
-          "itype_raw": ""
-        },
-        "financial_mirror_match": "code_tooth_fee"
+        "financial_mirror": null,
+        "financial_mirror_match": "unmatched",
+        "duplicate_of": null
       },
       {
         "trans_id": 1231,
@@ -1294,7 +1232,8 @@
           "status": "completed",
           "itype_raw": ""
         },
-        "financial_mirror_match": "code_tooth_date"
+        "financial_mirror_match": "code_tooth_date",
+        "duplicate_of": null
       },
       {
         "trans_id": 1232,
@@ -1332,12 +1271,13 @@
           "status": "completed",
           "itype_raw": ""
         },
-        "financial_mirror_match": "code_tooth_date"
+        "financial_mirror_match": "code_tooth_date",
+        "duplicate_of": null
       }
     ],
     "source_assurance": {
       "status": "present",
-      "detail": "Transactions WHERE Type=' ' AND Code<>'' AND Deleted=0. financial_mirror is the tdi row (itype='') with the same code and tooth, matched on posting date first and equal fee second (financial_mirror_match says which); null when tdi never posted it. bridge_group is Transactions.Grp: 0/null for single units; for bridge units it is the 1..n position within the bridge (retainer, pontic, ...). Consecutive rows with ascending Grp starting at 1 form one bridge; Grp is not a shared bridge id."
+      "detail": "Transactions WHERE Type=' ' AND Code<>'' AND Deleted=0. financial_mirror is the tdi row (itype='') with the same code and tooth, matched on posting date first and equal fee second (financial_mirror_match: code_tooth_date, code_tooth_fee_nearest within 400 days, or unmatched); each tdi row mirrors at most one clinical row. duplicate_of points a same-day chart companion row (Appt=0, Phase=0) at its appointment posting; count only rows with duplicate_of null. bridge_group is Transactions.Grp: 0/null for single units; for bridge units it is the 1..n position within the bridge (retainer, pontic, ...). Consecutive rows with ascending Grp starting at 1 form one bridge; Grp is not a shared bridge id."
     }
   },
   "odontogram_conditions": {
@@ -4962,7 +4902,9 @@
         "tooth_fdi": null,
         "operator": "T",
         "signed_off": null,
-        "text": "[MH]New Medical History completed: OH Good,light calc.light plaque,mild generalized gingivitis: EXTRAORAL EXAM: WNL: INTRAORAL EXAM: WNL"
+        "view_only": null,
+        "text": "[MH]New Medical History completed: OH Good,light calc.light plaque,mild generalized gingivitis: EXTRAORAL EXAM: WNL: INTRAORAL EXAM: WNL",
+        "text_format": "plain"
       },
       {
         "date": "2005-06-08",
@@ -4975,7 +4917,9 @@
         "tooth_fdi": 46,
         "operator": "T",
         "signed_off": null,
-        "text": "[PST]sized to parapostgreen: [PST]cemented withParapost cem."
+        "view_only": null,
+        "text": "[PST]sized to parapostgreen: [PST]cemented withParapost cem.",
+        "text_format": "plain"
       },
       {
         "date": "2005-06-08",
@@ -4988,7 +4932,9 @@
         "tooth_fdi": 46,
         "operator": "T",
         "signed_off": null,
-        "text": "[PST]sized to parapostgreen: [PST]cemented withParapost cem."
+        "view_only": null,
+        "text": "[PST]sized to parapostgreen: [PST]cemented withParapost cem.",
+        "text_format": "plain"
       },
       {
         "date": "2005-06-22",
@@ -5001,7 +4947,9 @@
         "tooth_fdi": 46,
         "operator": "T",
         "signed_off": null,
-        "text": "Insert Notes: no anesthetic"
+        "view_only": null,
+        "text": "Insert Notes: no anesthetic",
+        "text_format": "plain"
       },
       {
         "date": "2005-06-22",
@@ -5014,7 +4962,9 @@
         "tooth_fdi": 46,
         "operator": "T",
         "signed_off": null,
-        "text": "Insert Notes: Contactgood: Occlusionbite needed slight adj: Marginsvery good: Estheticsshade right on: Estheticspatient happy"
+        "view_only": null,
+        "text": "Insert Notes: Contactgood: Occlusionbite needed slight adj: Marginsvery good: Estheticsshade right on: Estheticspatient happy",
+        "text_format": "plain"
       },
       {
         "date": "2005-12-14",
@@ -5027,7 +4977,9 @@
         "tooth_fdi": null,
         "operator": "K",
         "signed_off": null,
-        "text": "RECALL: No c/c:No significant changes to e/o,i/o,soft tissue: OH Good,light calc.light plaque,mild generalized gingivitis: Scaled all quads, prophy,floss: APF topical fluoride  foam application  1-min / advised pt not to eat drink rinse for 30 min after"
+        "view_only": null,
+        "text": "RECALL: No c/c:No significant changes to e/o,i/o,soft tissue: OH Good,light calc.light plaque,mild generalized gingivitis: Scaled all quads, prophy,floss: APF topical fluoride  foam application  1-min / advised pt not to eat drink rinse for 30 min after",
+        "text_format": "plain"
       },
       {
         "date": "2006-06-19",
@@ -5040,7 +4992,9 @@
         "tooth_fdi": 14,
         "operator": "T",
         "signed_off": null,
-        "text": "Ultracaine 2% 1:50,0002 carp: Infiltrated: [COMP]Placed RD: [COMP]prepared tooth/teeth: [COMP]acid etchUltraDent-Ultra-etch 45%: [COMP]Single UsePrimer & BondOptibond Solo: [COMP]Filtex SupremeA1"
+        "view_only": null,
+        "text": "Ultracaine 2% 1:50,0002 carp: Infiltrated: [COMP]Placed RD: [COMP]prepared tooth/teeth: [COMP]acid etchUltraDent-Ultra-etch 45%: [COMP]Single UsePrimer & BondOptibond Solo: [COMP]Filtex SupremeA1",
+        "text_format": "plain"
       },
       {
         "date": "2006-12-14",
@@ -5053,7 +5007,9 @@
         "tooth_fdi": null,
         "operator": "M",
         "signed_off": null,
-        "text": "RECALL: OH Good,light calc.light plaque,OH very good; probe next time;: Scaled all quads, prophy,floss: APF topical fluoride  foam application  1-min / advised pt not to eat drink rinse for 30 min after"
+        "view_only": null,
+        "text": "RECALL: OH Good,light calc.light plaque,OH very good; probe next time;: Scaled all quads, prophy,floss: APF topical fluoride  foam application  1-min / advised pt not to eat drink rinse for 30 min after",
+        "text_format": "plain"
       },
       {
         "date": "2007-12-17",
@@ -5066,13 +5022,15 @@
         "tooth_fdi": 27,
         "operator": "T",
         "signed_off": null,
-        "text": "Lidocaine 2% 1:100,000 2 carp: Infiltrated: [COMP]Placed RD: [COMP]prepared tooth/teeth: [COMP]acid etchPulpdent Etch-Rite 38%: [COMP]Single UsePrimer & BondBisco 1step: [COMP]Filtex SupremeA1"
+        "view_only": null,
+        "text": "Lidocaine 2% 1:100,000 2 carp: Infiltrated: [COMP]Placed RD: [COMP]prepared tooth/teeth: [COMP]acid etchPulpdent Etch-Rite 38%: [COMP]Single UsePrimer & BondBisco 1step: [COMP]Filtex SupremeA1",
+        "text_format": "plain"
       }
     ],
     "excluded_deleted_or_superseded": 0,
     "source_assurance": {
       "status": "present",
-      "detail": "Notes WHERE IsDeleted=0 AND IsLatest=1, joined to Charts on KeyNumber=ChartNum. IsSignedOff is NULL throughout Fictional Data."
+      "detail": "Notes WHERE IsDeleted=0 AND IsLatest=1, joined to Charts on KeyNumber=ChartNum. Edits and 'make view only' create a new row and mark the old one IsDeleted=1/IsLatest=0, so the filter keeps current versions only. Modern notes are RTF and are converted to text here (text_format)."
     }
   },
   "imaging": {

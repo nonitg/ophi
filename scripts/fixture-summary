@@ -14,16 +14,16 @@ for f in fx:
     crowns = [p for p in planned if str(p.get("code", "")).startswith("27")]
     if crowns:
         crown_pids.append(int(f.stem))
-    perio = d.get("perio", {}).get("exams", [])
+    perio = d.get("perio_exams", {}).get("items", [])
     notes = d.get("clinical_notes", {}).get("items", [])
     cov = d.get("coverage", {}).get("items", [])
     dates = [e.get("date") for e in perio if e.get("date")]
     rows.append(dict(
         pid=int(f.stem),
-        name=f"{pat.get('last_name','')}, {pat.get('first_name','')}".strip(", "),
+        name=f"{pat.get('surname','')}, {pat.get('given','')}".strip(", "),
         crowns=len(crowns),
         teeth=sorted({p.get("tooth_fdi") for p in crowns if p.get("tooth_fdi")}),
-        planned=len(planned), completed=len(done), cov=len(cov),
+        planned=len(planned), completed=len([c for c in done if not c.get("duplicate_of")]), cov=len(cov),
         perio=len(perio), last=max(dates) if dates else "—", notes=len(notes)))
 
 print(f"fixtures on disk: {len(fx)}   with a planned crown: {len(crown_pids)} -> {crown_pids}")
@@ -40,11 +40,11 @@ for r in rows:
 print("\nfurcation (does the field carry real values?):")
 for f in fx:
     d = json.loads(f.read_text())
-    for i, e in enumerate(d.get("perio", {}).get("exams", []), 1):
+    for i, e in enumerate(d.get("perio_exams", {}).get("items", []), 1):
         fu = e.get("furcation") or {}
         pc = fu.get("point_count") or 0
         if pc:
-            vals = [v for row in (fu.get("teeth") or {}).values()
+            vals = [v for row in (fu.get("by_tooth_fdi") or {}).values()
                     for v in (row if isinstance(row, list) else [row]) if isinstance(v, int)]
             rng = f"{min(vals)}-{max(vals)}" if vals else "?"
             print(f"  pid {f.stem} exam {i}: point_count={pc} range={rng}")

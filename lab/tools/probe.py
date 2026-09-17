@@ -118,7 +118,9 @@ def as_text(col, typ):
 
 def hash_stmt(tbl, cols, pk):
     body = ", ".join(as_text(c, t) for _, c, t in cols)
-    key = (" + '|' + ".join(f"ISNULL(CONVERT(nvarchar(max), {q(c)}), '{NULL}')" for c in pk)
+    # Style 121 keeps seconds/milliseconds; the default datetime→string drops seconds, so two
+    # Notes rows one second apart collapsed into one key and the diff hid a version flip.
+    key = (" + '|' + ".join(f"ISNULL(CONVERT(nvarchar(max), {q(c)}, 121), '{NULL}')" for c in pk)
            if pk else "''")
     # CONCAT_WS wants >= 3 arguments; pad so one-column tables do not error out the whole batch.
     return (f"SELECT '{tbl}' t, {key} k, CONVERT(varchar(64), HASHBYTES('SHA2_256', CONCAT_WS('|', '', '', {body})), 2) h "

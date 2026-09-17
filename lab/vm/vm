@@ -41,8 +41,10 @@ wait_task_idle() {
     "$UTMCTL" exec "$VM_UUID" --cmd "$CMD_EXE" /c \
       "schtasks /query /tn $1 /fo csv /nh > $GUEST_DIR\\out\\_task.txt 2>&1" >/dev/null 2>&1
     state="$("$UTMCTL" file pull "$VM_UUID" "$GUEST_DIR\\out\\_task.txt" 2>/dev/null)"
-    case "$state" in *Running*) sleep 0.2 ;; *) return 0 ;; esac
+    case "$state" in *Running*) sleep 0.2 ;; "") sleep 0.2 ;; *) return 0 ;; esac
   done
+  echo "task $1 still Running after 12s — a child process (ABELDent?) is holding it; see colombus-lab-vm memory" >&2
+  return 1
 }
 
 # utmctl exits 0 even when the guest file is still locked by the writer, so success is
@@ -86,7 +88,7 @@ user_exec() {
     || die "guest agent not responding"
   # schtasks /run is a silent no-op while the previous run is still exiting, so back-to-back
   # calls used to hang until the pull loop timed out. Wait for the task to go idle first.
-  wait_task_idle ColombusRun
+  wait_task_idle ColombusRun || { unlock; return 1; }
   "$UTMCTL" exec "$VM_UUID" --cmd "$CMD_EXE" /c \
     "del $GUEST_DIR\\out\\_ulast.txt 2>nul & schtasks /run /tn ColombusRun" >/dev/null 2>&1
   for i in $(seq 1 300); do
