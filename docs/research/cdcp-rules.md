@@ -26,9 +26,9 @@ the policies in the Guide prevail."* Health Canada's April 2026 factsheet adds:
 
 Rollout complete (final phase May 2025). Benefit period 2026-27 = **Jul 1 2026 – Jun 30 2027**.
 
-Roles: **Health Canada** owns policy + adjudicates exception requests. **Sun Life** is claims
-processor only (~$750M contract, awarded Dec 2023, 5-yr operations; preauth + paper claims added
-Nov 1 2024). **ESDC/Service Canada** handles enrolment. **CRA** supplies adjusted family net income.
+Roles: Health Canada owns policy + adjudicates exception requests. Sun Life is claims processor
+only (~$750M contract, awarded Dec 2023, 5-yr operations; preauth + paper claims added Nov 1 2024).
+ESDC/Service Canada handles enrolment. CRA supplies adjusted family net income.
 
 Eligibility (all four): no access to dental insurance; filed tax return; **adjusted family net
 income < $90,000**; Canadian resident for tax purposes.
@@ -44,7 +44,7 @@ Co-pay tiers — share **of the CDCP established fee**, not the dentist's fee:
 ## 2. What requires preauthorization
 
 Two orthogonal triggers:
-- **Always-preauth** — code sits in Schedule B (GPSP/OMFS/DH grids) or is flagged **P** / **I.C.**
+- **Always-preauth** — code sits in Schedule B (GPSP/OMFS/DH grids) or is flagged P / I.C.
   (Independent Consideration) on denturist grids.
 - **Above-frequency** — any Schedule A service beyond its frequency limit.
 
@@ -84,8 +84,8 @@ Two orthogonal triggers:
 ### Provider-type dependence — a real trap
 
 **Oral and maxillofacial surgeons do NOT need preauth for sedation/GA.** OMFS 2026 grid puts
-nitrous, oral sedation, parenteral conscious sedation and combined techniques in **Schedule A**;
-its Schedule B contains only 94301, 94302, 99113. The OMFS grid has **no Prevention, Restoration,
+nitrous, oral sedation, parenteral conscious sedation and combined techniques in Schedule A; its
+Schedule B contains only 94301, 94302, 99113. The OMFS grid has **no Prevention, Restoration,
 Prosthodontics or Orthodontics sections at all** — those codes don't exist for that provider type.
 
 ### What does NOT require preauth
@@ -108,7 +108,7 @@ implant-related procedures** - bone grafts - extensive rehabilitation - precisio
 partial dentures - fluorescent diagnostic light
 
 Implant-supported crowns, complete and partial dentures are exclusions, **not eligible for
-reconsideration**. **Orthodontics: "currently not available"** (Guide 6.8, eff. Apr 1 2026).
+reconsideration**. Orthodontics: "currently not available" (Guide 6.8, eff. Apr 1 2026).
 
 Exception-request pathway exists for out-of-scope services that are *not* exclusions; adjudicated
 by Health Canada; *"expected to be extremely rare."*
@@ -152,7 +152,7 @@ Footnotes (verbatim, load-bearing):
 ### Accepted request forms
 
 CDA/CLHIA Standard Dental Claim Form; ACDQ Dental Claim and Treatment Plan Form; CDHA National
-Dental Hygiene Claim Form; DAC Dental Care Claim Form; **computer-generated treatment form**.
+Dental Hygiene Claim Form; DAC Dental Care Claim Form; computer-generated treatment form.
 Form eligibility varies by service — restorative and endodontic accept only CDA/CLHIA, ACDQ and
 computer-generated; denture sections accept CDA/CLHIA, ACDQ, DAC, computer-generated.
 
@@ -169,14 +169,14 @@ measurement scale when possible."*
 **Crowns (6.3.5)** — preauth, 18+, and ALL of:
 - Tooth eligibility: incisors, canines, bicuspids, 1st and 2nd molars; third molars **only** where
   1st and 2nd are missing and the 3rd is in occlusion with a prosthetic or natural molar.
-- Restorability: absence of active periodontal disease; **crown-to-root ratio <= 1:1**; **absence
-  of furcation involvement**; restoration margin **3 mm from alveolar crest**; **adequate ferrule
-  (1.5 mm)**; mesio-distal space equivalent to natural tooth; no crown lengthening, root
-  resectioning or orthodontics required.
+- Restorability: absence of active periodontal disease; crown-to-root ratio <= 1:1; absence of
+  furcation involvement; restoration margin 3 mm from alveolar crest; adequate ferrule (1.5 mm);
+  mesio-distal space equivalent to natural tooth; no crown lengthening, root resectioning or
+  orthodontics required.
 - "Extensively restored": anteriors — loss involves entire incisal edge mesial-to-distal and
   extends cervically to both interproximal contacts; **endodontically treated** premolars/molars —
   >=3 continuous surfaces involving both marginal ridges or entire cusp destruction;
-  **non-endodontically treated** premolars/molars — **5 continuous surfaces**.
+  **non-endodontically treated** premolars/molars — 5 continuous surfaces.
 - *"All basic treatment addressing any existing active biological disease (caries and periodontal)
   must be completed before submitting requests for crowns."*
 - *"An endodontically treated tooth must have healed before requesting a crown."*
@@ -190,10 +190,10 @@ ferrule requirement; same rampant-disease exclusion.
 
 **Partial dentures (6.6.2.3)** — teeth 16–26 and 36–46 inclusive; all basic treatment completed;
 space >= corresponding natural teeth; existing CDCP-paid partial cast >=96mo / acrylic >=60mo.
-Specific: **>=1 missing tooth in the anterior sextant, OR >=2 missing posterior teeth in a quadrant
-excluding 2nd and 3rd molars.** Critical: *"The CDCP will not consider a client's existing partial
-denture (obtained outside of the CDCP)"* — a new client with a non-CDCP partial is still an
-**initial placement** (preauth required).
+Specific: >=1 missing tooth in the anterior sextant, OR >=2 missing posterior teeth in a quadrant
+excluding 2nd and 3rd molars. *"The CDCP will not consider a client's existing partial denture
+(obtained outside of the CDCP)"* — a new client with a non-CDCP partial is still an **initial
+placement** (preauth required).
 
 **Sedation (6.9)** — nitrous/oral: ages 0–11 where treatment cannot be rendered without sedation;
 12+ where treatment was attempted and unsuccessful, or cannot be attempted due to significant
@@ -231,39 +231,39 @@ originate from another provider.
 restarting if another specialty performs the same treatment — Sun Life pays using the equivalent
 code and that provider type's grid. Only a *different* treatment plan needs a new preauth.
 
-**Turnaround — no published SLA.** Health Canada reported **>95% processed within 7 days, majority
-under 5 days** as of May 31 2026 (up from >80% in July 2025). The widely-circulated 25–30 business
+**Turnaround — no published SLA.** Health Canada reported >95% processed within 7 days, majority
+under 5 days as of May 31 2026 (up from >80% in July 2025). The widely-circulated 25–30 business
 day figures are UNVERIFIED secondary-blog estimates.
 
-**Processing order: first-come, first-processed. Every resubmission is treated as a brand-new
-request at the back of the queue** — including resubmissions caused by Sun Life's own
-"missing documentation" denial. This is the economic core of the product.
+Processing order: first-come, first-processed. **Every resubmission is treated as a brand-new
+request at the back of the queue** — including resubmissions caused by Sun Life's own "missing
+documentation" denial. This is the economic core of the product.
 
 **Response:** EOB via Sun Life Direct or mail. Not sent to members. Preauths do not appear in
 Sun Life Direct until processed.
 
-**Response codes:** only **N05** is publicly documented (*"This expense is not covered under your
-benefits plan"*). **No public catalogue of CDCP EOB/denial reason codes exists — UNVERIFIED and a
-significant gap.**
+**Response codes:** only N05 is publicly documented (*"This expense is not covered under your
+benefits plan"*). No public catalogue of CDCP EOB/denial reason codes exists — UNVERIFIED and a
+significant gap.
 
-**Validity:** most decisions valid **12 months**; **24 months** for some preventive and periodontal
+**Validity:** most decisions valid 12 months; 24 months for some preventive and periodontal
 services. Conditional on the client still being eligible on the date of service.
 
 **Post-determination (5.4):** adjudicated after service, for procedures that normally need preauth.
 *"Intended to be used rarely, and only in emergent clinical situations."* Requires the full preauth
-document set **plus a rationale explaining why post-determination is sought.**
+document set plus a rationale explaining why post-determination is sought.
 
-**Reconsideration (App. C):** within **60 days** of denial; submitted by the provider at the
-client's request; **must include additional or new clinical information**; **one level only**,
-final; reviewed by a different adjudicator; **exclusions never eligible.**
+**Reconsideration (App. C):** within 60 days of denial; submitted by the provider at the client's
+request; must include additional or new clinical information; one level only, final; reviewed by a
+different adjudicator; exclusions never eligible.
 
 **Payment:** EFT within ~2 business days of processing; ~90% of claims process immediately. Claims
-must be received within **12 months of date of service**, inclusive of all resubmissions.
+must be received within 12 months of date of service, inclusive of all resubmissions.
 
 ## 5. Procedure code systems
 
-Five underlying sets (Guide 2.0): **CDA USC&LS** (dentists/specialists), **ACDQ** (QC general),
-**FDSQ** (QC specialists), **DAC** (denturists), **CDHA** (hygienists).
+Five underlying sets (Guide 2.0): CDA USC&LS (dentists/specialists), ACDQ (QC general), FDSQ (QC
+specialists), DAC (denturists), CDHA (hygienists).
 
 **USC&LS is licensed, not open.** *"intended for the sole use of the Corporate Members of the
 Canadian Dental Association (CDA) and other organizations having signed the USC&LS Licensing
@@ -278,9 +278,9 @@ Agreement only."* Licensing via `uscls@cda-adc.ca`. **Real procurement dependenc
 | Denture liners | 51104, 56601 | – | 56226 | 73008, 32318, 32328, 42318, 42328, 32510, 32520, 42516, 42526 | – |
 | PA radiographs 7 & 8 images | – | – | – | – | 00227, 00228 |
 
-**CDCP fees are independent of provincial fee guides.** Grid fees are **per-specialty columns**
-(GP, Anest, Endo, O. Med, O. Path, Ortho, Paed, Perio, Pros, Radio) — crown 27201 is $884.15 (GP)
-vs $1,060.98 (Pros) in Ontario 2026. `Lab` column "L" = variable commercial lab fee allowed;
+**CDCP fees are independent of provincial fee guides.** Grid fees are per-specialty columns (GP,
+Anest, Endo, O. Med, O. Path, Ortho, Paed, Perio, Pros, Radio) — crown 27201 is $884.15 (GP) vs
+$1,060.98 (Pros) in Ontario 2026. `Lab` column "L" = variable commercial lab fee allowed;
 `I.C.` = independent consideration. Dentists may bill their usual fees, creating balance bills.
 
 ## 6. Denial evidence
@@ -438,7 +438,7 @@ catalogue, any preauthorization API.
 ### Dec 7 2025 (Guide; grids not updated until April)
 - **Frequency limits: same-provider / same-office qualifiers removed.** "once per tooth surface in
   any 24-month period by the same provider or a different provider in the same office" ->
-  **"once per tooth surface in any 24-month period."**
+  "once per tooth surface in any 24-month period."
 - New dentures not eligible within 24 months of a reline/rebase.
 - **Documentation relief (CDA/PTDA advocacy):** treatment plan and radiographs no longer required
   for additional scaling units; **PSR accepted in lieu of a complete perio chart for crowns and

@@ -1,0 +1,50 @@
+#!/usr/bin/env python3
+"""Regenerate the planned-crown fixture table in docs/research/abeldent-schema.md
+from the fixtures actually on disk, so the doc cannot drift from the data again."""
+import json, pathlib, re
+
+fx = sorted(pathlib.Path("fixtures/abeldent/fictional").glob("*.json"),
+            key=lambda p: int(p.stem))
+rows, crown_pids = [], []
+for f in fx:
+    d = json.loads(f.read_text())
+    pat = d.get("patient", {})
+    planned = d.get("planned_procedures", {}).get("items", [])
+    done = d.get("completed_procedures", {}).get("items", [])
+    crowns = [p for p in planned if str(p.get("code", "")).startswith("27")]
+    if crowns:
+        crown_pids.append(int(f.stem))
+    perio = d.get("perio", {}).get("exams", [])
+    notes = d.get("clinical_notes", {}).get("items", [])
+    cov = d.get("coverage", {}).get("items", [])
+    dates = [e.get("date") for e in perio if e.get("date")]
+    rows.append(dict(
+        pid=int(f.stem),
+        name=f"{pat.get('last_name','')}, {pat.get('first_name','')}".strip(", "),
+        crowns=len(crowns),
+        teeth=sorted({p.get("tooth_fdi") for p in crowns if p.get("tooth_fdi")}),
+        planned=len(planned), completed=len(done), cov=len(cov),
+        perio=len(perio), last=max(dates) if dates else "—", notes=len(notes)))
+
+print(f"fixtures on disk: {len(fx)}   with a planned crown: {len(crown_pids)} -> {crown_pids}")
+print(f"all have planned work: {all(r['planned'] for r in rows)}\n")
+print("| pid | Patient | Planned crowns | Teeth (FDI) | Completed | Coverages | Perio exams | Last perio | Notes |")
+print("|---|---|---|---|---|---|---|---|---|")
+for r in rows:
+    if r["crowns"]:
+        teeth = ",".join(f"#{t}" for t in r["teeth"])
+        print(f"| {r['pid']} | {r['name']} | {r['crowns']} | {teeth} | {r['completed']} "
+              f"| {r['cov']} | {r['perio']} | {r['last']} | {r['notes']} |")
+
+# furcation sanity: is it populated, and are the values plausible?
+print("\nfurcation (does the field carry real values?):")
+for f in fx:
+    d = json.loads(f.read_text())
+    for i, e in enumerate(d.get("perio", {}).get("exams", []), 1):
+        fu = e.get("furcation") or {}
+        pc = fu.get("point_count") or 0
+        if pc:
+            vals = [v for row in (fu.get("teeth") or {}).values()
+                    for v in (row if isinstance(row, list) else [row]) if isinstance(v, int)]
+            rng = f"{min(vals)}-{max(vals)}" if vals else "?"
+            print(f"  pid {f.stem} exam {i}: point_count={pc} range={rng}")

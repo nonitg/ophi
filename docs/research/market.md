@@ -57,7 +57,7 @@ or payer integrations transfer. Any "win Canada then port to the US" plan must a
 | Company | What | CDCP | PMS coverage | Threat |
 |---|---|---|---|---|
 | **Smilepass** (Toronto) | AI insurance verification, digital treatment plans, payments/AR, financing. Canada-first | **Yes, explicit.** Verifies CDCP enrolment/benefit periods, captures income-tiered co-pay, **tracks submitted predeterminations and auto-updates the PMS on approval** | Dentrix, Open Dental, Curve, **Tracker, ABELDent, ClearDent, MaxiDent, Paradigm** | **Highest.** Owns verification + the exact PMS list we need. Stops short of *submitting* predeterminations — our only gap, and narrow |
-| **Cleer** | AI agents verifying dental insurance, "no hold times, no portals". **200+ offices**. Presented at Pacific Dental Conference 2026 | Canada-only positioning | not published | High — 200+ existing Canadian clinic relationships = distribution we'd have to out-run |
+| **Cleer** | AI agents verifying dental insurance, "no hold times, no portals". **200+ offices** (self-reported, UNVERIFIED). Presented at Pacific Dental Conference 2026 | Canada-only positioning | not published | High — 200+ existing Canadian clinic relationships = distribution we'd have to out-run |
 
 Funding, headcount, pricing for both: **UNVERIFIED, all unpublished.**
 
@@ -129,21 +129,15 @@ ClearDent and Tracker are the top Canadian-built platforms; Tracker + ABELDent s
 ClearDent skews BC/AB. North American shares (Henry Schein 18–22%, Open Dental 14–18%) are **not**
 Canadian. **UNVERIFIED — commission our own count.**
 
-### Correction to the starting assumption
-**"AbleDent (Land Software)" does not exist.** No dental PMS vendor named "Land Software" was found.
-The product is **ABELDent**, by **ABELDent Inc. / ABELSoft** (Burlington ON, in healthcare since 1977).
-
 ### ABELDent Freemium
-Free, no credit card, downloadable, full premium UI. **SQL Server Express 2022/2019 only** (10GB db
-cap, 1410MB RAM, 1 socket/4 cores). Sized for 2–4 workstations. LMS access 90 days.
-**Excluded: telephone support, one-on-one training, software updates, data migration, PCS.**
-Target: evaluators, students, startups, hygiene practices.
+Specs, licensing limits and the measured database edition are in
+`docs/research/integration-and-compliance.md` §1. Target segment: evaluators, students, startups,
+hygiene practices.
 
-**Strategic read:** it is a lead-gen funnel for new/small practices, deliberately crippled on support
-and updates. Its users are **the smallest, poorest, lowest-CDCP-volume practices in Canada**, on
-on-prem SQL Express, with **no vendor support contract and no public API**. That is close to the
-worst possible *first customer* profile. As a free local **development sandbox with a real SQL
-schema**, it is excellent. Keep those two roles separate.
+**Strategic read:** a lead-gen funnel for new/small practices, deliberately crippled on support and
+updates. Its users are the smallest, poorest, lowest-CDCP-volume practices in Canada, with no vendor
+support contract and no public API — close to the worst possible *first customer* profile. As a free
+local development sandbox with a real SQL schema, it is excellent. Keep those two roles separate.
 
 ABELDent paid pricing (~$99/mo single user; $299–599/mo up to 100 users; $1,000–5,000
 implementation) comes only from an aggregator, not the vendor. **UNVERIFIED.**

@@ -2,49 +2,65 @@
 
 v0.1 · written 2026-09-17
 
+Pre-reconciliation deep-dive plan. `PLAN.md` carries the v1 cut; effort numbers here are uncut.
+
 ## Three decisions that drive everything else
 
 1. **Demand-driven extraction, not continuous replication.** The cloud never holds a clinic's chart
-   database. It asks the on-prem agent for *one patient's scoped bundle* when a named human starts a
-   preauth. Biggest single lever on breach blast radius, on SQL Express load, and on shipping speed.
+   database; it asks the on-prem agent for *one patient's scoped bundle* when a named human starts a
+   preauth. Biggest single lever on breach blast radius, database load, and shipping speed.
 2. **The schema map is a data artifact, not code.** Reverse-engineering output lands in versioned
    YAML + a signed query pack, gated at runtime by a schema fingerprint. When ABELDent v15.3 moves a
-   column we fail closed with a precise diagnostic and ship a new pack — not a new binary.
-3. **`IChartSource` is the product.** ABELDent is the first driver, not the architecture. If Sikka,
-   ClearDent or Open Dental becomes the right answer later, that is a 2–3 week driver, not a
-   rewrite.
+   column we fail closed with a precise diagnostic and ship a new pack, not a new binary.
+3. `IChartSource` is the product. ABELDent is the first driver, not the architecture. Sikka,
+   ClearDent or Open Dental later is a 2–3 week driver, not a rewrite.
 
 ## 1. Schema discovery
 
 **Rule zero: all discovery on the lab machine, against Fictional Data, on a restored copy.** Restore
-`C:\ABELDent\Data\Backup\*.bak` into a second SQL Express instance (`.\COLOMBUSLAB`) so scans and
-lock experiments cannot degrade the app's working database. Keep the original for "run the app,
-observe what it does" work. All probe artifacts live in a separate `ColombusProbe` database.
-**We never create an object inside the vendor database** — not a view, not a proc, not an index.
+`C:\ABELDent\Data\Backup\*.bak` into a second instance so scans and lock experiments cannot degrade
+the app's working database; keep the original for "run the app, observe what it does" work. Probe
+artifacts live in a separate `ColombusProbe` database. **We never create an object inside the vendor
+database** — not a view, not a proc, not an index.
 
-### Step 0 — Non-SQL recon (2 days). Highest yield per hour; most teams skip it.
+Which instance is a decision, not an assumption. The measured Freemium install is SQL Server 2022
+**LocalDB** (`(LOCALDB)\MSSQLLOCALDB`), not Express: a per-user, on-demand child process owned by the
+interactive Windows user and reachable only over a named pipe whose name is regenerated on every
+restart — no TCP/1433, no `Server=.\INSTANCE` (`docs/research/abeldent-schema.md`). A second LocalDB
+instance is the zero-install restore target; `.\COLOMBUSLAB` as a real SQL Express instance first
+requires ABELDent's vendor-authored `C:\ABELDent\Data\Tasks\installSQLExpress_SSMS.ps1` — the
+supported upgrade path, and the edition paid Local / Local Plus installs already run. Name the target
+in the probe log rather than assuming it.
+
+### Step 0 — Non-SQL recon (2 days) — **done**, see `docs/research/abeldent-schema.md`. Highest yield per hour.
 - Inventory `C:\ABELDent\**` for `*.sql`, `*.rdl`, `*.rpt`, `*.xsd`, `*.edmx`, `*.dbml`, `*.config`,
-  `*.chm`. Apps of this vintage routinely ship schema-creation scripts and report definitions.
-  **Crystal `.rpt` / SSRS `.rdl` files embed the exact SQL the vendor uses** — a free, vendor-authored
+  `*.chm` — apps of this vintage routinely ship schema-creation scripts and report definitions, and
+  **Crystal `.rpt` / SSRS `.rdl` embed the exact SQL the vendor uses**: a free, vendor-authored
   semantic layer over Treatment Ledger and Financial Ledger.
-- Read `integrationsettings.ini` and imaging bridge config for filesystem paths.
-- Extract connection strings from `*.config` (instance name, DB name, connection options).
-- String-scan (not decompile) assemblies for SQL fragments and table names.
+- Read `integrationsettings.ini` and imaging bridge config for filesystem paths; extract connection
+  strings from `*.config` (instance name, DB name, connection options); string-scan (not decompile)
+  assemblies for SQL fragments and table names.
+- **The vendor's own data dictionary is plaintext at `C:\ABELDent\Fdats\*.fda`.** For legacy table
+  `xyz`, `xyznames.fda` is ordered field labels mapping positionally onto `sys.columns` by
+  `column_id`; `xyzhelps.fda` is help text plus the vendor's own field identifier
+  (`"Patient's surname$PATFLDS:PLNAME"`). Files we lawfully possess, so this is the lawful substitute
+  for decompilation. It gives names, not the join and filter predicates Step 5 recovers.
 - **LEGAL FLAG:** full IL decompilation (ILSpy/dnSpy) of `ABELSoft.*.dll` would be high yield but
   likely violates the EULA's reverse-engineering clause. **Do not decompile until counsel signs off.**
   String-scanning files we lawfully possess is weaker exposure but still route past counsel. Plan
   assuming decompilation is unavailable.
 
-### Step 1 — Catalog extraction (2 days)
+### Step 1 — Catalog extraction (2 days) — **counts done**, see `docs/research/abeldent-schema.md`.
+**Outstanding: the `sys.sql_modules` content dump.** 341 modules are counted but unexamined, and the
+schema doc calls them the next highest-yield target. Do not treat Step 1 as closed until they are read.
 `sys.tables/columns/types/indexes/index_columns/key_constraints/foreign_keys/check_constraints/
-default_constraints`. **`sys.sql_modules` is the jackpot** — dump every view/proc/function. If the
-R&A/Power BI add-on has a sanctioned read path it is almost certainly views or procs here; prefer
-them over base tables forever (closest thing to a vendor contract). Also `sys.extended_properties`
-for `MS_Description`. Look for a self-describing dictionary table (`SysFields`, `TableDefs`,
-`CodeTable`).
-Tooling: `mssql-scripter`, `dbatools` PowerShell, SchemaCrawler/SchemaSpy for a browsable FK graph.
+default_constraints`. **`sys.sql_modules` is the jackpot** — dump every view/proc/function; if the
+R&A/Power BI add-on has a sanctioned read path it is almost certainly views or procs here, and being
+the closest thing to a vendor contract they beat base tables forever. Also `sys.extended_properties`
+for `MS_Description`; look for a self-describing dictionary table (`SysFields`, `TableDefs`,
+`CodeTable`). Tooling: `mssql-scripter`, `dbatools`, SchemaCrawler/SchemaSpy for a browsable FK graph.
 
-### Step 2 — Profiling (2 days)
+### Step 2 — Profiling (2 days) — **done**, see `docs/research/abeldent-schema.md`.
 Row counts from `sys.dm_db_partition_stats` (instant, no scan). Per-column null ratio, distinct
 count, min/max, top-20 values, sample. Output a ranked table list: **the 30–60 tables holding >=95%
 of rows are the real schema**; the rest are lookups, config and dead weight. Date-column inventory
@@ -56,35 +72,41 @@ similarity (`PatientID` / `PatID` / `PatientNo`), test inclusion dependency
 (`SELECT TOP 1 a.col FROM A a WHERE NOT EXISTS (SELECT 1 FROM B b WHERE b.col = a.col)`). Empty
 result + reasonable cardinality = candidate FK. Rank by coverage, distinctness, name similarity.
 
-### Step 4 — Value hunt (2 days). Fastest screen-to-column mapping.
+### Step 4 — Value hunt (2 days) — **achieved by other means.** Fastest screen-to-column mapping.
+The tables were located via Step 1 plus the `.fda` dictionary and targeted ad-hoc queries
+(`scripts/ledger-discover.sh`), **not** by the tool below: `probe find-value` was never built
+(`probe.py` registers only `snapshot`, `diff`, `refresh-catalog`). Build it before PMS #2, where
+there is no `.fda` dictionary to lean on.
 `probe find-value "<literal>"` — generated UNION over every text/int/date column, returning
 `(table, column, pk)`. Feed it values visible in the UI on Fictional Data: a surname, a policy
 number, procedure code `21221`, a tooth number, a note phrase. Locates the patient table, treatment
 ledger, note store and coverage records within an hour.
 
 ### Step 5 — Capture the app's own queries with Extended Events (3 days). Highest fidelity.
-Identify the app's connection signature via `sys.dm_exec_sessions`. Create an XEvent session (file
+Identify the app's connection signature via `sys.dm_exec_sessions`; create an XEvent session (file
 target) on `rpc_completed` + `sql_batch_completed`, filtered on `client_app_name`, collecting
-`sql_text`, `statement`, `duration`, `logical_reads`, `session_id`. **Use Extended Events, not SQL
-Profiler** (deprecated, higher overhead; XEvents fully supported on Express).
-**Screen-walk protocol:** one engineer drives the UI through a scripted screen list (patient -> chart
--> treatment plan -> perio -> notes -> imaging -> ledger), marking timestamps. Correlate to captured
-batches. Output: **screen -> exact vendor SQL** — including the joins and filter predicates that
-encode business rules we would otherwise get wrong (voided entries, status flags, provider vs
-responsible provider, Summarized vs Production Totals).
+`sql_text`, `statement`, `duration`, `logical_reads`, `session_id`. **Extended Events, not SQL
+Profiler** (deprecated, higher overhead). XEvents is fully supported on Express; **support on
+LocalDB is unverified and must be closed before Step 5 runs**, since this is the highest-fidelity
+step in the plan. Screen-walk protocol:
+one engineer drives the UI through a scripted screen list (patient -> chart -> treatment plan ->
+perio -> notes -> imaging -> ledger) marking timestamps, then correlates to captured batches. Output:
+**screen -> exact vendor SQL**, including the joins and filter predicates that encode business rules
+we would otherwise get wrong (voided entries, status flags, provider vs responsible provider,
+Summarized vs Production Totals).
 
-### Step 6 — Diff-after-action probes (5 days, ongoing)
+### Step 6 — Diff-after-action probes (5 days, ongoing) — **tooling built**: `lab/tools/probe.py snapshot|diff`, `scripts/probe-step`, `lab/vm/guest/ui.ps1` (UI Automation).
 `probe snapshot`: per table, `SELECT <pk>, HASHBYTES('SHA2_256', CONCAT_WS('|', <all cols>))` into
 `ColombusProbe`. Fast pre-pass: row count + `CHECKSUM_AGG(BINARY_CHECKSUM(*))` per table to find
-changed tables, then row-level hash only on those.
-Protocol: write a YAML describing the action -> `probe snapshot A` -> perform the action in the UI ->
-`probe snapshot B` -> `probe diff A B` -> record mapping with the probe ID as evidence.
+changed tables, then row-level hash only on those. Protocol: write a YAML describing the action ->
+`probe snapshot A` -> perform the action in the UI -> `probe snapshot B` -> `probe diff A B` ->
+record mapping with the probe ID as evidence.
 **Probe catalogue (minimum):** add patient; add CDCP coverage; plan a procedure with tooth+surface;
 complete it; void it; enter a full-mouth 6-site perio chart; enter a partial perio chart; enter PSR;
 write a clinical note; mark a tooth missing; attach a document; acquire/link a radiograph via the
 imaging bridge; create a referral letter.
-**This catalogue is also the fixture-authoring workstream** — Fictional Data may be sparse, so every
-probe both maps schema and manufactures test data.
+**This catalogue is also the fixture-authoring workstream** — every probe both maps schema and
+manufactures test data.
 
 ### Step 7 — Consolidate (3 days)
 - `/schema-map/abeldent/v14/entities.yaml` — CDM entity -> table/column mappings, per-field
@@ -97,10 +119,10 @@ probe both maps schema and manufactures test data.
 **Effort: 4.5 eng-weeks to a mapped core** (patient, coverage, planned/completed procedures, notes,
 odontogram); **+2.5 eng-weeks for perio and imaging** — the hard ones.
 
-**Tooling:** SSMS 21 + Azure Data Studio, `dbatools`, `mssql-scripter`, SchemaCrawler/SchemaSpy,
-Extended Events, `sp_WhoIsActive` (in `ColombusProbe`, never the vendor DB), our own `probe` CLI
-(C#, same solution as the agent — reuses `ReadOnlySqlExecutor` so the safety rails get tested in the
-lab first), `fo-dicom`, git-versioned YAML.
+Tooling: SSMS 21 + Azure Data Studio, `dbatools`, `mssql-scripter`, SchemaCrawler/SchemaSpy, Extended
+Events, `sp_WhoIsActive` (in `ColombusProbe`, never the vendor DB), our own `probe` CLI (C#, same
+solution as the agent — reuses `ReadOnlySqlExecutor` so the safety rails get tested in the lab
+first), `fo-dicom`, git-versioned YAML.
 
 ## 2. Local agent
 
@@ -112,19 +134,22 @@ lab first), `fo-dicom`, git-versioned YAML.
 2. **Shipping to non-technical clinics.** Windows Service hosting, MSI via **WiX v5**, Authenticode
    signing, Windows Event Log, DPAPI/CNG key storage, service-account provisioning — all native.
    Self-contained publish means zero "install a runtime" support calls.
-3. **Same ecosystem as the PMS** if we ever need COM/interop.
+3. Same ecosystem as the PMS if we ever need COM/interop.
 
 Rejected: Python + pyodbc (packaging a service + installer + self-update for non-technical Windows
 sites is the whole job); Go (great binary, weaker DPAPI/CNG/MSI/service story). **Cloud stays
 Python/TypeScript — the contract between them is JSON over HTTPS, not a shared runtime.**
 
 Libraries: `Microsoft.Data.SqlClient`, **Dapper** (hand-written SQL against a foreign schema — never
-EF Core), `Polly`, `Serilog` + `OpenTelemetry`, `Microsoft.Data.Sqlite`,
-`System.Threading.Channels`, `fo-dicom`, `SixLabors.ImageSharp`, `QuestPDF`, WiX v5.
+EF Core), `Polly`, `Serilog` + `OpenTelemetry`, `Microsoft.Data.Sqlite`, `System.Threading.Channels`,
+`fo-dicom`, `SixLabors.ImageSharp`, `QuestPDF`, WiX v5.
 
 ### SQL authentication
-Service runs as a **dedicated Windows account** (`svc_colombus`), never LocalSystem, never a human's
-account. Installer supports: (a) local machine account with a 32-char random password handed to
+On Express (paid Local / Local Plus): service runs as a **dedicated Windows account** (`svc_colombus`),
+never LocalSystem, never a human's account. **On Freemium this rule cannot hold** — LocalDB is owned by
+the interactive user, so the agent must either run in that user's session or take the vendor
+`installSQLExpress_SSMS.ps1` upgrade first. **Open architectural question, not a solved one:** an
+interactive-session agent needs a key-storage model, since DPAPI machine scope assumes a service. Installer supports: (a) local machine account with a 32-char random password handed to
 SCM's LSA secret store — never written to config or log; (b) existing domain account; (c) **gMSA** on
 domain-joined servers (best; no password at all).
 
@@ -140,21 +165,29 @@ DENY INSERT, UPDATE, DELETE, ALTER, EXECUTE, CREATE TABLE ... TO [DOMAIN\svc_col
 Connection string: `Encrypt=True; TrustServerCertificate=<configurable>; ApplicationName=Colombus
 Agent; ApplicationIntent=ReadOnly`.
 
+**Edition caveat: the above is the paid Local / Local Plus case, where SQL Express runs as a shared
+service.** It does not hold on Freemium, whose LocalDB instance is owned by the interactive Windows
+user: a `LocalSystem` — or any other service — account **cannot see it at all**, and there is no
+server-side login to grant. Freemium needs either the vendor's `installSQLExpress_SSMS.ps1` upgrade
+or an agent running in the interactive user's session. Unresolved: name the target before the
+installer is built, and have `colombusctl test-sql` report which it found.
+
 ### Read-only enforcement — three independent layers
-1. **SQL permissions.** The database itself refuses writes.
+1. **SQL permissions.** The database itself refuses writes. **Express only** — Freemium's LocalDB has no
+   server-side login to grant, so this layer is absent there and only layers 2 and 3 apply. Closing that
+   gap is part of the same open question as the identity model above.
 2. **`ReadOnlySqlExecutor`** — the only class allowed to touch `SqlConnection`. Accepts a `QueryId` +
    typed parameters, **never a SQL string from any caller.** Sets per connection
    `SET TRANSACTION ISOLATION LEVEL READ COMMITTED; SET LOCK_TIMEOUT 5000; SET DEADLOCK_PRIORITY LOW;`
    plus `CommandTimeout`, `MAXDOP 1`, row cap. A unit test asserts no other type in the solution
    references `SqlCommand`.
-3. **Signed QueryPack.** All SQL ships as a version-pinned, signed YAML. Loaded queries validated at
-   startup (single statement, starts with `SELECT`/`WITH`, no `;`, no forbidden tokens) and
-   hash-checked. **The cloud can only invoke a query ID with typed parameters — it can never send
-   SQL.** If the cloud is fully compromised the attacker gets "read patient 4711's perio exams,"
-   rate-limited and journaled, not `SELECT * FROM everything`.
+3. **Signed QueryPack.** All SQL ships as a version-pinned, signed YAML, validated at startup (single
+   statement, starts with `SELECT`/`WITH`, no `;`, no forbidden tokens) and hash-checked. The cloud
+   can only invoke a query ID with typed parameters, never send SQL: a fully compromised cloud yields
+   "read patient 4711's perio exams," rate-limited and journaled, not `SELECT * FROM everything`.
 
-Default **READ COMMITTED** with short, keyset-paginated, index-aligned queries and a low lock timeout
-so we yield rather than block the clinic's app. `READ UNCOMMITTED` permitted **only** for the backfill
+Default READ COMMITTED with short, keyset-paginated, index-aligned queries and a low lock timeout so
+we yield rather than block the clinic's app. `READ UNCOMMITTED` permitted **only** for the backfill
 sweep, explicitly flagged, never for a fact that appears in a submitted packet.
 
 ### Incremental sync + change detection without triggers
@@ -173,11 +206,11 @@ Per-table strategy, recorded in `entities.yaml`:
 | `HashSweep` | mutable, no usable marker | rolling per-key-range row-hash comparison, fully swept every 24h in slices |
 | `SnapshotSmall` | lookup/config tables (<50k rows) | full re-read nightly |
 
-**Deletes are invisible without triggers.** Handle by: `HashSweep` detects disappearances within one
-cycle; every CDM bundle carries `asOf` and a `freshness` budget — a bundle past budget is refetched
-before packet assembly, never reused. **We never claim "this is current" from cache.**
+**Deletes are invisible without triggers.** `HashSweep` detects disappearances within one cycle;
+every CDM bundle carries `asOf` and a `freshness` budget — a bundle past budget is refetched before
+packet assembly, never reused. **We never claim "this is current" from cache.**
 
-**Two sync tiers:**
+Two sync tiers:
 - **Tier A — hot index** (continuous, tiny, non-clinical): patient key + local chart number and
   nothing else identifying stored in the cloud, plus a change feed of "treatment plans touched in the
   last N days" for the worklist. Default 15 min poll.
@@ -185,26 +218,28 @@ before packet assembly, never reused. **We never claim "this is current" from ca
   `BuildBundle(patientRef, proposedTreatmentRef, reason, requestedByUserId)`; agent runs ~12
   query-pack queries, maps to CDM, returns one signed JSON bundle. **Target p95 < 8 s on SQL Express.**
 
-**Throttling for SQL Express** (1410 MB buffer pool, 4 cores, shared with the PMS): global
-concurrency 1 for Tier B and 1 for sweeps; sweeps pause when instance CPU > 60% or when an ABELDent
-session has been blocked by us (via `sys.dm_exec_requests` blocking chain); configurable quiet hours,
-default sweeps only 19:00–06:00 local.
+**Throttling.** Paid Local / Local Plus runs SQL Express (1410 MB buffer pool, 4 cores, shared with
+the PMS): global concurrency 1 for Tier B and 1 for sweeps; sweeps pause when instance CPU > 60% or
+when an ABELDent session has been blocked by us (`sys.dm_exec_requests` blocking chain); configurable
+quiet hours, default sweeps only 19:00–06:00 local. Freemium's LocalDB is a per-user on-demand child
+process rather than a shared service and its contention profile is unmeasured — the same rails apply,
+the thresholds do not transfer untested.
 
 ### Images and documents
 The DB almost certainly stores *references*, not pixels. `DocumentLocator` resolves a DB row to a
 path (local, UNC, or imaging-vendor-managed) and returns **metadata only** by default: existence,
-byte size, SHA-256, MIME/format, dimensions, filesystem times, and the **capture date** —
-cross-checked from DB column vs DICOM `StudyDate (0008,0020)`/`ContentDate` vs file mtime, **with the
-source of the date recorded.** The 12-month recency test is the core of the product, so the date's
-provenance must be auditable and we must **report disagreement rather than silently pick one.**
+byte size, SHA-256, MIME/format, dimensions, filesystem times, and the **capture date**, cross-checked
+from DB column vs DICOM `StudyDate (0008,0020)`/`ContentDate` vs file mtime, with the source of the
+date recorded. The 12-month recency test is the core of the product, so the date's provenance must be
+auditable and we must **report disagreement rather than silently pick one.**
 
 **TOP UNKNOWN:** radiographs may live entirely in a third-party imaging system (the ABELDent bridge
 is outbound launch-with-context, so pixel data is likely not ABELDent's). Budget a dedicated
 **imaging discovery spike (1 eng-week, early)**; design a second interface `IImagingSource` with
-per-vendor drivers. **Manual upload via the cloud UI is the always-available fallback and must exist
-in v1 regardless.**
+per-vendor drivers. Manual upload via the cloud UI is the always-available fallback and must exist in
+v1 regardless.
 
-Bytes move only on explicit user action. When they move: normalize locally (DICOM -> lossless PNG via
+Bytes move only on explicit user action, and then: normalize locally (DICOM -> lossless PNG via
 fo-dicom + ImageSharp, strip non-essential tags, retain modality/date/laterality), chunked resumable
 upload, client-side encryption.
 
@@ -216,11 +251,11 @@ then abandon with alert. Bounded disk (2 GB default), oldest-first eviction. **W
 UI shows "clinic agent unreachable, last seen HH:MM" rather than stale data presented as fresh.**
 
 ### Transport and enrolment
-**Outbound HTTPS 443 only. No inbound listener, no firewall rule, no port forward** — this is both
-the security posture and the sales pitch, and it directly answers ABELDent's "third-party
-integrations are a security risk" objection. Job dispatch via long-poll or SignalR-over-WebSocket.
-Enrolment: one-time code -> agent generates a non-exportable key in **Windows CNG machine key store**
--> CSR -> per-device certificate; thereafter mTLS + short-lived JWT. Revocation server-side, instant.
+**Outbound HTTPS 443 only. No inbound listener, no firewall rule, no port forward** — both the
+security posture and the sales pitch, and a direct answer to ABELDent's "third-party integrations are
+a security risk" objection. Job dispatch via long-poll or SignalR-over-WebSocket. Enrolment: one-time
+code -> agent generates a non-exportable key in Windows CNG machine key store -> CSR -> per-device
+certificate; thereafter mTLS + short-lived JWT. Revocation server-side, instant.
 
 ### Self-update
 Two components: `Colombus.Agent` (service) and `Colombus.Bootstrap` (tiny updater that owns swapping
@@ -232,9 +267,9 @@ the common case (vendor moved a column) is a data push, not a deployment.
 
 ### Observability
 - **`SchemaGuard`**: on startup and daily, recompute the fingerprint over mapped objects; on mismatch
-  emit a diff (`column X removed`, `type changed`), **fail closed for affected entities only**, alert
-  us, surface a specific banner in the clinic UI. Direct mitigation for "vulnerable to breaking
-  anytime the PMS is updated" — converts a silent-wrong-answer failure into a loud, diagnosable one.
+  emit a diff (`column X removed`, `type changed`), fail closed for affected entities only, alert us,
+  surface a specific banner in the clinic UI. Mitigates "vulnerable to breaking anytime the PMS is
+  updated" by converting a silent-wrong-answer failure into a loud, diagnosable one.
 - Serilog -> rolling local file + Windows Event Log with a **mandatory redaction sink**. A CI test
   feeds known PHI patterns (Fictional Data names, DOB, policy-number shapes) through the logging
   pipeline and **fails the build if any survives.** Log row counts, query IDs, durations, opaque IDs
@@ -244,18 +279,17 @@ the common case (vendor moved a column) is a data push, not a deployment.
   `schema_fingerprint_status`, `outbox_depth`, `agent_heartbeat`.
 - `colombusctl` on-site CLI: `status`, `test-sql`, `fingerprint`, `diag-bundle` (redacted),
   `replay-job <id>`.
-- **`access_journal`**: every read the cloud causes, recorded locally with
-  `(timestamp, cloud user id, patient ref, query ids, reason)`, exportable by the clinic.
-  Clinic-readable audit is a PHIPA accountability asset and lives on **their** server where we cannot
-  quietly alter it.
+- **`access_journal`**: every read the cloud causes, recorded locally with `(timestamp, cloud user
+  id, patient ref, query ids, reason)`, exportable by the clinic. Clinic-readable audit is a PHIPA
+  accountability asset and lives on **their** server where we cannot quietly alter it.
 
 ## 3. Canonical data model — CDM v1
 
-**Source of truth: JSON Schema 2020-12 in `/contracts/cdm/v1/`.** Generate C# records
-(NJsonSchema), Python Pydantic (datamodel-code-generator), TypeScript (json-schema-to-typescript) in
-CI. JSON over Protobuf because the downstream consumer is an LLM reasoning pipeline plus a web UI —
-human-readable payloads beat wire efficiency at our volumes, and JSON Schema doubles as validator and
-prompt-shaping documentation.
+**Source of truth: JSON Schema 2020-12 in `/contracts/cdm/v1/`.** Generate C# records (NJsonSchema),
+Python Pydantic (datamodel-code-generator), TypeScript (json-schema-to-typescript) in CI. JSON over
+Protobuf because the downstream consumer is an LLM reasoning pipeline plus a web UI: human-readable
+payloads beat wire efficiency at our volumes, and JSON Schema doubles as validator and prompt-shaping
+documentation.
 
 **Take from FHIR R4:** resource names and shapes — `Patient`, `Coverage`, `Practitioner`,
 `Organization`, `Condition`, `Procedure`, `ServiceRequest`, `Observation`, `DocumentReference`,
@@ -264,16 +298,22 @@ prompt-shaping documentation.
 exercise, and new engineers arrive pre-trained on the vocabulary.
 
 **Deliberately drop:** conformance, profiles, `Bundle`, search parameters, the REST API, XML,
-contained resources, the extension mechanism. **Polymorphic `value[x]`** -> explicit typed fields
-(`valueQuantity`, `valueCode`); LLM pipelines and generated types both hate it. **FHIR's
-everything-is-optional cardinality** -> mark fields required and non-null where the domain requires
-it; a preauth engine must not silently treat "absent" as "zero."
+contained resources, the extension mechanism. Polymorphic `value[x]` -> explicit typed fields
+(`valueQuantity`, `valueCode`); LLM pipelines and generated types both hate it. FHIR's
+everything-is-optional cardinality -> mark fields required and non-null where the domain requires it;
+a preauth engine must not silently treat "absent" as "zero."
 
 **FHIR's dental weakness is the deliberate divergence.** R4 has no first-class periodontal charting
-resource and its tooth/surface value sets don't align with Canadian practice. **`PerioExam` and
+resource and its tooth/surface value sets don't align with Canadian practice, so **`PerioExam` and
 `DentitionState` are first-class CDM entities, not piles of `Observation`s.** Perio
 recency/completeness is a core CDCP test; modelling it as 192 loose Observations would make the rules
 engine miserable.
+
+The source shape makes notation a first-class CDM concern rather than a hypothetical
+(`docs/research/abeldent-schema.md`): ABELDent stores perio as positional byte arrays — 192 bytes =
+32 teeth × 6 sites, one byte per site in millimetres, `0xFF` = tooth absent — and carries **two tooth
+notations inside one vendor database**, `Perio` arrays in Universal 1–32 while `tdi.itooth` and
+`Notes.ToothNumber` are FDI.
 
 | CDM entity | FHIR analogue | Notes |
 |---|---|---|
@@ -295,9 +335,9 @@ engine miserable.
 provenance: { sourceSystem, sourceVersion, sourceTable, sourceRowKey,
               queryId, queryPackVersion, extractedAt, agentVersion }
 ```
-A preauth is an assertion to a payer. Every fact we assert must be traceable to a row, an extraction
-moment, and the exact query that produced it. Non-negotiable — it is what lets us defend an assembled
-packet, debug a mis-mapping, and satisfy an auditor.
+A preauth is an assertion to a payer: every fact we assert must be traceable to a row, an extraction
+moment, and the exact query that produced it. It is what lets us defend an assembled packet, debug a
+mis-mapping, and satisfy an auditor.
 
 **2. `SourceAssurance` on every section (required).**
 ```
@@ -311,13 +351,13 @@ of the four states applies, with a reason code.
 
 **Code systems:** canonical tooth numbering **ISO 3950 / FDI two-digit** (Canadian practice) with
 Universal Numbering translation retained; surfaces as enumerated `M|O|D|B|L|I|F`; procedure codes as
-`Coding{system:"urn:colombus:codesystem:cda-uscls", code}`. **Always retain
-`sourceCode`/`sourceSystem` alongside the normalized code — never discard the PMS's own value.**
+`Coding{system:"urn:colombus:codesystem:cda-uscls", code}`. Always retain `sourceCode`/`sourceSystem`
+alongside the normalized code — never discard the PMS's own value.
 
 **USC&LS licensing:** the code set loads from a runtime data file
-(`/codesystems/uscls.<version>.csv`), never compiled in, behind a feature flag with a
-`codes-only, no-descriptions` degraded mode. Until the licence lands we ship codes-only and the UI
-renders the clinic's own description text from the PMS. **Gating risk for GA, not for the pilot.**
+(`/codesystems/uscls.<version>.csv`), never compiled in, behind a feature flag with a `codes-only,
+no-descriptions` degraded mode. Until the licence lands we ship codes-only and the UI renders the
+clinic's own description text from the PMS. Gating risk for GA, not for the pilot.
 
 **Effort: 5 eng-weeks. This is the durable asset — do not under-fund it.**
 
@@ -326,15 +366,15 @@ renders the clinic's own description text from the PMS. **Gating risk for GA, no
 Three tiers, enforced by architecture rather than policy.
 
 **Tier 0 — never leaves the clinic.** The database connection, raw rows, unmapped tables, the
-financial ledger, other patients' records, and **radiograph pixel data by default.** The agent's own
+financial ledger, other patients' records, and radiograph pixel data by default. The agent's own
 store holds cursors, hashes, job state and the access journal — **it does not persist clinical
-payloads.** Bundles assemble in memory into an encrypted, TTL'd job workspace and are discarded.
-**We refuse to make the agent a second PHI database.**
+payloads**, and we refuse to make it a second PHI database. Bundles assemble in memory into an
+encrypted, TTL'd job workspace and are discarded.
 
 **Tier 1 — patient search stays local.** The cloud does **not** hold a patient roster. A user types a
 name; the cloud relays the term to the agent; the agent returns matches for display; nothing is
 persisted cloud-side. Cost: search requires the agent online (acceptable — so does everything else).
-Benefit: **a cloud breach does not yield "every patient at every clinic."**
+Benefit: a cloud breach does not yield "every patient at every clinic."
 
 **Tier 2 — scoped bundle, on demand, TTL'd.** One patient + one proposed treatment, pulled only when
 a named clinic user starts a preauth with a recorded reason. Field-level minimization at the driver:
@@ -343,14 +383,14 @@ matching requires it, only procedure history relevant to the CDCP "relevant comp
 treatment needs" rule. Encrypted at rest with a per-clinic DEK under envelope encryption in a
 Canadian-region KMS. Auto-purge **30 days after packet export** by default, configurable to 0.
 
-**Radiographs.** Metadata-only by default — and **metadata alone answers the 12-month recency test,
-which is the majority of the product's value.** Pixel bytes transfer only on explicit per-image user
-action during packet assembly, normalized and tag-stripped locally, client-side encrypted, uploaded
-to Canadian object storage, deleted on packet completion.
-**v1.1 target: render the packet PDF on the agent (QuestPDF) so image bytes never leave the clinic at
-all.** Design v1 so this is a renderer swap, not a re-architecture.
+**Radiographs.** Metadata-only by default, and metadata alone answers the 12-month recency test —
+the majority of the product's value. Pixel bytes transfer only on explicit per-image user action
+during packet assembly, normalized and tag-stripped locally, client-side encrypted, uploaded to
+Canadian object storage, deleted on packet completion. **v1.1 target: render the packet PDF on the
+agent (QuestPDF) so image bytes never leave the clinic at all.** Design v1 so this is a renderer
+swap, not a re-architecture.
 
-**The breach answer, stated plainly:**
+The breach answer, stated plainly:
 > A full compromise of our Canadian cloud yields, at most, <=30 days of single-patient preauth
 > bundles for patients a clinic user explicitly initiated, encrypted per-clinic. It does not yield any
 > clinic's chart database, any patient roster, or any radiograph not manually attached. Our credential
@@ -359,13 +399,13 @@ all.** Design v1 so this is a renderer swap, not a re-architecture.
 > alter it. We have no inbound network path into any clinic.
 
 **Legal:** under Ontario PHIPA we are most likely an agent/electronic service provider of the
-custodian; requires a written agreement, breach-notification terms, and likely a PIA.
-**Start the legal workstream early, not at the end.**
+custodian; requires a written agreement, breach-notification terms, and likely a PIA. **Start the
+legal workstream early, not at the end.**
 
 ## 5. Build vs buy: Sikka
 
-**Call: BUILD the direct reader for v1. Do not buy Sikka.** Run a one-week time-boxed diligence
-spike in parallel; decide before the agent's data layer is committed.
+**Call: BUILD the direct reader for v1. Do not buy Sikka.** Run a one-week time-boxed diligence spike
+in parallel; decide before the agent's data layer is committed.
 
 Why build wins today:
 - **US data residency with no SOC 2 or HIPAA claim in their own FAQ** is close to disqualifying for a
@@ -373,11 +413,11 @@ Why build wins today:
   decisive on its own.
 - **2:00 AM refresh is architecturally wrong.** The workflow is "dentist proposes treatment now,
   clinic wants the packet now."
-- **Unknown perio / notes / radiograph coverage, X-rays confirmed Platinum-tier only.** Four of our
-  eight required data categories are at risk — and they are exactly the hard, differentiating ones.
-- **We cannot develop against it today.** No pilot clinic; Freemium/v15 support unknown. Choosing
-  Sikka blocks the whole team on an external dependency for the first month of a three-month runway.
-- **Unit economics.** ~US$350/mo + $35–175/mo per location before writeback, against small Canadian
+- Unknown perio / notes / radiograph coverage, X-rays confirmed Platinum-tier only: four of our eight
+  required data categories are at risk, and they are exactly the hard, differentiating ones.
+- We cannot develop against it today — no pilot clinic, Freemium/v15 support unknown. Choosing Sikka
+  blocks the whole team on an external dependency for the first month of a three-month runway.
+- Unit economics: ~US$350/mo + $35–175/mo per location before writeback, against small Canadian
   clinics, is a margin problem at pilot scale and a pricing-page problem at sales scale.
 
 **Where Sikka could still win:** a credible *breadth* play for PMS #4–#10 once we have a working
@@ -443,16 +483,15 @@ come from a different vendor than the chart.
    `Supported | Partial | Unsupported` with a reason. **A driver is allowed to not support perio; it
    is not allowed to be silent about it.** Without this, adding a weaker PMS silently degrades
    clinical correctness.
-2. **Host-agnostic placement.** `AbelDentChartSource` runs in the on-prem agent (SQL, filesystem).
-   `OpenDentalChartSource` and `ClearDentChartSource` are REST clients that can run **in the cloud
-   with no agent installed at all.** Same interface, different host. One remote transport
+2. Host-agnostic placement — same interface, different host. `AbelDentChartSource` runs in the
+   on-prem agent (SQL, filesystem); `OpenDentalChartSource` and `ClearDentChartSource` are REST
+   clients that can run **in the cloud with no agent installed at all**; one remote transport
    (`RemoteChartSource`, the agent RPC) satisfies the same interface.
-3. **A driver TCK.** `Colombus.ChartSource.Conformance` — a shared xUnit suite every driver must
-   pass: CDM schema validity, provenance completeness, **capability honesty** (if you claim
-   `Supported`, you must return `Present` or `AbsentConfirmed`, never `Unknown`), tooth/surface
-   normalization, date/timezone handling, idempotency, cancellation, error taxonomy. Plus golden
-   fixtures per PMS. **Writing the TCK during the ABELDent driver is what turns "3 months per PMS"
-   into "2–3 weeks per PMS."**
+3. A driver TCK. `Colombus.ChartSource.Conformance` — a shared xUnit suite every driver must pass:
+   CDM schema validity, provenance completeness, **capability honesty** (if you claim `Supported`,
+   you must return `Present` or `AbsentConfirmed`, never `Unknown`), tooth/surface normalization,
+   date/timezone handling, idempotency, cancellation, error taxonomy, plus golden fixtures per PMS.
+   Writing the TCK during the ABELDent driver is what turns "3 months per PMS" into "2–3 weeks".
 
 Marginal cost once the TCK exists: Open Dental ~2 eng-weeks, ClearDent ~3, Tracker ~4–6 (assume
 another reverse-engineering exercise).
@@ -479,11 +518,11 @@ another reverse-engineering exercise).
 |---|---|---|---|---|---|
 | R1 | ABELDent disclaims third-party DB integrations; may object or block | H | H | Clinic-consented architecture (clinic grants the account, clinic owns the journal); write-free; no inbound ports; open partnership track; CDM makes a pivot a 2–3 week move | Written objection from ABELDent, or a pilot clinic's IT refusing |
 | R2 | Schema drift on PMS update breaks extraction silently | H | H | `SchemaGuard` daily + at startup; fail closed per-entity with a named diagnostic; golden fixtures in CI; query packs shipped independently of binaries; canary ring | Any fingerprint mismatch in the field |
-| R3 | **Fictional Data is sparse** (no perio charts, no images, no CDCP fields) | H | H | Probe catalogue doubles as fixture authoring — we enter perio charts, plans, notes, referrals through the UI ourselves; arrange a 2-hour read-only "schema audit" with a friendly clinic exporting **schema metadata and row counts only, zero PHI** | Any required entity unproduceable in Freemium |
+| R3 | **Fictional Data has zero imaging and is date-frozen.** Perio and notes are *not* sparse — measured: 55 perio exams, 203 `Charts` / 171 `Notes` rows, 15 patients with a planned crown. What is absent is **all imaging** (`AImage`, `AImageVersion`, `AImageChartAssociation`, `Imaging`, `TDIImageLink`, `Document` — zero rows in every one), and **every date falls in 2002–2007**, so no recency rule can be tested against today | H | H | Probe catalogue doubles as fixture authoring — we enter perio charts, plans, notes, referrals through the UI ourselves; arrange a 2-hour read-only "schema audit" with a friendly clinic exporting **schema metadata and row counts only, zero PHI** | Any required entity unproduceable in Freemium |
 | R4 | **Radiographs not in the ABELDent DB at all** | H | H | 1 eng-week imaging spike, early; `IImagingSource`; per-vendor drivers later; **manual upload fallback ships in v1 regardless** | Spike concludes no capture date is reachable from ABELDent |
 | R5 | Freemium schema != Local Plus v15 / Cloud v15 | M | H | Obtain a paid/NFR trial or reseller v15 instance early; fingerprint both; query packs per major version | No v15 instance obtainable |
-| R6 | Legal exposure from reverse engineering (EULA) | M | H | Counsel review first; **no IL decompilation without sign-off**; rely on lawful-possession artifacts, catalog views, XEvents on our own instance, UI-driven diffing; document methodology defensively | Counsel flags any technique |
-| R7 | SQL Express contention degrades the clinic's PMS | M | H | Concurrency 1, `LOCK_TIMEOUT 5000`, `DEADLOCK_PRIORITY LOW`, MAXDOP 1, keyset pagination, quiet hours, blocking-chain auto-pause; `BackupSnapshotSource` escape hatch | Any observed block of an ABELDent session > 2 s |
+| R6 | Legal exposure from reverse engineering (EULA) | M | H | Counsel review first; **no IL decompilation without sign-off**; rely on lawful-possession artifacts (`C:\ABELDent\Fdats\*.fda`), catalog views, XEvents on our own instance, UI-driven diffing; document methodology defensively | Counsel flags any technique |
+| R7 | **Wrong database edition assumed, and contention on the right one.** Freemium runs SQL Server 2022 LocalDB (`(LOCALDB)\MSSQLLOCALDB`) — per-restart named pipe, no TCP/1433, invisible to a `LocalSystem` service — while paid Local / Local Plus runs SQL Express, where our reads can degrade the clinic's PMS | M | H | Name the instance target per install (vendor `installSQLExpress_SSMS.ps1` upgrade vs interactive-session access) and detect it at enrolment; concurrency 1, `LOCK_TIMEOUT 5000`, `DEADLOCK_PRIORITY LOW`, MAXDOP 1, keyset pagination, quiet hours, blocking-chain auto-pause. (`BackupSnapshotSource` — reading a restored `.bak` instead of the live DB — is named as an escape hatch but is **not designed anywhere in this plan**; sketch it or drop it.) | Any observed block of an ABELDent session > 2 s, or a pilot install where neither access path works |
 | R8 | Windows auth / service account friction in workgroup clinics | H | M | Installer handles all three modes; password to LSA secret store only; `colombusctl test-sql`; documented IT runbook | >30 min install in the first pilot |
 | R9 | PHI leaks into logs, telemetry, or LLM prompts | M | VH | Redaction sink + CI test that **fails the build** on PHI patterns; minimized bundles; Canadian-region inference with no-training terms; access journal | Any PHI found in any log |
 | R10 | Canadian-region LLM inference unavailable for target models | M | M | Verify Bedrock ca-central-1 / Azure Canada East / Vertex northamerica-northeast1 now; provider interface in the reasoning layer; worst case run smaller models in-region and reserve cross-border for de-identified content | Verification negative |
@@ -511,17 +550,20 @@ another reverse-engineering exercise).
 **Cut here first if needed: drop `HashSweep` reconciliation and the Tier A change feed, ship pure
 on-demand extraction.** Removes ~3 eng-weeks; costs only the proactive worklist.
 
-**Stages, in order:** (1) first end-to-end query from the probe CLI against Fictional Data. (2) `Patient` +
-`PlannedProcedure` in CDM, TCK green, design-partner clinic booked, Sikka answers in. (3) perio +
-imaging metadata mapped, imaging spike concluded. (4) agent installs from MSI on a clean Windows VM,
-enrols, serves a bundle to a stub cloud. (5) SchemaGuard, redaction CI, access journal, self-update
-ring. (6) full bundle for the CDCP demo scenario, end to end, zero PHI, on the lab machine.
+**Stages, in order:** (1) ~~first end-to-end query from the probe CLI~~ **done** — diff-after-action probes
+produced the "Two ledgers" finding; what remains is completing the 12-item probe catalogue and
+consolidating `entities.yaml`. (2)
+`Patient` + `PlannedProcedure` in CDM, TCK green, design-partner clinic booked, Sikka answers in.
+(3) perio + imaging metadata mapped, imaging spike concluded. (4) agent installs from MSI on a clean
+Windows VM, enrols, serves a bundle to a stub cloud. (5) SchemaGuard, redaction CI, access journal,
+self-update ring. (6) full bundle for the CDCP demo scenario, end to end, zero PHI, on the lab
+machine.
 
 ## Open assumptions (all cheap emails or lab experiments; close them before M1)
 
 Vendor-side: whether the DB contains views/procs we can rely on; whether any `rowversion` or
-maintained modified-date columns exist; whether Fictional Data contains perio exams, radiograph links
-or CDCP coverage fields; whether Freemium's schema matches v15; where radiograph pixels and capture
+maintained modified-date columns exist; whether Fictional Data contains CDCP coverage fields (perio exams
+and imaging are now answered: 55 exams present, all six imaging tables empty); whether Freemium's schema matches v15; where radiograph pixels and capture
 dates actually live; the EULA's reverse-engineering terms.
 Ours: .NET 10 as current LTS; Azure Trusted Signing pricing/eligibility; Canadian-region availability
 of our target model; Open Dental / ClearDent API coverage for perio and imaging; the exact CDCP scope

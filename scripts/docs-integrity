@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+# Compare each doc against git HEAD: lost/new headings, plus counts of
+# load-bearing tokens that a trimming pass must never remove.
+set -uo pipefail
+cd "$(dirname "$0")/.."
+
+files="PLAN.md docs/pms-basics.md docs/plan/01-ingestion.md docs/plan/02-reasoning.md
+docs/plan/03-product.md docs/research/abeldent-schema.md docs/research/cdcp-rules.md
+docs/research/integration-and-compliance.md docs/research/market.md"
+
+cnt () { grep -oE "$1" "$2" 2>/dev/null | wc -l | tr -d ' '; }
+
+for f in $files; do
+  old=$(mktemp)
+  git show "HEAD:$f" > "$old" 2>/dev/null || { echo "=== $f: NEW FILE"; rm -f "$old"; continue; }
+
+  echo "=== $f  ($(wc -l < "$old" | tr -d ' ') -> $(wc -l < "$f" | tr -d ' ') lines)"
+
+  for spec in 'table-rows:^\|' 'code-fences:^```' 'urls:https?://[^ )`]+' \
+              'src-markers:\[[VSU]\]' 'unverified:UNVERIFIED' 'measured:\[M\]' \
+              'dollar-figs:\$[0-9][0-9,.]*' 'pct:[0-9.]+%'; do
+    name=${spec%%:*}; pat=${spec#*:}
+    o=$(cnt "$pat" "$old"); c=$(cnt "$pat" "$f")
+    [ "$o" != "$c" ] && echo "  $name: $o -> $c"
+  done
+
+  lost=$(comm -23 <(grep '^#\{1,6\} ' "$old" | sort -u) <(grep '^#\{1,6\} ' "$f" | sort -u))
+  new=$(comm -13 <(grep '^#\{1,6\} ' "$old" | sort -u) <(grep '^#\{1,6\} ' "$f" | sort -u))
+  [ -n "$lost" ] && { echo "  LOST HEADINGS:"; echo "$lost" | sed 's/^/    - /'; }
+  [ -n "$new" ]  && { echo "  new headings:";  echo "$new"  | sed 's/^/    + /'; }
+  rm -f "$old"
+done
