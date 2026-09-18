@@ -1,7 +1,12 @@
 # Demo script — six minutes with a dentist
 
-Start: `make demo`, open http://127.0.0.1:8765, set **Acting as** to *Kim Osei (coordinator)*.
+Start: `make demo` (real cases from `cases/demo/`) or `USE_MOCK_PMS_API=true make demo`
+(mock fixtures from `mocks/` — see `docs/pms-basics.md` — Toggling real vs mock). Open
+http://127.0.0.1:8765, set **Acting as** to *Kim Osei (coordinator)*.
 Reset state first if it has been used: Settings → Reset demo state.
+
+> Scripts: `scripts/demo-real.sh` (real) and `scripts/demo-mock.sh` (dummy) wrap the same
+> commands. `make demo-real` / `make demo-mock` are aliases.
 
 ## Beat 1 — Look-Back (90 s)
 

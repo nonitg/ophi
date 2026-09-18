@@ -1,0 +1,103 @@
+{
+  "_description": "Mock radiographs — mirrors CDM RadiographPayload + ChartArtifact (colombus/cdm/models.py:91) and ABELDent imaging procedure_events (ChartCode 242). Fictional Data has zero retrievable images; mocks simulate retrievable artifacts for dev.",
+  "_note": "FDI tooth numbering (ISO 3950). Views: PA=periapical, BW=bitewing, PANO=panoramic. See colombus/cdm/models.py RadiographView enum.",
+  "radiographs": [
+    {
+      "artifact_id": "rad_101_01",
+      "type": "radiograph",
+      "captured_at": "2026-08-01",
+      "recorded_at": "2026-08-01",
+      "date_confidence": "source",
+      "provenance": { "source_system": "ABELDent", "source_table": "AImage", "extraction_method": "db_field" },
+      "payload": {
+        "view": "PA",
+        "teeth_fdi": [16],
+        "laterality": "right",
+        "images_apex": true,
+        "description": "Periapical of #16 — crown margins visible, no periapical pathology"
+      },
+      "file": { "path": "mocks/files/PA_16_20260801.jpg", "media_type": "image/jpeg", "width_px": 1200, "height_px": 1600 },
+      "pid": 101
+    },
+    {
+      "artifact_id": "rad_101_02",
+      "type": "radiograph",
+      "captured_at": "2026-02-10",
+      "recorded_at": "2026-02-10",
+      "date_confidence": "source",
+      "provenance": { "source_system": "ABELDent", "source_table": "AImage", "extraction_method": "db_field" },
+      "payload": {
+        "view": "BW",
+        "teeth_fdi": [16, 17],
+        "laterality": "right",
+        "images_apex": false,
+        "description": "Bitewing right side — 16 MOD radiolucency"
+      },
+      "file": { "path": "mocks/files/BW_R_20260210.jpg", "media_type": "image/jpeg", "width_px": 1600, "height_px": 1200 },
+      "pid": 101
+    },
+    {
+      "artifact_id": "rad_102_01",
+      "type": "radiograph",
+      "captured_at": "2026-08-01",
+      "recorded_at": "2026-08-02",
+      "date_confidence": "source",
+      "provenance": { "source_system": "ABELDent", "source_table": "AImage", "extraction_method": "db_field" },
+      "payload": {
+        "view": "PA",
+        "teeth_fdi": [22],
+        "laterality": "left",
+        "images_apex": true,
+        "description": "Periapical 22 — vital abutment, lamina dura intact"
+      },
+      "file": { "path": "mocks/files/PA_22_20260801.jpg", "media_type": "image/jpeg", "width_px": 1200, "height_px": 1600 },
+      "pid": 102
+    },
+    {
+      "artifact_id": "rad_106_01",
+      "type": "radiograph",
+      "captured_at": "2026-07-15",
+      "recorded_at": "2026-07-15",
+      "date_confidence": "source",
+      "provenance": { "source_system": "ABELDent", "source_table": "AImage", "extraction_method": "db_field" },
+      "payload": {
+        "view": "PA",
+        "teeth_fdi": [46],
+        "laterality": "right",
+        "images_apex": true,
+        "description": "Periapical 46 — periapical radiolucency 3mm, crown planned, endo consult"
+      },
+      "file": { "path": "mocks/files/PA_46_20260715.jpg", "media_type": "image/jpeg", "width_px": 1200, "height_px": 1600 },
+      "pid": 106
+    },
+    {
+      "artifact_id": "rad_103_01",
+      "type": "radiograph",
+      "captured_at": "2026-09-15",
+      "recorded_at": "2026-09-15",
+      "date_confidence": "source",
+      "provenance": { "source_system": "ABELDent", "source_table": "AImage", "extraction_method": "db_field" },
+      "payload": {
+        "view": "PANO",
+        "teeth_fdi": [],
+        "laterality": "both",
+        "images_apex": true,
+        "description": "Panoramic — full dentition overview, no acute findings"
+      },
+      "file": { "path": "mocks/files/PANO_20260915.jpg", "media_type": "image/jpeg", "width_px": 2400, "height_px": 1200 },
+      "pid": 103
+    }
+  ],
+  "procedure_events": [
+    {
+      "trans_id": 8001,
+      "date": "2026-02-10",
+      "code": "02142",
+      "description": "Two Bitewings",
+      "tooth_fdi": null,
+      "provider": "T",
+      "chart_num": 1,
+      "note": "Charted radiograph procedure — proves image was taken, does not locate file. See lab/tools/chart_dump.py imaging_section()"
+    }
+  ]
+}

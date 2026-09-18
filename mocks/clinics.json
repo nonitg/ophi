@@ -1,0 +1,33 @@
+{
+  "_description": "Mock clinics — organizational entity for multi-site PMS. Not directly in ABELDent single-site DB but implied by colombus/cdm/models.py Case.clinic field.",
+  "clinics": [
+    {
+      "clinic_id": "FDC-001",
+      "name": "Fictional Dental Centre",
+      "short_name": "FDC Downtown",
+      "address": "100 University Ave, Toronto, ON M5J 2Y1",
+      "phone": "416-555-1000",
+      "fax": "416-555-1001",
+      "email": "info@fictionaldental.ca",
+      "pms": "ABELDent",
+      "pms_version": "15.1.0 Freemium",
+      "cdcp_provider_id": "CDCP-PROV-ON-0001",
+      "cda_provider_number": "123456",
+      "active": true
+    },
+    {
+      "clinic_id": "FDC-002",
+      "name": "Fictional Dental Centre — North York",
+      "short_name": "FDC North York",
+      "address": "5000 Yonge St, North York, ON M2N 5P8",
+      "phone": "416-555-2000",
+      "fax": "416-555-2001",
+      "email": "northyork@fictionaldental.ca",
+      "pms": "ABELDent",
+      "pms_version": "15.1.0 Freemium",
+      "cdcp_provider_id": "CDCP-PROV-ON-0002",
+      "cda_provider_number": "123457",
+      "active": true
+    }
+  ]
+}

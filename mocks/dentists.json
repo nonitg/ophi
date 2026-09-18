@@ -1,0 +1,53 @@
+{
+  "_description": "Mock dentists/practitioners — mirrors pat.pdentist + Transactions ProvID/RespProvID and CDM Practitioner (colombus/cdm/models.py:244)",
+  "dentists": [
+    {
+      "provider_id": "T",
+      "name": "Dr. Tran",
+      "full_name": "Dr. Minh Tran",
+      "licence": "ON-84291",
+      "role": "dentist",
+      "specialty": "General Dentistry",
+      "phone": "416-555-0201",
+      "email": "m.tran@fictionaldental.ca",
+      "operatory": "OP-2",
+      "active": true
+    },
+    {
+      "provider_id": "L",
+      "name": "Dr. Lau",
+      "full_name": "Dr. Sarah Lau",
+      "licence": "ON-77340",
+      "role": "dentist",
+      "specialty": "Prosthodontics",
+      "phone": "416-555-0202",
+      "email": "s.lau@fictionaldental.ca",
+      "operatory": "OP-1",
+      "active": true
+    },
+    {
+      "provider_id": "K",
+      "name": "Dr. Kowalski",
+      "full_name": "Dr. Anna Kowalski",
+      "licence": "ON-90122",
+      "role": "dentist",
+      "specialty": "Oral Surgery",
+      "phone": "416-555-0203",
+      "email": "a.kowalski@fictionaldental.ca",
+      "operatory": "OP-3",
+      "active": true
+    },
+    {
+      "provider_id": "H",
+      "name": "H. Nguyen",
+      "full_name": "H. Nguyen, RDH",
+      "licence": "ON-H-4410",
+      "role": "hygienist",
+      "specialty": "Hygiene",
+      "phone": "416-555-0204",
+      "email": "h.nguyen@fictionaldental.ca",
+      "operatory": "OP-1",
+      "active": true
+    }
+  ]
+}

@@ -56,9 +56,17 @@ Every proposal carries a verbatim quote checked as an exact substring; otherwise
 Proposals produce `satisfied_pending_confirmation` until confirmed. `DeidentifiedNote` is the only
 input type a model-backed proposer may accept.
 
-**Service (`colombus/service.py`).** Loads a case, applies stored human inputs as artifacts, re-runs
+**Service (`colombus/service.py`).** Loads a case via `PmsRepository`, applies stored human inputs as artifacts, re-runs
 the engine. Assertions and confirmations invalidate any prior sign-off. Sign-off is refused unless the
 verdict is READY. Append-only audit log.
+
+**PMS abstraction (`colombus/sources/pms_repository.py`).** Repository pattern over all PMS reads.
+`PmsRepository` is the protocol; `FileSystemPmsRepository` wraps `casegen/dsl` (YAML cases, the
+default), `AbelDentPmsRepository` wraps `lab/tools/chart_dump.py` (live ABELDent VM), and
+`MockPmsRepository` reads `mocks/*.json` + `mocks/pms/*.json`. `CaseService` accepts an injected
+`repository` or picks one via the env toggle `USE_MOCK_PMS_API` (aliases `USE_MOCK_DATA`,
+`PMS_USE_MOCKS`; truthy `true/1/yes/on/y`). Factory: `create_repository("auto"|"mock"|"filesystem"|"abeldent")`.
+See `mocks/README.md` and `docs/pms-basics.md` — Toggling real vs mock.
 
 **Packet (`colombus/packet`) and verifier (`colombus/verify`).** Assembler writes an ASCII index,
 the treatment form (the one file that carries patient identity), image plates (8-bit greyscale PNG,
@@ -84,7 +92,7 @@ READY_WITH_RISKS · READY_TO_SUBMIT`. No score, no probability.
 | Python 3.12 | Python 3.13 (what the machine has) | No 3.12-only dependency. |
 | Postgres rule store, 60 s cache | Rule pack loaded from the repo, content-hashed | One pack, one clinic, no deploy pipeline yet. The loading seam (`rules/loader.py`) is where Postgres goes. |
 | LLM extraction (Haiku) + Sonnet escalation | Heuristic proposer | Same contract, same verbatim-quote filter, no API key needed for the demo. `Proposer` protocol is the seam. |
-| ABELDent driver → CDM | casegen YAML → CDM | The Fictional Data fixture shape is still changing in the lab session (see PLAN.md status). `IChartSource` is the seam; the casegen cases are the golden corpus the plan asked for anyway. |
+| ABELDent driver → CDM | casegen YAML → CDM | The Fictional Data fixture shape is still changing in the lab session (see PLAN.md status). `PmsRepository` (`colombus/sources`) is the seam; `USE_MOCK_PMS_API=true` serves `mocks/` without a VM. The casegen cases are the golden corpus the plan asked for anyway. |
 | Verdict `EXCLUDED_AS_CODED` not in the plan's enum | Added | Appendix E exclusions are the highest-value early exit; the plan lists it under "encode with high confidence". |
 
 ## Things the MVP does not do

@@ -11,7 +11,17 @@ Crowns (27xxx) only in v1. Runs entirely on fictional data. No patient informati
 
 ```bash
 make setup        # python venv + deps (Python 3.12+)
-make demo         # http://127.0.0.1:8765
+make demo         # http://127.0.0.1:8765 — real cases from cases/demo/
+# or
+make demo-mock    # http://127.0.0.1:8765 — dummy fixtures from mocks/ (no VM)
+```
+
+Toggle manually (see `docs/pms-basics.md` — Toggling real vs mock, `mocks/README.md`):
+
+```bash
+USE_MOCK_PMS_API=true make demo   # mock
+unset USE_MOCK_PMS_API; make demo # real (default)
+# scripts/demo-real.sh / scripts/demo-mock.sh do the same
 ```
 
 Screens: **Queue** (what needs attention this week) → **Case Review** (per-rule verdict, gap
@@ -27,6 +37,8 @@ make eval                                   # every case in cases/ against its g
 make assess CASE=cases/demo/singh.yaml      # one case, on the terminal
 make packet CASE=cases/demo/whitfield.yaml  # build a packet into out/ and run the independent verifier
 make reset                                  # wipe demo state (assertions, sign-offs, audit log)
+make demo-real                               # demo with real cases (USE_MOCK_PMS_API off)
+make demo-mock                               # demo with dummy fixtures (USE_MOCK_PMS_API=true)
 ```
 
 ## How it is put together

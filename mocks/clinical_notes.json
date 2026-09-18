@@ -1,0 +1,75 @@
+{
+  "_description": "Mock clinical notes — mirrors Notes + Charts join. See lab/tools/chart_dump.py note_row() and CDM NotePayload (colombus/cdm/models.py:136)",
+  "clinical_notes": [
+    {
+      "pid": 101,
+      "date": "2026-08-01",
+      "chart_num": 3,
+      "chart_date": "2026-08-01",
+      "chart_certified": null,
+      "key_type": 1,
+      "note_type": 1,
+      "ref_number": 1,
+      "tooth_fdi": 16,
+      "operator": "T",
+      "signed_off": null,
+      "text": "[Date]01/Aug/2026 [Type]Exam [Tooth]16\n16 MOD amalgam fractured, recurrent decay mesial. Crown recommended. PA taken — margins visible. Pt consents to crown prep 27/Sep. Hyg booked."
+    },
+    {
+      "pid": 101,
+      "date": "2026-07-15",
+      "chart_num": 2,
+      "chart_date": "2026-02-10",
+      "chart_certified": null,
+      "key_type": 1,
+      "note_type": 1,
+      "ref_number": 2,
+      "tooth_fdi": null,
+      "operator": "H",
+      "signed_off": null,
+      "text": "[Date]15/Jul/2026\nPerio chart completed — generalized 2-3mm, localized 5mm on 46. OHI given. Pt smokes 10/day. Next recall 3 months."
+    },
+    {
+      "pid": 102,
+      "date": "2026-08-01",
+      "chart_num": 4,
+      "chart_date": "2026-08-01",
+      "chart_certified": null,
+      "key_type": 1,
+      "note_type": 1,
+      "ref_number": 1,
+      "tooth_fdi": null,
+      "operator": "L",
+      "signed_off": null,
+      "text": "[Date]01/Aug/2026\nDiscussed 3-unit bridge 22-25. Abutments 22,25 vital, no mobility. Pontics 23,24 edentulous ridge healed. PA of 22 taken. Pt aware of lab fee. Tx plan signed."
+    },
+    {
+      "pid": 106,
+      "date": "2026-07-15",
+      "chart_num": 2,
+      "chart_date": "2026-07-10",
+      "chart_certified": null,
+      "key_type": 1,
+      "note_type": 1,
+      "ref_number": 1,
+      "tooth_fdi": 46,
+      "operator": "T",
+      "signed_off": null,
+      "text": "[Date]15/Jul/2026 [Type]Exam [Tooth]46\n46 O decay into dentin, cold sensitive. Crown 27211 planned. Perio 5-6mm on 46, refer to perio assessment. PA taken shows periapical radiolucency — endo consult pending."
+    },
+    {
+      "pid": 105,
+      "date": "2026-08-10",
+      "chart_num": 1,
+      "chart_date": "2026-08-10",
+      "chart_certified": null,
+      "key_type": 1,
+      "note_type": 1,
+      "ref_number": 1,
+      "tooth_fdi": 36,
+      "operator": "L",
+      "signed_off": null,
+      "text": "[Date]10/Aug/2026\n36 MOD composite — caries removed, liner placed. No exposure. Post-op BW scheduled."
+    }
+  ]
+}

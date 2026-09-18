@@ -1,0 +1,233 @@
+{
+  "source": {
+    "pms": "ABELDent",
+    "version": "15.1.0 Freemium",
+    "dataset": "Mock Data (CA) — bridge case with multiple units",
+    "notation": {
+      "Transactions.ToothNum": "FDI",
+      "tdi.itooth": "FDI",
+      "Notes.ToothNumber": "FDI",
+      "Perio arrays": "Universal 1-32, converted to FDI here"
+    }
+  },
+  "patient": {
+    "pid": 102,
+    "surname": "SINGH",
+    "given": "ARJUN",
+    "dob": "1992-07-22",
+    "gender": "M",
+    "dentist": "L",
+    "inactive": false,
+    "non_patient": false,
+    "source_assurance": { "status": "present", "detail": "pat row" }
+  },
+  "coverage": {
+    "items": [
+      {
+        "slot": "1",
+        "plan_id": "GWL",
+        "plan_name": "Great West Life",
+        "carrier_id": "GWL",
+        "carrier_name": "Great-West Life Assurance Company",
+        "carrier_supports_multipage_preds": false,
+        "certificate": "6767890",
+        "group": null,
+        "subscriber_pid": null,
+        "relation_to_subscriber": "I",
+        "active": true,
+        "expiry": null,
+        "inherited_from_subscriber": false
+      }
+    ],
+    "source_assurance": { "status": "present", "detail": "ixi joined to nsp (plan) and ins (carrier)." }
+  },
+  "planned_procedures": {
+    "items": [
+      {
+        "trans_id": 9002,
+        "date": "2026-08-01",
+        "code": "67211",
+        "description": "Retainers, Porcelain/Ceramic/Polymer Glass Fused to Metal",
+        "chart_code": 221,
+        "tooth_fdi": 22,
+        "tooth_universal": 10,
+        "surfaces": null,
+        "provider": "L",
+        "responsible_provider": "L",
+        "fee": 780.0,
+        "phase": 1,
+        "item_num": 0,
+        "bridge_group": 1,
+        "deleted_raw": 0,
+        "appt": 2,
+        "applied": 0,
+        "plan_num": 8,
+        "plan": { "date": "2026-08-01", "description": "bridge 22-25", "state": 1 },
+        "status": "planned",
+        "financial_mirror": {
+          "itrid": 99999998,
+          "date": "2026-08-01",
+          "code": "67211",
+          "description": "Retainers, Porcelain/Ceramic/Polymer Glass Fused to Metal",
+          "needs_xrays_flag": null,
+          "tooth_fdi": 22,
+          "tooth_universal": 10,
+          "surfaces": null,
+          "provider": "L",
+          "responsible_provider": "L",
+          "fee": 780.0,
+          "lab_fee": 220.0,
+          "status": "planned",
+          "itype_raw": "P"
+        },
+        "financial_mirror_match": "code_tooth"
+      },
+      {
+        "trans_id": 9003,
+        "date": "2026-08-01",
+        "code": "62502",
+        "description": "Porcelain Pontic Aluminous",
+        "chart_code": 221,
+        "tooth_fdi": 23,
+        "tooth_universal": 11,
+        "surfaces": null,
+        "provider": "L",
+        "responsible_provider": "L",
+        "fee": 320.0,
+        "phase": 1,
+        "item_num": 1,
+        "bridge_group": 2,
+        "deleted_raw": 0,
+        "appt": 2,
+        "applied": 0,
+        "plan_num": 8,
+        "plan": { "date": "2026-08-01", "description": "bridge 22-25", "state": 1 },
+        "status": "planned",
+        "financial_mirror": {
+          "itrid": 99999998,
+          "date": "2026-08-01",
+          "code": "62502",
+          "description": "Porcelain Pontic Aluminous",
+          "needs_xrays_flag": null,
+          "tooth_fdi": 23,
+          "tooth_universal": 11,
+          "surfaces": null,
+          "provider": "L",
+          "responsible_provider": "L",
+          "fee": 320.0,
+          "lab_fee": 180.0,
+          "status": "planned",
+          "itype_raw": "P"
+        },
+        "financial_mirror_match": "code_tooth"
+      },
+      {
+        "trans_id": 9005,
+        "date": "2026-08-01",
+        "code": "67211",
+        "description": "Retainers, Porcelain/Ceramic/Polymer Glass Fused to Metal",
+        "chart_code": 221,
+        "tooth_fdi": 25,
+        "tooth_universal": 13,
+        "surfaces": null,
+        "provider": "L",
+        "responsible_provider": "L",
+        "fee": 780.0,
+        "phase": 1,
+        "item_num": 2,
+        "bridge_group": 3,
+        "deleted_raw": 0,
+        "appt": 2,
+        "applied": 0,
+        "plan_num": 8,
+        "plan": { "date": "2026-08-01", "description": "bridge 22-25", "state": 1 },
+        "status": "planned",
+        "financial_mirror": {
+          "itrid": 99999998,
+          "date": "2026-08-01",
+          "code": "67211",
+          "description": "Retainers, Porcelain/Ceramic/Polymer Glass Fused to Metal",
+          "needs_xrays_flag": null,
+          "tooth_fdi": 25,
+          "tooth_universal": 13,
+          "surfaces": null,
+          "provider": "L",
+          "responsible_provider": "L",
+          "fee": 780.0,
+          "lab_fee": 220.0,
+          "status": "planned",
+          "itype_raw": "P"
+        },
+        "financial_mirror_match": "code_tooth"
+      }
+    ],
+    "source_assurance": { "status": "present", "detail": "Transactions WHERE Type='P', joined to Plans. bridge_group is Transactions.Grp position within bridge." }
+  },
+  "completed_procedures": {
+    "items": [
+      {
+        "trans_id": 8002,
+        "date": "2025-11-20",
+        "code": "23111",
+        "description": "Permanent Anterior Bond Tooth Coloured 1 Surface",
+        "chart_code": 200,
+        "tooth_fdi": 11,
+        "tooth_universal": 8,
+        "surfaces": "M",
+        "provider": "L",
+        "responsible_provider": "L",
+        "fee": 88.0,
+        "phase": 1,
+        "item_num": 0,
+        "bridge_group": null,
+        "deleted_raw": 0,
+        "appt": 1,
+        "applied": 0,
+        "chart_num": 2,
+        "status": "completed",
+        "financial_mirror": {
+          "itrid": 7002,
+          "date": "2025-11-20",
+          "code": "23111",
+          "description": "Permanent Anterior Bond Tooth Coloured 1 Surface",
+          "needs_xrays_flag": null,
+          "tooth_fdi": 11,
+          "tooth_universal": 8,
+          "surfaces": "M",
+          "provider": "L",
+          "responsible_provider": "L",
+          "fee": 88.0,
+          "lab_fee": 0.0,
+          "status": "completed",
+          "itype_raw": ""
+        },
+        "financial_mirror_match": "code_tooth_date"
+      }
+    ],
+    "source_assurance": { "status": "present", "detail": "Transactions WHERE Type=' ' AND Code<>'' AND Deleted=0." }
+  },
+  "odontogram_conditions": {
+    "items": [
+      { "trans_id": 8104, "date": "2026-02-01", "chart_code": 104, "description": "Missing", "tooth_fdi": 23, "surfaces": null, "material": null, "chart_num": 1, "deleted_raw": 0 },
+      { "trans_id": 8105, "date": "2026-02-01", "chart_code": 104, "description": "Missing", "tooth_fdi": 24, "surfaces": null, "material": null, "chart_num": 1, "deleted_raw": 0 }
+    ],
+    "source_assurance": { "status": "present", "detail": "Transactions WHERE Type=' ' AND Code is empty: odontogram markings." }
+  },
+  "other_ledger_rows": [],
+  "perio_exams": {
+    "items": [],
+    "source_assurance": { "status": "none_recorded", "detail": "Perio table — no rows for this patient." }
+  },
+  "clinical_notes": {
+    "items": [
+      { "date": "2026-08-01", "chart_num": 4, "chart_date": "2026-08-01", "chart_certified": null, "key_type": 1, "note_type": 1, "ref_number": 1, "tooth_fdi": null, "operator": "L", "signed_off": null, "text": "[Date]01/Aug/2026\nDiscussed 3-unit bridge 22-25. Abutments vital. PA of 22 taken. Pt aware of lab fee." }
+    ],
+    "excluded_deleted_or_superseded": 0,
+    "source_assurance": { "status": "present", "detail": "Notes WHERE IsDeleted=0 AND IsLatest=1." }
+  },
+  "imaging": {
+    "items": [],
+    "procedure_events": [],
+    "source_assurance": { "status": "indeterminate", "detail": "items: imaging tables readable but zero rows. procedure_events: none." }
+  }
+}

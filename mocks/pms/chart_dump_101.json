@@ -1,0 +1,218 @@
+{
+  "source": {
+    "pms": "ABELDent",
+    "version": "15.1.0 Freemium",
+    "dataset": "Mock Data (CA) — matches fictional fixture shape",
+    "notation": {
+      "Transactions.ToothNum": "FDI",
+      "tdi.itooth": "FDI",
+      "Notes.ToothNumber": "FDI",
+      "Perio arrays": "Universal 1-32, converted to FDI here"
+    }
+  },
+  "patient": {
+    "pid": 101,
+    "surname": "TREMBLAY",
+    "given": "SOPHIE",
+    "dob": "1985-03-14",
+    "gender": "F",
+    "dentist": "T",
+    "inactive": false,
+    "non_patient": false,
+    "source_assurance": { "status": "present", "detail": "pat row" }
+  },
+  "coverage": {
+    "items": [
+      {
+        "slot": "1",
+        "plan_id": "CDCP-ON-2026",
+        "plan_name": "Canadian Dental Care Plan",
+        "carrier_id": "CDCP",
+        "carrier_name": "Sun Life — CDCP Administrator",
+        "carrier_supports_multipage_preds": true,
+        "certificate": "CDCP-00101",
+        "group": "CDCP-GRP-ON",
+        "subscriber_pid": null,
+        "relation_to_subscriber": "I",
+        "active": true,
+        "expiry": null,
+        "inherited_from_subscriber": false
+      }
+    ],
+    "source_assurance": { "status": "present", "detail": "ixi joined to nsp (plan) and ins (carrier)." }
+  },
+  "planned_procedures": {
+    "items": [
+      {
+        "trans_id": 9001,
+        "date": "2026-08-15",
+        "code": "27211",
+        "description": "Porcelain/Ceramic/Polymer Glass Fused Metal Based Crown",
+        "chart_code": 203,
+        "tooth_fdi": 16,
+        "tooth_universal": 3,
+        "surfaces": null,
+        "provider": "T",
+        "responsible_provider": "T",
+        "fee": 650.0,
+        "phase": 1,
+        "item_num": 0,
+        "bridge_group": null,
+        "deleted_raw": 0,
+        "appt": 1,
+        "applied": 0,
+        "plan_num": 7,
+        "plan": { "date": "2026-08-15", "description": "crn #16", "state": 1 },
+        "status": "planned",
+        "financial_mirror": {
+          "itrid": 99999998,
+          "date": "2026-08-15",
+          "code": "27211",
+          "description": "Porcelain/Ceramic/Polymer Glass Fused Metal Based Crown",
+          "needs_xrays_flag": "Y",
+          "tooth_fdi": 16,
+          "tooth_universal": 3,
+          "surfaces": null,
+          "provider": "T",
+          "responsible_provider": "T",
+          "fee": 650.0,
+          "lab_fee": 180.0,
+          "status": "planned",
+          "itype_raw": "P"
+        },
+        "financial_mirror_match": "code_tooth"
+      }
+    ],
+    "source_assurance": { "status": "present", "detail": "Transactions WHERE Type='P' (all Deleted values, see deleted_raw), joined to Plans on PlanNum." }
+  },
+  "completed_procedures": {
+    "items": [
+      {
+        "trans_id": 8001,
+        "date": "2026-02-10",
+        "code": "02142",
+        "description": "Two Bitewings",
+        "chart_code": 242,
+        "tooth_fdi": null,
+        "tooth_universal": null,
+        "surfaces": null,
+        "provider": "T",
+        "responsible_provider": "T",
+        "fee": 28.5,
+        "phase": 1,
+        "item_num": 0,
+        "bridge_group": null,
+        "deleted_raw": 0,
+        "appt": 1,
+        "applied": 0,
+        "chart_num": 1,
+        "status": "completed",
+        "financial_mirror": {
+          "itrid": 7001,
+          "date": "2026-02-10",
+          "code": "02142",
+          "description": "Two Bitewings",
+          "needs_xrays_flag": null,
+          "tooth_fdi": null,
+          "tooth_universal": null,
+          "surfaces": null,
+          "provider": "T",
+          "responsible_provider": "T",
+          "fee": 28.5,
+          "lab_fee": 0.0,
+          "status": "completed",
+          "itype_raw": ""
+        },
+        "financial_mirror_match": "code_tooth_date"
+      },
+      {
+        "trans_id": 8003,
+        "date": "2024-06-15",
+        "code": "21221",
+        "description": "Permanent Anterior/Bicuspid Amalgam Two Surfaces",
+        "chart_code": 200,
+        "tooth_fdi": 16,
+        "tooth_universal": 3,
+        "surfaces": "MO",
+        "provider": "T",
+        "responsible_provider": "T",
+        "fee": 72.4,
+        "phase": 1,
+        "item_num": 0,
+        "bridge_group": null,
+        "deleted_raw": 0,
+        "appt": 1,
+        "applied": 0,
+        "chart_num": 3,
+        "status": "completed",
+        "financial_mirror": {
+          "itrid": 7003,
+          "date": "2024-06-15",
+          "code": "21221",
+          "description": "Permanent Anterior/Bicuspid Amalgam Two Surfaces",
+          "needs_xrays_flag": null,
+          "tooth_fdi": 16,
+          "tooth_universal": 3,
+          "surfaces": "MO",
+          "provider": "T",
+          "responsible_provider": "T",
+          "fee": 72.4,
+          "lab_fee": 0.0,
+          "status": "completed",
+          "itype_raw": ""
+        },
+        "financial_mirror_match": "code_tooth_date"
+      }
+    ],
+    "source_assurance": { "status": "present", "detail": "Transactions WHERE Type=' ' AND Code<>'' AND Deleted=0. financial_mirror is the tdi row (itype='') with the same code and tooth." }
+  },
+  "odontogram_conditions": {
+    "items": [
+      { "trans_id": 8101, "date": "2026-02-10", "chart_code": 100, "description": "Existing Condition", "tooth_fdi": 16, "surfaces": "MOD", "material": "AM", "chart_num": 1, "deleted_raw": 0 },
+      { "trans_id": 8102, "date": "2026-02-10", "chart_code": 104, "description": "Missing", "tooth_fdi": 18, "surfaces": null, "material": null, "chart_num": 1, "deleted_raw": 0 },
+      { "trans_id": 8103, "date": "2026-02-10", "chart_code": 104, "description": "Missing", "tooth_fdi": 28, "surfaces": null, "material": null, "chart_num": 1, "deleted_raw": 0 }
+    ],
+    "source_assurance": { "status": "present", "detail": "Transactions WHERE Type=' ' AND Code is empty: odontogram markings by ChartCode." }
+  },
+  "other_ledger_rows": [],
+  "perio_exams": {
+    "items": [
+      {
+        "exam_num": 1,
+        "date": "2026-08-01",
+        "provider": "H",
+        "date_certified": "2026-08-01",
+        "pocket": {
+          "point_count": 168,
+          "sites_total": 192,
+          "teeth_no_value_fdi": [18, 28, 38, 48],
+          "value_min": 1,
+          "value_max": 5,
+          "by_tooth_fdi": {
+            "16": [3, 2, 3, 3, 2, 3],
+            "46": [5, 3, 5, 4, 3, 4]
+          },
+          "sites_5mm_plus": ["46:DB", "46:MB"]
+        },
+        "bleeding": { "point_count": 42, "sites_total": 192, "value_min": 0, "value_max": 1 },
+        "point_count": 168,
+        "extent": "full_mouth"
+      }
+    ],
+    "source_assurance": { "status": "present", "detail": "Perio table, positional byte arrays decoded per site." }
+  },
+  "clinical_notes": {
+    "items": [
+      { "date": "2026-08-01", "chart_num": 3, "chart_date": "2026-08-01", "chart_certified": null, "key_type": 1, "note_type": 1, "ref_number": 1, "tooth_fdi": 16, "operator": "T", "signed_off": null, "text": "[Date]01/Aug/2026 [Type]Exam [Tooth]16\n16 MOD amalgam fractured, recurrent decay mesial. Crown recommended. PA taken — margins visible." }
+    ],
+    "excluded_deleted_or_superseded": 0,
+    "source_assurance": { "status": "present", "detail": "Notes WHERE IsDeleted=0 AND IsLatest=1, joined to Charts on KeyNumber=ChartNum." }
+  },
+  "imaging": {
+    "items": [],
+    "procedure_events": [
+      { "trans_id": 8001, "date": "2026-02-10", "code": "02142", "description": "Two Bitewings", "tooth_fdi": null, "provider": "T", "chart_num": 1 }
+    ],
+    "source_assurance": { "status": "indeterminate", "detail": "items: imaging tables are readable but hold zero rows database-wide. procedure_events: charted Transactions rows with ChartCode 242." }
+  }
+}

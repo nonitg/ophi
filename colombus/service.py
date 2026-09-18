@@ -122,18 +122,38 @@ class CaseView(BaseModel):
 
 
 class CaseService:
-    def __init__(self, cases_dir: Path = CASES_DIR, store: Store | None = None, pack: RulePack | None = None) -> None:
+    def __init__(
+        self,
+        cases_dir: Path = CASES_DIR,
+        store: Store | None = None,
+        pack: RulePack | None = None,
+        repository=None,
+    ) -> None:
         self.cases_dir = cases_dir
         self.store = store or Store()
         self.pack = pack or default_pack()
+        # Optional PMS repository abstraction; toggle-aware default.
+        if repository is not None:
+            self.repository = repository
+        else:
+            from colombus.sources.pms_repository import (
+                FileSystemPmsRepository,
+                MockPmsRepository,
+                should_use_mocks,
+            )
+
+            if should_use_mocks():
+                self.repository = MockPmsRepository()
+            else:
+                self.repository = FileSystemPmsRepository(cases_dir)
 
     # --- reads --------------------------------------------------------------------------------
 
     def case_ids(self) -> list[str]:
-        return sorted(p.stem for p in self.cases_dir.glob("*.yaml"))
+        return self.repository.list_case_ids()
 
     def base_case(self, case_id: str) -> Case:
-        return load_case(self.cases_dir / f"{case_id}.yaml")
+        return self.repository.get_case(case_id)
 
     def view(self, case_id: str) -> CaseView:
         base = self.base_case(case_id)

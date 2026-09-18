@@ -16,3 +16,24 @@ A dental PMS is four systems that share a patient ID and pretend to be one app. 
 Why preauth is painful, concretely. The procedure code (27xxx = crown) is structured. The tooth is structured. But the evidence CDCP wants — a periapical radiograph from within 12 months, a perio chart, a note explaining why a filling won't hold — lives in three different subsystems, in three different formats, one of which is prose and one of which is a JPEG owned by a separate imaging vendor. A human opens four screens and eyeballs dates. That manual cross-subsystem join is what Colombus automates.
 
 Three of the CDCP crown criteria — crown-to-root ratio, margin-to-crest distance, ferrule height — are not fields in any PMS. They're measurements a dentist makes by looking at the film, and no amount of database reading produces them. A fourth, furcation involvement, *is* charted (ABELDent keeps `Perio.Furcation`, 32 teeth x 3 roots), but CDCP asks for it radiographically, so the probed value may not be the same assertion. Hence the Clinician Assertions block.
+
+## Toggling real vs mock PMS data
+
+The app reads through `PmsRepository` (`colombus/sources/pms_repository.py`). `CaseService`
+uses it for `case_ids()` / `base_case()`; pass a `repository` explicitly or let the env toggle
+decide:
+
+```bash
+# Real / filesystem (default) — reads cases/demo/*.yaml
+make demo              # or: scripts/demo-real.sh
+unset USE_MOCK_PMS_API; make demo
+
+# Mock / dummy — reads mocks/*.json + mocks/pms/*.json, no VM
+USE_MOCK_PMS_API=true make demo   # or: scripts/demo-mock.sh
+```
+
+Env var: `USE_MOCK_PMS_API` (primary), aliases `USE_MOCK_DATA` / `PMS_USE_MOCKS`.
+Truthy (case-insensitive): `true`, `1`, `yes`, `on`, `y`; anything else = off.
+Programmatic: `create_repository("auto")` (env-aware), `create_repository("mock")`,
+`create_repository("filesystem")`, and `should_use_mocks()` / `is_mock_enabled()`.
+Fixtures: `mocks/README.md` maps each JSON file to its PMS table and CDM type.

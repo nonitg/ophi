@@ -1,0 +1,67 @@
+{
+  "_description": "Mock coverage — mirrors ixi/nsp/ins joined rows. See lab/tools/chart_dump.py cov_row() and colombus/cdm/models.py Coverage",
+  "coverage": [
+    {
+      "pid": 101,
+      "items": [
+        {
+          "slot": "1",
+          "plan_id": "CDCP-ON-2026",
+          "plan_name": "Canadian Dental Care Plan",
+          "carrier_id": "CDCP",
+          "carrier_name": "Sun Life — CDCP Administrator",
+          "carrier_supports_multipage_preds": true,
+          "certificate": "CDCP-00101",
+          "group": "CDCP-GRP-ON",
+          "subscriber_pid": null,
+          "relation_to_subscriber": "I",
+          "active": true,
+          "expiry": null,
+          "inherited_from_subscriber": false
+        }
+      ],
+      "source_assurance": { "status": "present", "detail": "ixi joined to nsp (plan) and ins (carrier)" }
+    },
+    {
+      "pid": 102,
+      "items": [
+        {
+          "slot": "1",
+          "plan_id": "GWL",
+          "plan_name": "Great West Life",
+          "carrier_id": "GWL",
+          "carrier_name": "Great-West Life Assurance Company",
+          "carrier_supports_multipage_preds": false,
+          "certificate": "6767890",
+          "group": null,
+          "subscriber_pid": null,
+          "relation_to_subscriber": "I",
+          "active": true,
+          "expiry": null,
+          "inherited_from_subscriber": false
+        },
+        {
+          "slot": "2",
+          "plan_id": "TOYOTAM",
+          "plan_name": "Toyota - Managment Team",
+          "carrier_id": "NATIONAL",
+          "carrier_name": "National Life Assurance Company of Can.",
+          "carrier_supports_multipage_preds": false,
+          "certificate": null,
+          "group": null,
+          "subscriber_pid": 34,
+          "relation_to_subscriber": "S",
+          "active": true,
+          "expiry": null,
+          "inherited_from_subscriber": true
+        }
+      ],
+      "source_assurance": { "status": "present", "detail": "ixi joined to nsp (plan) and ins (carrier). Family members carry blank plan id and point at subscriber via ixisubpid." }
+    },
+    {
+      "pid": 103,
+      "items": [],
+      "source_assurance": { "status": "none_recorded", "detail": "ixi joined to nsp (plan) and ins (carrier). No rows for this patient." }
+    }
+  ]
+}
