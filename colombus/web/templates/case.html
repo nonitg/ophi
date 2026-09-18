@@ -224,32 +224,48 @@
   {% if not actor.is_dentist %}
   <div class="note amber">You are acting as {{ actor.name }} ({{ actor.role }}). Only the treating dentist can record assertions — switch to Dr. Priya Lau in the header.</div>
   {% endif %}
-  <div class="assert-rows">
-    {% for c in criteria %}
-    <form method="post" action="/cases/{{ case.case_id }}/assert" class="assert-row {% if c.current %}has-value{% endif %}">
-      <input type="hidden" name="criterion_id" value="{{ c.id }}">
-      <div class="assert-label">
-        <div>{{ c.label }}</div>
-        <div class="req-meta">{{ clause_chip(c.clause, pack) }}</div>
-        {% if c.variant %}<div class="variant">{{ c.variant }}</div>{% endif %}
-        {% if c.odontogram %}<div class="small muted num">{{ c.odontogram }}</div>{% endif %}
+
+  {# Bulk form wraps all rows so Met on several + one Update records them together. Per-row forms remain as fallback for single updates. #}
+  <form method="post" action="/cases/{{ case.case_id }}/assert/bulk" id="bulk-assert-form">
+    <div class="bulk-bar" id="bulk-bar">
+      <label class="bulk-select-all"><input type="checkbox" id="bulk-select-all" {% if not actor.is_dentist %}disabled{% endif %}> Select all</label>
+      <span class="muted small" id="bulk-count">0 selected</span>
+      <div class="bulk-actions">
+        <span class="muted small">Set selected to:</span>
+        <button type="button" class="btn btn-sm" data-bulk-value="met" {% if not actor.is_dentist %}disabled{% endif %}>Met</button>
+        <button type="button" class="btn btn-sm" data-bulk-value="not_met" {% if not actor.is_dentist %}disabled{% endif %}>Not met</button>
+        <button type="button" class="btn btn-sm" data-bulk-value="not_applicable" {% if not actor.is_dentist %}disabled{% endif %}>N/A</button>
       </div>
-      <fieldset class="assert-choice" {% if not actor.is_dentist %}disabled{% endif %}>
-        <label><input type="radio" name="value" value="met" required {% if c.current and c.current.value == 'met' %}checked{% endif %}> Met</label>
-        <label><input type="radio" name="value" value="not_met" {% if c.current and c.current.value == 'not_met' %}checked{% endif %}> Not met</label>
-        <label><input type="radio" name="value" value="not_applicable" {% if c.current and c.current.value == 'not_applicable' %}checked{% endif %}> N/A</label>
-      </fieldset>
-      <input class="assert-note" type="text" name="note" placeholder="Note (optional)" value="{{ c.current.note or '' if c.current else '' }}" {% if not actor.is_dentist %}disabled{% endif %}>
-      <div class="assert-current">
-        {% if c.current %}
-        <span class="val val-{{ c.current.value }}">{{ c.current.value|replace('_', ' ')|capitalize }}</span>
-        <span class="muted">by {{ c.current.asserted_by }} on <span class="num">{{ c.current.asserted_at.date() }}</span></span>
-        {% else %}<span class="muted">Not yet recorded</span>{% endif %}
+      <button type="submit" class="btn btn-sm btn-primary" id="bulk-submit" {% if not actor.is_dentist %}disabled title="Dentist only"{% endif %}>Record selected</button>
+    </div>
+
+    <div class="assert-rows">
+      {% for c in criteria %}
+      <div class="assert-row {% if c.current %}has-value{% endif %}" data-criterion="{{ c.id }}">
+        <input type="checkbox" name="selected" value="{{ c.id }}" class="assert-select" aria-label="Select {{ c.label }}" {% if not actor.is_dentist %}disabled{% endif %}>
+        <div class="assert-label">
+          <div>{{ c.label }}</div>
+          <div class="req-meta">{{ clause_chip(c.clause, pack) }}</div>
+          {% if c.variant %}<div class="variant">{{ c.variant }}</div>{% endif %}
+          {% if c.odontogram %}<div class="small muted num">{{ c.odontogram }}</div>{% endif %}
+        </div>
+        <fieldset class="assert-choice" {% if not actor.is_dentist %}disabled{% endif %}>
+          <label><input type="radio" name="value_{{ c.id }}" value="met" {% if c.current and c.current.value == 'met' %}checked{% endif %}> Met</label>
+          <label><input type="radio" name="value_{{ c.id }}" value="not_met" {% if c.current and c.current.value == 'not_met' %}checked{% endif %}> Not met</label>
+          <label><input type="radio" name="value_{{ c.id }}" value="not_applicable" {% if c.current and c.current.value == 'not_applicable' %}checked{% endif %}> N/A</label>
+        </fieldset>
+        <input class="assert-note" type="text" name="note_{{ c.id }}" placeholder="Note (optional)" value="{{ c.current.note or '' if c.current else '' }}" {% if not actor.is_dentist %}disabled{% endif %}>
+        <div class="assert-current">
+          {% if c.current %}
+          <span class="val val-{{ c.current.value }}">{{ c.current.value|replace('_', ' ')|capitalize }}</span>
+          <span class="muted">by {{ c.current.asserted_by }} on <span class="num">{{ c.current.asserted_at.date() }}</span></span>
+          {% else %}<span class="muted">Not yet recorded</span>{% endif %}
+        </div>
       </div>
-      <button class="btn btn-sm" type="submit" {% if not actor.is_dentist %}disabled title="Dentist only"{% endif %}>{{ 'Update' if c.current else 'Record' }}</button>
-    </form>
-    {% endfor %}
-  </div>
+      {% endfor %}
+    </div>
+  </form>
+
   {% if criteria_other %}
   <details class="na">
     <summary>Not applicable to this case ({{ criteria_other|length }})</summary>

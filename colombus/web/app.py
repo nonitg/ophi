@@ -158,6 +158,32 @@ def assert_criterion(request: Request, case_id: str, criterion_id: str = Form(..
     return RedirectResponse(f"/cases/{case_id}#assertions", status_code=303)
 
 
+@router.post("/cases/{case_id}/assert/bulk")
+async def bulk_assert(request: Request, case_id: str):
+    actor = _actor(request)
+    if not actor.is_dentist:
+        return _error(request, 403, "Dentist only", "Clinician assertions are attributed clinical judgment; only the treating dentist records them.")
+    form = await request.form()
+    selected = form.getlist("selected")
+    if not selected:
+        return _error(request, 400, "No selection", "Select at least one criterion to record.")
+    items: list[dict] = []
+    for cid in selected:
+        val = form.get(f"value_{cid}")
+        note_raw = form.get(f"note_{cid}", "")
+        note = note_raw.strip() if isinstance(note_raw, str) else None
+        if not val:
+            continue  # nothing chosen for this row; skip
+        items.append({"criterion_id": cid, "value": val, "note": note or None})
+    if not items:
+        return _error(request, 400, "No value", "Choose Met / Not met / N/A for each selected criterion.")
+    try:
+        _svc(request).assert_many(case_id, items, actor.name, actor.licence, role=actor.role)
+    except (KeyError, ValueError) as e:
+        return _error(request, 400, "Invalid assertion", str(e))
+    return RedirectResponse(f"/cases/{case_id}#assertions", status_code=303)
+
+
 @router.post("/cases/{case_id}/proposals/{artifact_id}")
 def decide_proposal(request: Request, case_id: str, artifact_id: str, decision: str = Form(...)):
     view = _view(request, case_id)

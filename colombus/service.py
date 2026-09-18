@@ -213,6 +213,35 @@ class CaseService:
         self.store.save(case_id, st)
         self.store.audit(case_id, by, "assert", f"{criterion_id}={value}" + (f" ({note})" if note else ""))
 
+    def assert_many(self, case_id: str, items: list[dict], by: str, licence: str | None, role: str = "dentist") -> int:
+        """Record several clinician assertions in one store transaction.
+
+        items: list of {criterion_id, value, note}
+        Returns number recorded. Validation is per-item; unknown criteria or
+        values raise and no state is written.
+        """
+        _dentist_only(role, "clinician assertions")
+        if not items:
+            raise ValueError("no assertions supplied")
+        # validate all before mutating
+        for it in items:
+            cid = it.get("criterion_id")
+            val = it.get("value")
+            if cid not in self.pack.assertion_criteria:
+                raise KeyError(cid)
+            if val not in ("met", "not_met", "not_applicable"):
+                raise ValueError(val)
+        st = self.store.load(case_id)
+        now = datetime.now(UTC).isoformat()
+        for it in items:
+            cid = it["criterion_id"]
+            st.assertions[cid] = {"value": it["value"], "by": by, "licence": licence, "at": now, "note": it.get("note")}
+        st.sign_off = None
+        self.store.save(case_id, st)
+        for it in items:
+            self.store.audit(case_id, by, "assert", f"{it['criterion_id']}={it['value']}" + (f" ({it.get('note')})" if it.get("note") else ""))
+        return len(items)
+
     def confirm_proposal(self, case_id: str, artifact_id: str, decision: str, by: str) -> None:
         if decision not in ("confirmed", "rejected"):
             raise ValueError(decision)
