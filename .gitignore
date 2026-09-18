@@ -8,3 +8,4 @@ out/
 .pytest_cache/
 .hypothesis/
 .impeccable/
+worktrees/
