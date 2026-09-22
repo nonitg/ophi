@@ -12,7 +12,7 @@ with sync_playwright() as p:
     page.wait_for_selector('.tooth-viewer[data-ready="true"]')
     # Export-only framing: retain the real brand, typography, sculpture and materials.
     page.add_style_tag(content='''
-      #main > :not(.poster), .site-footer, .tooth-controls, .launch-status, nextjs-portal { display: none !important; }
+      #main > :not(.poster), .site-footer, .header-tools, nextjs-portal { display: none !important; }
       .site-shell { width: calc(100% - 96px); min-height: 630px; }
       .site-header { height: 90px; }
       .poster { height: 460px; }

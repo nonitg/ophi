@@ -19,12 +19,13 @@ export function setSiteXray(on: boolean, update: () => void) {
   if (!sweeping) { apply(); return; }
 
   const id = ++latest;
+  let reveal: Animation | undefined;
   root.dataset.sweep = on ? "in" : "out";
   const transition = document.startViewTransition(apply);
   if (on) {
     // Started in the same task, the film reveal and the beam share one clock.
     transition.ready.then(() => {
-      root.animate({ clipPath: ["inset(0 100% 0 0)", "inset(0 0 0 0)"] }, { ...SWEEP, pseudoElement: "::view-transition-new(root)" });
+      reveal = root.animate({ clipPath: ["inset(0 100% 0 0)", "inset(0 0 0 0)"] }, { ...SWEEP, pseudoElement: "::view-transition-new(root)" });
       beam?.animate([
         { translate: `-${BEAM_WIDTH}px 0`, opacity: 1 },
         { opacity: 1, offset: .9 },
@@ -32,7 +33,8 @@ export function setSiteXray(on: boolean, update: () => void) {
       ], SWEEP);
     }, () => {});
   }
-  const done = () => { if (id === latest) delete root.dataset.sweep; beam?.remove(); };
+  // The reveal holds its end state until the transition ends; cancelling it then keeps it off the next one.
+  const done = () => { if (id === latest) delete root.dataset.sweep; beam?.remove(); reveal?.cancel(); };
   transition.finished.then(done, done);
 }
 

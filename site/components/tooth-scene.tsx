@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { flushSync } from "react-dom";
+import { createPortal, flushSync } from "react-dom";
 import type { ToothControls } from "@/lib/tooth-renderer";
 import { exposureCounter, setSiteXray } from "@/lib/xray-mode";
 import { copy } from "@/lib/copy";
@@ -59,23 +59,27 @@ export function ToothScene() {
       document.documentElement.removeAttribute("data-xray"); document.documentElement.removeAttribute("data-film-reversed");
     };
   }, []);
-  // The X-ray button re-exposes the whole page, not just the tooth.
+  // The X-ray button re-exposes the whole page, not just the tooth. The requested state is kept in a ref:
+  // the page itself only changes a frame later, and a second press inside that frame must still count.
   function toggleXray() {
-    const next = !xray;
+    const next = !film.current.xray;
+    film.current.xray = next;
     const burst = next && countExposure(performance.now());
     setSiteXray(next, () => {
-      film.current.xray = next;
       controls.current?.xray(next);
       const reversed = markReversed(film.current);
       flushSync(() => { setXray(next); setNote(reversed ? "backwards" : burst ? "alara" : null); });
     });
   }
+  // The button lives in the site header (app/page.tsx), since it re-exposes the whole page; its notes stay beside the film.
+  const slot = ready ? document.getElementById("xray-slot") : null;
   return (
     <div className="tooth-viewer" data-ready={ready}>
       {!ready && <ToothFallback />}
       <XrayFilters />
       <div ref={host} className="tooth-canvas" tabIndex={ready ? 0 : undefined} role="group" aria-label={ready ? "Interactive tooth sculpture. Drag or use arrow keys to rotate. Home resets the view." : "An ivory tooth sculpture"} />
-      {ready && <div className="tooth-controls"><button type="button" className="view-mode" aria-pressed={xray} onClick={toggleXray}>X-ray</button><p className="xray-note" role="status">{note && copy.xray[note]}</p></div>}
+      {slot && createPortal(<button type="button" className="view-mode" aria-pressed={xray} onClick={toggleXray}>X-ray</button>, slot)}
+      {ready && <p className="xray-note" role="status">{note && copy.xray[note]}</p>}
     </div>
   );
 }

@@ -17,7 +17,7 @@ VIEWPORTS = {
 MEASURE = """() => {
   const r = s => { const e = document.querySelector(s); if (!e) return null; const b = e.getBoundingClientRect(); return {x:Math.round(b.x),y:Math.round(b.y),w:Math.round(b.width),h:Math.round(b.height),r:Math.round(b.right),b:Math.round(b.bottom)}; };
   const hits = (a, b) => a && b && a.x < b.r && b.x < a.r && a.y < b.b && b.y < a.b;
-  const span = r('.poster-title > span'), em = r('.poster-title > em'), ctr = r('.tooth-controls'), canvas = r('.tooth-canvas canvas');
+  const span = r('.poster-title > span'), em = r('.poster-title > em'), ctr = r('.xray-slot'), canvas = r('.tooth-canvas canvas');
   const small = [...document.querySelectorAll('button, a, summary, input, select')].filter(e => e.offsetParent).map(e => { const b = e.getBoundingClientRect(); return {t:(e.textContent||e.getAttribute('aria-label')||e.tagName).trim().slice(0,30), w:Math.round(b.width), h:Math.round(b.height)}; }).filter(o => o.h < 24 || o.w < 24);
   return {
     scrollW: document.documentElement.scrollWidth, innerW: innerWidth, docH: document.documentElement.scrollHeight, innerH: innerHeight,

@@ -10,8 +10,8 @@ export const copy = {
   },
   // Notes found by playing with the X-ray view.
   xray: {
-    backwards: "Film’s in backwards. That pattern is its lead backing.",
-    alara: "That’s five exposures. Dentists keep radiation as low as reasonably achievable.",
+    backwards: "Film’s in backwards. That’s its lead backing.",
+    alara: "Five exposures. Dentists keep doses as low as reasonably achievable.",
   },
   form: {
     email: "Your email",

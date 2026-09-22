@@ -80,12 +80,12 @@ em { font-weight: 400; }
 .tooth-canvas:active { cursor: grabbing; }
 .tooth-canvas canvas { width: 100%; height: 100%; }
 .tooth-fallback { position: absolute; inset: 10% 14% 15%; width: 72%; height: 75%; filter: drop-shadow(12px 25px 18px #4e64552c); }
-.tooth-controls { position: absolute; right: 5%; top: 5%; display: flex; align-items: center; gap: 9px; font-size: 10px; color: #53604d; }
-.tooth-controls button { display: grid; place-items: center; width: 32px; height: 32px; border-radius: 50%; border: 1px solid #bdc8b3; background: #f4f2e9b3; font-size: 15px; transition: background .2s, border-color .2s; }
-.tooth-controls button:hover { background: #dfe5d3; border-color: #7e9374; }
-.tooth-controls .view-mode { width: auto; border-radius: 30px; padding-inline: 11px; font-size: 10px; }
-.tooth-controls .view-mode[aria-pressed=true] { background: var(--ink); border-color: var(--ink); color: var(--paper); }
-.tooth-controls .view-mode[aria-pressed=true]:hover { background: var(--ink-soft); border-color: var(--ink-soft); }
+.header-tools { display: flex; align-items: center; gap: 20px; }
+.xray-slot { position: relative; display: flex; }
+.view-mode { height: 30px; padding-inline: 12px; border-radius: 30px; border: 1px solid #bdc8b3; background: #f4f2e9b3; font-size: 11px; color: #53604d; transition: background .2s, border-color .2s; }
+.view-mode:hover { background: #dfe5d3; border-color: #7e9374; }
+.view-mode[aria-pressed=true] { background: var(--ink); border-color: var(--ink); color: var(--paper); }
+.view-mode[aria-pressed=true]:hover { background: var(--ink-soft); border-color: var(--ink-soft); }
 /* X-ray mode (the X-ray button) re-exposes the whole page: see xray.css. */
 
 /* The signup band: one sage panel for the one action. Two columns share rows, so "Why Ophi?" lines up with the email field. */
@@ -165,7 +165,6 @@ em { font-weight: 400; }
   .faq { grid-template-columns: minmax(0, 1fr) minmax(0, 484px); }
   .introduction > p { font-size: 15px; }
   .join-button { gap: 12px; padding-inline: 16px; }
-  .tooth-controls { right: 4%; top: 3%; }
 }
 @media (max-width: 700px) {
   .site-shell { width: calc(100% - 40px); }
@@ -178,9 +177,8 @@ em { font-weight: 400; }
   .poster-title > em { align-self: flex-start; font-size: .86em; max-width: 100%; padding-bottom: 0; line-height: .99; width: 280px; }
   .sculpture { width: 100%; height: 88%; right: 0; top: 6%; }
   .orbit { width: 80%; left: 10%; height: 50%; }
-  .tooth-controls { top: calc(100% + 32px); bottom: auto; right: 0; gap: 7px; }
-  .tooth-controls button { height: 30px; width: 30px; }
-  .tooth-controls .view-mode { font-size: 9px; padding-inline: 9px; }
+  .header-tools { gap: 14px; }
+  .view-mode { height: 28px; font-size: 10px; padding-inline: 10px; }
   /* Stacked, the rows no longer need to line up, and a grid track would size to the widest control. */
   .entry-row { display: flex; flex-direction: column; gap: 28px; margin: 23px 0 32px; padding: 26px 20px; border-radius: 28px; }
   .introduction { display: flex; flex-direction: column; gap: 16px; }

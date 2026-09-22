@@ -6,13 +6,19 @@ import { Icon } from "@/components/icons";
 import { CopyEmail } from "@/components/copy-email";
 import { copy } from "@/lib/copy";
 
-export default function Page() {
+export default async function Page({ searchParams }: PageProps<"/">) {
+  // Temporary: ?m= picks a phone layout variant for review (app/mobile.css).
+  const { m } = await searchParams;
   return (
-    <div className="site-shell" id="top">
+    <div className="site-shell" id="top" data-m={typeof m === "string" ? m : undefined}>
       <a className="skip-link" href="#main">Skip to content</a>
       <header className="site-header">
         <Link className="wordmark" href="/" aria-label="Ophi home">ophi<span aria-hidden="true">.</span></Link>
-        <span className="launch-status"><span aria-hidden="true" />In the making</span>
+        <div className="header-tools">
+          {/* ToothScene fills this with the X-ray control once the tooth is live. */}
+          <div id="xray-slot" className="xray-slot" />
+          <span className="launch-status"><span aria-hidden="true" />In the making</span>
+        </div>
       </header>
       <main id="main">
         <section className="poster" aria-labelledby="poster-title">
