@@ -33,7 +33,7 @@ def capture(out: Path, query: str, widths: list[int]) -> None:
 
 def compare(before: Path, after: Path) -> None:
     from PIL import Image, ImageChops
-    for a_path in sorted(before.glob("[0-9]*.png"), key=lambda p: -int(p.stem)):
+    for a_path in sorted((p for p in before.glob("*.png") if p.stem.isdigit()), key=lambda p: -int(p.stem)):
         b_path = after / a_path.name
         if not b_path.exists():
             print(f"{a_path.stem}: missing in {after}")

@@ -93,7 +93,7 @@ The page becomes a radiograph on a lightbox, built on one rule: density decides 
     herringbone over the film, with the note “Film’s in backwards. That’s its lead backing.”
   - Five exposures within 20 seconds bring the dentist's radiation rule: “Five exposures. Dentists keep doses
     as low as reasonably achievable.”
-  The X-ray button sits in the site header, left of the launch status. Notes stay beside the tooth (top right on desktop, below it on phones) in a `role="status"` region and clear when X-ray turns off.
+  The X-ray button sits in the site header, left of the launch status. Notes stay beside the tooth (top right on desktop; on phones beside “Less”, above “paperwork.”) in a `role="status"` region and clear when X-ray turns off.
 - Styles live in `site/app/xray.css` under `:root[data-xray]`. A colour added to `globals.css` needs a token
   or a matching X-ray rule, or it prints dark on the film. Contrast is checked by `scripts/site-contrast.py`.
   Screens and behaviour checks: `scripts/site-xray.py`.
@@ -136,7 +136,8 @@ The owner requested the oversized footer back. The public page now ends with a l
 Ophi wordmark and the orange asterisk, plus a compact contact row, back-to-top link and privacy control.
 The contact action copies hello@ophi.app directly; it never opens a form or mail client. The same copy
 control sits with the FAQ (“Anything else? Write to us.”): under the heading on wide screens, after the
-questions on phones. It follows the questions in the markup, so reading and focus order match both layouts.
+questions on phones. It follows the questions in the markup, so screen readers and Tab reach it after them; on
+wide screens focus then steps back left to it, under the heading.
 
 ## Signup band (2026-09-22)
 
@@ -165,15 +166,21 @@ Phones now follow reading order. Wider screens are unchanged, pixel for pixel.
 - FAQ: heading, questions, then “Anything else? Write to us.” and the copy pill.
 - Footer: privacy pill left, back-to-top as a round 40px button right (its label stays for screen
   readers), copyright last. The two pills used to stack unevenly at 360px and below.
-- Fields show their prompts whole. Typed email stays 16px (no iOS zoom) while its placeholder is 14px.
-  The clinic-software trigger shows “Your clinic’s software (optional)”. At 345px and below the join
-  arrow drops and the trigger tightens.
+- Fields show their prompts whole once the page hydrates (before that, the native select shows the long
+  prompt). Typed email stays 16px (no iOS zoom) while its placeholder is 14px. The clinic-software
+  trigger shows “Your clinic’s software (optional)”. At 345px and below the join arrow drops and the
+  trigger tightens.
+- “Less” sits over “paperwork.” at every phone width. In X-ray the tooth's notes sit beside “Less”,
+  where the film is bare. The gap under the headline now belongs to the introduction.
 - Short paragraphs use `text-wrap: pretty`, so they don't end on a single word.
 
 The owner picked this (“a”) from four live phone variants. The others: one band with the signup first,
 the form in reading order with a full-width join button, and a right-set second headline line. Checks:
-`scripts/site-mobile-fit.py` (prompts fit at 320–430px), `scripts/site-mobile-a11y.py` (names, tap
-size, focus order, X-ray band), `scripts/site-diff.py` (before/after pixel diff per width).
+`scripts/site-mobile-fit.py` (prompts fit at every width 320–700px), `scripts/site-mobile-a11y.py` (names,
+tap size, focus order, X-ray band), `scripts/site-xray-note.py` (notes clear the headline and introduction),
+`scripts/site-faq-overlap.py` (questions stay above the copy pill at 701–780px), `scripts/site-diff.py`
+(before/after pixel diff per width). A fresh-context review caught the note clash, a 361px clip and the
+701–770px paint order; all three are fixed.
 
 ## Control language (2026-09-22)
 
