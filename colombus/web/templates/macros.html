@@ -1,4 +1,4 @@
-{# Shared fragments. The badge and the chip are the two things every screen must render identically. #}
+{# Shared fragments. The badge, the status mark and the segment bar must render identically on every screen. #}
 
 {% macro verdict_badge(verdict, signed=False, short=False) -%}
 {%- if signed -%}
@@ -10,7 +10,7 @@
 
 {% macro clause_chip(clause, pack) -%}
 <span class="chip" tabindex="0">
-  <span class="chip-text">{{ clause.source|capitalize }} · {{ clause.ref }}</span>
+  <span class="chip-text"><span class="chip-src">{{ clause.source|capitalize }}</span> {{ clause.ref }}</span>
   <span class="chip-pop" role="tooltip">
     <b>{{ source_title(pack, clause.source) }}</b>
     <span class="chip-ref">{{ clause.ref }}</span>
@@ -18,13 +18,36 @@
     {% if clause.also %}
     <span class="chip-also">Also: {{ source_title(pack, clause.also.source) }} — {{ clause.also.ref }}{% if clause.also.quote %}: <q>{{ clause.also.quote }}</q>{% endif %}</span>
     {% endif %}
-    {% if pack.sources.get(clause.source) %}<a href="{{ pack.sources[clause.source].url }}" target="_blank" rel="noopener">Source document</a>{% endif %}
+    {% if pack.sources.get(clause.source) %}<a href="{{ pack.sources[clause.source].url }}" target="_blank" rel="noopener">Open the source document</a>{% endif %}
   </span>
 </span>
 {%- endmacro %}
 
-{% macro status_icon(status) -%}
-<span class="st {{ STATUS_CLASS[status] }}" title="{{ STATUS_LABEL[status] }}" aria-label="{{ STATUS_LABEL[status] }}"></span>
+{# Status marks are drawn, not typed: one stroke weight, one size, colour from the status token. #}
+{% macro status_mark(status) -%}
+{%- set c = STATUS_CLASS[status] -%}
+<svg class="st st-{{ c }}" width="16" height="16" viewBox="0 0 16 16" role="img" aria-label="{{ STATUS_LABEL[status] }}"><title>{{ STATUS_LABEL[status] }}</title>
+{%- if c == 'ok' -%}<circle cx="8" cy="8" r="8"/><path d="M4.6 8.3l2.2 2.2 4.6-4.8" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+{%- elif c == 'bad' -%}<circle cx="8" cy="8" r="8"/><path d="M5.3 5.3l5.4 5.4M10.7 5.3l-5.4 5.4" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/>
+{%- elif c == 'ask' -%}<circle cx="8" cy="8" r="8"/><path d="M6.1 6.4a1.9 1.9 0 1 1 2.7 1.7c-.6.3-.8.6-.8 1.2" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/><circle cx="8" cy="11.6" r=".95" fill="#fff"/>
+{%- elif c == 'risk' -%}<circle cx="8" cy="8" r="7.2" fill="none" stroke-width="1.6"/><path d="M8 4.6v4.2" fill="none" stroke-width="1.8" stroke-linecap="round"/><circle cx="8" cy="11.4" r=".95"/>
+{%- elif c == 'pending' -%}<circle cx="8" cy="8" r="7.2" fill="none" stroke-width="1.5" stroke-dasharray="2.4 2.2"/><circle cx="4.9" cy="8" r=".95"/><circle cx="8" cy="8" r=".95"/><circle cx="11.1" cy="8" r=".95"/>
+{%- else -%}<circle cx="8" cy="8" r="8"/><path d="M5 8h6" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/>
+{%- endif -%}</svg>
+{%- endmacro %}
+
+{# The whole rule check in one glance: one segment per applicable requirement, coloured by status.
+   `mini` renders inert spans (for inside a link); the full bar links each segment to its requirement row. #}
+{% macro seg_bar(segs, label, mini=False) -%}
+{%- if mini -%}
+<span class="segbar mini" role="img" aria-label="{{ label }}">
+{%- for s in segs -%}<span class="seg seg-{{ s.cls }}" title="{{ s.label }} — {{ s.status }}"></span>{%- endfor -%}
+</span>
+{%- else -%}
+<nav class="segbar" aria-label="{{ label }}">
+{%- for s in segs -%}<a class="seg seg-{{ s.cls }}" href="#req-{{ s.id }}" title="{{ s.label }} — {{ s.status }}"><span class="sr">{{ s.label }}: {{ s.status }}</span></a>{%- endfor -%}
+</nav>
+{%- endif -%}
 {%- endmacro %}
 
 {% macro teeth(list) -%}

@@ -102,3 +102,17 @@
     });
   }
 })();
+
+// Links into a closed <details> (e.g. "#assertions", "#req-radiograph_pa") open the fold they land in.
+(function () {
+  function reveal() {
+    if (!location.hash) return;
+    var el = document.getElementById(decodeURIComponent(location.hash.slice(1)));
+    if (!el) return;
+    var d = el.closest("details");
+    while (d) { d.open = true; d = d.parentElement && d.parentElement.closest("details"); }
+    el.scrollIntoView({ block: "start" });
+  }
+  window.addEventListener("hashchange", reveal);
+  reveal();
+})();

@@ -25,16 +25,19 @@ from colombus.packet.build import build_packet
 from colombus.packet.documents import narrative_ascii
 from colombus.packet.narrative import draft_narrative
 from colombus.verify.verifier import verify_packet
+from colombus.engine.models import Status
 from colombus.service import CaseService, CaseView, NarrativeInvalid, identity_tokens
 from colombus.web import present
 from colombus.web.present import ACTORS, DEFAULT_ACTOR, READY_VERDICTS, Actor
 
 HERE = Path(__file__).resolve().parent
+# Static assets are cached by the browser; the newest mtime in static/ busts that cache on each deploy.
+STATIC_V = max(int(p.stat().st_mtime) for p in (HERE / "static").iterdir())
 templates = Jinja2Templates(directory=str(HERE / "templates"))
-templates.env.globals.update(
+templates.env.globals.update(STATIC_V=STATIC_V,
     money=present.money, short_date=present.short_date, days_until=present.days_until, tooth_name=present.tooth_name,
     source_title=present.source_title, kb=present.kb, requirement_detail=present.requirement_detail, VERDICT_LABEL=present.VERDICT_LABEL, VERDICT_SHORT=present.VERDICT_SHORT,
-    VERDICT_CLASS=present.VERDICT_CLASS, STATUS_LABEL=present.STATUS_LABEL, STATUS_CLASS=present.STATUS_CLASS, ACTORS=ACTORS,
+    VERDICT_CLASS=present.VERDICT_CLASS, STATUS_LABEL=present.STATUS_LABEL, STATUS_CLASS=present.STATUS_CLASS, STATUS_NA=Status.NOT_APPLICABLE, ACTORS=ACTORS,
 )
 
 router = APIRouter()
@@ -125,7 +128,7 @@ def _existing_manifest(out: Path, view: CaseView, narrative: str, sign_off) -> d
 @router.get("/", response_class=HTMLResponse)
 def queue(request: Request):
     views = _svc(request).queue()
-    rows = [{"view": v, "actions": present.top_blocking_actions(v)} for v in views]
+    rows = [{"view": v, "lead": present.queue_lead(v), "segs": present.segments(v.assessment)} for v in views]
     return _render(request, "queue.html", rows=rows, summary=present.queue_summary(views))
 
 
@@ -138,9 +141,10 @@ def case_review(request: Request, case_id: str):
     if view is None:
         return _error(request, 404, "Case not found", f"No case '{case_id}' in the demo set.")
     relevant, other = present.assertion_rows(view, _svc(request).pack)
-    actions = [{"action": a, "proposal": present.pending_proposal_for(view, a) if a.action_type == "confirm_extraction" else None}
-               for a in view.assessment.actions]
-    return _render(request, "case.html", view=view, case=view.case, a=view.assessment, actions=actions,
+    gaps = present.gap_groups(view)
+    return _render(request, "case.html", view=view, case=view.case, a=view.assessment, gaps=gaps,
+                   head=present.headline(view, gaps), segs=present.segments(view.assessment),
+                   parts=present.completeness_parts(view.assessment),
                    evidence=present.evidence_panel(view), criteria=relevant, criteria_other=other,
                    applicable=[r for r in view.assessment.requirements if r.applicable],
                    not_applicable=[r for r in view.assessment.requirements if not r.applicable])

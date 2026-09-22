@@ -2,20 +2,18 @@
 {% block title %}Look-Back — Colombus{% endblock %}
 {% block content %}
 <header class="page-head">
-  <div>
-    <div class="eyebrow">CDCP Preauthorization Look-Back{% if report %} · {{ report.window_label }}{% endif %}</div>
-    <h1>What happened to last year's crown preauthorizations</h1>
-  </div>
+  <h1>What happened to last year's crown preauthorizations</h1>
+  {% if report %}<p class="page-sub">CDCP preauthorization look-back, {{ report.window_label|lower }}. Gaps are re-derived from the chart as it stood on each submission date, using rule pack <span class="num">{{ report.ruleset_version }}</span>.</p>{% endif %}
 </header>
 
 {% if not report %}
-<div class="card"><div class="note amber">{{ unavailable }}</div></div>
+<div class="note amber">{{ unavailable }}</div>
 {% else %}
-<section class="bignums">
-  <div class="bignum"><div class="n num">{{ report.submitted }}</div><div class="l">preauthorizations submitted</div></div>
-  <div class="bignum"><div class="n num">{{ report.denied }}</div><div class="l">denied <span class="muted">—</span> <span class="num">{{ money(report.denied_dollars) }}</span> of treatment</div></div>
-  <div class="bignum"><div class="n num">{{ report.denied_with_doc_gap }} <span class="of">of {{ report.denied }}</span></div><div class="l">were missing a document CDCP explicitly requires</div></div>
-  <div class="bignum anchor"><div class="n num">{{ report.never_resubmitted }} <span class="of">of {{ report.denied }}</span></div><div class="l">were never resubmitted <span class="sep">—</span> <b class="num">{{ money(report.never_resubmitted_dollars) }}</b> of treatment that never happened</div></div>
+<section class="chain" aria-label="Look-back summary">
+  <div class="chain-step"><div class="n num">{{ report.submitted }}</div><div class="l">preauthorizations submitted</div></div>
+  <div class="chain-step"><div class="n num">{{ report.denied }}</div><div class="l">denied, <b class="num">{{ money(report.denied_dollars) }}</b> of treatment</div></div>
+  <div class="chain-step"><div class="n num">{{ report.denied_with_doc_gap }}<span class="of">of {{ report.denied }}</span></div><div class="l">were missing a document CDCP explicitly requires</div></div>
+  <div class="chain-step anchor"><div class="n num">{{ report.never_resubmitted }}<span class="of">of {{ report.denied }}</span></div><div class="l">were never resubmitted. <b class="num">{{ money(report.never_resubmitted_dollars) }}</b> of treatment that never happened.</div></div>
 </section>
 
 <section class="card">
@@ -42,8 +40,7 @@
 </section>
 
 <footer class="strip">
-  Gaps are re-derived from the chart as of each submission date using rule pack <span class="num">{{ report.ruleset_version }}</span>; Sun Life denial text is shown verbatim where present.
-  Published approval rates (Health Canada: ~37% for crowns) are context only and never enter a per-case computation.
+  Sun Life denial text is shown verbatim where present. Published approval rates (Health Canada: ~37% for crowns) are context only and never enter a per-case computation.
 </footer>
 {% endif %}
 {% endblock %}

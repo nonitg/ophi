@@ -21,47 +21,55 @@ whose denial text is blank and whose gap column says *periapical within 12 month
 
 ## Beat 2 — the queue (60 s)
 
-Open **Queue**. Six crown cases, sorted by what blocks them and how soon the appointment is. Each
-row already shows the top two things to do. Say: *"This page is empty and boring when nothing needs
-attention. That is the point: no dashboard habit, just what is at risk this week."*
+Open **Queue**. One sentence at the top: how many cases need something before they can go out, and
+the dollars of treatment behind them. Six crown cases, sorted by what blocks them and how soon the
+appointment is. Each row shows the one thing to do next, how many more stand behind it, and a
+13-segment bar of the rule check. Say: *"This page is empty and boring when nothing needs attention.
+That is the point: no dashboard habit, just what is at risk this week."*
 
 ## Beat 3 — the moment (60 s)
 
-Click **Amrit Singh #16**. The first blocking action reads:
+Click **Amrit Singh #16**. The screen opens with the verdict in one sentence — *Not ready to submit.
+1 chart gap and 9 clinical criteria for Dr. Priya Lau to confirm* — and the 13-segment bar: nine
+green, one red, three amber. Under **Before this can go out**, item 1 is the hero:
 
-> A bitewing dated 2026-08-02 is on file for #16. Bitewings do not image the periapical region.
-> CDCP crown criteria require assessment of crown-to-root ratio and restoration margin relative to
-> the alveolar crest — both require a periapical. Take a periapical of #16 at the Sep 24 appointment.
+> **Take a periapical of #16 at the Sep 24 appointment.** A bitewing dated 2026-08-02 is on file for
+> #16. Bitewings do not image the periapical region. CDCP crown criteria require assessment of
+> crown-to-root ratio and restoration margin relative to the alveolar crest — both require a periapical.
 
-Then hover the clause chip on *Dated periapical radiograph*: it cites the documentation matrix row
-and the Guide's radiograph-standards section. *"Nothing on this screen says 'missing' without naming
-the rule that makes it missing."*
+Then hover the **Required by** chip under it: it cites the documentation matrix row and the Guide's
+radiograph-standards section. *"Nothing on this screen says 'missing' without naming the rule that
+makes it missing."* The full list of 13 requirements, each with its clause, is one click away in the
+**All 13 CDCP requirements** fold; the chart Colombus read is in the fold below it.
 
-Scroll to **Clinician Assertions**. *"Four crown criteria are measurements you make on the film.
-They exist in no chart. Colombus never asserts them. You do, once, and the packet renders it as your
-clinical judgment with your name and a timestamp."*
+Item 2 is *Dr. Priya Lau confirms 9 clinical criteria*. *"Four crown criteria are measurements you
+make on the film. They exist in no chart. Colombus never asserts them. You do, once, and the packet
+renders it as your clinical judgment with your name and a timestamp."* The **Clinician assertions**
+fold at the bottom holds the form; it is open whenever you are acting as the dentist.
 
 ## Beat 4 — the model proposes, the engine judges, you ratify (45 s)
 
-Open **Yves Tremblay #24**. The treatment-plan requirement is amber: *satisfied pending
-confirmation*. In the evidence panel the note has a highlighted sentence — *"Plan: ceramic crown 24
-to protect the remaining structure."* — proposed as treatment-plan details. Click **Confirm**. The
-requirement turns green. *"The proposer found it. It could not count until a human said yes."*
+Open **Yves Tremblay #24**. The verdict reads *Needs a human before it can go out*, and the bar has
+one dashed amber segment: *awaiting confirmation*. Item 1 under **Before this can go out** is the
+proposed chart finding, with the quoted sentence — *"Plan: ceramic crown 24 to protect the remaining
+structure."* — and **Confirm** / **Reject**. Click **Confirm**. The dashed segment turns green.
+*"The proposer found it. It could not count until a human said yes."* (The same highlighted sentence
+is visible in the note inside the **What Colombus read in the chart** fold.)
 
-Switch **Acting as** to *Dr. Priya Lau*. Answer the ten assertions Met. The verdict becomes
-*Complete — ready for sign-off*.
+Switch **Acting as** to *Dr. Priya Lau*. The assertions fold is open: **Select all**, **Met**,
+**Record selected**. The verdict becomes *Documentation complete — ready for sign-off*.
 
 ## Beat 5 — the packet (90 s)
 
 Click **Packet preview & sign-off**. Left: the PDF preview — index, treatment form, labelled plates
 with dates, the 6-site perio table, the rationale with every finding quoted verbatim from the chart
 and attributed, the assertions block. Right: the editable rationale and the attestation sentence.
-Below the preview: *Independent verifier: PASS — N files, X KB.* Say: *"A second program, sharing no
+In the header line: *Independent verifier passed N files, X KB.* Say: *"A second program, sharing no
 code with the one that built this, reopened every file and re-checked the CDAnet limits."*
 
-Before sign-off the verifier line reads *draft — not signed, not for submission* and the download is
-refused. Click **Sign off**. The verifier now reads *signed packet*. Then **Download packet**. Close with
-the line on screen:
+Before sign-off the verdict sentence reads *This is a draft — not signed, not for submission* and the
+download is refused. Click **Sign off**. The sentence becomes *Signed by Dr. Priya Lau* and the
+verifier reports a signed packet. Then **Download packet**. Close with the line on screen:
 
 > **Colombus never transmits. You do.**
 

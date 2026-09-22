@@ -1,9 +1,9 @@
-# Colombus
+# Ophi
 
 CDCP preauthorization copilot for Canadian dental clinics. It reads the proposed crown and the
 patient's chart, checks them against the CDCP documentation rules, finds the evidence already in the
 chart, names what is missing or stale with the clause that requires it, and assembles the submission
-packet. **Staff review and submit. Colombus never transmits.**
+packet. **Staff review and submit. Ophi never transmits.**
 
 Crowns (27xxx) only in v1. Runs entirely on fictional data. No patient information anywhere in this repo.
 
@@ -24,10 +24,13 @@ unset USE_MOCK_PMS_API; make demo # real (default)
 # scripts/demo-real.sh / scripts/demo-mock.sh do the same
 ```
 
-Screens: **Queue** (what needs attention this week) → **Case Review** (per-rule verdict, gap
-checklist, evidence, Clinician Assertions) → **Packet preview & sign-off** (PDF preview, editable
-rationale, attestation, download) → **Look-Back** (last 12 months of denials, re-derived from the
-chart) → **Settings & audit**. The demo script is `docs/demo-script.md`.
+Screens: **Queue** (one sentence on what needs attention this week; one lead action per case) →
+**Case Review** (the verdict in a sentence, a 13-segment bar of the rule check, the first chart action
+as the hero with its clause; the full requirement list, the chart evidence and the Clinician
+Assertions in folds) → **Packet preview & sign-off** (PDF preview, editable rationale, attestation,
+download) → **Look-Back** (last 12 months of denials, re-derived from the chart) → **Settings & audit**.
+Every screen is built to be read in a 15-second glance first and in depth second. The demo script is
+`docs/demo-script.md`; `scripts/demo-screens.py` serves the demo with throwaway state for screenshots.
 
 Other entry points:
 
@@ -71,5 +74,10 @@ verified rule source and market work.
 2. **Prefer `indeterminate` to `satisfied`.** No capture date, undeclared tooth notation, or a source
    that reports a section as `Unknown` never yields a pass. A false "ready" is the one unforgivable error
    and `make eval` tracks it separately.
-3. **Copy law.** Colombus never says approved, eligible or covered. It says *"CDCP crown criteria
+3. **Copy law.** Ophi never says approved, eligible or covered. It says *"CDCP crown criteria
    require a periapical within 12 months. The most recent periapical of #46 is dated 2023-11-14."*
+
+## Waitlist site
+
+`site/` is the public Ophi waitlist for `ophi.app` (Next.js, Resend, Vercel). Run and deploy notes in `site/README.md`;
+product truth for public surfaces in `PRODUCT.md`.

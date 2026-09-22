@@ -6,6 +6,7 @@ formats and groups them. Copy law: labels describe documentation completeness, n
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
 from datetime import date
 
@@ -125,26 +126,121 @@ def source_title(pack: RulePack, key: str) -> str:
 # --- queue ----------------------------------------------------------------------------------------
 
 
-def top_blocking_actions(view: CaseView, n: int = 2) -> list[dict]:
-    """The two sub-lines under a queue row. For stale evidence, the concrete last-seen date beats prose."""
-    out = []
-    for a in view.assessment.actions:
-        if not a.blocking:
+def plural(n: int, one: str, many: str | None = None) -> str:
+    return f"{n} {one if n == 1 else (many or one + 's')}"
+
+
+def _action_hint(view: CaseView, a: Action) -> str | None:
+    """For stale or thin evidence, the concrete last-seen fact beats prose."""
+    for rid in a.unblocks:
+        r = view.assessment.requirement(rid)
+        if r is None:
             continue
-        hint = None
-        for rid in a.unblocks:
-            r = view.assessment.requirement(rid)
-            if r is None:
-                continue
-            if r.shortfall.stale:
-                s = r.shortfall.stale[0]
-                hint = f"last {s.captured_at.isoformat()}, {round(s.age_days / 30.44)} mo"
-            elif r.shortfall.incomplete and r.shortfall.incomplete.get("sites_per_tooth", 6) < 6:
-                hint = f"{r.shortfall.incomplete['sites_per_tooth']}-point chart dated {r.shortfall.incomplete.get('captured_at')}"
-        out.append({"title": a.title, "hint": hint})
-        if len(out) == n:
-            break
-    return out
+        if r.shortfall.stale:
+            s = r.shortfall.stale[0]
+            return f"last {s.captured_at.isoformat()}, {round(s.age_days / 30.44)} mo ago"
+        if r.shortfall.incomplete and r.shortfall.incomplete.get("sites_per_tooth", 6) < 6:
+            return f"{r.shortfall.incomplete['sites_per_tooth']}-point chart dated {r.shortfall.incomplete.get('captured_at')}"
+    return None
+
+
+def queue_lead(view: CaseView) -> dict | None:
+    """The one line under a queue row: the first concrete chart action, else the first blocking action.
+    Dentist confirmations are folded into the '+N more' count so the row reads as one job."""
+    blocking = [a for a in view.assessment.actions if a.blocking]
+    if not blocking:
+        return None
+    lead = next((a for a in blocking if a.action_type != "assert"), blocking[0])
+    return {"title": action_title(lead), "hint": _action_hint(view, lead), "more": len(blocking) - 1}
+
+
+# --- glance layer: one sentence, one bar, one hero --------------------------------------------------
+
+# Blocking actions are grouped by who acts: the coordinator fixes the chart, the dentist confirms criteria.
+_WORK_KIND = {"new_radiograph": ("chart gap", "chart gaps"), "chart_entry": ("chart gap", "chart gaps"), "review": ("chart gap", "chart gaps"),
+              "confirm_extraction": ("chart finding to confirm", "chart findings to confirm"),
+              "check_source": ("item the connected source cannot see", "items the connected source cannot see"),
+              "resolve_unknown": ("item the connected source cannot see", "items the connected source cannot see")}
+_FROM_ID = re.compile(r"\s*\(from [a-z0-9_.\-]+\)$", re.I)
+
+
+def action_title(a: Action) -> str:
+    """Engine titles for proposals end with '(from note_0514)'; the quote itself is shown, so the id is noise."""
+    return _FROM_ID.sub("", a.title)
+
+
+def gap_groups(view: CaseView) -> dict:
+    a = view.assessment
+    work = [{"action": act, "title": action_title(act), "requirement": _unblocked(view, act),
+             "proposal": pending_proposal_for(view, act) if act.action_type == "confirm_extraction" else None}
+            for act in a.actions if act.blocking and act.action_type != "assert"]
+    confirms = [_confirm_row(view, act) for act in a.actions if act.blocking and act.action_type == "assert"]
+    return {"work": work, "confirms": confirms, "advisory": [act for act in a.actions if not act.blocking],
+            "criteria_pending": sum(c["criteria"] for c in confirms)}
+
+
+def _unblocked(view: CaseView, a: Action):
+    return view.assessment.requirement(a.unblocks[0]) if a.unblocks else None
+
+
+def _confirm_row(view: CaseView, a: Action) -> dict:
+    """One plain line per dentist confirmation, named by the requirement it settles and counting its criteria."""
+    r = _unblocked(view, a)
+    n = len(r.shortfall.missing_assertions) if r else 1
+    label = r.label if r else a.title
+    return {"action": a, "criteria": n, "label": f"{label} ({n} criteria)" if n > 1 else label}
+
+
+def headline(view: CaseView, gaps: dict) -> dict:
+    """The sentence at the top of Case Review. Documentation completeness only — never payer behaviour."""
+    a = view.assessment
+    provider = view.case.treatment.provider.name
+    if view.signed:
+        so = view.state.sign_off
+        return {"tone": "signed", "title": f"Signed by {so.signed_by}.",
+                "sub": "Download the packet from the packet screen and submit it yourself. Colombus never transmits."}
+    if a.verdict in (Verdict.BLOCKED, Verdict.NEEDS_INPUT):
+        kinds: dict[tuple[str, str], int] = {}
+        for w in gaps["work"]:
+            k = _WORK_KIND.get(w["action"].action_type, ("chart gap", "chart gaps"))
+            kinds[k] = kinds.get(k, 0) + 1
+        parts = [plural(n, one, many) for (one, many), n in kinds.items()]
+        if gaps["criteria_pending"]:
+            parts.append(f"{plural(gaps['criteria_pending'], 'clinical criterion', 'clinical criteria')} for {provider} to confirm")
+        title = "Not ready to submit." if a.verdict == Verdict.BLOCKED else "Needs a human before it can go out."
+        return {"tone": VERDICT_CLASS[a.verdict], "title": title, "sub": _join(parts) + " before the packet can go out." if parts else ""}
+    if a.verdict == Verdict.READY_TO_SUBMIT:
+        return {"tone": "ready", "title": "Documentation complete — ready for sign-off.",
+                "sub": f"Every applicable CDCP requirement is documented. {provider} signs the packet; the clinic submits it."}
+    if a.verdict == Verdict.READY_WITH_RISKS:
+        n = sum(1 for r in a.requirements if r.applicable and r.risk_reason)
+        return {"tone": "risks", "title": "Documentation complete, with noted risks.",
+                "sub": f"{plural(n, 'requirement is', 'requirements are')} satisfied with a risk worth reading before {provider} signs."}
+    return {"tone": VERDICT_CLASS[a.verdict], "title": VERDICT_LABEL[a.verdict] + ".", "sub": a.schedule.detail}
+
+
+def _join(parts: list[str]) -> str:
+    if len(parts) <= 1:
+        return "".join(parts)
+    return ", ".join(parts[:-1]) + " and " + parts[-1]
+
+
+def segments(a) -> list[dict]:
+    """One segment per applicable requirement, in pack order — the whole rule check in one glance."""
+    return [{"id": r.requirement_id, "label": r.label, "status": STATUS_LABEL[r.status], "cls": STATUS_CLASS[r.status]}
+            for r in a.requirements if r.applicable]
+
+
+_PART_PHRASE = {"bad": "missing or stale", "pending": "awaiting confirmation", "ask": "awaiting the dentist", "risk": "with a noted risk"}
+
+
+def completeness_parts(a) -> list[dict]:
+    """What is not yet documented: (status class, counted phrase) pairs for the bar legend, in bar-colour order."""
+    counts: dict[str, int] = {}
+    for r in a.requirements:
+        if r.applicable:
+            counts[STATUS_CLASS[r.status]] = counts.get(STATUS_CLASS[r.status], 0) + 1
+    return [{"cls": k, "text": f"{counts[k]} {_PART_PHRASE[k]}"} for k in _PART_PHRASE if counts.get(k)]
 
 
 def queue_summary(views: list[CaseView]) -> dict:

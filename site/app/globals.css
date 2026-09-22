@@ -1,0 +1,275 @@
+@import "tailwindcss";
+@import "shadcn/tailwind.css";
+
+:root {
+  --paper: #f4f2e9;
+  --ink: #193a30;
+  /* Holds AA contrast even in the deepest window-light shade (scripts/site-contrast.py). */
+  --muted: #5c6557;
+  --crease: inset 0 1px #fffdf6;
+  --orange: #ef865b;
+  --line: #d4d9c9;
+  --sage: #e4e7d9;
+  --radius: 4px;
+  --ease-out: cubic-bezier(.16, 1, .3, 1);
+  --pill-line: #c3ccb8;
+  --background: var(--paper);
+  --foreground: var(--ink);
+  --primary: var(--ink);
+  --primary-foreground: var(--paper);
+  --ink-soft: #425e51;
+}
+@theme inline {
+  --font-sans: var(--font-body), Arial, sans-serif;
+  --color-background: var(--paper);
+  --color-foreground: var(--ink);
+  --color-primary: var(--ink);
+  --color-primary-foreground: var(--paper);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+}
+* { box-sizing: border-box; }
+html { background: var(--paper); color-scheme: light; }
+html:has(dialog[open]) { overflow: hidden; }
+/* The page is a sheet of cotton paper; its grain scrolls with the content. */
+body { margin: 0; color: var(--ink); background: var(--paper) url("/paper.svg") 0 0 / 256px; font-family: var(--font-body), Arial, sans-serif; -webkit-font-smoothing: antialiased; }
+a { color: inherit; text-decoration: none; }
+button, input, select { font: inherit; }
+button, summary { cursor: pointer; }
+button, a, input, select, summary { -webkit-tap-highlight-color: transparent; }
+button { color: inherit; }
+::selection { background: #f5b197; color: var(--ink); }
+/* Keyboard focus: a soft sage halo that follows each control's radius instead of a hard dark outline. */
+:focus-visible { outline: 2px solid #6b8062; outline-offset: 3px; }
+html { scroll-behavior: smooth; }
+/* Owner preference: no visible scrollbars on the page or the listbox; wheel, touch and keyboard scrolling still work. */
+html, .pms-menu { scrollbar-width: none; }
+html::-webkit-scrollbar, .pms-menu::-webkit-scrollbar { display: none; }
+button:disabled { opacity: .65; cursor: wait; }
+svg { display: block; }
+h1, h2, h3, p { margin: 0; }
+h1, h2, h3 { font-family: var(--font-display), Georgia, serif; font-weight: 400; }
+em { font-weight: 400; }
+.sr-only, .honeypot { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+.skip-link { position: fixed; top: -100px; left: 20px; z-index: 50; padding: 15px; background: var(--ink); color: var(--paper); }
+.skip-link:focus { top: 15px; }
+/* One window light for the whole site, fixed to the viewport so the paper slides beneath it while scrolling.
+   A thin transparent shade over everything printed on the page (no blend mode, so scrolling stays cheap);
+   dialogs sit above it like sheets lifted into the light. Sized to the largest viewport so the light never
+   rescales as mobile browser bars show and hide; the vh sizes serve browsers without lvh. */
+.room-light { position: fixed; inset: 0; z-index: 40; pointer-events: none; background: url("/light-wide.svg") 50% 0 / max(100vw, 160vh) auto no-repeat; background-size: max(100vw, 160lvh) auto; }
+@media (max-aspect-ratio: 1/1) { .room-light { background-image: url("/light-tall.svg"); background-size: max(100vw, 50vh) auto; background-size: max(100vw, 50lvh) auto; } }
+@media print { .room-light { display: none; } }
+.site-shell { width: min(calc(100% - 112px), 1400px); min-height: 100svh; margin-inline: auto; display: flex; flex-direction: column; }
+.site-header { height: 98px; flex: none; display: flex; align-items: center; justify-content: space-between; }
+.wordmark { font-size: 46px; line-height: 1; letter-spacing: -3.7px; font-weight: 650; display: inline-block; padding-right: 7px; }
+.wordmark > span { color: #d96335; }
+.launch-status { display: inline-flex; gap: 9px; align-items: center; font-size: 12px; color: #53604d; }
+.launch-status > span { width: 6px; height: 6px; border-radius: 50%; background: #d96335; }
+#main { flex: 1; }
+
+/* A single editorial composition: type and sculpture occupy the same space. */
+.poster { position: relative; height: clamp(430px, 53svh, 610px); isolation: isolate; }
+.poster-title { position: absolute; inset: 20px 0 0; display: flex; flex-direction: column; justify-content: space-between; font-size: clamp(96px, 11.2vw, 174px); letter-spacing: -.065em; line-height: .98; z-index: 2; pointer-events: none; }
+.poster-title > span { display: block; padding-top: 18px; }
+.poster-title > em { display: block; align-self: flex-end; letter-spacing: -.065em; padding-bottom: 3px; font-size: .98em; }
+.sculpture { position: absolute; width: 53%; height: 103%; right: -2%; top: -8%; z-index: 1; }
+.orbit { position: absolute; width: 75%; height: 51%; top: 25%; left: 14%; border: 1px solid #c1ccb5; border-radius: 50%; transform: rotate(-31deg); pointer-events: none; }
+.tooth-viewer { position: absolute; inset: 0; }
+.tooth-canvas { position: absolute; inset: 0; height: 100%; width: 100%; touch-action: pan-y; cursor: grab; outline-offset: -30px; }
+.tooth-canvas:active { cursor: grabbing; }
+.tooth-canvas canvas { width: 100%; height: 100%; }
+.tooth-fallback { position: absolute; inset: 10% 14% 15%; width: 72%; height: 75%; filter: drop-shadow(12px 25px 18px #4e64552c); }
+.tooth-controls { position: absolute; right: 5%; top: 5%; display: flex; align-items: center; gap: 9px; font-size: 10px; color: #53604d; }
+.tooth-controls button { display: grid; place-items: center; width: 32px; height: 32px; border-radius: 50%; border: 1px solid #bdc8b3; background: #f4f2e9b3; font-size: 15px; transition: background .2s, border-color .2s; }
+.tooth-controls button:hover { background: #dfe5d3; border-color: #7e9374; }
+.tooth-controls .view-mode { width: auto; border-radius: 30px; padding-inline: 11px; font-size: 10px; }
+.tooth-controls .view-mode[aria-pressed=true] { background: var(--ink); border-color: var(--ink); color: var(--paper); }
+.tooth-controls .view-mode[aria-pressed=true]:hover { background: var(--ink-soft); border-color: var(--ink-soft); }
+/* X-ray mode (the X-ray button) re-exposes the whole page: see xray.css. */
+
+/* The signup band: one sage panel for the one action. Two columns share rows, so "Why Ophi?" lines up with the email field. */
+.entry-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 490px); grid-template-rows: auto auto; column-gap: 6%; margin: 36px 0; padding: 44px; border-radius: 36px; background: var(--sage); }
+.introduction, .signup { grid-row: span 2; display: grid; grid-template-rows: subgrid; }
+.introduction > p { max-width: 400px; padding-top: 2px; font-size: 17px; line-height: 1.6; color: #55624e; }
+.introduction-actions { display: flex; align-items: center; align-self: start; min-height: 58px; }
+.signup-head > h2 { font-size: 28px; letter-spacing: -.7px; line-height: 1.15; }
+.signup-note { font-size: 13px; line-height: 1.6; color: var(--muted); margin: 10px 0 18px; }
+/* Controls on sage take the paper tone so they stay distinct from the band. */
+.entry-row .email-row { background: var(--paper); }
+.entry-row .pms-trigger, .entry-row .pill { border-color: #bcc6b0; }
+.entry-row .pill-tag { background: var(--paper); }
+.copy-email-address { font-size: 15px; user-select: text; }
+.copy-email-button { cursor: copy; }
+/* Section rules are folds in the sheet: a crease line with light catching its lower lip. */
+/* Answers start where the form starts and end at the card edge: form track plus card padding. */
+.faq { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 534px); column-gap: 6%; padding: 28px 0 36px; border-top: 1px solid var(--line); box-shadow: var(--crease); }
+.faq-head > h2 { font-size: 28px; letter-spacing: -.7px; line-height: 1.2; }
+.contact { display: grid; gap: 10px; margin-top: 26px; font-size: 13px; color: var(--muted); }
+.faq-items details + details { border-top: 1px solid var(--line); }
+.faq-items summary .icon { width: 18px; height: 18px; flex: none; transition: transform .35s var(--ease-out); }
+.faq-items details[open] summary .icon { transform: rotate(45deg); }
+.faq-items summary { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 48px; padding-block: 12px; list-style: none; font-size: 13px; }
+.faq-items p { padding: 0 24px 16px 0; font-size: 13px; line-height: 1.7; color: var(--muted); }
+.waitlist-form { position: relative; }
+.email-row { display: flex; align-items: center; border: 1px solid #a3b29b; border-radius: 100px; padding: 5px; background: #eceee2; transition: border-color .2s, background .2s; }
+.email-row:focus-within { border-color: #6b8062; background: #eef0e6; }
+.email-row input { width: 100%; min-width: 0; height: 46px; padding: 0 15px; color: var(--ink); font-size: 14px; background: none; border: 0; border-radius: 30px; outline: none; }
+.email-row input::placeholder { color: #65715c; opacity: 1; }
+.email-row:has(input[aria-invalid=true]) { border-color: #a53f1f; }
+.join-button { display: inline-flex; align-items: center; justify-content: space-between; gap: 21px; flex: none; height: 46px; padding: 0 18px 0 20px; border: 0; border-radius: 100px; background: var(--orange); font-size: 12px; font-weight: 500; transition: background .2s; }
+.join-button .icon { width: 22px; height: 22px; transition: transform .35s var(--ease-out); }
+.join-button:hover { background: #f59973; }
+.join-button:hover .icon { transform: translate(2px,-2px); }
+.waitlist-error { color: #a53f1f; font-size: 12px; line-height: 1.5; margin: 10px 0; }
+.waitlist-consent { font-size: 11px; line-height: 1.6; color: var(--muted); margin-top: 8px; max-width: 370px; }
+.waitlist-success:focus { outline: none; }
+.waitlist-success { display: flex; align-items: start; gap: 15px; padding-top: 6px; min-height: 125px; }
+.waitlist-success > span .icon { width: 18px; height: 18px; }
+.waitlist-success > span { display: grid; place-items: center; width: 37px; height: 37px; background: var(--sage); border-radius: 50%; flex: none; }
+.waitlist-success p { font-size: 13px; line-height: 1.8; color: var(--muted); }
+.waitlist-success strong { font-weight: 500; color: var(--ink); }
+.site-footer { margin-top: auto; border-top: 1px solid var(--line); box-shadow: var(--crease); padding-top: 36px; color: var(--muted); }
+.footer-bottom { display: flex; align-items: center; justify-content: space-between; gap: 24px; font-size: 11px; }
+.footer-actions { display: flex; align-items: center; flex-wrap: wrap; justify-content: flex-end; gap: 10px; }
+/* Decorative; its oversized glyph box overlaps the contact row above and would swallow clicks. */
+.footer-wordmark { pointer-events: none; display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 14px 0 38px; color: var(--ink); font-size: min(35vw, 520px); font-weight: 600; line-height: 1.05; letter-spacing: -.085em; }
+.footer-flower { color: #d66a3c; font-size: .28em; font-weight: 400; letter-spacing: 0; line-height: 1; }
+.footer-bottom { min-height: 62px; border-top: 1px solid var(--line); box-shadow: var(--crease); }
+
+/* The evidence is available on demand, with native modal keyboard behavior. */
+.info-panel { position: fixed; inset: 0; margin: auto; width: min(600px, calc(100% - 40px)); max-height: calc(100dvh - 48px); padding: 0; border: 1px solid #c0c9b6; border-radius: 8px; color: var(--ink); background: var(--paper); box-shadow: 0 30px 120px #10231930; overscroll-behavior: contain; }
+.info-panel::backdrop { background: #16332857; backdrop-filter: blur(9px); }
+.panel-content { position: relative; padding: 40px; }
+/* Close sits on the heading's first line, so the title starts the panel. */
+.close-button { position: absolute; top: 42px; right: 30px; display: grid; place-items: center; border: 1px solid #b6c3a8; background: none; height: 40px; width: 40px; border-radius: 50%; transition: background .2s, transform .35s var(--ease-out); }
+.close-button .icon { width: 17px; height: 17px; }
+.close-button:hover { transform: rotate(90deg); }
+.close-button:hover { background: var(--sage); }
+.panel-content > h2 { font-size: clamp(32px, 3.5vw, 46px); line-height: 1.1; letter-spacing: -1.6px; margin-bottom: 24px; padding-right: 56px; }
+.panel-content > p { font-size: 14px; line-height: 1.8; color: #52614b; margin-top: 20px; }
+.source-note { margin-top: 28px; border-block: 1px solid var(--line); padding-block: 23px; }
+.source-number { font-family: var(--font-display), Georgia, serif; font-size: 56px; line-height: 1; letter-spacing: -2px; }
+.source-note p { font-size: 13px; line-height: 1.7; margin-top: 10px; }
+.source-period { display: block; font-size: 11px; color: var(--muted); margin-top: 10px; }
+.source-link { display: inline-flex; align-items: center; min-height: 32px; margin-top: 28px; padding: 5px 14px; border-radius: 100px; background: var(--sage); font-size: 11px; line-height: 1.5; transition: background .2s; }
+.source-link:hover { background: #d9dfcb; }
+
+@media (min-width: 1600px) { .poster { height: clamp(540px, 52svh, 650px); } .sculpture { width: 55%; top: -5%; } }
+@media (max-width: 1100px) {
+  .site-shell { width: calc(100% - 72px); }
+  .poster { height: clamp(355px, 48svh, 460px); }
+  .poster-title { font-size: 11.6vw; }
+  .sculpture { width: 55%; top: -4%; height: 105%; }
+  .entry-row { grid-template-columns: minmax(0, 1fr) minmax(0, 440px); }
+  .faq { grid-template-columns: minmax(0, 1fr) minmax(0, 484px); }
+  .introduction > p { font-size: 15px; }
+  .join-button { gap: 12px; padding-inline: 16px; }
+  .tooth-controls { right: 4%; top: 3%; }
+}
+@media (max-width: 700px) {
+  .site-shell { width: calc(100% - 40px); }
+  .site-header { height: 84px; }
+  .wordmark { font-size: 38px; letter-spacing: -3px; }
+  .launch-status { font-size: 10px; }
+  .poster { height: 405px; margin-top: 6px; margin-bottom: 42px; }
+  .poster-title { inset: 3px 0 0; font-size: clamp(64px, 15.4vw, 105px); line-height: 1; letter-spacing: -.06em; }
+  .poster-title > span { padding-top: 0; }
+  .poster-title > em { align-self: flex-start; font-size: .86em; max-width: 100%; padding-bottom: 0; line-height: .99; width: 280px; }
+  .sculpture { width: 100%; height: 88%; right: 0; top: 6%; }
+  .orbit { width: 80%; left: 10%; height: 50%; }
+  .tooth-controls { top: calc(100% + 32px); bottom: auto; right: 0; gap: 7px; }
+  .tooth-controls button { height: 30px; width: 30px; }
+  .tooth-controls .view-mode { font-size: 9px; padding-inline: 9px; }
+  /* Stacked, the rows no longer need to line up, and a grid track would size to the widest control. */
+  .entry-row { display: flex; flex-direction: column; gap: 28px; margin: 23px 0 32px; padding: 26px 20px; border-radius: 28px; }
+  .introduction { display: flex; flex-direction: column; gap: 16px; }
+  .introduction > p { font-size: 14px; }
+  .introduction-actions { min-height: 0; }
+  .signup { display: block; }
+  .signup-head > h2 { font-size: 25px; }
+  .faq { grid-template-columns: 1fr; gap: 14px; padding-block: 25px 28px; }
+  .faq-head > h2 { font-size: 25px; }
+  .contact { margin-top: 18px; }
+  .email-row input { font-size: 16px; padding-left: 12px; }
+  .join-button { font-size: 11px; gap: 12px; padding: 0 14px; }
+  .waitlist-consent { font-size: 11px; }
+  .site-footer { padding-top: 20px; }
+  .footer-wordmark { padding: 13px 0 25px; gap: 12px; }
+  .footer-bottom { flex-direction: column-reverse; align-items: flex-start; gap: 16px; padding-block: 18px 22px; font-size: 10px; }
+  .footer-actions { justify-content: flex-start; }
+  .panel-content { padding: 28px 24px 24px; }
+  /* Floated so only the first heading line yields to it. */
+  .close-button { position: static; float: right; margin: -4px -6px 0 8px; }
+  .panel-content > h2 { padding-right: 0; }
+  .panel-content > h2 { font-size: 32px; }
+  .panel-content > p { font-size: 13px; }
+  .source-number { font-size: 49px; }
+}
+@media (min-width: 480px) and (max-width: 700px) {
+  .poster { height: 460px; }
+  .poster-title > em { width: 390px; }
+  .sculpture { width: 84%; right: 0; top: 5%; }
+}
+@media (max-width: 360px) {
+  .site-shell { width: calc(100% - 32px); }
+  .poster { height: 375px; }
+  .poster-title { font-size: 60px; }
+  .poster-title > em { width: 260px; }
+  .sculpture { top: 8%; }
+  .signup-head > h2 { font-size: 23px; }
+  .join-button { gap: 7px; padding-inline: 11px; }
+  .panel-content { padding: 20px; }
+  .panel-content > h2 { font-size: 30px; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .poster-title { animation: arrive .75s ease-out both; }
+  .sculpture { animation: arrive 1s .08s ease-out both; }
+  .room-light { animation: daylight 1.8s .1s ease-out both; }
+  @keyframes daylight { from { opacity: 0; } }
+  .info-panel[open] { animation: panel-in .25s ease-out both; }
+  /* FAQ answers ease open instead of snapping; browsers without interpolate-size get the fade only. */
+  .faq-items details { interpolate-size: allow-keywords; }
+  .faq-items details::details-content { block-size: 0; overflow: hidden; transition: block-size .4s var(--ease-out), content-visibility .4s allow-discrete; }
+  .faq-items details[open]::details-content { block-size: auto; }
+  .faq-items details p { opacity: 0; translate: 0 -4px; transition: opacity .25s ease-out, translate .4s var(--ease-out); }
+  .faq-items details[open] p { opacity: 1; translate: 0 0; transition-delay: .06s; }
+  @keyframes arrive { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes panel-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+}
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } *, *::before, *::after { animation: none !important; transition: none !important; } }
+
+/* Secondary actions share one shape: an outlined pill ending in a sage tag, echoing the orange join pill. */
+.pill { display: inline-flex; align-items: center; gap: 14px; width: fit-content; min-height: 44px; padding: 0 6px 0 18px; border: 1px solid var(--pill-line); border-radius: 100px; background: none; color: var(--ink); font-size: 13px; white-space: nowrap; transition: border-color .25s, background .25s; }
+.pill:hover { border-color: #8f9f86; background: #eceee2; }
+.pill-tag { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-width: 32px; height: 32px; padding: 0 9px; border-radius: 100px; background: var(--sage); font-size: 11px; color: #53604d; transition: background .25s, color .25s; }
+.pill-tag .icon { width: 15px; height: 15px; transition: transform .35s var(--ease-out); }
+.pill:hover .pill-tag { background: #d9dfcb; color: var(--ink); }
+.pill-tag[data-done] { background: var(--ink); color: var(--paper); }
+.why-button:hover .icon { transform: translate(1px, -1px); }
+.privacy-button:hover .icon { transform: rotate(90deg); }
+.back-to-top:hover .icon { transform: translateY(-2px); }
+.site-footer .pill { min-height: 38px; padding-left: 14px; font-size: 11px; }
+.site-footer .pill-tag { min-width: 28px; height: 28px; }
+
+/* Clinic software: a custom listbox that opens in place with a short settle, matching the email pill. */
+.pms-field { position: relative; margin-top: 10px; }
+.pms-trigger { display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; height: 46px; padding: 0 18px 0 20px; border: 1px solid var(--pill-line); border-radius: 100px; background: none; color: var(--ink); font-size: 13px; text-align: left; appearance: none; transition: border-color .25s, background .25s; }
+select.pms-trigger { background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='%23193a30' stroke-width='1.4' stroke-linecap='round'%3E%3Cpath d='m5.5 8 4.5 4.5L14.5 8'/%3E%3C/svg%3E") no-repeat right 16px center / 18px; }
+.pms-trigger[data-empty] { color: var(--muted); }
+.pms-trigger:hover, .pms-field[data-open] .pms-trigger { border-color: #8f9f86; background-color: #eceee2; }
+.pms-trigger:focus-visible { outline: none; border-color: #6b8062; }
+.pms-trigger > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pms-chevron { width: 18px; height: 18px; flex: none; transition: transform .35s var(--ease-out); }
+.pms-field[data-open] .pms-chevron { transform: rotate(180deg); }
+.pms-menu { position: absolute; z-index: 20; top: calc(100% + 6px); left: 0; right: 0; max-height: min(440px, 62svh); margin: 0; padding: 6px; list-style: none; overflow-y: auto; overscroll-behavior: contain; border: 1px solid #d1d8c6; border-radius: 22px; background: var(--paper); box-shadow: 0 18px 42px -14px #10231940, 0 2px 6px -2px #1023191a; opacity: 0; visibility: hidden; transform: translateY(-6px) scale(.98); transform-origin: top center; transition: opacity .18s ease-out, transform .32s var(--ease-out), visibility 0s .32s; }
+.pms-field[data-drop-up] .pms-menu { top: auto; bottom: calc(100% + 6px); transform-origin: bottom center; transform: translateY(6px) scale(.98); }
+.pms-field[data-open] .pms-menu { opacity: 1; visibility: visible; transform: none; transition-delay: 0s; }
+.pms-menu > li { display: flex; align-items: center; justify-content: space-between; min-height: 34px; padding: 0 14px; border-radius: 100px; font-size: 13px; cursor: pointer; transition: background .15s; }
+.pms-menu > li[data-active] { background: var(--sage); }
+.pms-menu > li[aria-selected=true] { font-weight: 500; }
+.pms-menu > li .icon { width: 16px; height: 16px; color: #6b8062; }
+/* Exits for non-clinic readers sit apart from the software list. */
+.pms-menu > li:nth-last-child(2) { margin-top: 7px; position: relative; }
+.pms-menu > li:nth-last-child(2)::before { content: ""; position: absolute; top: -4px; left: 14px; right: 14px; border-top: 1px solid var(--line); }
+
