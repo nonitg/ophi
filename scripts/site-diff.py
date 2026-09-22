@@ -8,6 +8,7 @@ Usage:
 import sys
 from pathlib import Path
 
+BASE = "http://localhost:3111"
 VIEWPORTS = {1440: 900, 1280: 800, 1024: 768, 768: 1024, 701: 900, 430: 932, 393: 852, 360: 800, 320: 640}
 DESKTOP = "1440,1280,1024,768,701"
 
@@ -19,7 +20,7 @@ def capture(out: Path, query: str, widths: list[int]) -> None:
         browser = p.chromium.launch(args=["--enable-webgl", "--use-angle=swiftshader"])
         for width in widths:
             page = browser.new_page(viewport={"width": width, "height": VIEWPORTS.get(width, 900)}, device_scale_factor=1, reduced_motion="reduce")
-            page.goto("http://localhost:3111" + query, wait_until="networkidle")
+            page.goto(BASE + query, wait_until="networkidle")
             page.wait_for_selector('.tooth-viewer[data-ready="true"]', timeout=30000)
             page.add_style_tag(content="nextjs-portal { display: none !important; }")
             page.wait_for_function("document.fonts.status === 'loaded'")
@@ -46,7 +47,7 @@ def compare(before: Path, after: Path) -> None:
         box = diff.getbbox()
         print(f"{a_path.stem}: {'identical' if not changed else f'{changed} px changed, region {box}'}")
         if changed:
-            highlight = Image.blend(b, Image.new("RGB", b.size, "#ff00ff"), 0.0)
+            highlight = b.copy()
             highlight.paste(Image.new("RGB", b.size, "#ff00ff"), mask=diff)
             highlight.save(after / f"{a_path.stem}-diff.png")
 

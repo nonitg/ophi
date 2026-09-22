@@ -27,9 +27,12 @@ with sync_playwright() as p:
 
         top = page.get_by_role("link", name="Back to the top")
         box = top.bounding_box()
-        check(f"{tag} back-to-top keeps its name and a 40px+ target", top.is_visible() and box["width"] >= 40 and box["height"] >= 38, f"{box['width']:.0f}x{box['height']:.0f}")
+        # Phones show it as a 40px round button; wide screens keep the labelled 38px pill.
+        big_enough = box["width"] >= 40 and box["height"] >= 40 if phone else box["height"] >= 38
+        check(f"{tag} back-to-top keeps its name and its target size", top.is_visible() and big_enough, f"{box['width']:.0f}x{box['height']:.0f}")
 
-        # Focus moves from the last question to the contact, matching the order on screen.
+        # Focus moves from the last question to the contact: the order on screen on phones; on wide screens
+        # it steps back left to the contact under the heading.
         page.locator(".faq-items summary").last.focus()
         page.keyboard.press("Tab")
         check(f"{tag} Tab from last question reaches the contact copy button", page.evaluate(FOCUSED).startswith("Copy email address"), page.evaluate(FOCUSED))

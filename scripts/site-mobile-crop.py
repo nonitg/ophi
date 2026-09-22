@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
-"""Crop one region of a phone variant at 2x, from one selector's top to another's bottom.
+"""Crop one region of the phone page at 2x, from one selector's top to another's bottom.
 
-Usage: site-mobile-crop.py variant width from_selector to_selector out.png [xray]
-  variant "-" means the current page without ?m=
+Usage: site-mobile-crop.py query width from_selector to_selector out.png [xray]
+  query: appended to the URL, such as "?m=a"; "-" is the page as it is
 """
 import sys
 from playwright.sync_api import sync_playwright
 
-VARIANT, WIDTH, FROM, TO, OUT = sys.argv[1], int(sys.argv[2]), sys.argv[3], sys.argv[4], sys.argv[5]
+QUERY, WIDTH, FROM, TO, OUT = sys.argv[1], int(sys.argv[2]), sys.argv[3], sys.argv[4], sys.argv[5]
 XRAY = len(sys.argv) > 6 and sys.argv[6] == "xray"
-BASE = "http://localhost:3111" + ("" if VARIANT == "-" else f"?m={VARIANT}")
+BASE = "http://localhost:3111" + ("" if QUERY == "-" else QUERY)
 
 with sync_playwright() as p:
     browser = p.chromium.launch(args=["--enable-webgl", "--use-angle=swiftshader"])
