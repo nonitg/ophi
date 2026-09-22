@@ -83,7 +83,7 @@ export function PmsSelect() {
         aria-labelledby={`${id}-label`} aria-haspopup="listbox" aria-expanded={open} aria-controls={`${id}-list`}
         aria-activedescendant={open ? `${id}-${active}` : undefined}
         onClick={() => (open ? setOpen(false) : show())} onKeyDown={onKeyDown} onBlur={() => setOpen(false)}>
-        <span>{value || copy.form.pmsPlaceholder}</span>
+        <span>{value || <><span className="pms-prompt-long">{copy.form.pmsPlaceholder}</span><span className="pms-prompt-short">{copy.form.pmsPlaceholderShort}</span></>}</span>
         <Icon name="chevron" className="pms-chevron" />
       </button>
       <ul ref={list} id={`${id}-list`} role="listbox" aria-labelledby={`${id}-label`} className="pms-menu" tabIndex={-1}>

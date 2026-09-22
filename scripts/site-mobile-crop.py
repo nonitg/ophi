@@ -16,6 +16,7 @@ with sync_playwright() as p:
     page = browser.new_page(viewport={"width": WIDTH, "height": 800}, device_scale_factor=2, is_mobile=True, has_touch=True, reduced_motion="reduce")
     page.goto(BASE, wait_until="networkidle")
     page.wait_for_selector('.tooth-viewer[data-ready="true"]', timeout=30000)
+    page.add_style_tag(content="nextjs-portal { display: none !important; }")
     if XRAY:
         page.click(".view-mode")
         page.wait_for_selector(":root[data-xray]")

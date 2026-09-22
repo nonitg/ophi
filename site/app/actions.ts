@@ -1,7 +1,10 @@
 "use server";
 
+import { createHash } from "node:crypto";
 import { headers } from "next/headers";
+import { after } from "next/server";
 import { Resend } from "resend";
+import { confirmationEmail } from "@/lib/confirmation-email";
 import { parseSubscription } from "@/lib/subscribe";
 
 export type SubscribeState =
@@ -13,6 +16,7 @@ export type SubscribeState =
 const WINDOW_MS = 60_000;
 const LIMIT = 5;
 const hits = new Map<string, number[]>();
+const SAVE_FAILED: SubscribeState = { status: "error", message: "We couldn't save that just now. Try again in a moment." };
 
 function rateLimited(ip: string): boolean {
   const now = Date.now();
@@ -40,13 +44,24 @@ export async function subscribe(_prev: SubscribeState, form: FormData): Promise<
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) {
     if (process.env.NODE_ENV !== "production") {
-      console.log("[subscribe] no RESEND_API_KEY; would save", parsed.email, parsed.pms ?? "");
+      console.log("[subscribe] no RESEND_API_KEY; would save and send the welcome note to", parsed.email, parsed.pms ?? "");
       return { status: "ok" };
     }
     return { status: "error", message: "Signups are not open yet. Try again later." };
   }
 
   const resend = new Resend(apiKey);
+  const lookup = await resend.contacts.get({ email: parsed.email });
+  // Submitting the form again is a fresh opt-in, so someone who unsubscribed is back on the list (owner's decision).
+  if (lookup.data?.unsubscribed) {
+    const { error } = await resend.contacts.update({ email: parsed.email, unsubscribed: false });
+    if (error) {
+      console.error("[subscribe] resend rejoin error", error);
+      return SAVE_FAILED;
+    }
+    return welcome(resend, parsed.email);
+  }
+
   const contact = { email: parsed.email, unsubscribed: false };
   let { error } = await resend.contacts.create({
     ...contact,
@@ -61,7 +76,21 @@ export async function subscribe(_prev: SubscribeState, form: FormData): Promise<
   // An address already on the list is a success from the reader's side.
   if (error && !/already|exist/i.test(error.message)) {
     console.error("[subscribe] resend error", error);
-    return { status: "error", message: "We couldn't save that just now. Try again in a moment." };
+    return SAVE_FAILED;
   }
+  // Re-entering a listed address, anyone's, must not make Ophi email it again.
+  // Any lookup failure other than "not found" counts as listed, so an unsure answer never sends.
+  if (lookup.error?.name !== "not_found") return { status: "ok" };
+  return welcome(resend, parsed.email);
+}
+
+// Sent after the response, so a slow or failed send never delays or loses the signup.
+// The key (a hash, keeping the address out of it) stops two racing submits both sending.
+function welcome(resend: Resend, email: string): SubscribeState {
+  const idempotencyKey = `welcome/${createHash("sha256").update(email).digest("hex")}`;
+  after(async () => {
+    const { error } = await resend.emails.send(confirmationEmail(email), { idempotencyKey });
+    if (error) console.error("[subscribe] welcome note failed", error);
+  });
   return { status: "ok" };
 }

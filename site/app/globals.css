@@ -103,9 +103,12 @@ em { font-weight: 400; }
 .copy-email-button { cursor: copy; }
 /* Section rules are folds in the sheet: a crease line with light catching its lower lip. */
 /* Answers start where the form starts and end at the card edge: form track plus card padding. */
-.faq { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 534px); column-gap: 6%; padding: 28px 0 36px; border-top: 1px solid var(--line); box-shadow: var(--crease); }
+/* Contact follows the questions in reading order; wide screens tuck it under the heading. */
+.faq { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 534px); grid-template-areas: "head items" "contact items"; grid-template-rows: auto 1fr; column-gap: 6%; padding: 28px 0 36px; border-top: 1px solid var(--line); box-shadow: var(--crease); }
+.faq-head { grid-area: head; }
+.faq-items { grid-area: items; }
 .faq-head > h2 { font-size: 28px; letter-spacing: -.7px; line-height: 1.2; }
-.contact { display: grid; gap: 10px; margin-top: 26px; font-size: 13px; color: var(--muted); }
+.contact { grid-area: contact; align-self: start; display: grid; gap: 10px; margin-top: 26px; font-size: 13px; color: var(--muted); }
 .faq-items details + details { border-top: 1px solid var(--line); }
 .faq-items summary .icon { width: 18px; height: 18px; flex: none; transition: transform .35s var(--ease-out); }
 .faq-items details[open] summary .icon { transform: rotate(45deg); }
@@ -121,14 +124,24 @@ em { font-weight: 400; }
 .join-button .icon { width: 22px; height: 22px; transition: transform .35s var(--ease-out); }
 .join-button:hover { background: #f59973; }
 .join-button:hover .icon { transform: translate(2px,-2px); }
+/* Busy, not unavailable: the pill stays solid while its arrow carries the wait. */
+.join-button:disabled { opacity: 1; }
 .waitlist-error { color: #a53f1f; font-size: 12px; line-height: 1.5; margin: 10px 0; }
 .waitlist-consent { font-size: 11px; line-height: 1.6; color: var(--muted); margin-top: 8px; max-width: 370px; }
+/* Signup result. The form stays underneath, faded and inert, so the result takes over the same pill. */
+.waitlist { position: relative; }
+.waitlist[data-done] > .waitlist-form { position: absolute; z-index: 1; inset: 0 0 auto; opacity: 0; visibility: hidden; transition: opacity .2s ease-out, visibility 0s .2s; }
 .waitlist-success:focus { outline: none; }
-.waitlist-success { display: flex; align-items: start; gap: 15px; padding-top: 6px; min-height: 125px; }
-.waitlist-success > span .icon { width: 18px; height: 18px; }
-.waitlist-success > span { display: grid; place-items: center; width: 37px; height: 37px; background: var(--sage); border-radius: 50%; flex: none; }
-.waitlist-success p { font-size: 13px; line-height: 1.8; color: var(--muted); }
-.waitlist-success strong { font-weight: 500; color: var(--ink); }
+.success-line { display: flex; align-items: center; justify-content: space-between; gap: 12px; height: 58px; padding: 5px 5px 5px 20px; border: 1px solid transparent; border-radius: 100px; background: var(--paper); }
+.success-line strong { font-size: 14px; font-weight: 500; }
+/* The done tag, as on "Copied": ink with a paper check. Underneath, the join button closes to a circle before the ink fills it. */
+.success-tag { position: relative; isolation: isolate; display: grid; place-items: center; flex: none; width: 46px; height: 46px; color: var(--paper); }
+.success-tag::before, .success-tag::after { content: ""; position: absolute; z-index: -1; inset: 0; border-radius: 100px; background: var(--ink); }
+.success-tag::before { left: auto; width: var(--join-w, 46px); background: var(--orange); clip-path: inset(1px 1px 1px calc(100% - 45px) round 100px); }
+.success-tag .icon { width: 20px; height: 20px; }
+.success-detail { margin-top: 12px; font-size: 13px; line-height: 1.6; color: var(--muted); }
+.success-detail > span { color: var(--ink); overflow-wrap: anywhere; }
+.survey-link { margin-top: 16px; }
 .site-footer { margin-top: auto; border-top: 1px solid var(--line); box-shadow: var(--crease); padding-top: 36px; color: var(--muted); }
 .footer-bottom { display: flex; align-items: center; justify-content: space-between; gap: 24px; font-size: 11px; }
 .footer-actions { display: flex; align-items: center; flex-wrap: wrap; justify-content: flex-end; gap: 10px; }
@@ -171,7 +184,7 @@ em { font-weight: 400; }
   .site-header { height: 84px; }
   .wordmark { font-size: 38px; letter-spacing: -3px; }
   .launch-status { font-size: 10px; }
-  .poster { height: 405px; margin-top: 6px; margin-bottom: 42px; }
+  .poster { height: 405px; margin-top: 6px; margin-bottom: 32px; }
   .poster-title { inset: 3px 0 0; font-size: clamp(64px, 15.4vw, 105px); line-height: 1; letter-spacing: -.06em; }
   .poster-title > span { padding-top: 0; }
   .poster-title > em { align-self: flex-start; font-size: .86em; max-width: 100%; padding-bottom: 0; line-height: .99; width: 280px; }
@@ -179,23 +192,35 @@ em { font-weight: 400; }
   .orbit { width: 80%; left: 10%; height: 50%; }
   .header-tools { gap: 14px; }
   .view-mode { height: 28px; font-size: 10px; padding-inline: 10px; }
-  /* Stacked, the rows no longer need to line up, and a grid track would size to the widest control. */
-  .entry-row { display: flex; flex-direction: column; gap: 28px; margin: 23px 0 32px; padding: 26px 20px; border-radius: 28px; }
-  .introduction { display: flex; flex-direction: column; gap: 16px; }
-  .introduction > p { font-size: 14px; }
+  /* Stacked, the rows no longer need to line up, and a grid track would size to the widest control.
+     The introduction follows the headline on bare paper, so the band holds the signup alone. */
+  .entry-row { display: flex; flex-direction: column; gap: 30px; margin: 0 0 32px; padding: 0; border-radius: 0; background: none; }
+  .introduction { display: flex; flex-direction: column; gap: 18px; }
+  .introduction > p { max-width: 340px; padding-top: 0; font-size: 16px; line-height: 1.55; }
   .introduction-actions { min-height: 0; }
-  .signup { display: block; }
+  .introduction .pill { border-color: var(--pill-line); }
+  .introduction .pill-tag { background: var(--sage); }
+  .signup { display: block; padding: 26px 20px 24px; border-radius: 28px; background: var(--sage); }
+  /* Short lines end on a pair of words, not one. */
+  :is(.introduction > p, .signup-note, .waitlist-consent, .faq-items p) { text-wrap: pretty; }
   .signup-head > h2 { font-size: 25px; }
-  .faq { grid-template-columns: 1fr; gap: 14px; padding-block: 25px 28px; }
+  .faq { grid-template-columns: 1fr; grid-template-areas: "head" "items" "contact"; grid-template-rows: none; gap: 14px; padding-block: 25px 28px; }
   .faq-head > h2 { font-size: 25px; }
-  .contact { margin-top: 18px; }
+  .contact { margin-top: 14px; }
+  /* Typed email stays 16px so iOS doesn't zoom; the hint matches the band's text so it shows whole. */
   .email-row input { font-size: 16px; padding-left: 12px; }
+  .email-row input::placeholder { font-size: 14px; }
+  .pms-trigger .pms-prompt-long { display: none; }
+  .pms-trigger .pms-prompt-short { display: inline; }
   .join-button { font-size: 11px; gap: 12px; padding: 0 14px; }
   .waitlist-consent { font-size: 11px; }
   .site-footer { padding-top: 20px; }
   .footer-wordmark { padding: 13px 0 25px; gap: 12px; }
   .footer-bottom { flex-direction: column-reverse; align-items: flex-start; gap: 16px; padding-block: 18px 22px; font-size: 10px; }
-  .footer-actions { justify-content: flex-start; }
+  /* Privacy left, a round back-to-top right, copyright last. */
+  .footer-actions { width: 100%; justify-content: space-between; flex-wrap: nowrap; }
+  .site-footer .back-to-top.pill { width: 40px; min-height: 40px; padding: 0; justify-content: center; }
+  .back-to-top-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; }
   .panel-content { padding: 28px 24px 24px; }
   /* Floated so only the first heading line yields to it. */
   .close-button { position: static; float: right; margin: -4px -6px 0 8px; }
@@ -220,6 +245,11 @@ em { font-weight: 400; }
   .panel-content { padding: 20px; }
   .panel-content > h2 { font-size: 30px; }
 }
+/* The smallest phones drop the join arrow and tighten the listbox trigger so both prompts show whole. */
+@media (max-width: 345px) {
+  .join-button .icon { display: none; }
+  .pms-field .pms-trigger { gap: 8px; padding-inline: 16px 14px; }
+}
 @media (prefers-reduced-motion: no-preference) {
   .poster-title { animation: arrive .75s ease-out both; }
   .sculpture { animation: arrive 1s .08s ease-out both; }
@@ -234,6 +264,22 @@ em { font-weight: 400; }
   .faq-items details[open] p { opacity: 1; translate: 0 0; transition-delay: .06s; }
   @keyframes arrive { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
   @keyframes panel-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  /* Joining: the arrow leaves and comes back while the request is out. */
+  .waitlist-form[aria-busy=true] .join-button .icon { animation: send .9s var(--ease-out) infinite; }
+  /* Joined: the button closes into the done tag, the check draws, the field seals into a plain paper pill. */
+  .waitlist[data-done] .success-line { animation: seal .6s ease-out both; }
+  .waitlist[data-done] .success-tag::before { animation: join-close .5s .12s var(--ease-out) both; }
+  .waitlist[data-done] .success-tag::after { animation: ink-fill .35s .4s var(--ease-out) both; }
+  .waitlist[data-done] .success-tag path { stroke-dasharray: 16; animation: check-draw .4s .55s var(--ease-out) both; }
+  .waitlist[data-done] .success-line strong { animation: write-in .6s .18s var(--ease-out) both; }
+  .waitlist[data-done] .success-detail { animation: arrive .5s .34s var(--ease-out) both; }
+  .waitlist[data-done] .survey-link { animation: arrive .5s .44s var(--ease-out) both; }
+  @keyframes send { 40% { transform: translate(6px, -6px); opacity: 0; } 41% { transform: translate(-6px, 6px); opacity: 0; } }
+  @keyframes seal { from { border-color: var(--pill-line); } }
+  @keyframes join-close { from { clip-path: inset(0 round 100px); } }
+  @keyframes ink-fill { from { transform: scale(0); } }
+  @keyframes check-draw { from { stroke-dashoffset: 16; } }
+  @keyframes write-in { from { clip-path: inset(0 100% 0 0); } }
 }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } *, *::before, *::after { animation: none !important; transition: none !important; } }
 
@@ -258,6 +304,8 @@ select.pms-trigger { background: url("data:image/svg+xml,%3Csvg xmlns='http://ww
 .pms-trigger:hover, .pms-field[data-open] .pms-trigger { border-color: #8f9f86; background-color: #eceee2; }
 .pms-trigger:focus-visible { outline: none; border-color: #6b8062; }
 .pms-trigger > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* Phones show the shorter prompt, which fits the narrower trigger whole. */
+.pms-prompt-short { display: none; }
 .pms-chevron { width: 18px; height: 18px; flex: none; transition: transform .35s var(--ease-out); }
 .pms-field[data-open] .pms-chevron { transform: rotate(180deg); }
 .pms-menu { position: absolute; z-index: 20; top: calc(100% + 6px); left: 0; right: 0; max-height: min(440px, 62svh); margin: 0; padding: 6px; list-style: none; overflow-y: auto; overscroll-behavior: contain; border: 1px solid #d1d8c6; border-radius: 22px; background: var(--paper); box-shadow: 0 18px 42px -14px #10231940, 0 2px 6px -2px #1023191a; opacity: 0; visibility: hidden; transform: translateY(-6px) scale(.98); transform-origin: top center; transition: opacity .18s ease-out, transform .32s var(--ease-out), visibility 0s .32s; }

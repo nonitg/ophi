@@ -135,7 +135,8 @@ sculpture and page typography, captured locally with `scripts/site-social.py`; n
 The owner requested the oversized footer back. The public page now ends with a large lowercase
 Ophi wordmark and the orange asterisk, plus a compact contact row, back-to-top link and privacy control.
 The contact action copies hello@ophi.app directly; it never opens a form or mail client. The same copy
-control sits under the FAQ heading (“Anything else? Write to us.”), next to the questions it answers.
+control sits with the FAQ (“Anything else? Write to us.”): under the heading on wide screens, after the
+questions on phones. It follows the questions in the markup, so reading and focus order match both layouts.
 
 ## Signup band (2026-09-22)
 
@@ -144,6 +145,35 @@ Two columns on shared grid rows: the introduction and “Why Ophi?” on the lef
 on the right, with the pill aligned to the email field. Controls inside the band take the paper tone.
 Contact moved out of the band into the FAQ, keeping the band to a single action. The owner chose this
 from seven live layouts (single column, standalone band, sentence form, two columns, and band combinations).
+
+After joining (2026-09-22, owner pick from three live variants): the result takes over the email pill in place, level
+with “Why Ophi?”. The orange join button closes into a circle, ink fills it from the centre and a check draws: the
+“Copied” done tag, earned. The typed address fades out; “You’re on the list.” writes in where it sat. Below: “We’ll write to you at
+…” with the address (true for repeat signups too, so the page never reveals who is already listed), then one secondary pill to the clinic survey. With the first action done, the survey is the
+band’s one next step, and it keeps the band close to its signed-out height. While joining, the join pill stays solid and
+its arrow leaves and returns. A first signup also gets a welcome email in the same paper, ink and orange
+(`site/lib/confirmation-email.ts`) that repeats the survey invitation.
+Phones split the band differently; see Phone layout.
+
+## Phone layout (2026-09-22)
+
+Stacked on a phone (≤700px), the two-column band read as intro, secondary pill, then a heading mid-card.
+Phones now follow reading order. Wider screens are unchanged, pixel for pixel.
+
+- Headline, then standfirst: the introduction and “Why Ophi?” sit on bare paper right under “Less
+  paperwork.”, aligned to the page frame. The sage band holds the signup alone, heading first.
+- FAQ: heading, questions, then “Anything else? Write to us.” and the copy pill.
+- Footer: privacy pill left, back-to-top as a round 40px button right (its label stays for screen
+  readers), copyright last. The two pills used to stack unevenly at 360px and below.
+- Fields show their prompts whole. Typed email stays 16px (no iOS zoom) while its placeholder is 14px.
+  The clinic-software trigger shows “Your clinic’s software (optional)”. At 345px and below the join
+  arrow drops and the trigger tightens.
+- Short paragraphs use `text-wrap: pretty`, so they don't end on a single word.
+
+The owner picked this (“a”) from four live phone variants. The others: one band with the signup first,
+the form in reading order with a full-width join button, and a right-set second headline line. Checks:
+`scripts/site-mobile-fit.py` (prompts fit at 320–430px), `scripts/site-mobile-a11y.py` (names, tap
+size, focus order, X-ray band), `scripts/site-diff.py` (before/after pixel diff per width).
 
 ## Control language (2026-09-22)
 

@@ -2,7 +2,7 @@
 """Capture the signup band before and after a local submit, on desktop and phone, plus frames of the transition.
 
 Usage: site-success.py [base_url] [out_dir] [query]
-Local previews only: without RESEND_API_KEY the dev server logs the signup instead of storing it.
+Local previews only. Submits take the honeypot branch, so nothing is stored or sent.
 """
 import sys
 from pathlib import Path
@@ -40,14 +40,30 @@ with sync_playwright() as p:
             band.screenshot(path=str(OUT / f"{tag}-before.png"))
             before = rects(page)
             page.locator("#email").fill("preview@example.com")
+            # The honeypot branch renders the same success UI without the rate limit or a stored contact.
+            page.locator("#hp_ref").evaluate("el => el.value = 'preview'")
+            if motion == "no-preference":
+                # Hold the server action so the pending state stays on screen long enough to capture.
+                page.evaluate("""() => { const send = window.fetch; window.fetch = (...args) => new Promise(r => setTimeout(r, 1500)).then(() => send(...args)); }""")
             page.locator("button[type=submit]").click()
+            if motion == "no-preference":
+                page.wait_for_selector(".waitlist-form[aria-busy=true]", timeout=5000)
+                page.mouse.move(0, 0)
+                for i, ms in enumerate((150, 300, 450)):
+                    page.wait_for_timeout(150)
+                    page.locator(".join-button").screenshot(path=str(OUT / f"{tag}-pending-{i}.png"))
+                print("  pending label:", page.locator(".join-button").inner_text())
             page.wait_for_selector(".waitlist-success", state="attached", timeout=15000)
-            last = 0
-            for ms in FRAMES_MS:
-                page.wait_for_timeout(ms - last)
-                last = ms
-                if motion == "no-preference":
-                    band.screenshot(path=str(OUT / f"{tag}-t{ms:04d}.png"))
+            # Only the signup's own motion; the page-load daylight and headline keep running.
+            page.evaluate("window.signup = () => document.getAnimations().filter(a => a.effect?.target?.closest?.('.waitlist'))")
+            if motion == "no-preference":
+                # Screenshots are slower than the motion, so freeze every animation and seek it frame by frame.
+                names = page.evaluate("""() => signup().map(a => { a.pause(); return a.animationName || a.transitionProperty || 'height'; })""")
+                print(f"  animations: {sorted(set(names))}")
+                for ms in FRAMES_MS:
+                    page.evaluate("(t) => signup().forEach(a => { a.currentTime = t; })", ms)
+                    band.screenshot(path=str(OUT / f"{tag}-t{ms:04d}.png"), animations="allow")
+                page.evaluate("() => signup().forEach(a => a.finish())")
             page.wait_for_timeout(600)
             band.screenshot(path=str(OUT / f"{tag}-after.png"))
             after = rects(page)

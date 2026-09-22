@@ -18,10 +18,17 @@ export const copy = {
     emailPlaceholder: "Your email address",
     pms: "Which software does your clinic use? (optional)",
     pmsPlaceholder: "At a clinic? Tell us your software (optional)",
+    pmsPlaceholderShort: "Your clinic’s software (optional)",
     submit: "Join waitlist",
     submitting: "Joining…",
     consent: "By joining, you agree to occasional updates from Ophi. Unsubscribe anytime.",
     success: "You’re on the list.",
-    successDetail: "We’ll write when there’s something to share.",
+    // True for first and repeat signups alike, so the page never reveals who is already on the list.
+    successDetail: "We’ll write to you at",
+  },
+  // Clinic workflow survey, offered after signup and in the welcome note.
+  survey: {
+    href: "https://www.jotform.com/262616967929072",
+    label: "At a clinic? Take our survey",
   },
 } as const;

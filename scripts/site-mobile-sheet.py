@@ -31,6 +31,7 @@ with sync_playwright() as p:
             page.on("pageerror", lambda e: errors.append(str(e)))
             page.goto(BASE + ("" if variant == "-" else f"?m={variant}"), wait_until="networkidle")
             page.wait_for_selector('.tooth-viewer[data-ready="true"]', timeout=30000)
+            page.add_style_tag(content="nextjs-portal { display: none !important; }")
             if XRAY:
                 page.click(".view-mode")
                 page.wait_for_selector(":root[data-xray]")

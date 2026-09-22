@@ -6,11 +6,9 @@ import { Icon } from "@/components/icons";
 import { CopyEmail } from "@/components/copy-email";
 import { copy } from "@/lib/copy";
 
-export default async function Page({ searchParams }: PageProps<"/">) {
-  // Temporary: ?m= picks a phone layout variant for review (app/mobile.css).
-  const { m } = await searchParams;
+export default function Page() {
   return (
-    <div className="site-shell" id="top" data-m={typeof m === "string" ? m : undefined}>
+    <div className="site-shell" id="top">
       <a className="skip-link" href="#main">Skip to content</a>
       <header className="site-header">
         <Link className="wordmark" href="/" aria-label="Ophi home">ophi<span aria-hidden="true">.</span></Link>
@@ -44,11 +42,6 @@ export default async function Page({ searchParams }: PageProps<"/">) {
         <section className="faq" aria-labelledby="faq-title">
           <div className="faq-head">
             <h2 id="faq-title">A few quick answers.</h2>
-            {/* Contact lives with the questions, keeping the signup band to one action. */}
-            <div className="contact">
-              <p>Anything else? Write to us.</p>
-              <CopyEmail email={copy.contactEmail} />
-            </div>
           </div>
           <div className="faq-items">
             <details>
@@ -64,11 +57,16 @@ export default async function Page({ searchParams }: PageProps<"/">) {
               <p>We’re still building. Join the waitlist to hear when Ophi is ready.</p>
             </details>
           </div>
+          {/* Contact lives with the questions, keeping the signup band to one action. */}
+          <div className="contact">
+            <p>Anything else? Write to us.</p>
+            <CopyEmail email={copy.contactEmail} />
+          </div>
         </section>
       </main>
       <footer className="site-footer">
         <div className="footer-wordmark" aria-hidden="true"><span>ophi</span><span className="footer-flower">✳</span></div>
-        <div className="footer-bottom"><span>© {new Date().getFullYear()} Ophi</span><div className="footer-actions"><InfoPanel kind="privacy" /><a className="pill back-to-top" href="#top">Back to the top<span className="pill-tag"><Icon name="up" /></span></a></div></div>
+        <div className="footer-bottom"><span>© {new Date().getFullYear()} Ophi</span><div className="footer-actions"><InfoPanel kind="privacy" /><a className="pill back-to-top" href="#top"><span className="back-to-top-label">Back to the top</span><span className="pill-tag"><Icon name="up" /></span></a></div></div>
       </footer>
     </div>
   );

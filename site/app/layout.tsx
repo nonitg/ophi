@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { DM_Sans, Newsreader } from "next/font/google";
 import "./globals.css";
 import "./xray.css";
-import "./mobile.css";
 import { Analytics } from "@vercel/analytics/next";
 import { copy } from "@/lib/copy";
 
