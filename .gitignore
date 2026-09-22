@@ -11,3 +11,4 @@ out/
 !.impeccable/config.json
 worktrees/
 outputs/
+.DS_Store
