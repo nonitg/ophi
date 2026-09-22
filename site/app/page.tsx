@@ -46,7 +46,7 @@ export default function Page() {
           <div className="faq-items">
             <details>
               <summary>Who is Ophi for?<Icon name="plus" /></summary>
-              <p>Dental teams handling treatment paperwork and preauthorization requests.</p>
+              <p>Dental clinics handling treatment paperwork and preauthorization requests.</p>
             </details>
             <details>
               <summary>What are you building?<Icon name="plus" /></summary>

@@ -15,8 +15,10 @@ vi.mock("resend", () => ({
 // Run post-response work inline so the test can see the send.
 vi.mock("next/server", () => ({ after: (task: () => Promise<void>) => void task() }));
 
+// A fresh address per call keeps the per-connection rate limit out of unrelated tests.
+let ip = 0;
 vi.mock("next/headers", () => ({
-  headers: async () => new Headers({ "x-forwarded-for": "203.0.113.7" }),
+  headers: async () => new Headers({ "x-forwarded-for": `203.0.113.${++ip}` }),
 }));
 
 import { subscribe } from "./actions";
@@ -68,6 +70,14 @@ describe("subscribe", () => {
   it("does not send the welcome note again to an address already on the list", async () => {
     get.mockResolvedValue({ data: { id: "c_4", email: "desk@clinic.ca" }, error: null });
     create.mockResolvedValue({ data: null, error: { message: "Contact already exists" } });
+    const state = await subscribe({ status: "idle" }, form({ email: "desk@clinic.ca" }));
+    expect(state).toEqual({ status: "ok" });
+    expect(send).not.toHaveBeenCalled();
+  });
+
+  it("sends nothing when the lookup fails for any reason but not found", async () => {
+    get.mockResolvedValue({ data: null, error: { name: "rate_limit_exceeded", message: "Too many requests" } });
+    create.mockResolvedValue({ data: { id: "c_6" }, error: null });
     const state = await subscribe({ status: "idle" }, form({ email: "desk@clinic.ca" }));
     expect(state).toEqual({ status: "ok" });
     expect(send).not.toHaveBeenCalled();

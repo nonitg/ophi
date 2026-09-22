@@ -85,9 +85,11 @@ export async function subscribe(_prev: SubscribeState, form: FormData): Promise<
 }
 
 // Sent after the response, so a slow or failed send never delays or loses the signup.
-// The key (a hash, keeping the address out of it) stops two racing submits both sending.
+// The key (a hash, keeping the address out of it) stops racing double submits both sending. It holds for one minute,
+// not the 24 h Resend remembers keys, so a later rejoin still gets its note.
 function welcome(resend: Resend, email: string): SubscribeState {
-  const idempotencyKey = `welcome/${createHash("sha256").update(email).digest("hex")}`;
+  const minute = Math.floor(Date.now() / 60_000);
+  const idempotencyKey = `welcome/${createHash("sha256").update(`${email}:${minute}`).digest("hex")}`;
   after(async () => {
     const { error } = await resend.emails.send(confirmationEmail(email), { idempotencyKey });
     if (error) console.error("[subscribe] welcome note failed", error);
