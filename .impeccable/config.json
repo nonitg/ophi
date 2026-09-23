@@ -29,6 +29,12 @@
         ],
         "createdAt": "2026-09-17T07:42:46.367Z",
         "reason": "Claude: remaining hit is the 34-char section eyebrow, a short label, which the rule explicitly permits. The genuinely long uppercase runs it caught (81, 57, 47, 42, 36 chars — spec captions and arch labels) were fixed to sentence case, not suppressed."
+      },
+      {
+        "rule": "overused-font",
+        "value": "arial",
+        "createdAt": "2026-09-23T02:17:13.707Z",
+        "reason": "Welcome email only: user picked the 'Plain personal note' deliverability fix; Arial matches Gmail's compose default so the note reads as hand-written, not a newsletter"
       }
     ]
   }

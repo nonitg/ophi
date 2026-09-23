@@ -152,8 +152,9 @@ with “Why Ophi?”. The orange join button closes into a circle, ink fills it 
 “Copied” done tag, earned. The typed address fades out; “You’re on the list.” writes in where it sat. Below: “We’ll write to you at
 …” with the address (true for repeat signups too, so the page never reveals who is already listed), then one secondary pill to the clinic survey. With the first action done, the survey is the
 band’s one next step, and it keeps the band close to its signed-out height. While joining, the join pill stays solid and
-its arrow leaves and returns. A first signup also gets a welcome email in the same paper, ink and orange
-(`site/lib/confirmation-email.ts`) that repeats the survey invitation.
+its arrow leaves and returns. A first signup also gets a welcome email
+(`site/lib/confirmation-email.ts`) that repeats the survey invitation. It is deliberately unbranded: a plain note from a
+named person, with a text link and no layout, colour or button, so Gmail files it in Primary rather than Promotions.
 Phones split the band differently; see Phone layout.
 
 ## Phone layout (2026-09-22)
