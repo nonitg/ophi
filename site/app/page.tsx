@@ -15,7 +15,6 @@ export default function Page() {
         <div className="header-tools">
           {/* ToothScene fills this with the X-ray control once the tooth is live. */}
           <div id="xray-slot" className="xray-slot" />
-          <span className="launch-status"><span aria-hidden="true" />In the making</span>
         </div>
       </header>
       <main id="main">
@@ -65,7 +64,7 @@ export default function Page() {
         </section>
       </main>
       <footer className="site-footer">
-        <div className="footer-wordmark" aria-hidden="true"><span>ophi<span>.</span></span><span className="footer-flower">✳</span></div>
+        <div className="footer-wordmark" aria-hidden="true"><span>ophi<span>.</span></span></div>
         <div className="footer-bottom"><span>© {new Date().getFullYear()} Ophi</span><div className="footer-actions"><InfoPanel kind="privacy" /><a className="pill back-to-top" href="#top"><span className="back-to-top-label">Back to the top</span><span className="pill-tag"><Icon name="up" /></span></a></div></div>
       </footer>
     </div>
