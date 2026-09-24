@@ -4,8 +4,8 @@ from pathlib import Path
 
 import pytest
 
-from colombus.packet.narrative import draft_narrative
-from colombus.service import CaseService, NarrativeInvalid, Store
+from ophi.packet.narrative import draft_narrative
+from ophi.service import CaseService, NarrativeInvalid, Store
 
 CRITERIA = ["no_active_perio", "crown_root_ratio", "no_furcation", "margin_3mm", "ferrule_1_5mm",
             "mesiodistal_space", "no_adjunctive_needed", "extensively_restored", "active_disease_addressed", "endo_healed"]

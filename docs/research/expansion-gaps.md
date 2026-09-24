@@ -1,4 +1,4 @@
-# Expansion research — where else Colombus could go
+# Expansion research — where else Ophi could go
 
 Researched 2026-09-18. Four parallel tracks: clinic operations, access to care, records/interop, payer side.
 Evidence grades are load-bearing. **VERIFIED** = named primary source (government, regulator, college,
@@ -26,7 +26,7 @@ of the transaction.
 **The one number that decides everything is still open.** Health Canada names *both* incomplete submissions
 *and* stringent clinical criteria as denial drivers, and has published **no split between them**. If most of
 the 54% are clinically ineligible crowns, a documentation engine cannot flip them and there is no business.
-Recoverability, not volume, is now the whole thesis. `colombus/lookback.py` is the instrument that answers it.
+Recoverability, not volume, is now the whole thesis. `ophi/lookback.py` is the instrument that answers it.
 
 ## Ranked expansion options
 

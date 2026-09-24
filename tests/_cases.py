@@ -10,11 +10,11 @@ from __future__ import annotations
 import copy
 from pathlib import Path
 
-from colombus.casegen.dsl import build_case, load_case
-from colombus.engine.assess import assess
-from colombus.engine.models import Assessment
-from colombus.extract.proposer import propose_for_case
-from colombus.rules.loader import default_pack
+from ophi.casegen.dsl import build_case, load_case
+from ophi.engine.assess import assess
+from ophi.engine.models import Assessment
+from ophi.extract.proposer import propose_for_case
+from ophi.rules.loader import default_pack
 
 ROOT = Path(__file__).resolve().parents[1]
 CASES_DIR = ROOT / "cases"

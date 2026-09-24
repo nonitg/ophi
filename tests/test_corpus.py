@@ -1,9 +1,9 @@
 """Golden-expectation regression over cases/**. Any changed verdict, status, completeness or top action is a
-failure a human must acknowledge by rewriting the expectation (`colombus eval --write`)."""
+failure a human must acknowledge by rewriting the expectation (`ophi eval --write`)."""
 
 from __future__ import annotations
 
-from colombus.evals.run import run_all
+from ophi.evals.run import run_all
 from tests._cases import CASES_DIR, EXPECTED_DIR, corpus_files
 
 

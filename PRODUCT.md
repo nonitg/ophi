@@ -11,7 +11,7 @@ web
 Public site (`site/`): Next.js (App Router) on Vercel, shadcn/ui heavily customized, Resend for
 waitlist contacts and newsletter sends. User declined Cloudflare (no Pages, no Turnstile) and
 Buttondown. Bot defence is a honeypot field plus a server-side rate limit. The product app
-(`colombus/web`, Flask + Jinja) is internal and not public.
+(`ophi/web`, Flask + Jinja) is internal and not public.
 
 ## Users
 

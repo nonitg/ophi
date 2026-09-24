@@ -3,7 +3,7 @@
 # type the probe note into the editor, screenshot, Save, then snapshot+diff.
 cd "$(dirname "$0")/.." || exit 1
 scripts/ui clickxy -X 566 -Y 410 >/dev/null; sleep 1
-scripts/ui keys -Text 'Colombus probe: fractured MB cusp #16, crown recommended' >/dev/null; sleep 1
+scripts/ui keys -Text 'Ophi probe: fractured MB cusp #16, crown recommended' >/dev/null; sleep 1
 ./lab/vm/vm shot
 scripts/ui clickxy -X 647 -Y 777 >/dev/null; sleep 4
 ./lab/vm/vm shot

@@ -12,7 +12,7 @@ import pytest
 from PIL import Image
 from reportlab.pdfgen import canvas
 
-from colombus.verify.verifier import verify_packet
+from ophi.verify.verifier import verify_packet
 
 RADIOGRAPH = "02_radiographs_pa_bw_radiograph_PA-36_2026-05-14.png"
 NARRATIVE_TXT = "04_narrative_txt_2026-05-14.txt"

@@ -60,6 +60,6 @@ for i, name in enumerate(names):
       "outcome": {"submitted": str(sub), "decision": decision, "denial_text": text, "resubmitted": resub,
                   "resubmitted_decision": ("approved" if random.random()<0.6 else "denied") if resub else None}}
     (out / f"lb{i+1:02d}.yaml").write_text("# Look-Back history — fictional. Outcome block is what the clinic recorded; gaps are re-derived by the engine.\n" + yaml.safe_dump(d, sort_keys=False, allow_unicode=True))
-from colombus.lookback import run_lookback
+from ophi.lookback import run_lookback
 r = run_lookback()
 print(f'seed {seed}: submitted {r.submitted}  denied {r.denied} (${r.denied_dollars:,.0f})  doc-gap {r.denied_with_doc_gap}  never resubmitted {r.never_resubmitted} (${r.never_resubmitted_dollars:,.0f})  approved {r.approved}')

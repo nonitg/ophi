@@ -1,6 +1,6 @@
 {
-  "_description": "Mock radiographs — mirrors CDM RadiographPayload + ChartArtifact (colombus/cdm/models.py:91) and ABELDent imaging procedure_events (ChartCode 242). Fictional Data has zero retrievable images; mocks simulate retrievable artifacts for dev.",
-  "_note": "FDI tooth numbering (ISO 3950). Views: PA=periapical, BW=bitewing, PANO=panoramic. See colombus/cdm/models.py RadiographView enum.",
+  "_description": "Mock radiographs — mirrors CDM RadiographPayload + ChartArtifact (ophi/cdm/models.py:91) and ABELDent imaging procedure_events (ChartCode 242). Fictional Data has zero retrievable images; mocks simulate retrievable artifacts for dev.",
+  "_note": "FDI tooth numbering (ISO 3950). Views: PA=periapical, BW=bitewing, PANO=panoramic. See ophi/cdm/models.py RadiographView enum.",
   "radiographs": [
     {
       "artifact_id": "rad_101_01",

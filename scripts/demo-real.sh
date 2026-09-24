@@ -8,6 +8,6 @@ unset USE_MOCK_PMS_API USE_MOCK_DATA PMS_USE_MOCKS 2>/dev/null || true
 # allow callers to override host/port via env
 HOST="${HOST:-127.0.0.1}"
 PORT="${PORT:-8765}"
-echo "Colombus demo — REAL data (cases/demo/, PmsRepository=FileSystem) on http://${HOST}:${PORT}"
+echo "Ophi demo — REAL data (cases/demo/, PmsRepository=FileSystem) on http://${HOST}:${PORT}"
 echo "Toggle: USE_MOCK_PMS_API is unset (real). Use scripts/demo-mock.sh for dummy fixtures."
-exec "$ROOT/.venv/bin/python" -m colombus.cli serve --host "$HOST" --port "$PORT" "$@"
+exec "$ROOT/.venv/bin/python" -m ophi.cli serve --host "$HOST" --port "$PORT" "$@"

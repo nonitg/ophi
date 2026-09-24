@@ -1,4 +1,4 @@
-# Read-only SQL query runner for the lab VM. Lives in C:\colombus on the guest.
+# Read-only SQL query runner for the lab VM. Lives in C:\ophi on the guest.
 # Deliberately mirrors the plan's ReadOnlySqlExecutor rule: the lab tooling refuses to write
 # to the vendor database, so the safety rail gets exercised before the real agent exists.
 param(
@@ -58,7 +58,7 @@ if ($Server -match '^\(localdb\)\\(.+)$') {
     $Server = $pipe
 }
 
-$cs = "Server=$Server;Database=$Database;Integrated Security=SSPI;TrustServerCertificate=True;Connect Timeout=15;Application Name=ColombusProbe"
+$cs = "Server=$Server;Database=$Database;Integrated Security=SSPI;TrustServerCertificate=True;Connect Timeout=15;Application Name=OphiProbe"
 $cn = New-Object System.Data.SqlClient.SqlConnection $cs
 $cn.Open()
 # Rail 2: everything runs inside a transaction that is always rolled back, so even a query that

@@ -3,7 +3,7 @@
 # Two layers: `schedule` mirrors the published grid (which codes need preauth); `requirements`
 # encode the supporting-documentation matrix and the Guide's crown criteria. Every requirement
 # cites the clause that creates it. The SME edits this file; the engine's predicate vocabulary is
-# closed (see colombus/rules/schema.py) — anything not expressible here needs an engineer.
+# closed (see ophi/rules/schema.py) — anything not expressible here needs an engineer.
 #
 # Copy law: labels and gap text describe documentation completeness against a cited rule. They never
 # say approved, eligible or covered.
@@ -53,7 +53,7 @@ schedule:
     - { code: "99222", replaced_by: "99112", clause: { source: factsheet, ref: "Lab fee codes replaced, Apr 1 2026" } }
     - { code: "99333", replaced_by: "99113", clause: { source: factsheet, ref: "Lab fee codes replaced, Apr 1 2026" } }
 
-# Criteria the dentist confirms. Colombus never asserts these; it records the clinician's answer,
+# Criteria the dentist confirms. Ophi never asserts these; it records the clinician's answer,
 # attributed and timestamped, and renders it in the packet as their clinical judgment.
 assertion_criteria:
   no_active_perio:

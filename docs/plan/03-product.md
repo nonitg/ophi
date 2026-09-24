@@ -67,7 +67,7 @@ dentist, not just an office manager, lean forward.
 
 **Beat 2 — The Friday Five (3 minutes).** The working queue, one week of real volume:
 ```
-COLOMBUS - Preauth Queue - Fictional Dental Centre         Week of Nov 9-13
+OPHI - Preauth Queue - Fictional Dental Centre         Week of Nov 9-13
 5 CDCP cases open                            $4,860 of treatment at risk
 
 * BLOCKED  T. Kowalchuk  #46  27211 Crown        $1,285   appt Nov 12 (3d)
@@ -126,7 +126,7 @@ in the PMS" — is wrong here: a desktop overlay pinned to ABELDent is 6–8 eng
 ABELDent release, and we have no vendor relationship to protect us. It would spend a quarter of the
 budget defending against a risk product discipline defeats instead.
 
-**The discipline: Colombus has no homepage habit. It has an inbox habit.** One email, 7:00 a.m., only
+**The discipline: Ophi has no homepage habit. It has an inbox habit.** One email, 7:00 a.m., only
 when money is at risk:
 > **3 CDCP cases this week need something before you submit.** $3,610 at risk. -> Open queue
 
@@ -157,12 +157,12 @@ Screen 3, enforced structurally in five places:
 2. **Provenance gating.** Every generated sentence carries a chip linking to its chart span. A sentence
    without one renders amber and **blocks sign-off** until edited or explicitly accepted under *"I
    attest this reflects my clinical judgment."* Unsourced text cannot silently reach a payer.
-3. **Clinician Assertions are attributed by name.** Colombus never asserts ferrule height; the dentist
+3. **Clinician Assertions are attributed by name.** Ophi never asserts ferrule height; the dentist
    does, with a timestamp.
 4. **The sign-off record** stores pre-edit draft, post-edit final, the diff, user, licence number,
    timestamp, rule-pack version — the practice's liability artifact, exportable. It is *for them*, and
    also our training corpus if they consent.
-5. **Copy law, no exceptions.** Colombus never says "approved," "will be approved," "eligible," or
+5. **Copy law, no exceptions.** Ophi never says "approved," "will be approved," "eligible," or
    "covered." It says *"CDCP crown criteria require a periapical within 12 months. The most recent
    periapical of #46 is dated 2023-11-14."* Statements are about **documentation completeness against a
    cited rule**, never about payer behaviour. This rule is what separates us from Olive AI and from the
@@ -181,7 +181,7 @@ rationale entirely and ship template+quotes; cut the Look-Back product to perman
 | Email `uscls@cda-adc.ca` requesting the USC&LS procedure-code licence. **Longest calendar lead time in the plan, lowest cost.** | Founder |
 | Call 10 office managers via officemanagers.ca and ODAA: *"How many CDCP predeterminations did you submit last month?"* **Resolves 0.1.** | Founder |
 | File an ATIP request with Health Canada on CDCP administration vendor contracts and any planned intake-validation capability. Free, ~30-day turnaround, **directly tests the Olive scenario.** | Founder |
-| Book a Smilepass demo *through an advisor, not from a Colombus address.* Map exactly what they do on predeterminations. | Founder |
+| Book a Smilepass demo *through an advisor, not from a Ophi address.* Map exactly what they do on predeterminations. | Founder |
 | Email ABELDent partnerships: integration guidance + warm intros to 3 reference customers. Do not disclose the wedge. | Founder |
 
 ### Milestones
@@ -206,7 +206,7 @@ Reasoning: 12 crown rules (27xxx) transcribed and encoded, each with source cita
 for structured fields. Clinician Assertions model. Product: Screen 2, ugly but real. BD: SME billing
 coordinator contracted (~$70/hr, 6–8 hrs/wk). First manual Look-Back on 2 friendly clinics' exported
 denial reports — **spreadsheet, no product.**
-**Exit:** SME reviews 20 crown cases; >=16 verdicts judged correct; **0 cases where Colombus says
+**Exit:** SME reviews 20 crown cases; >=16 verdicts judged correct; **0 cases where Ophi says
 "ready" and the SME says "would be denied."** False-ready is the unforgivable error and is tracked
 separately from accuracy forever.
 
@@ -293,7 +293,7 @@ from the first day generation exists, target 0.
 
 **4.6 Playwright E2E + visual regression** on all 5 screens across 12 canonical cases, every PR.
 
-**4.7 Red-team Friday, every second week.** Three hours, one person, trying to make Colombus produce a
+**4.7 Red-team Friday, every second week.** Three hours, one person, trying to make Ophi produce a
 *confidently wrong* packet. Every success becomes a corpus case — this is where the adversarial 15 come
 from.
 
@@ -348,7 +348,7 @@ powered, but directional signal on gap-flag rate. **Must be disclosed in the agr
 
 ### The pilot agreement must contain
 PHIPA **agent + electronic service provider** designation, clinic as HIC, permitted uses and limits
-written out. Explicit **"Colombus does not transmit to any payer."** Data minimization schedule naming
+written out. Explicit **"Ophi does not transmit to any payer."** Data minimization schedule naming
 every table and field read. Radiographs handled as metadata plus rendered copies, with a stated
 retention window. Subprocessor list with Canadian residency attestation, **including the LLM inference
 endpoint** — the sharp edge; confirm the endpoint and DPA before the first install, or design PHI
@@ -356,7 +356,7 @@ redaction before egress as the fallback. Breach notification timelines. Right to
 destruction within 30 days of termination. **Measurement rights** — de-identified outcome data may be
 aggregated and published; clinic named only with consent. Shadow-mode consent. **Clinical
 responsibility clause: the dentist is solely responsible for clinical content and submission decisions;
-Colombus is a documentation assistant, not a benefits determination.** **Termination for convenience on
+Ophi is a documentation assistant, not a benefits determination.** **Termination for convenience on
 14 days' notice** (removes purchase anxiety). **Pre-agreed conversion price signed at pilot start,
 auto-converting unless they opt out** — this is how you avoid a second sales cycle. Named contact for a
 weekly 20-minute call.
@@ -364,7 +364,7 @@ weekly 20-minute call.
 ### Numeric success criteria (assess after the pilots' first full quarter)
 | Metric | Threshold |
 |---|---|
-| Eligible CDCP preauth cases flowing through Colombus | **>=70%** |
+| Eligible CDCP preauth cases flowing through Ophi | **>=70%** |
 | Packets accepted with <=2 min of edits | **>=60%** |
 | Cases with a real gap caught (coordinator confirms "I would have submitted without this") | **>=25%** |
 | Hallucinated clinical claims reaching sign-off | **0** |
@@ -407,8 +407,8 @@ time saved.** Rank the pitch:
 | Tier | Price | Contents | When |
 |---|---|---|---|
 | **Look-Back** | Free, quarterly, <=200 past cases | Retrospective denial analysis | M4 |
-| **Colombus Core** | **$349/mo/location** | CDCP gap-check, packet assembly, Look-Back, audit log, 1 PMS connection | M6 |
-| **Colombus Multi-Payer** | **$549/mo/location** | Carrier adapters: Canada Life, Desjardins, Alberta Blue Cross, TELUS AdjudiCare, Beneva | After v1 |
+| **Ophi Core** | **$349/mo/location** | CDCP gap-check, packet assembly, Look-Back, audit log, 1 PMS connection | M6 |
+| **Ophi Multi-Payer** | **$549/mo/location** | Carrier adapters: Canada Life, Desjardins, Alberta Blue Cross, TELUS AdjudiCare, Beneva | After v1 |
 | **Group/DSO** | ~$249/location, min 10 | Requires SOC 2 Type 2 | After SOC 2 Type 2 |
 
 **Founding-clinic terms:** first 5 pilots free for 90 days, then **$249/mo locked for 12 months**,
@@ -460,7 +460,7 @@ procedure code set, the product is unshippable as designed.
 Seriously reconsider whether generative rationale belongs in v1 at all, versus template plus verbatim
 chart quotes. **One-strike rule.**
 
-**K10 — Adoption. Two months into the pilot.** If <50% of eligible cases flow through Colombus in 3+ of
+**K10 — Adoption. Two months into the pilot.** If <50% of eligible cases flow through Ophi in 3+ of
 4 clinics, staff will not use it. **No accuracy improvement fixes that.**
 
 ## 8. Sequenced risk register (P: 0–1, I: 1–5)

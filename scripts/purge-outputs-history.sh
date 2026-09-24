@@ -10,7 +10,7 @@ REMOTE_BRANCHES="main assertions-ui-bug"
 
 mkdir -p "$WORK"
 echo "== backup bundle of every ref =="
-git bundle create -q "$WORK/colombus-pre-purge.bundle" --all
+git bundle create -q "$WORK/ophi-pre-purge.bundle" --all
 
 # Local branch per remote branch so the mirror holds them as refs/heads.
 git fetch -q origin

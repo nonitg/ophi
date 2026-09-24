@@ -284,7 +284,7 @@ manual upload.
 ### Lab operations `[M]`
 
 LocalDB stops itself minutes after ABELDent closes; `q.ps1` now starts it on demand. ABELDent
-relaunched by automation must not be a child of the `ColombusRun` task (the task stays "Running"
+relaunched by automation must not be a child of the `OphiRun` task (the task stays "Running"
 and blocks all later calls); launch via `explorer.exe <exe>`. WinForms dialogs (Patient
 Selection) expose HWND-based AutomationIds that change per open; `scripts/ui setfield -Name
 '<label>'` locates the edit by its label instead. Perio data entry by automation remains open.

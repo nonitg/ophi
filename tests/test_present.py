@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import pytest
 
-from colombus.service import CaseService, Store
-from colombus.web import present
+from ophi.service import CaseService, Store
+from ophi.web import present
 
 
 @pytest.fixture

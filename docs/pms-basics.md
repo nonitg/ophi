@@ -13,13 +13,13 @@ A dental PMS is four systems that share a patient ID and pretend to be one app. 
 
 4. Insurance. A patient has one or more coverages (carrier, policy, group, certificate, relationship to subscriber). A claim says "this was done, pay me." A predetermination (= preauthorization) says "I intend to do this, will you pay?" — same message format, different transaction code, no money moves. That is the entire product surface: the predetermination path.
 
-Why preauth is painful, concretely. The procedure code (27xxx = crown) is structured. The tooth is structured. But the evidence CDCP wants — a periapical radiograph from within 12 months, a perio chart, a note explaining why a filling won't hold — lives in three different subsystems, in three different formats, one of which is prose and one of which is a JPEG owned by a separate imaging vendor. A human opens four screens and eyeballs dates. That manual cross-subsystem join is what Colombus automates.
+Why preauth is painful, concretely. The procedure code (27xxx = crown) is structured. The tooth is structured. But the evidence CDCP wants — a periapical radiograph from within 12 months, a perio chart, a note explaining why a filling won't hold — lives in three different subsystems, in three different formats, one of which is prose and one of which is a JPEG owned by a separate imaging vendor. A human opens four screens and eyeballs dates. That manual cross-subsystem join is what Ophi automates.
 
 Three of the CDCP crown criteria — crown-to-root ratio, margin-to-crest distance, ferrule height — are not fields in any PMS. They're measurements a dentist makes by looking at the film, and no amount of database reading produces them. A fourth, furcation involvement, *is* charted (ABELDent keeps `Perio.Furcation`, 32 teeth x 3 roots), but CDCP asks for it radiographically, so the probed value may not be the same assertion. Hence the Clinician Assertions block.
 
 ## Toggling real vs mock PMS data
 
-The app reads through `PmsRepository` (`colombus/sources/pms_repository.py`). `CaseService`
+The app reads through `PmsRepository` (`ophi/sources/pms_repository.py`). `CaseService`
 uses it for `case_ids()` / `base_case()`; pass a `repository` explicitly or let the env toggle
 decide:
 

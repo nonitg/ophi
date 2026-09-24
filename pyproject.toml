@@ -3,7 +3,7 @@ requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "colombus"
+name = "ophi"
 version = "0.1.0"
 description = "CDCP preauthorization copilot — documentation gap-check and packet assembly. Human submits."
 requires-python = ">=3.12"
@@ -25,10 +25,10 @@ dependencies = [
 dev = ["pytest>=8", "hypothesis>=6", "httpx>=0.27", "playwright>=1.40"]
 
 [project.scripts]
-colombus = "colombus.cli:main"
+ophi = "ophi.cli:main"
 
 [tool.setuptools.packages.find]
-include = ["colombus*"]
+include = ["ophi*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

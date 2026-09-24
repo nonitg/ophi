@@ -1,0 +1,286 @@
+{% extends "base.html" %}
+{% from "macros.html" import clause_chip, status_mark, seg_bar, teeth %}
+{% block title %}{{ case.patient.display_name }} · #{{ case.requested_tooth }} — Ophi{% endblock %}
+{% block content %}
+{% set t = case.treatment %}
+{% set ready = a.verdict.value in ('READY_TO_SUBMIT', 'READY_WITH_RISKS') %}
+<nav class="crumbs"><a href="/">Queue</a></nav>
+
+<header class="case-head">
+  <div>
+    <h1>{{ case.patient.display_name }}</h1>
+    <p class="case-facts">
+      <span><span class="num">{{ t.code }}</span> {{ t.description or '' }} on <b class="num">#{{ case.requested_tooth }}</b>, {{ tooth_name(case.requested_tooth) }}{% if t.surfaces %}, surfaces {{ t.surfaces|join('') }}{% endif %}</span>
+      {% if t.appointment_date %}<span>Appointment <b class="num">{{ short_date(t.appointment_date) }}</b>, in {{ days_until(t.appointment_date, case.as_of) }} days</span>{% endif %}
+      <span>Fee <b class="num">{{ money(view.dollars_at_risk) }}</b></span>
+      <span>{{ t.provider.name }}{% if t.provider.licence %} <span class="num">{{ t.provider.licence }}</span>{% endif %}</span>
+    </p>
+  </div>
+  <a class="btn {{ 'btn-primary' if ready or view.signed else '' }}" href="/cases/{{ case.case_id }}/packet">Packet preview &amp; sign-off</a>
+</header>
+
+<section class="verdict tone-{{ head.tone }}">
+  <div class="verdict-text">
+    <h2>{{ head.title }}</h2>
+    {% if head.sub %}<p>{{ head.sub }}</p>{% endif %}
+  </div>
+  <div class="verdict-bar">
+    {{ seg_bar(segs, a.completeness.satisfied ~ ' of ' ~ a.completeness.applicable ~ ' CDCP requirements documented') }}
+    <p class="bar-legend"><b class="num">{{ a.completeness.satisfied }} of {{ a.completeness.applicable }}</b> CDCP requirements documented{% for part in parts %} <span class="legend-part legend-{{ part.cls }}">{{ part.text }}</span>{% endfor %}</p>
+    <p class="bar-source">Ophi read <b class="num">{{ view.minutes_estimate.artifacts_scanned }}</b> chart entries across {{ view.minutes_estimate.subsystems_read|length }} subsystems {% if view.minutes_estimate.engine_ms < 1000 %}in under a second{% else %}in {{ view.minutes_estimate.engine_ms }} ms{% endif %}.</p>
+  </div>
+</section>
+
+{% if gaps.work or gaps.confirms %}
+<section class="todo" aria-labelledby="todo-h">
+  <h2 id="todo-h" class="sec-title">Before this can go out</h2>
+  <ol class="gaps">
+    {% for w in gaps.work %}{% set act = w.action %}
+    <li class="gap{% if loop.first %} is-hero{% endif %}">
+      <span class="gap-n num" aria-hidden="true">{{ loop.index }}</span>
+      <div class="gap-body">
+        <h3 class="gap-title">{{ w.title }}</h3>
+        <p class="gap-why">{{ act.why }}</p>
+        {% if act.action_type == 'check_source' %}
+        <p class="gap-note">The connected source could not see this section of the chart. Check the imaging software before concluding the evidence is absent.</p>
+        {% endif %}
+        {% if w.proposal %}{% set pl = w.proposal.payload %}
+        <div class="proposal">
+          <blockquote class="proposal-quote">“{{ pl.quote }}”</blockquote>
+          <p class="proposal-meta">Quoted verbatim from the clinical note; proposed as {{ pl.claim|lower }}.</p>
+          <form method="post" action="/cases/{{ case.case_id }}/proposals/{{ w.proposal.artifact_id }}" class="inline-form">
+            <button class="btn btn-sm btn-primary" name="decision" value="confirmed">Confirm</button>
+            <button class="btn btn-sm" name="decision" value="rejected">Reject</button>
+          </form>
+        </div>
+        {% endif %}
+        {% if w.requirement %}<p class="gap-rule">Required by {{ clause_chip(w.requirement.clause, pack) }}</p>{% endif %}
+      </div>
+    </li>
+    {% endfor %}
+    {% if gaps.confirms %}
+    <li class="gap gap-confirms">
+      <span class="gap-n num" aria-hidden="true">{{ gaps.work|length + 1 }}</span>
+      <div class="gap-body">
+        <h3 class="gap-title">{% if actor.is_dentist %}You confirm{% else %}{{ t.provider.name }} confirms{% endif %} {{ gaps.criteria_pending }} clinical criteria</h3>
+        <ul class="confirm-list">
+          {% for c in gaps.confirms %}<li>{{ c.label }}</li>{% endfor %}
+        </ul>
+        <p class="gap-why">These are clinical judgments, several of them measurements made on the film. Ophi never asserts them; the dentist does, and the packet records each one under their name.
+          {% if actor.is_dentist %}<a href="#assertions">Record them below.</a>{% else %}Switch <b>Acting as</b> to {{ t.provider.name }} to record them.{% endif %}</p>
+      </div>
+    </li>
+    {% endif %}
+  </ol>
+</section>
+{% elif not view.signed and ready %}
+<section class="todo">
+  <p class="calm-line">Nothing to do before sign-off. Every applicable requirement is documented.</p>
+</section>
+{% endif %}
+
+{% if gaps.advisory %}
+<section class="advisory">
+  <h2 class="sec-title">Worth reading before sign-off</h2>
+  <ul class="advisory-list">
+    {% for act in gaps.advisory %}<li><b>{{ act.title }}</b> {{ act.why }}</li>{% endfor %}
+  </ul>
+</section>
+{% endif %}
+
+<details class="fold" id="requirements">
+  <summary>
+    <span class="fold-title">All {{ applicable|length }} CDCP requirements</span>
+    <span class="fold-sub">the clause behind each, and the chart entry that satisfies it</span>
+  </summary>
+  <div class="fold-body">
+    <ul class="reqs">
+      {% for r in applicable %}
+      <li class="req" id="req-{{ r.requirement_id }}">
+        {{ status_mark(r.status) }}
+        <div class="req-body">
+          <div class="req-label">{{ r.label }}</div>
+          <div class="req-meta">
+            {{ clause_chip(r.clause, pack) }}
+            {% if r.satisfied_via %}<span class="muted">via {{ r.satisfied_via|replace('_', ' ') }}</span>{% endif %}
+          </div>
+          {% if r.status.value != 'satisfied' and r.detail %}<div class="req-detail">{{ requirement_detail(r) }}</div>{% endif %}
+          {% if r.risk_reason %}<div class="req-detail risk-text">{{ r.risk_reason }}</div>{% endif %}
+          {% for esc in r.escalations_evaluated if esc.fired %}<div class="req-detail">{{ esc.detail }}</div>{% endfor %}
+        </div>
+      </li>
+      {% endfor %}
+    </ul>
+    {% if not_applicable %}
+    <details class="na">
+      <summary>Not applicable to this case ({{ not_applicable|length }})</summary>
+      <ul class="reqs">
+        {% for r in not_applicable %}
+        <li class="req muted">{{ status_mark(r.status) }}<div class="req-body"><div class="req-label">{{ r.label }}</div><div class="req-meta">{{ clause_chip(r.clause, pack) }}</div></div></li>
+        {% endfor %}
+      </ul>
+    </details>
+    {% endif %}
+    <p class="schedule">{{ a.schedule.detail }} Planned <span class="num">{{ t.planned_date or '—' }}</span>; lab codes <span class="num">{{ t.lab_codes|join(', ') if t.lab_codes else 'none' }}</span>; submission date assumed <span class="num">{{ a.submission_date_assumed }}</span>; rule pack {{ pack.version }}.</p>
+  </div>
+</details>
+
+<details class="fold" id="evidence">
+  <summary>
+    <span class="fold-title">What Ophi read in the chart</span>
+    <span class="fold-sub">{{ evidence.radiographs|length }} radiographs, {{ (evidence.perio|length) + (evidence.psr|length) }} periodontal records, {{ evidence.notes|length }} clinical notes, {{ evidence.history|length }} procedures — {{ view.minutes_estimate.artifacts_scanned }} entries across {{ view.minutes_estimate.subsystems_read|length }} subsystems</span>
+  </summary>
+  <div class="fold-body">
+    {% for sec, sa in evidence.assurance %}
+    <div class="note amber">The connected source reports <b>{{ sec|replace('_', ' ') }}</b> as <b>{{ sa.availability.value }}</b>{% if sa.reason %}: {{ sa.reason }}{% endif %}. Absent and unseen are different conclusions.</div>
+    {% endfor %}
+    <div class="ev-grid">
+      <section class="ev-col">
+        <h3>Radiographs</h3>
+        {% if not evidence.radiographs %}<p class="muted">None in the chart.</p>{% endif %}
+        {% for r in evidence.radiographs %}
+        <div class="ev{% if r.stale %} is-stale{% endif %}">
+          <div class="ev-head"><b>{{ r.view }}</b>{% if r.laterality %} {{ r.laterality }}{% endif %} <span class="muted">{{ teeth(r.teeth) }}</span></div>
+          <div class="ev-meta num">{{ r.captured_at or 'undated' }}{% if r.age_days is not none %}, {{ r.age_days }} days old{% endif %}{% if r.expires_on %}; current until {{ r.expires_on }}{% endif %}{% if r.stale %}; <span class="bad-text">{{ r.stale.over_by_days }} days past the bound</span>{% endif %}</div>
+          {% if r.view == 'BW' and r.covers_tooth %}<div class="ev-note muted">Bitewing: does not image the periapical region.</div>{% endif %}
+        </div>
+        {% endfor %}
+      </section>
+
+      <section class="ev-col">
+        <h3>Periodontal charting</h3>
+        {% if not evidence.perio and not evidence.psr %}<p class="muted">None in the chart.</p>{% endif %}
+        {% for p in evidence.perio %}
+        <div class="ev{% if p.stale %} is-stale{% endif %}">
+          <div class="ev-head"><b>Perio chart</b> <span class="num">{{ p.captured_at or 'undated' }}</span>{% if not p.certified %} <span class="tag">uncertified draft</span>{% endif %}</div>
+          <div class="ev-meta num">{{ p.points }}/{{ p.possible }} points, {{ p.sites_per_tooth }} sites per tooth, {{ p.teeth_charted }} of {{ p.present }} present teeth{% if p.expires_on %}; current until {{ p.expires_on }}{% endif %}{% if p.stale %}; <span class="bad-text">{{ p.stale.over_by_days }} days past the bound</span>{% endif %}</div>
+          {% if p.requested_depths %}
+          <div class="depths"><span class="muted">#{{ case.requested_tooth }}</span>
+            {% for d in p.requested_depths %}<span class="depth{% if d is none %} none{% elif d >= 4 %} deep{% endif %}">{{ d if d is not none else '–' }}</span>{% endfor %}
+            <span class="muted small">DB B MB DL L ML</span>
+          </div>
+          {% endif %}
+          {% if p.examiner %}<div class="ev-note muted">{{ p.examiner }}</div>{% endif %}
+        </div>
+        {% endfor %}
+        {% for s in evidence.psr %}
+        <div class="ev">
+          <div class="ev-head"><b>PSR</b> <span class="num">{{ s.captured_at or 'undated' }}</span>{% if s.expires_on %} <span class="muted num">current until {{ s.expires_on }}</span>{% endif %}</div>
+          <div class="psr">
+            {% for sx in evidence.sextants %}
+            <div class="sextant{% if sx == s.highlight %} hl{% endif %}{% if s.scores[sx] is not none and s.scores[sx] >= 3 %} high{% endif %}"><span class="sx">{{ sx }}</span><span class="score num">{{ s.scores[sx] if s.scores[sx] is not none else '–' }}</span></div>
+            {% endfor %}
+          </div>
+          <div class="ev-note muted">{{ s.highlight }} is the sextant of #{{ case.requested_tooth }}.</div>
+        </div>
+        {% endfor %}
+      </section>
+
+      <section class="ev-col">
+        <h3>Clinical notes</h3>
+        {% if not evidence.notes %}<p class="muted">None in the chart.</p>{% endif %}
+        {% for n in evidence.notes %}
+        <div class="ev">
+          <div class="ev-head"><span class="num">{{ n.captured_at or 'undated' }}</span> {{ n.author or 'unknown author' }}{% if n.type %}, {{ n.type }}{% endif %}{% if n.teeth %} <span class="muted">{{ teeth(n.teeth) }}</span>{% endif %}</div>
+          <p class="note-text">{% for seg in n.segments %}{% if seg.proposal %}<mark class="q-{{ seg.state }}">{{ seg.text }}</mark>{% else %}{{ seg.text }}{% endif %}{% endfor %}</p>
+          {% for seg in n.segments if seg.proposal %}{% set pl = seg.proposal.payload %}
+          <div class="proposal">
+            <p class="proposal-meta">Proposed: {{ pl.claim|lower }}{% if pl.teeth_fdi %} <span class="muted">({{ teeth(pl.teeth_fdi) }})</span>{% endif %}</p>
+            {% if seg.state == 'pending' %}
+            <form method="post" action="/cases/{{ case.case_id }}/proposals/{{ seg.proposal.artifact_id }}" class="inline-form">
+              <button class="btn btn-sm btn-primary" name="decision" value="confirmed">Confirm</button>
+              <button class="btn btn-sm" name="decision" value="rejected">Reject</button>
+            </form>
+            {% elif seg.state == 'confirmed' %}
+            <div class="ok-text">Confirmed by {{ pl.confirmed_by }}{% if pl.confirmed_at %} on <span class="num">{{ pl.confirmed_at.date() }}</span>{% endif %}</div>
+            {% else %}
+            <div class="muted">Rejected</div>
+            {% endif %}
+          </div>
+          {% endfor %}
+        </div>
+        {% endfor %}
+
+        <h3>Procedure history</h3>
+        {% if not evidence.history %}<p class="muted">None in the chart.</p>{% else %}
+        <table class="tbl">
+          <thead><tr><th>Code</th><th>Tooth</th><th>Date</th><th>Status</th></tr></thead>
+          <tbody>
+          {% for h in evidence.history %}
+          <tr class="{% if h.status == 'planned' %}muted{% endif %}">
+            <td class="num">{{ h.code }}{% if h.surfaces %} <span class="muted">{{ h.surfaces|join('') }}</span>{% endif %}{% if h.description %}<div class="small muted">{{ h.description }}</div>{% endif %}</td>
+            <td class="num">{{ '#' ~ h.tooth_fdi if h.tooth_fdi else '—' }}</td>
+            <td class="num nowrap">{{ h.performed_on }}</td>
+            <td>{{ h.status }}</td>
+          </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+        {% endif %}
+      </section>
+    </div>
+  </div>
+</details>
+
+{% set recorded = criteria|selectattr('current')|list|length %}
+<details class="fold" id="assertions"{% if actor.is_dentist %} open{% endif %}>
+  <summary>
+    <span class="fold-title">Clinician assertions</span>
+    <span class="fold-sub">{{ recorded }} of {{ criteria|length }} recorded{% if not actor.is_dentist %}; only the treating dentist can record them{% endif %}</span>
+  </summary>
+  <div class="fold-body">
+    <p class="lede">Ophi never asserts these. The dentist confirms each criterion once; the packet renders it as attributed clinical judgment with name, licence and date.</p>
+    {% if not actor.is_dentist %}
+    <div class="note amber">You are acting as {{ actor.name }} ({{ actor.role }}). Switch <b>Acting as</b> to {{ t.provider.name }} in the header to record assertions.</div>
+    {% endif %}
+
+    {# One form wraps every row: tick several, set a value once, Record selected submits them together. #}
+    <form method="post" action="/cases/{{ case.case_id }}/assert/bulk" id="bulk-assert-form">
+      <div class="bulk-bar" id="bulk-bar">
+        <label class="bulk-select-all"><input type="checkbox" id="bulk-select-all" {% if not actor.is_dentist %}disabled{% endif %}> Select all</label>
+        <div class="bulk-actions">
+          <span class="muted small">Mark selected</span>
+          <button type="button" class="btn btn-sm" data-bulk-value="met" {% if not actor.is_dentist %}disabled{% endif %}>Met</button>
+          <button type="button" class="btn btn-sm" data-bulk-value="not_met" {% if not actor.is_dentist %}disabled{% endif %}>Not met</button>
+          <button type="button" class="btn btn-sm" data-bulk-value="not_applicable" {% if not actor.is_dentist %}disabled{% endif %}>N/A</button>
+        </div>
+        <button type="submit" class="btn btn-sm btn-primary" id="bulk-submit" {% if not actor.is_dentist %}disabled title="Dentist only"{% endif %}>Record selected</button>
+      </div>
+
+      <div class="assert-rows">
+        {% for c in criteria %}
+        <div class="assert-row{% if c.current %} has-value{% endif %}" data-criterion="{{ c.id }}">
+          <input type="checkbox" name="selected" value="{{ c.id }}" class="assert-select" aria-label="Select {{ c.label }}" {% if not actor.is_dentist %}disabled{% endif %}>
+          <div class="assert-label">
+            <div>{{ c.label }}</div>
+            <div class="req-meta">{{ clause_chip(c.clause, pack) }}{% if c.variant %}<span class="variant">{{ c.variant }}</span>{% endif %}</div>
+            {% if c.odontogram %}<div class="small muted num">{{ c.odontogram }}</div>{% endif %}
+            <div class="assert-current">
+              {% if c.current %}
+              <span class="val val-{{ c.current.value }}">{{ c.current.value|replace('_', ' ')|capitalize }}</span>
+              <span class="muted">by {{ c.current.asserted_by }} on <span class="num">{{ c.current.asserted_at.date() }}</span>{% if c.current.note %} — “{{ c.current.note }}”{% endif %}</span>
+              {% else %}<span class="muted">Not yet recorded</span>{% endif %}
+            </div>
+          </div>
+          <fieldset class="assert-choice" {% if not actor.is_dentist %}disabled{% endif %}>
+            <label><input type="radio" name="value_{{ c.id }}" value="met" {% if c.current and c.current.value == 'met' %}checked{% endif %}> Met</label>
+            <label><input type="radio" name="value_{{ c.id }}" value="not_met" {% if c.current and c.current.value == 'not_met' %}checked{% endif %}> Not met</label>
+            <label><input type="radio" name="value_{{ c.id }}" value="not_applicable" {% if c.current and c.current.value == 'not_applicable' %}checked{% endif %}> N/A</label>
+          </fieldset>
+          <input class="assert-note" type="text" name="note_{{ c.id }}" placeholder="Note (optional)" value="{{ c.current.note or '' if c.current else '' }}" {% if not actor.is_dentist %}disabled{% endif %}>
+        </div>
+        {% endfor %}
+      </div>
+    </form>
+
+    {% if criteria_other %}
+    <details class="na">
+      <summary>Not applicable to this case ({{ criteria_other|length }})</summary>
+      <ul class="reqs">
+        {% for c in criteria_other %}<li class="req muted">{{ status_mark(STATUS_NA) }}<div class="req-body"><div class="req-label">{{ c.label }}</div><div class="req-meta">{{ clause_chip(c.clause, pack) }}</div></div></li>{% endfor %}
+      </ul>
+    </details>
+    {% endif %}
+  </div>
+</details>
+{% endblock %}

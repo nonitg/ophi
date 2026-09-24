@@ -19,7 +19,7 @@ with sync_playwright() as p:
     page.goto(BASE, wait_until="networkidle")
     page.wait_for_selector('.tooth-viewer[data-ready="true"]')
     assert page.locator('link[rel="canonical"]').get_attribute("href").rstrip("/") == "https://ophi.app"
-    assert "Colombus" not in page.inner_text("body")
+    assert "Ophi" not in page.inner_text("body")
 
     canvas = page.locator(".tooth-canvas canvas")
     before = canvas.screenshot()

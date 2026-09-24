@@ -1,5 +1,5 @@
 {
-  "_description": "Mock coverage — mirrors ixi/nsp/ins joined rows. See lab/tools/chart_dump.py cov_row() and colombus/cdm/models.py Coverage",
+  "_description": "Mock coverage — mirrors ixi/nsp/ins joined rows. See lab/tools/chart_dump.py cov_row() and ophi/cdm/models.py Coverage",
   "coverage": [
     {
       "pid": 101,

@@ -9,8 +9,8 @@ from pathlib import Path
 import pytest
 from dateutil.relativedelta import relativedelta
 
-from colombus.engine.models import Assessment, Action, Status, Verdict
-from colombus.rules.schema import EFFORT_ORDER
+from ophi.engine.models import Assessment, Action, Status, Verdict
+from ophi.rules.schema import EFFORT_ORDER
 from tests._cases import assess_dict, assess_path, corpus_files, ready_dict
 
 CORPUS = corpus_files()

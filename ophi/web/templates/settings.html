@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% from "macros.html" import clause_chip %}
+{% block title %}Settings &amp; Audit — Ophi{% endblock %}
+{% block content %}
+<header class="page-head">
+  <h1>Settings and audit</h1>
+  <p class="page-sub">Fictional Dental Centre. Rule pack, provider roster, connection, and the log of every human action Ophi recorded.</p>
+</header>
+
+<div class="settings-grid">
+  <section class="col">
+    <div class="card">
+      <h2>Connection</h2>
+      <p><span class="dot amber"></span> Demo: casegen fixtures — no PMS connected; ABELDent driver in lab.</p>
+      <p class="muted small">{{ case_count }} demo cases loaded from cases/demo/. Engine {{ engine_version }}.</p>
+    </div>
+
+    <div class="card">
+      <h2>Provider roster</h2>
+      <table class="tbl">
+        <thead><tr><th>Name</th><th>Role</th><th>Licence</th></tr></thead>
+        <tbody>
+        {% for a in ACTORS.values() %}<tr><td>{{ a.name }}</td><td>{{ a.role }}</td><td class="num">{{ a.licence or '—' }}</td></tr>{% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>Rule pack</h2>
+      <dl class="kv">
+        <dt>Id</dt><dd class="num">{{ pack.id }}</dd>
+        <dt>Version</dt><dd class="num">{{ pack.version }}</dd>
+        <dt>Payer</dt><dd>{{ pack.payer }} · {{ pack.jurisdiction.province }} {{ pack.jurisdiction.provider_type|upper }} grid {{ pack.jurisdiction.grid_year }}</dd>
+        <dt>Effective from</dt><dd class="num">{{ pack.effective_from }}</dd>
+        <dt>Verified on</dt><dd class="num">{{ pack.verified_on }}</dd>
+        <dt>Content hash</dt><dd class="mono small">{{ pack.content_hash }}</dd>
+        <dt>Requirements</dt><dd class="num">{{ pack.requirements|length }}</dd>
+      </dl>
+      <h3>Sources</h3>
+      <ul class="plain small">
+        {% for key, s in pack.sources.items() %}<li><b>{{ key }}</b> — <a href="{{ s.url }}" target="_blank" rel="noopener">{{ s.title }}</a></li>{% endfor %}
+      </ul>
+      <h3>Requirements</h3>
+      <ul class="reqs compact">
+        {% for r in pack.requirements %}
+        <li class="req"><div class="req-body"><div class="req-label"><span class="mono small muted">{{ r.id }}</span> {{ r.label }}</div><div class="req-meta">{{ clause_chip(r.clause, pack) }}</div></div></li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    <div class="card danger">
+      <h2>Demo state</h2>
+      <form method="post" action="/reset" data-confirm="Reset all demo state? Assertions, confirmations, narratives, sign-offs and the audit log will be deleted.">
+        <button class="btn btn-danger" type="submit">Reset demo state</button>
+      </form>
+    </div>
+  </section>
+
+  <section class="col">
+    <div class="card">
+      <div class="card-head">
+        <h2>Audit log <span class="muted num">({{ events|length }})</span></h2>
+        <a class="btn btn-sm" href="/settings/audit.csv">Export CSV</a>
+      </div>
+      {% if not events %}<p class="muted">No events yet. Every assertion, confirmation, narrative edit, sign-off and download is recorded here.</p>{% else %}
+      <table class="tbl audit">
+        <thead><tr><th>Time (UTC)</th><th>Case</th><th>Actor</th><th>Event</th><th>Detail</th></tr></thead>
+        <tbody>
+        {% for e in events %}
+        <tr><td class="num">{{ e.at.strftime('%Y-%m-%d %H:%M:%S') }}</td><td><a href="/cases/{{ e.case_id }}">{{ e.case_id }}</a></td><td>{{ e.actor }}</td><td class="mono small">{{ e.event }}</td><td class="small">{{ e.detail }}</td></tr>
+        {% endfor %}
+        </tbody>
+      </table>
+      {% endif %}
+    </div>
+  </section>
+</div>
+{% endblock %}

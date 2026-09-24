@@ -1,9 +1,9 @@
-# Colombus lab bootstrap — run ONCE in an elevated PowerShell inside the Windows guest.
+# Ophi lab bootstrap — run ONCE in an elevated PowerShell inside the Windows guest.
 # Opens an SSH control channel from the Mac host so all further work is scripted, not clicked.
 # Read-only intent: this installs no agent and touches no ABELDent data.
 
 $ErrorActionPreference = 'Continue'
-$pub = 'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBv0Z5+uNSlK9xAEvoKtNOq7FbsfmV20C49eSDRZenIh colombus-lab'
+$pub = 'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBv0Z5+uNSlK9xAEvoKtNOq7FbsfmV20C49eSDRZenIh ophi-lab'
 
 function Step($n) { Write-Host "`n=== $n ===" -ForegroundColor Cyan }
 
@@ -20,8 +20,8 @@ Set-Service -Name ssh-agent -StartupType Automatic -ErrorAction SilentlyContinue
 Get-Service sshd | Format-Table Name, Status, StartType -AutoSize
 
 Step '2/6 Firewall — SSH in from the host-only network'
-if (-not (Get-NetFirewallRule -Name 'colombus-sshd' -ErrorAction SilentlyContinue)) {
-    New-NetFirewallRule -Name 'colombus-sshd' -DisplayName 'OpenSSH Server (Colombus lab)' `
+if (-not (Get-NetFirewallRule -Name 'ophi-sshd' -ErrorAction SilentlyContinue)) {
+    New-NetFirewallRule -Name 'ophi-sshd' -DisplayName 'OpenSSH Server (Ophi lab)' `
         -Enabled True -Direction Inbound -Protocol TCP -Action Allow -LocalPort 22 | Out-Null
 }
 Write-Host 'port 22 allowed inbound'

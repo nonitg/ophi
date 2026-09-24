@@ -1,11 +1,11 @@
 from pathlib import Path
 import pytest
-from colombus.sources.pms_repository import (
+from ophi.sources.pms_repository import (
     FileSystemPmsRepository,
     AbelDentPmsRepository,
     create_repository,
 )
-from colombus.sources import PmsRepository
+from ophi.sources import PmsRepository
 
 ROOT = Path(__file__).resolve().parents[1]
 CASES_DIR = ROOT / "cases" / "demo"
@@ -74,7 +74,7 @@ def test_abeldent_list_case_ids_not_implemented():
 
 def test_service_uses_repository():
     try:
-        from colombus.service import CaseService
+        from ophi.service import CaseService
     except ModuleNotFoundError as e:
         pytest.skip(f"service deps missing: {e}")
     repo = FileSystemPmsRepository(CASES_DIR)

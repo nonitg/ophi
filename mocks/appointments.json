@@ -1,6 +1,6 @@
 {
   "_description": "Mock appointments — mirrors ABELDent Transactions.Appt grouping and CDM ProposedTreatment.appointment_date. Used for scheduling preauth procedures.",
-  "_schema": "Each appointment groups one or more Transactions rows via Appt + PlanNum. colombus/cdm/models.py:264 ProposedTreatment.appointment_date",
+  "_schema": "Each appointment groups one or more Transactions rows via Appt + PlanNum. ophi/cdm/models.py:264 ProposedTreatment.appointment_date",
   "appointments": [
     {
       "appointment_id": "APT-2026-001",

@@ -1,5 +1,5 @@
 {
-  "_description": "Mock perio exams — mirrors Perio table positional byte arrays decoded per site. See lab/tools/chart_dump.py decode_exam() and CDM PerioChartPayload/SiteDepths (colombus/cdm/models.py:99)",
+  "_description": "Mock perio exams — mirrors Perio table positional byte arrays decoded per site. See lab/tools/chart_dump.py decode_exam() and CDM PerioChartPayload/SiteDepths (ophi/cdm/models.py:99)",
   "_schema": "Each exam has pocket/bleeding/recession/attachment/furcation/mobility/mag — 6 sites per tooth (DB,B,MB,DL,L,ML), 32 universal positions -> FDI mapping. point_count = sites with non-null depth.",
   "perio_exams": [
     {

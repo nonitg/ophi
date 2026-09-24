@@ -7,14 +7,14 @@ import re
 import pytest
 from fastapi.testclient import TestClient
 
-from colombus.service import CaseService, Store
-from colombus.web.app import create_app
+from ophi.service import CaseService, Store
+from ophi.web.app import create_app
 
 RESTORABILITY = ["no_active_perio", "crown_root_ratio", "no_furcation", "margin_3mm", "ferrule_1_5mm",
                  "mesiodistal_space", "no_adjunctive_needed"]
 ALL_TREMBLAY = RESTORABILITY + ["extensively_restored", "active_disease_addressed", "endo_healed"]
 
-# Colombus's own voice never predicts payer behaviour. Chart quotes and Sun Life text are exempt.
+# Ophi's own voice never predicts payer behaviour. Chart quotes and Sun Life text are exempt.
 FORBIDDEN = re.compile(r"\b(will be approved|approved|eligible|covered|likely|probability)\b", re.I)
 
 
@@ -31,12 +31,12 @@ def as_dentist(client: TestClient) -> None:
 
 def _draft(case_id: str) -> str:
     """The template narrative for a demo case, as the packet screen would prefill it."""
-    from colombus.casegen.dsl import load_case
-    from colombus.engine.assess import assess
-    from colombus.extract.proposer import propose_for_case
-    from colombus.packet.narrative import draft_narrative
-    from colombus.rules.loader import default_pack
-    from colombus.service import CASES_DIR
+    from ophi.casegen.dsl import load_case
+    from ophi.engine.assess import assess
+    from ophi.extract.proposer import propose_for_case
+    from ophi.packet.narrative import draft_narrative
+    from ophi.rules.loader import default_pack
+    from ophi.service import CASES_DIR
     case = load_case(CASES_DIR / f"{case_id}.yaml")
     case = case.with_artifacts(propose_for_case(case))
     return draft_narrative(case, assess(case, default_pack()), default_pack())
@@ -122,7 +122,7 @@ def test_sign_off_requires_dentist(client):
 
 
 def test_packet_download_and_pdf(client):
-    pytest.importorskip("colombus.packet.build")
+    pytest.importorskip("ophi.packet.build")
     r = client.get("/cases/whitfield/packet")
     assert r.status_code == 200
     assert client.get("/cases/whitfield/packet/preview.pdf").status_code == 200
@@ -136,7 +136,7 @@ def test_packet_download_and_pdf(client):
     r = client.get("/cases/whitfield/packet/download")
     assert r.status_code == 200
     assert r.headers["content-type"] == "application/zip"
-    assert "colombus-packet-whitfield.zip" in r.headers["content-disposition"]
+    assert "ophi-packet-whitfield.zip" in r.headers["content-disposition"]
 
 
 def test_look_back_renders(client):
@@ -175,8 +175,8 @@ def test_actor_cookie_and_reset(client):
     assert client.app.state.svc.store.audit_log() == []
 
 
-def test_copy_law_in_colombus_voice(client):
-    # Look-Back is excluded: it reports Sun Life's recorded decisions ("approved"/"denied"), not Colombus's voice.
+def test_copy_law_in_ophi_voice(client):
+    # Look-Back is excluded: it reports Sun Life's recorded decisions ("approved"/"denied"), not Ophi's voice.
     for path in ["/", "/cases/singh", "/cases/deng", "/cases/rosco", "/cases/whitfield/packet", "/settings"]:
         html = client.get(path).text
         hits = [m.group(0) for m in FORBIDDEN.finditer(html)]

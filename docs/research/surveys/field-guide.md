@@ -2,7 +2,7 @@
 
 This study is designed to answer two different questions:
 
-1. **Is Colombus aimed at a frequent, consequential problem?**
+1. **Is Ophi aimed at a frequent, consequential problem?**
 2. **If so, does the proposed human-review workflow fit how clinics actually work?**
 
 The first campus clinic is a **cognitive and qualitative pilot**, not market validation. Its value is
@@ -34,7 +34,7 @@ independent clinics.
 - Ask about a smooth case as well as an exception, so the study does not presume every workflow is
   broken.
 - Measure frequency, effort, rework, and consequence separately.
-- Present the Colombus concept only after current-state questions.
+- Present the Ophi concept only after current-state questions.
 - Use concrete choices, including `None`, `Not sure`, and `Not part of my role`.
 - End with an observable commitment, not a hypothetical "Would you buy this?"
 
@@ -136,7 +136,7 @@ current process, use a managed service, or begin a defined shadow pilot at a sta
 The best early commercial signal is accepting the work needed for that pilot and involving the actual
 decision-maker, not selecting a price range in a survey.
 
-The existing Colombus stop condition remains primary: if 10 target-clinic administrators report a
+The existing Ophi stop condition remains primary: if 10 target-clinic administrators report a
 median of fewer than 2 unique CDCP predetermination cases in the named month, stop treating a
 CDCP-crown-only product as a sufficient market.
 
@@ -180,7 +180,7 @@ For each step, ask:
 - How did the next person know it was their turn?
 - Did the case leave the normal path? Why?
 
-Do not introduce the expected Colombus workflow. Draw what they describe.
+Do not introduce the expected Ophi workflow. Draw what they describe.
 
 ### 12–18 minutes: inspect the exception
 
@@ -199,7 +199,7 @@ ownership, or the case simply not requiring an exception.
 
 ### 22–27 minutes: concept test
 
-Show one low-fidelity Colombus case, not a polished sales demo. Ask the participant to narrate what they
+Show one low-fidelity Ophi case, not a polished sales demo. Ask the participant to narrate what they
 think each element means.
 
 - What would you verify before trusting this flag?

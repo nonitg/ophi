@@ -52,15 +52,15 @@ cases/demo/                        six casegen cases used by the demo (Friday Fi
 cases/adversarial/                 boundary and trap cases with reviewed golden expectations
 cases/lookback/                    fictional 12-month submission history for the Look-Back screen
 evals/expected/<pack version>/     golden verdicts; `make eval` fails on any change
-colombus/cdm                       canonical data model (FDI teeth, Provenance, SourceAssurance)
-colombus/rules                     rule pack schema (closed predicate vocabulary), linter, loader
-colombus/engine                    deterministic evaluator: leaves, facts, solver, escalations, recency, verdict, ranked actions
-colombus/extract                   note proposer (verbatim-quote filter); proposes, never judges
-colombus/service                   human inputs (assertions, confirmations, sign-off) + audit log; re-runs the engine
-colombus/packet                    packet assembler: index, treatment form, plates, perio render, narrative, manifest
-colombus/verify                    independent verifier — shares no code with the assembler
-colombus/lookback                  re-derives documentation gaps for past submissions
-colombus/web                       FastAPI + Jinja2 app, five screens
+ophi/cdm                       canonical data model (FDI teeth, Provenance, SourceAssurance)
+ophi/rules                     rule pack schema (closed predicate vocabulary), linter, loader
+ophi/engine                    deterministic evaluator: leaves, facts, solver, escalations, recency, verdict, ranked actions
+ophi/extract                   note proposer (verbatim-quote filter); proposes, never judges
+ophi/service                   human inputs (assertions, confirmations, sign-off) + audit log; re-runs the engine
+ophi/packet                    packet assembler: index, treatment form, plates, perio render, narrative, manifest
+ophi/verify                    independent verifier — shares no code with the assembler
+ophi/lookback                  re-derives documentation gaps for past submissions
+ophi/web                       FastAPI + Jinja2 app, five screens
 ```
 
 `docs/architecture.md` explains the decisions. `PLAN.md` is the master plan; `docs/research/` is the

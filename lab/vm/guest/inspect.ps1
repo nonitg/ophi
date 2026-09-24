@@ -1,7 +1,7 @@
 # Step 0 of the ingestion plan: non-SQL recon. Highest yield per hour, and it runs before
-# a single query is issued. Writes JSON to C:\colombus\out\ for the host to pull.
+# a single query is issued. Writes JSON to C:\ophi\out\ for the host to pull.
 $ErrorActionPreference = 'Continue'
-$out = 'C:\colombus\out'
+$out = 'C:\ophi\out'
 New-Item -ItemType Directory -Force -Path $out | Out-Null
 
 function Save($name, $obj) {

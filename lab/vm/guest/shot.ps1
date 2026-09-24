@@ -5,6 +5,6 @@ $b = [System.Windows.Forms.SystemInformation]::VirtualScreen
 $bmp = New-Object System.Drawing.Bitmap $b.Width, $b.Height
 $g = [System.Drawing.Graphics]::FromImage($bmp)
 $g.CopyFromScreen($b.Location, [System.Drawing.Point]::Empty, $b.Size)
-New-Item -ItemType Directory -Force -Path 'C:\colombus\out' | Out-Null
-$bmp.Save('C:\colombus\out\shot.png', [System.Drawing.Imaging.ImageFormat]::Png)
+New-Item -ItemType Directory -Force -Path 'C:\ophi\out' | Out-Null
+$bmp.Save('C:\ophi\out\shot.png', [System.Drawing.Imaging.ImageFormat]::Png)
 $g.Dispose(); $bmp.Dispose()

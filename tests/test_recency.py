@@ -11,7 +11,7 @@ from datetime import date, timedelta
 from dateutil.relativedelta import relativedelta
 from hypothesis import given, settings, strategies as st
 
-from colombus.engine.recency import check
+from ophi.engine.recency import check
 
 # No Feb 29 falls between 2025-09-17 and 2026-09-17, so 12 months == 365 days here.
 AS_OF = date(2026, 9, 17)

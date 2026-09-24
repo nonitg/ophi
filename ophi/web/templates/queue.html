@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% from "macros.html" import verdict_badge, seg_bar %}
+{% block title %}Preauth Queue — Ophi{% endblock %}
+{% block content %}
+<header class="page-head">
+  {% if summary.needs_attention %}
+  <h1>{{ summary.needs_attention }} of {{ summary.open_count }} open CDCP preauthorization{{ '' if summary.open_count == 1 else 's' }} need{{ 's' if summary.needs_attention == 1 else '' }} something before {{ 'it' if summary.needs_attention == 1 else 'they' }} can go out <span class="money-at-risk"><b class="num">{{ money(summary.dollars_at_risk) }}</b> of treatment at risk</span></h1>
+  {% else %}
+  <h1 class="calm">Nothing needs attention this week</h1>
+  {% endif %}
+  <p class="page-sub">{{ summary.week }} at {{ summary.clinic }}. Ophi read <b class="num">{{ summary.artifacts_scanned }}</b> chart entries across <b class="num">{{ summary.subsystems }}</b> subsystems and checked each case against the CDCP crown rules in under a second.</p>
+</header>
+
+{% if rows %}
+<section class="queue" aria-label="Open cases">
+  {% for r in rows %}
+  {% set v = r.view %}{% set c = v.case %}{% set d = days_until(c.treatment.appointment_date, summary.today) %}
+  <a class="qrow{% if v.signed %} is-signed{% endif %}" href="/cases/{{ c.case_id }}">
+    <span class="q-badge">{{ verdict_badge(v.assessment.verdict, v.signed, short=True) }}</span>
+    <span class="q-who">
+      <b class="q-name">{{ c.patient.display_name }}</b>
+      <span class="q-tooth num" title="{{ c.treatment.code }} {{ c.treatment.description or '' }}">#{{ c.requested_tooth }} {{ (c.treatment.description or '').split(',')[0]|lower }} <span class="q-code">{{ c.treatment.code }}</span></span>
+    </span>
+    <span class="q-lead">
+      {% if v.signed %}
+        <span class="muted">Signed by {{ v.state.sign_off.signed_by }}{% if v.state.submitted_at %}, marked submitted{% endif %}</span>
+      {% elif r.lead %}
+        {{ r.lead.title }}{% if r.lead.hint %} <span class="muted">— {{ r.lead.hint }}</span>{% endif %}
+        {% if r.lead.more %}<span class="q-more">+{{ r.lead.more }} more</span>{% endif %}
+      {% elif v.assessment.verdict.value == 'READY_TO_SUBMIT' %}
+        <span class="muted">Awaiting {{ c.treatment.provider.name }}'s sign-off</span>
+      {% elif v.assessment.verdict.value == 'READY_WITH_RISKS' %}
+        <span class="muted">Documented with noted risks; awaiting {{ c.treatment.provider.name }}'s sign-off</span>
+      {% endif %}
+    </span>
+    <span class="q-appt num">{% if c.treatment.appointment_date %}{{ short_date(c.treatment.appointment_date) }} <span class="muted">{{ d }}d</span>{% else %}<span class="muted">no appt</span>{% endif %}</span>
+    <span class="q-bar">{{ seg_bar(r.segs, v.assessment.completeness.satisfied ~ ' of ' ~ v.assessment.completeness.applicable ~ ' requirements documented', mini=True) }}<span class="q-count num muted">{{ v.assessment.completeness.satisfied }} of {{ v.assessment.completeness.applicable }}</span></span>
+    <span class="q-fee num">{{ money(v.dollars_at_risk) }}</span>
+  </a>
+  {% endfor %}
+</section>
+{% else %}
+<p class="muted">No cases in the demo set.</p>
+{% endif %}
+
+<footer class="strip">Sorted by what blocks each case, then by appointment. A coordinator spends an estimated ~{{ summary.manual_minutes }} minutes per preauthorization on this cross-check (estimate; source: docs/research/market.md).</footer>
+{% endblock %}

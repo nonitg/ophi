@@ -1,6 +1,6 @@
 {
-  "_description": "Mock patient registry — mirrors ABELDent pat table and CDM Patient model (colombus/cdm/models.py:228). Field names match pat columns and camelCase CDM mapping.",
-  "_source": "mocks/patients.json — fictional data, not real PHI. Matches schema from lab/tools/chart_dump.py patient_section() and colombus/cdm/models.py Patient",
+  "_description": "Mock patient registry — mirrors ABELDent pat table and CDM Patient model (ophi/cdm/models.py:228). Field names match pat columns and camelCase CDM mapping.",
+  "_source": "mocks/patients.json — fictional data, not real PHI. Matches schema from lab/tools/chart_dump.py patient_section() and ophi/cdm/models.py Patient",
   "patients": [
     {
       "pid": 101,

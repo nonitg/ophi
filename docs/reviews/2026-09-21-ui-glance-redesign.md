@@ -33,14 +33,14 @@ Considered and not adopted: inverting the hero so the dental insight ("Bitewings
 periapical region") is the title and the action is the body. Engine `why` prose is not reliably
 splittable into a punchy first sentence (Kowalchuk's is a date arithmetic sentence), and the
 coordinator's first question is what to do. Instead the hero body is set at 17 px so the insight reads
-at near-title weight, and the machine's work ("Colombus read 9 chart entries across 7 subsystems in
+at near-title weight, and the machine's work ("Ophi read 9 chart entries across 7 subsystems in
 under a second") sits under the bar where the eye already is.
 
 ## Constraint verdicts
 
 | Constraint | Verdict |
 |---|---|
-| Copy law (no approved / eligible / covered / likely in Colombus's voice) | pass — test_copy_law_in_colombus_voice green; the two accuracy-of-claim sentences above fixed |
+| Copy law (no approved / eligible / covered / likely in Ophi's voice) | pass — test_copy_law_in_ophi_voice green; the two accuracy-of-claim sentences above fixed |
 | Nothing functional lost | fail → fixed (facts restored; every control and panel present in folds) |
 | CLAUDE.md standards | pass with notes → duplication and test gap fixed |
 | Accessibility floor | pass with notes → nav bar, swatches, contrast fixed |

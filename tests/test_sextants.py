@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import pytest
 
-from colombus.dental.notation import ALL_FDI_PERMANENT
-from colombus.dental.sextants import ALL_SEXTANTS, SEXTANTS, describe, sextant_of, sextants_of, teeth_in
+from ophi.dental.notation import ALL_FDI_PERMANENT
+from ophi.dental.sextants import ALL_SEXTANTS, SEXTANTS, describe, sextant_of, sextants_of, teeth_in
 
 # Transcribed from docs/plan/02-reasoning.md §2 "Sextant mapping", independently of the code.
 DOC_TABLE = {

@@ -1,4 +1,4 @@
-# Colombus — Master Plan
+# Ophi — Master Plan
 
 CDCP preauthorization copilot for Canadian dental clinics.
 3 engineers + 1 founder. Sequenced by task, not by calendar.
@@ -41,7 +41,7 @@ list of what changed. Findings in `docs/research/abeldent-schema.md`.
 Not resolved in the lab: `Type` values `I`/`T`, the planning-time `Type=' '` companion rows,
 perio data entry by automation, the ABELDent EULA (founder item).
 
-**Reasoning core is under way** (commit 78c1c5f): ~2,500 lines of Python in `colombus/` — deterministic engine
+**Reasoning core is under way** (commit 78c1c5f): ~2,500 lines of Python in `ophi/` — deterministic engine
 (1,024), CDM models (348), rule pack schema + loader (295), casegen DSL (184), notation/sextants (134),
 LLM extraction proposer (86) — plus `packs/cdcp/2026-01-26/pack.yaml`, 6 demo cases with golden expectations,
 and a `Makefile`. Still empty stubs: `packet/`, `verify/`, `web/`, `assertions/`, `sources/`.
@@ -54,7 +54,7 @@ hand, assemble attachments. **46% get approved. Crowns get 37%.** ~20% of submis
 Canada and Sun Life both name the cause: missing radiographs, insufficient clinical notes, absent periodontal
 charting. Every resubmission goes to the back of the queue as a brand-new request.
 
-Colombus reads the proposed treatment and patient record from the practice management system, checks it against
+Ophi reads the proposed treatment and patient record from the practice management system, checks it against
 CDCP documentation rules, locates the supporting evidence already in the chart, flags what is missing or stale, and
 assembles a submission packet with a drafted rationale. **Staff review and submit. We never transmit.**
 
@@ -177,7 +177,7 @@ perio point-count cannot be read, this is kill-level (K7) — escalate immediate
 12 crown rules encoded, each citing its source clause. Evidence matcher for structured fields. Clinician Assertions
 model. Screen 2 (Case Review), ugly but real. SME contracted. First manual Look-Back on 2 friendly clinics' denial
 exports.
-**Exit:** SME reviews 20 crown cases; >=16 verdicts correct; **0 cases where Colombus says "ready" and the SME says
+**Exit:** SME reviews 20 crown cases; >=16 verdicts correct; **0 cases where Ophi says "ready" and the SME says
 "would be denied."**
 
 **M2 — "The packet"**
@@ -249,7 +249,7 @@ day-one one.
    responsibility.
 4. **File an ATIP request** with Health Canada on CDCP administration vendor contracts and any planned
    intake-validation capability. Free, ~30-day turnaround. Directly tests the Olive scenario (K4).
-5. **Book a Smilepass demo through an advisor**, not from a Colombus address. Map exactly what they do on
+5. **Book a Smilepass demo through an advisor**, not from a Ophi address. Map exactly what they do on
    predeterminations. They already integrate ABELDent, are explicitly CDCP-aware, and track submitted
    predeterminations. Our gap over them is narrow and closing (K6).
 
@@ -292,7 +292,7 @@ that at $0.25 and $25/mo unlimited attachments.
 
 ## The copy law
 
-Colombus never says **approved, will be approved, eligible,** or **covered.** It says: *"CDCP crown criteria
+Ophi never says **approved, will be approved, eligible,** or **covered.** It says: *"CDCP crown criteria
 require a periapical within 12 months. The most recent periapical of #46 is dated 2023-11-14."*
 
 Every statement is about **documentation completeness against a cited rule**, never about payer behaviour. This is

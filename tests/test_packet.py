@@ -9,14 +9,14 @@ from pathlib import Path
 import pytest
 from PIL import Image
 
-from colombus.casegen.dsl import load_case
-from colombus.cdm.models import FileRef
-from colombus.engine.assess import assess
-from colombus.extract.proposer import propose_for_case
-from colombus.packet.build import MAX_BYTES, MAX_FILES, build_packet
-from colombus.packet.narrative import draft_narrative, validate_narrative
-from colombus.packet.plates import render_radiograph_plate
-from colombus.rules.loader import default_pack
+from ophi.casegen.dsl import load_case
+from ophi.cdm.models import FileRef
+from ophi.engine.assess import assess
+from ophi.extract.proposer import propose_for_case
+from ophi.packet.build import MAX_BYTES, MAX_FILES, build_packet
+from ophi.packet.narrative import draft_narrative, validate_narrative
+from ophi.packet.plates import render_radiograph_plate
+from ophi.rules.loader import default_pack
 
 ROOT = Path(__file__).resolve().parents[1]
 CASES = sorted((ROOT / "cases" / "demo").glob("*.yaml"))

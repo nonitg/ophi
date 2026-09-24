@@ -11,7 +11,7 @@ HERE="$(cd "$(dirname "$0")" && pwd)"
 LAB="$(cd "$HERE/.." && pwd)"
 UTMCTL="${UTMCTL:-/Applications/UTM.app/Contents/MacOS/utmctl}"
 VM_UUID="${VM_UUID:-44469FC2-B636-412D-8441-9A4A9B04E537}"
-GUEST_DIR='C:\colombus'
+GUEST_DIR='C:\ophi'
 
 CMD_EXE='C:\Windows\System32\cmd.exe'
 
@@ -20,7 +20,7 @@ die() { echo "error: $*" >&2; exit 1; }
 # The guest side is a single shared mailbox (_cmd.ps1/_last.txt, _ucmd.ps1/_ulast.txt), so two
 # host processes talking at once corrupt each other's results. Serialise every guest round trip
 # with a mkdir lock; mkdir is atomic on APFS and needs no flock.
-LOCK="${TMPDIR:-/tmp}/colombus-vm.lock"
+LOCK="${TMPDIR:-/tmp}/ophi-vm.lock"
 lock() {
   local i
   for i in $(seq 1 3000); do
@@ -43,7 +43,7 @@ wait_task_idle() {
     state="$("$UTMCTL" file pull "$VM_UUID" "$GUEST_DIR\\out\\_task.txt" 2>/dev/null)"
     case "$state" in *Running*) sleep 0.2 ;; "") sleep 0.2 ;; *) return 0 ;; esac
   done
-  echo "task $1 still Running after 12s — a child process (ABELDent?) is holding it; see colombus-lab-vm memory" >&2
+  echo "task $1 still Running after 12s — a child process (ABELDent?) is holding it; see ophi-lab-vm memory" >&2
   return 1
 }
 
@@ -61,7 +61,7 @@ pull_retry() {
 # Run PowerShell in the guest, return its combined output.
 # A sentinel line marks completion — without it a partially-flushed file reads as done.
 ps_exec() {
-  local marker='___COLOMBUS_DONE___' out
+  local marker='___OPHI_DONE___' out
   lock
   printf '%s\n%s\n' "$1" "Write-Output '$marker'" \
     | "$UTMCTL" file push "$VM_UUID" "$GUEST_DIR\\_cmd.ps1" >/dev/null 2>&1 \
@@ -79,23 +79,23 @@ ps_exec() {
   unlock; return 1
 }
 
-# Run PowerShell as the logged-on user instead of SYSTEM, via the ColombusRun task.
+# Run PowerShell as the logged-on user instead of SYSTEM, via the OphiRun task.
 # Required for anything touching ABELDent's LocalDB or the desktop.
 user_exec() {
-  local marker='___COLOMBUS_UDONE___' out i
+  local marker='___OPHI_UDONE___' out i
   lock
   printf '%s\n' "$1" | "$UTMCTL" file push "$VM_UUID" "$GUEST_DIR\\_ucmd.ps1" >/dev/null 2>&1 \
     || die "guest agent not responding"
   # schtasks /run is a silent no-op while the previous run is still exiting, so back-to-back
   # calls used to hang until the pull loop timed out. Wait for the task to go idle first.
-  wait_task_idle ColombusRun || { unlock; return 1; }
+  wait_task_idle OphiRun || { unlock; return 1; }
   "$UTMCTL" exec "$VM_UUID" --cmd "$CMD_EXE" /c \
-    "del $GUEST_DIR\\out\\_ulast.txt 2>nul & schtasks /run /tn ColombusRun" >/dev/null 2>&1
+    "del $GUEST_DIR\\out\\_ulast.txt 2>nul & schtasks /run /tn OphiRun" >/dev/null 2>&1
   for i in $(seq 1 300); do
     out="$("$UTMCTL" file pull "$VM_UUID" "$GUEST_DIR\\out\\_ulast.txt" 2>/dev/null)"
     case "$out" in *"$marker"*) printf '%s\n' "${out%$marker*}"; unlock; return 0 ;; esac
   done
-  echo "timed out — is ColombusRun registered? run: $0 setup-user" >&2
+  echo "timed out — is OphiRun registered? run: $0 setup-user" >&2
   printf '%s\n' "$out"; unlock; return 1
 }
 
@@ -114,8 +114,8 @@ if (-not \$u) { 'no interactive user logged on'; exit 1 }
 # from UI automation. conhost --headless gives the task a console with no window at all.
 \$run = 'C:\\Windows\\System32\\conhost.exe --headless powershell -NoProfile -ExecutionPolicy Bypass -File $GUEST_DIR\\run-user.ps1'
 \$shot = 'C:\\Windows\\System32\\conhost.exe --headless powershell -NoProfile -ExecutionPolicy Bypass -File $GUEST_DIR\\shot.ps1'
-schtasks /create /tn ColombusRun /ru \$u /it /f /sc once /st 00:00 /tr \$run
-schtasks /create /tn ColombusShot /ru \$u /it /f /sc once /st 00:00 /tr \$shot
+schtasks /create /tn OphiRun /ru \$u /it /f /sc once /st 00:00 /tr \$run
+schtasks /create /tn OphiShot /ru \$u /it /f /sc once /st 00:00 /tr \$shot
 'registered for ' + \$u"
   ;;
 
@@ -141,17 +141,17 @@ sync)
 push)   "$UTMCTL" file push "$VM_UUID" "${2:?usage: vm push <local> <guestpath>}" < "${1:?}" && echo "pushed -> $2" ;;
 get)    pull_retry "${1:?usage: vm get <guestpath>}" ;;
 
-# Pull a named artifact out of C:\colombus\out into lab/out.
+# Pull a named artifact out of C:\ophi\out into lab/out.
 pull)
   mkdir -p "$LAB/out"
-  name="${1:?usage: vm pull <filename in C:\\colombus\\out>}"
+  name="${1:?usage: vm pull <filename in C:\\ophi\\out>}"
   pull_retry "$GUEST_DIR\\out\\$name" > "$LAB/out/$name" && echo "$LAB/out/$name"
   ;;
 
 # One-time: register the screenshot task in the interactive session.
 setup-shot)
   ps_exec "\$u = (Get-CimInstance Win32_ComputerSystem).UserName
-schtasks /create /tn ColombusShot /ru \$u /tr 'powershell -NoProfile -WindowStyle Hidden -File $GUEST_DIR\\shot.ps1' /sc once /st 00:00 /it /f
+schtasks /create /tn OphiShot /ru \$u /tr 'powershell -NoProfile -WindowStyle Hidden -File $GUEST_DIR\\shot.ps1' /sc once /st 00:00 /it /f
 'registered for ' + \$u"
   ;;
 
@@ -160,7 +160,7 @@ shot)
   mkdir -p "$LAB/out"
   ts="$(date +%H%M%S)"
   ps_exec "Remove-Item $GUEST_DIR\\out\\shot.png -ErrorAction SilentlyContinue
-schtasks /run /tn ColombusShot | Out-Null
+schtasks /run /tn OphiShot | Out-Null
 for (\$i=0; \$i -lt 30; \$i++) { if (Test-Path $GUEST_DIR\\out\\shot.png) { break }; Start-Sleep -Milliseconds 300 }
 if (Test-Path $GUEST_DIR\\out\\shot.png) { 'ok' } else { 'FAILED - run: vm setup-shot' }" >/dev/null
   "$UTMCTL" file pull "$VM_UUID" "$GUEST_DIR\\out\\shot.png" > "$LAB/out/shot-$ts.png" 2>/dev/null
@@ -182,10 +182,10 @@ vm <command>
   exec '<powershell>'   run PowerShell in the guest (as SYSTEM), print output
   sql '<query>' [db] [json|csv|table]
                         read-only query against the ABELDent database
-  sync                  push lab/vm/guest/*.ps1 into C:\colombus
+  sync                  push lab/vm/guest/*.ps1 into C:\ophi
   push <local> <guest>  copy a file in
   get <guestpath>       print a guest file to stdout
-  pull <name>           copy C:\colombus\out\<name> -> lab/out/
+  pull <name>           copy C:\ophi\out\<name> -> lab/out/
   setup-shot            one-time: register the screenshot task
   shot                  capture the guest desktop -> lab/out/
   inspect               run the Step-0 recon script

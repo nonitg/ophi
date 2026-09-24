@@ -6,8 +6,8 @@ from datetime import date, timedelta
 
 import pytest
 
-from colombus.casegen.dsl import build_case, resolve_date
-from colombus.cdm.models import ArtifactType, Notation, PerioChartPayload, ToothState
+from ophi.casegen.dsl import build_case, resolve_date
+from ophi.cdm.models import ArtifactType, Notation, PerioChartPayload, ToothState
 from tests._cases import ready_dict
 
 AS_OF = date(2026, 9, 17)

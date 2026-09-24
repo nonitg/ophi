@@ -680,7 +680,7 @@ produces a wrong submission; a false negative produces a manual check.
 ### Staying out of medical-device territory
 Health Canada's SaMD framing turns on whether software is intended to diagnose, treat, prevent or
 mitigate disease, or to support clinical decision-making in a way the clinician cannot independently
-review. **Colombus's defensible position:** an administrative/billing documentation-completeness tool
+review. **Ophi's defensible position:** an administrative/billing documentation-completeness tool
 operating on a payer's published documentation requirements, making no clinical determination, where
 every clinical statement surfaced is a restatement of the clinician's own chart entry with a pointer
 to it, reviewed and attested by that clinician.

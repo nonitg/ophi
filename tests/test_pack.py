@@ -7,9 +7,9 @@ from pathlib import Path
 import pytest
 import yaml
 
-from colombus.cdm.models import ArtifactType
-from colombus.rules.loader import PACKS_DIR, default_pack, load_pack
-from colombus.rules.schema import Clause, Find, FindP, OneOf, Predicate, RequireAll, RulePack
+from ophi.cdm.models import ArtifactType
+from ophi.rules.loader import PACKS_DIR, default_pack, load_pack
+from ophi.rules.schema import Clause, Find, FindP, OneOf, Predicate, RequireAll, RulePack
 
 PACK_PATH = PACKS_DIR / "cdcp" / "2026-01-26" / "pack.yaml"
 

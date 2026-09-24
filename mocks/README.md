@@ -1,6 +1,6 @@
 # Mocks — PMS API Mock Fixtures
 
-Fictional data for local dev/test without a live ABELDent instance. All schemas mirror the real PMS API as emitted by `lab/tools/chart_dump.py` and typed in `colombus/cdm/models.py`.
+Fictional data for local dev/test without a live ABELDent instance. All schemas mirror the real PMS API as emitted by `lab/tools/chart_dump.py` and typed in `ophi/cdm/models.py`.
 
 > No real PHI. Names/dates/fees are synthetic.
 
@@ -8,7 +8,7 @@ Fictional data for local dev/test without a live ABELDent instance. All schemas 
 
 | Mock file | Real source | Schema reference |
 |---|---|---|
-| `patients.json` | `pat` table (`pid, plname, pfname, pbirth, pgender, pdentist, pinactive, pnonpatient`) | `colombus/cdm/models.py:228 Patient` |
+| `patients.json` | `pat` table (`pid, plname, pfname, pbirth, pgender, pdentist, pinactive, pnonpatient`) | `ophi/cdm/models.py:228 Patient` |
 | `appointments.json` | `Transactions.Appt` grouping + `PlanNum` | `ProposedTreatment.appointment_date` |
 | `treatments.json` | `Transactions` (Type `P`=planned, ` `=completed) + `tdi` financial mirror, `Plans` | `ProposedTreatment`, `ProcedureHistoryItem`, `chart_dump.py:ledger_sections()` |
 | `dentists.json` | `pat.pdentist`, `Transactions.ProvID/RespProvID` | `Practitioner` |
@@ -23,7 +23,7 @@ Fictional data for local dev/test without a live ABELDent instance. All schemas 
 
 ## Key conventions (match ABELDent)
 
-- **Tooth numbering**: FDI (ISO 3950) throughout. `tooth_universal` provided where relevant. Conversion in `colombus/dental/notation.py`.
+- **Tooth numbering**: FDI (ISO 3950) throughout. `tooth_universal` provided where relevant. Conversion in `ophi/dental/notation.py`.
 - **Fees**: dollars in mocks (DB stores cents; `Billed/100`, `iefee/100`).
 - **Ledger duality**: `Transactions` is clinical ledger; `tdi` is financial ledger. Planned rows mirrored with sentinel `itrid=99999998` (`itype P`), completed rows matched by `code+tooth+date` then `code+tooth+fee`.
 - **Bridge grouping**: `bridge_group` (`Transactions.Grp`) is position 1..n within bridge, not a shared bridge ID.
@@ -41,8 +41,8 @@ chart = json.loads(pathlib.Path("mocks/pms/chart_dump_101.json").read_text())
 Validate against CDM:
 
 ```python
-from colombus.cdm.models import Patient
-# adapt pid->patient_id, etc., or load via casegen DSL in colombus/casegen/dsl.py
+from ophi.cdm.models import Patient
+# adapt pid->patient_id, etc., or load via casegen DSL in ophi/casegen/dsl.py
 ```
 
 ## Toggle — mock vs real PMS
@@ -51,13 +51,13 @@ Env-var switch (primary `USE_MOCK_PMS_API`, aliases `USE_MOCK_DATA`, `PMS_USE_MO
 
 ```bash
 # use mocks (no VM needed)
-USE_MOCK_PMS_API=true python -m colombus.web.app
+USE_MOCK_PMS_API=true python -m ophi.web.app
 USE_MOCK_PMS_API=true pytest
-USE_MOCK_PMS_API=1 python -c "from colombus.service import CaseService; print(CaseService().case_ids())"
+USE_MOCK_PMS_API=1 python -c "from ophi.service import CaseService; print(CaseService().case_ids())"
 
 # use real filesystem cases (default)
 unset USE_MOCK_PMS_API
-python -m colombus.web.app
+python -m ophi.web.app
 ```
 
 Truthy (case-insensitive): `true`, `1`, `yes`, `on`, `y`. Everything else = off.
@@ -65,8 +65,8 @@ Truthy (case-insensitive): `true`, `1`, `yes`, `on`, `y`. Everything else = off.
 Programmatic:
 
 ```python
-from colombus.sources.pms_repository import should_use_mocks, create_repository, MockPmsRepository
-from colombus.service import CaseService
+from ophi.sources.pms_repository import should_use_mocks, create_repository, MockPmsRepository
+from ophi.service import CaseService
 
 # toggle-aware factory
 repo = create_repository("auto")          # -> Mock if env ON else FileSystem

@@ -1,5 +1,5 @@
 {
-  "_description": "Mock clinics — organizational entity for multi-site PMS. Not directly in ABELDent single-site DB but implied by colombus/cdm/models.py Case.clinic field.",
+  "_description": "Mock clinics — organizational entity for multi-site PMS. Not directly in ABELDent single-site DB but implied by ophi/cdm/models.py Case.clinic field.",
   "clinics": [
     {
       "clinic_id": "FDC-001",

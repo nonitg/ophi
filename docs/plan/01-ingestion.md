@@ -20,14 +20,14 @@ Pre-reconciliation deep-dive plan. `PLAN.md` carries the v1 cut; effort numbers 
 **Rule zero: all discovery on the lab machine, against Fictional Data, on a restored copy.** Restore
 `C:\ABELDent\Data\Backup\*.bak` into a second instance so scans and lock experiments cannot degrade
 the app's working database; keep the original for "run the app, observe what it does" work. Probe
-artifacts live in a separate `ColombusProbe` database. **We never create an object inside the vendor
+artifacts live in a separate `OphiProbe` database. **We never create an object inside the vendor
 database** — not a view, not a proc, not an index.
 
 Which instance is a decision, not an assumption. The measured Freemium install is SQL Server 2022
 **LocalDB** (`(LOCALDB)\MSSQLLOCALDB`), not Express: a per-user, on-demand child process owned by the
 interactive Windows user and reachable only over a named pipe whose name is regenerated on every
 restart — no TCP/1433, no `Server=.\INSTANCE` (`docs/research/abeldent-schema.md`). A second LocalDB
-instance is the zero-install restore target; `.\COLOMBUSLAB` as a real SQL Express instance first
+instance is the zero-install restore target; `.\OPHILAB` as a real SQL Express instance first
 requires ABELDent's vendor-authored `C:\ABELDent\Data\Tasks\installSQLExpress_SSMS.ps1` — the
 supported upgrade path, and the edition paid Local / Local Plus installs already run. Name the target
 in the probe log rather than assuming it.
@@ -97,8 +97,8 @@ Summarized vs Production Totals).
 
 ### Step 6 — Diff-after-action probes (5 days, ongoing) — **tooling built**: `lab/tools/probe.py snapshot|diff`, `scripts/probe-step`, `lab/vm/guest/ui.ps1` (UI Automation).
 `probe snapshot`: per table, `SELECT <pk>, HASHBYTES('SHA2_256', CONCAT_WS('|', <all cols>))` into
-**Lab deviation, deliberate:** `lab/tools/probe.py` hashes the live app database (there is only LocalDB on Freemium, no second instance) and stores snapshots as host-side JSON in `lab/out/probe/`, not in a `ColombusProbe` database. Nothing is created in the vendor database.
-`ColombusProbe`. Fast pre-pass: row count + `CHECKSUM_AGG(BINARY_CHECKSUM(*))` per table to find
+**Lab deviation, deliberate:** `lab/tools/probe.py` hashes the live app database (there is only LocalDB on Freemium, no second instance) and stores snapshots as host-side JSON in `lab/out/probe/`, not in a `OphiProbe` database. Nothing is created in the vendor database.
+`OphiProbe`. Fast pre-pass: row count + `CHECKSUM_AGG(BINARY_CHECKSUM(*))` per table to find
 changed tables, then row-level hash only on those. Protocol: write a YAML describing the action ->
 `probe snapshot A` -> perform the action in the UI -> `probe snapshot B` -> `probe diff A B` ->
 record mapping with the probe ID as evidence.
@@ -121,7 +121,7 @@ manufactures test data.
 odontogram); **+2.5 eng-weeks for perio and imaging** — the hard ones.
 
 Tooling: SSMS 21 + Azure Data Studio, `dbatools`, `mssql-scripter`, SchemaCrawler/SchemaSpy, Extended
-Events, `sp_WhoIsActive` (in `ColombusProbe`, never the vendor DB), our own `probe` CLI (C#, same
+Events, `sp_WhoIsActive` (in `OphiProbe`, never the vendor DB), our own `probe` CLI (C#, same
 solution as the agent — reuses `ReadOnlySqlExecutor` so the safety rails get tested in the lab
 first), `fo-dicom`, git-versioned YAML.
 
@@ -146,7 +146,7 @@ EF Core), `Polly`, `Serilog` + `OpenTelemetry`, `Microsoft.Data.Sqlite`, `System
 `fo-dicom`, `SixLabors.ImageSharp`, `QuestPDF`, WiX v5.
 
 ### SQL authentication
-On Express (paid Local / Local Plus): service runs as a **dedicated Windows account** (`svc_colombus`),
+On Express (paid Local / Local Plus): service runs as a **dedicated Windows account** (`svc_ophi`),
 never LocalSystem, never a human's account. **On Freemium this rule cannot hold** — LocalDB is owned by
 the interactive user, so the agent must either run in that user's session or take the vendor
 `installSQLExpress_SSMS.ps1` upgrade first. **Open architectural question, not a solved one:** an
@@ -154,16 +154,16 @@ interactive-session agent needs a key-storage model, since DPAPI machine scope a
 SCM's LSA secret store — never written to config or log; (b) existing domain account; (c) **gMSA** on
 domain-joined servers (best; no password at all).
 
-SQL side, via a human-readable `grant-colombus.sql` the clinic's IT runs under sysadmin (**we never
+SQL side, via a human-readable `grant-ophi.sql` the clinic's IT runs under sysadmin (**we never
 demand sysadmin ourselves**):
 ```sql
-CREATE LOGIN [DOMAIN\svc_colombus] FROM WINDOWS;
-CREATE USER ...; CREATE ROLE colombus_reader;
+CREATE LOGIN [DOMAIN\svc_ophi] FROM WINDOWS;
+CREATE USER ...; CREATE ROLE ophi_reader;
 -- GRANT SELECT on an ENUMERATED object list only, never db_datareader.
 -- The object list is generated from the query pack, so privilege == the footprint of shipped queries.
-DENY INSERT, UPDATE, DELETE, ALTER, EXECUTE, CREATE TABLE ... TO [DOMAIN\svc_colombus];
+DENY INSERT, UPDATE, DELETE, ALTER, EXECUTE, CREATE TABLE ... TO [DOMAIN\svc_ophi];
 ```
-Connection string: `Encrypt=True; TrustServerCertificate=<configurable>; ApplicationName=Colombus
+Connection string: `Encrypt=True; TrustServerCertificate=<configurable>; ApplicationName=Ophi
 Agent; ApplicationIntent=ReadOnly`.
 
 **Edition caveat: the above is the paid Local / Local Plus case, where SQL Express runs as a shared
@@ -171,7 +171,7 @@ service.** It does not hold on Freemium, whose LocalDB instance is owned by the 
 user: a `LocalSystem` — or any other service — account **cannot see it at all**, and there is no
 server-side login to grant. Freemium needs either the vendor's `installSQLExpress_SSMS.ps1` upgrade
 or an agent running in the interactive user's session. Unresolved: name the target before the
-installer is built, and have `colombusctl test-sql` report which it found.
+installer is built, and have `ophictl test-sql` report which it found.
 
 ### Read-only enforcement — three independent layers
 1. **SQL permissions.** The database itself refuses writes. **Express only** — Freemium's LocalDB has no
@@ -245,7 +245,7 @@ fo-dicom + ImageSharp, strip non-essential tags, retain modality/date/laterality
 upload, client-side encryption.
 
 ### Offline / retry
-Local SQLite (`%ProgramData%\Colombus\agent.db`, ACL'd to the service account): `sync_cursor`, `job`,
+Local SQLite (`%ProgramData%\Ophi\agent.db`, ACL'd to the service account): `sync_cursor`, `job`,
 `outbox`, `access_journal`, `schema_fingerprint`, `document_ref`, `config`. Durable job state machine
 with idempotency keys. Polly exponential backoff with jitter, circuit breaker, max retention 7 days
 then abandon with alert. Bounded disk (2 GB default), oldest-first eviction. **When offline the cloud
@@ -259,7 +259,7 @@ code -> agent generates a non-exportable key in Windows CNG machine key store ->
 certificate; thereafter mTLS + short-lived JWT. Revocation server-side, instant.
 
 ### Self-update
-Two components: `Colombus.Agent` (service) and `Colombus.Bootstrap` (tiny updater that owns swapping
+Two components: `Ophi.Agent` (service) and `Ophi.Bootstrap` (tiny updater that owns swapping
 the agent). Signed packages from a Canadian-hosted CDN; Authenticode via Azure Trusted Signing
 (alternative: OV/EV cert on hardware token, ~$400–800/yr). Staged rings
 `internal -> canary(1 clinic) -> 10% -> all`, per-clinic version pinning, automatic rollback on
@@ -278,7 +278,7 @@ the common case (vendor moved a column) is a data push, not a deployment.
 - OpenTelemetry -> Canadian-hosted collector. Metrics: `bundle_build_duration`,
   `query_duration{query_id}`, `rows_returned{query_id}`, `sql_blocked_events`, `sweep_lag_seconds`,
   `schema_fingerprint_status`, `outbox_depth`, `agent_heartbeat`.
-- `colombusctl` on-site CLI: `status`, `test-sql`, `fingerprint`, `diag-bundle` (redacted),
+- `ophictl` on-site CLI: `status`, `test-sql`, `fingerprint`, `diag-bundle` (redacted),
   `replay-job <id>`.
 - **`access_journal`**: every read the cloud causes, recorded locally with `(timestamp, cloud user
   id, patient ref, query ids, reason)`, exportable by the clinic. Clinic-readable audit is a PHIPA
@@ -352,7 +352,7 @@ of the four states applies, with a reason code.
 
 **Code systems:** canonical tooth numbering **ISO 3950 / FDI two-digit** (Canadian practice) with
 Universal Numbering translation retained; surfaces as enumerated `M|O|D|B|L|I|F`; procedure codes as
-`Coding{system:"urn:colombus:codesystem:cda-uscls", code}`. Always retain `sourceCode`/`sourceSystem`
+`Coding{system:"urn:ophi:codesystem:cda-uscls", code}`. Always retain `sourceCode`/`sourceSystem`
 alongside the normalized code — never discard the PMS's own value.
 
 **USC&LS licensing:** the code set loads from a runtime data file
@@ -488,7 +488,7 @@ come from a different vendor than the chart.
    on-prem agent (SQL, filesystem); `OpenDentalChartSource` and `ClearDentChartSource` are REST
    clients that can run **in the cloud with no agent installed at all**; one remote transport
    (`RemoteChartSource`, the agent RPC) satisfies the same interface.
-3. A driver TCK. `Colombus.ChartSource.Conformance` — a shared xUnit suite every driver must pass:
+3. A driver TCK. `Ophi.ChartSource.Conformance` — a shared xUnit suite every driver must pass:
    CDM schema validity, provenance completeness, **capability honesty** (if you claim `Supported`,
    you must return `Present` or `AbsentConfirmed`, never `Unknown`), tooth/surface normalization,
    date/timezone handling, idempotency, cancellation, error taxonomy, plus golden fixtures per PMS.
@@ -500,13 +500,13 @@ another reverse-engineering exercise).
 ```
 /contracts/cdm/v1/*.schema.json               # source of truth, codegen'd 3 ways
 /contracts/chartsource/chartsource.v1.json    # agent RPC wire contract
-/agent/src/Colombus.ChartSource.Abstractions  # IChartSource, CDM records, SourceCapabilities
-/agent/src/Colombus.ChartSource.AbelDent      # driver + QueryPacks/abeldent-v14.yaml
-/agent/src/Colombus.Sql                       # ReadOnlySqlExecutor, QueryCatalog, SchemaGuard
-/agent/src/Colombus.Agent                     # worker service, transport, outbox, journal
-/agent/src/Colombus.Bootstrap                 # updater service
-/agent/installer                              # WiX v5, grant-colombus.sql generator
-/agent/tests/Colombus.ChartSource.Conformance # the TCK
+/agent/src/Ophi.ChartSource.Abstractions  # IChartSource, CDM records, SourceCapabilities
+/agent/src/Ophi.ChartSource.AbelDent      # driver + QueryPacks/abeldent-v14.yaml
+/agent/src/Ophi.Sql                       # ReadOnlySqlExecutor, QueryCatalog, SchemaGuard
+/agent/src/Ophi.Agent                     # worker service, transport, outbox, journal
+/agent/src/Ophi.Bootstrap                 # updater service
+/agent/installer                              # WiX v5, grant-ophi.sql generator
+/agent/tests/Ophi.ChartSource.Conformance # the TCK
 /tools/probe                                  # discovery CLI
 /schema-map/abeldent/v14/entities.yaml        # reverse-engineering output, versioned
 /fixtures/abeldent/fictional/*.json           # golden raw->CDM pairs, CI-enforced
@@ -524,7 +524,7 @@ another reverse-engineering exercise).
 | R5 | Freemium schema != Local Plus v15 / Cloud v15 | M | H | Obtain a paid/NFR trial or reseller v15 instance early; fingerprint both; query packs per major version | No v15 instance obtainable |
 | R6 | Legal exposure from reverse engineering (EULA) | M | H | Counsel review first; **no IL decompilation without sign-off**; rely on lawful-possession artifacts (`C:\ABELDent\Fdats\*.fda`), catalog views, XEvents on our own instance, UI-driven diffing; document methodology defensively | Counsel flags any technique |
 | R7 | **Wrong database edition assumed, and contention on the right one.** Freemium runs SQL Server 2022 LocalDB (`(LOCALDB)\MSSQLLOCALDB`) — per-restart named pipe, no TCP/1433, invisible to a `LocalSystem` service — while paid Local / Local Plus runs SQL Express, where our reads can degrade the clinic's PMS | M | H | Name the instance target per install (vendor `installSQLExpress_SSMS.ps1` upgrade vs interactive-session access) and detect it at enrolment; concurrency 1, `LOCK_TIMEOUT 5000`, `DEADLOCK_PRIORITY LOW`, MAXDOP 1, keyset pagination, quiet hours, blocking-chain auto-pause. (`BackupSnapshotSource` — reading a restored `.bak` instead of the live DB — is named as an escape hatch but is **not designed anywhere in this plan**; sketch it or drop it.) | Any observed block of an ABELDent session > 2 s, or a pilot install where neither access path works |
-| R8 | Windows auth / service account friction in workgroup clinics | H | M | Installer handles all three modes; password to LSA secret store only; `colombusctl test-sql`; documented IT runbook | >30 min install in the first pilot |
+| R8 | Windows auth / service account friction in workgroup clinics | H | M | Installer handles all three modes; password to LSA secret store only; `ophictl test-sql`; documented IT runbook | >30 min install in the first pilot |
 | R9 | PHI leaks into logs, telemetry, or LLM prompts | M | VH | Redaction sink + CI test that **fails the build** on PHI patterns; minimized bundles; Canadian-region inference with no-training terms; access journal | Any PHI found in any log |
 | R10 | Canadian-region LLM inference unavailable for target models | M | M | Verify Bedrock ca-central-1 / Azure Canada East / Vertex northamerica-northeast1 now; provider interface in the reasoning layer; worst case run smaller models in-region and reserve cross-border for de-identified content | Verification negative |
 | R11 | USC&LS licence not granted in time | M | M | Runtime-loaded code set, codes-only degraded mode, render clinic's own descriptions; enquiry sent first | No response after repeated follow-up |

@@ -1,5 +1,5 @@
 {
-  "_description": "Mock clinical notes — mirrors Notes + Charts join. See lab/tools/chart_dump.py note_row() and CDM NotePayload (colombus/cdm/models.py:136)",
+  "_description": "Mock clinical notes — mirrors Notes + Charts join. See lab/tools/chart_dump.py note_row() and CDM NotePayload (ophi/cdm/models.py:136)",
   "clinical_notes": [
     {
       "pid": 101,

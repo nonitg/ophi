@@ -4,7 +4,7 @@
 # Bound to 192.168.64.1 only — not reachable from the LAN.
 set -euo pipefail
 HERE="$(cd "$(dirname "$0")" && pwd)"
-SERVE_DIR="${TMPDIR:-/tmp}/colombus-serve"
+SERVE_DIR="${TMPDIR:-/tmp}/ophi-serve"
 mkdir -p "$SERVE_DIR"
 cp "$HERE/bootstrap.ps1" "$SERVE_DIR/b.ps1"
 cp "$HOME/.ssh/id_ed25519_abeldent.pub" "$SERVE_DIR/id.pub"

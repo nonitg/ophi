@@ -10,11 +10,11 @@ from pathlib import Path
 
 import uvicorn
 
-from colombus.service import CaseService, Store
-from colombus.web.app import create_app
+from ophi.service import CaseService, Store
+from ophi.web.app import create_app
 
 port = int(sys.argv[1]) if len(sys.argv) > 1 else 8799
-root = Path(sys.argv[2]) if len(sys.argv) > 2 else Path(tempfile.mkdtemp(prefix="colombus-screens-"))
+root = Path(sys.argv[2]) if len(sys.argv) > 2 else Path(tempfile.mkdtemp(prefix="ophi-screens-"))
 svc = CaseService(store=Store(root / "state"))
-print(f"Colombus screenshot server on http://127.0.0.1:{port}  state: {root}", flush=True)
+print(f"Ophi screenshot server on http://127.0.0.1:{port}  state: {root}", flush=True)
 uvicorn.run(create_app(svc=svc, packets_dir=root / "packets"), host="127.0.0.1", port=port, log_level="warning")

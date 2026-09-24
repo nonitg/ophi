@@ -23,12 +23,12 @@ casegen YAML ──► Case (CDM) ──► proposer adds unconfirmed TX_PLAN_DE
 
 ## The pieces
 
-**CDM (`colombus/cdm`).** FHIR names where they exist, dental-first where FHIR is weak (`PerioExam`,
+**CDM (`ophi/cdm`).** FHIR names where they exist, dental-first where FHIR is weak (`PerioExam`,
 `DentitionState`). Every artifact carries `Provenance`; every section carries `SourceAssurance`
 (`Present | AbsentConfirmed | Unknown | Degraded`). Tooth numbers are FDI internally; the number as
 written and the declared notation are kept so nothing is inferred from "16".
 
-**Rule pack (`packs/cdcp/<version>/pack.yaml`, `colombus/rules`).** Two layers. `schedule` mirrors
+**Rule pack (`packs/cdcp/<version>/pack.yaml`, `ophi/rules`).** Two layers. `schedule` mirrors
 the grid: which codes always need preauth, the code family, exclusions, frequency limits, retired
 codes. `requirements` encode the documentation matrix and the Guide's crown criteria using a closed
 vocabulary: `find` (artifact query), `fact` (deterministic predicate over case fields), `one_of`,
@@ -36,7 +36,7 @@ vocabulary: `find` (artifact query), `fact` (deterministic predicate over case f
 different requirement) and `applies_when`. Every requirement and every assertion criterion cites its
 clause. The loader hashes the YAML; every assessment records the hash.
 
-**Engine (`colombus/engine`).**
+**Engine (`ophi/engine`).**
 - `leaves.py` resolves `find` queries: radiograph by view/tooth/laterality, complete perio chart (6
   sites on every present tooth), PSR coverage, 6-site measurements for the requested tooth (and any
   sextant an escalation demanded), clinician assertions. Absent evidence is `unsatisfied` only when
@@ -55,16 +55,16 @@ clause. The loader hashes the YAML; every assessment records the hash.
   applies (code outside the pack, or a listed exclusion) the crown requirements are marked
   `not_applicable` rather than evaluated, so the engine never invents gaps for a filling.
 
-**Proposer (`colombus/extract`).** Heuristic sentence matcher for plan language in signed-off notes.
+**Proposer (`ophi/extract`).** Heuristic sentence matcher for plan language in signed-off notes.
 Every proposal carries a verbatim quote checked as an exact substring; otherwise it is dropped.
 Proposals produce `satisfied_pending_confirmation` until confirmed. `DeidentifiedNote` is the only
 input type a model-backed proposer may accept.
 
-**Service (`colombus/service.py`).** Loads a case via `PmsRepository`, applies stored human inputs as artifacts, re-runs
+**Service (`ophi/service.py`).** Loads a case via `PmsRepository`, applies stored human inputs as artifacts, re-runs
 the engine. Assertions and confirmations invalidate any prior sign-off. Sign-off is refused unless the
 verdict is READY. Append-only audit log.
 
-**PMS abstraction (`colombus/sources/pms_repository.py`).** Repository pattern over all PMS reads.
+**PMS abstraction (`ophi/sources/pms_repository.py`).** Repository pattern over all PMS reads.
 `PmsRepository` is the protocol; `FileSystemPmsRepository` wraps `casegen/dsl` (YAML cases, the
 default), `AbelDentPmsRepository` wraps `lab/tools/chart_dump.py` (live ABELDent VM), and
 `MockPmsRepository` reads `mocks/*.json` + `mocks/pms/*.json`. `CaseService` accepts an injected
@@ -72,13 +72,13 @@ default), `AbelDentPmsRepository` wraps `lab/tools/chart_dump.py` (live ABELDent
 `PMS_USE_MOCKS`; truthy `true/1/yes/on/y`). Factory: `create_repository("auto"|"mock"|"filesystem"|"abeldent")`.
 See `mocks/README.md` and `docs/pms-basics.md` — Toggling real vs mock.
 
-**Packet (`colombus/packet`) and verifier (`colombus/verify`).** Assembler writes an ASCII index,
+**Packet (`ophi/packet`) and verifier (`ophi/verify`).** Assembler writes an ASCII index,
 the treatment form (the one file that carries patient identity), image plates (8-bit greyscale PNG,
 150–300 DPI, never upsampled), a perio table, the rationale as DOCX + ASCII TXT, and `manifest.json`
 with sha256/bytes/spec checks per file. The verifier reopens every file with no shared code and
 re-checks the CDAnet limits (≤30 files, ≤7 MB), image spec, hashes, ASCII, attestation hash.
 
-**Look-Back (`colombus/lookback.py`).** For each past submission, judges the chart as it stood on the
+**Look-Back (`ophi/lookback.py`).** For each past submission, judges the chart as it stood on the
 submission date and reports: submitted, denied, denied with a documentation gap, never resubmitted.
 Denial text is displayed verbatim but never trusted for classification.
 
@@ -96,7 +96,7 @@ READY_WITH_RISKS · READY_TO_SUBMIT`. No score, no probability.
 | Python 3.12 | Python 3.13 (what the machine has) | No 3.12-only dependency. |
 | Postgres rule store, 60 s cache | Rule pack loaded from the repo, content-hashed | One pack, one clinic, no deploy pipeline yet. The loading seam (`rules/loader.py`) is where Postgres goes. |
 | LLM extraction (Haiku) + Sonnet escalation | Heuristic proposer | Same contract, same verbatim-quote filter, no API key needed for the demo. `Proposer` protocol is the seam. |
-| ABELDent driver → CDM | casegen YAML → CDM | The Fictional Data fixture shape is still changing in the lab session (see PLAN.md status). `PmsRepository` (`colombus/sources`) is the seam; `USE_MOCK_PMS_API=true` serves `mocks/` without a VM. The casegen cases are the golden corpus the plan asked for anyway. |
+| ABELDent driver → CDM | casegen YAML → CDM | The Fictional Data fixture shape is still changing in the lab session (see PLAN.md status). `PmsRepository` (`ophi/sources`) is the seam; `USE_MOCK_PMS_API=true` serves `mocks/` without a VM. The casegen cases are the golden corpus the plan asked for anyway. |
 | Verdict `EXCLUDED_AS_CODED` not in the plan's enum | Added | Appendix E exclusions are the highest-value early exit; the plan lists it under "encode with high confidence". |
 
 ## Open rule questions for the SME

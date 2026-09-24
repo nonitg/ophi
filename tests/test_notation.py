@@ -5,8 +5,8 @@ from __future__ import annotations
 import pytest
 from hypothesis import given, strategies as st
 
-from colombus.cdm.models import Notation
-from colombus.dental.notation import (
+from ophi.cdm.models import Notation
+from ophi.dental.notation import (
     ALL_FDI_PERMANENT, NotationError, arch, describe, fdi_to_universal, is_anterior, is_valid_fdi,
     position, quadrant, side, to_fdi, tooth_class, universal_to_fdi,
 )

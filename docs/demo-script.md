@@ -40,10 +40,10 @@ green, one red, three amber. Under **Before this can go out**, item 1 is the her
 Then hover the **Required by** chip under it: it cites the documentation matrix row and the Guide's
 radiograph-standards section. *"Nothing on this screen says 'missing' without naming the rule that
 makes it missing."* The full list of 13 requirements, each with its clause, is one click away in the
-**All 13 CDCP requirements** fold; the chart Colombus read is in the fold below it.
+**All 13 CDCP requirements** fold; the chart Ophi read is in the fold below it.
 
 Item 2 is *Dr. Priya Lau confirms 9 clinical criteria*. *"Four crown criteria are measurements you
-make on the film. They exist in no chart. Colombus never asserts them. You do, once, and the packet
+make on the film. They exist in no chart. Ophi never asserts them. You do, once, and the packet
 renders it as your clinical judgment with your name and a timestamp."* The **Clinician assertions**
 fold at the bottom holds the form; it is open whenever you are acting as the dentist.
 
@@ -54,7 +54,7 @@ one dashed amber segment: *awaiting confirmation*. Item 1 under **Before this ca
 proposed chart finding, with the quoted sentence — *"Plan: ceramic crown 24 to protect the remaining
 structure."* — and **Confirm** / **Reject**. Click **Confirm**. The dashed segment turns green.
 *"The proposer found it. It could not count until a human said yes."* (The same highlighted sentence
-is visible in the note inside the **What Colombus read in the chart** fold.)
+is visible in the note inside the **What Ophi read in the chart** fold.)
 
 Switch **Acting as** to *Dr. Priya Lau*. The assertions fold is open: **Select all**, **Met**,
 **Record selected**. The verdict becomes *Documentation complete — ready for sign-off*.
@@ -71,7 +71,7 @@ Before sign-off the verdict sentence reads *This is a draft — not signed, not 
 download is refused. Click **Sign off**. The sentence becomes *Signed by Dr. Priya Lau* and the
 verifier reports a signed packet. Then **Download packet**. Close with the line on screen:
 
-> **Colombus never transmits. You do.**
+> **Ophi never transmits. You do.**
 
 ## Beat 6 — if asked "how do I trust it?" (30 s)
 
