@@ -83,6 +83,17 @@
   --default-transition-timing-function: ease;
 }
 
+/* Newsreader's stand-in until it loads, sized to match it. Newsreader has no "≈", so the Why panel's "≈480,000" draws
+   that sign from here for good. */
+@font-face {
+  font-family: "Newsreader Fallback";
+  src: local("Times New Roman");
+  ascent-override: 69.68%;
+  descent-override: 25.12%;
+  line-gap-override: 0%;
+  size-adjust: 105.48%;
+}
+
 @layer base {
   html {
     background: var(--paper);

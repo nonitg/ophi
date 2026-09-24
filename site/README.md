@@ -35,7 +35,7 @@ It is an illustration, not patient data or a clinical model. Rebuild it from `si
 node scripts/build-tooth.mjs
 ```
 
-The renderer loads separately from the page. It draws on demand, caps pixel density, suspends while
+The renderer and the mesh (quantized and gzipped, decoded by `lib/tooth-mesh.ts`) load in parallel after the page. It draws on demand, caps pixel density, suspends while
 hidden, supports drag and keyboard rotation, and has an X-ray view. The server-rendered SVG remains
 visible when JavaScript, WebGL, or the asset is unavailable. Reduced motion disables entrance animation and rotation easing.
 

@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { createPortal, flushSync } from "react-dom";
 import type { ToothControls } from "@/lib/tooth-renderer";
+import { loadToothMesh } from "@/lib/tooth-mesh";
 import { exposureCounter, setSiteXray } from "@/lib/xray-mode";
 import { copy } from "@/lib/copy";
 import { XrayFilters } from "@/components/xray-filters";
@@ -45,9 +46,10 @@ export function ToothScene() {
       if (!entry.isIntersecting) return;
       observer.disconnect();
       try {
-        const { createToothViewer } = await import("@/lib/tooth-renderer");
+        // The mesh downloads alongside three.js rather than after it.
+        const [{ createToothViewer }, mesh] = await Promise.all([import("@/lib/tooth-renderer"), loadToothMesh(abort.signal)]);
         if (abort.signal.aborted) return;
-        cleanup = await createToothViewer(container, abort.signal, (away) => {
+        cleanup = await createToothViewer(container, mesh, (away) => {
           film.current.away = away;
           const reversed = markReversed(film.current);
           setNote((current) => reversed ? "backwards" : current === "backwards" ? null : current);

@@ -6,6 +6,7 @@ import { MarchingCubes } from 'three/examples/jsm/objects/MarchingCubes.js';
 import { BufferGeometry, Float32BufferAttribute, MeshBasicMaterial } from 'three';
 import { mergeVertices } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import { writeFileSync } from 'node:fs';
+import { gzipSync } from 'node:zlib';
 import { toothDistance, pulpDistance } from './tooth-field.mjs';
 
 const TOOTH_BOUNDS = [1.6, 1.9, 1.6];
@@ -82,9 +83,29 @@ function bake(geometry) {
 
 function indices(geometry) {
   if (geometry.attributes.position.count > 65535) throw new Error('Mesh too dense for 16-bit indices');
-  const index = Uint16Array.from(geometry.index.array);
-  // Keep the next Float32 section 4-byte aligned.
-  return index.length % 2 ? Uint16Array.from([...index, 0]) : index;
+  return Uint16Array.from(geometry.index.array);
+}
+
+// One 16-bit stream per attribute, each value mapped from ±bound (or 0..1 when bound is 0) to 0..65535.
+function quantize(interleaved, bounds) {
+  const stride = bounds.length, count = interleaved.length/stride;
+  return bounds.map((bound, k) => Uint16Array.from({ length: count }, (_, i) => {
+    const v = interleaved[i*stride+k];
+    return Math.round((bound ? (v/bound+1)/2 : v)*65535);
+  }));
+}
+
+// Delta-code each stream, then store every high byte before every low byte: neighbouring vertices and indices are
+// close, so both planes are mostly repeats that gzip packs tightly. lib/tooth-mesh.ts reverses this.
+function pack(streams) {
+  const total = streams.reduce((n, s) => n+s.length, 0);
+  const bytes = new Uint8Array(total*2);
+  let at = 0;
+  for (const s of streams) {
+    let previous = 0;
+    for (const value of s) { const d = (value-previous) & 0xffff; previous = value; bytes[at] = d >> 8; bytes[total+at] = d & 255; at++; }
+  }
+  return bytes;
 }
 
 const tooth = polygonize(toothDistance, 88, TOOTH_BOUNDS);
@@ -93,9 +114,12 @@ const pulp = polygonize(pulpDistance, 60, PULP_BOUNDS);
 smooth(pulp, 4);
 const toothVertices = bake(tooth), toothIndex = indices(tooth);
 const pulpVertices = Float32Array.from(pulp.attributes.position.array), pulpIndex = indices(pulp);
-// Layout: four counts, tooth [x y z occlusion thickness], tooth indices, pulp [x y z], pulp indices.
+// Layout, all gzipped: four counts, six bounds (tooth xyz, pulp xyz), then streams tooth x y z occlusion thickness,
+// tooth indices, pulp x y z, pulp indices.
 const header = Uint32Array.from([tooth.attributes.position.count, tooth.index.count, pulp.attributes.position.count, pulp.index.count]);
-const file = Buffer.concat([header, toothVertices, toothIndex, pulpVertices, pulpIndex].map((a) => Buffer.from(a.buffer, a.byteOffset, a.byteLength)));
+const bounds = Float32Array.from([...TOOTH_BOUNDS, ...PULP_BOUNDS]);
+const streams = pack([...quantize(toothVertices, [...TOOTH_BOUNDS, 0, 0]), toothIndex, ...quantize(pulpVertices, PULP_BOUNDS), pulpIndex]);
+const file = gzipSync(Buffer.concat([header, bounds, streams].map((a) => Buffer.from(a.buffer, a.byteOffset, a.byteLength))), { level: 9 });
 writeFileSync(new URL('../public/tooth.bin', import.meta.url), file);
 const ao = toothVertices.filter((_, i) => i%5===3), th = toothVertices.filter((_, i) => i%5===4);
 console.log(`tooth ${tooth.index.count/3} triangles, pulp ${pulp.index.count/3} triangles, ${file.byteLength} bytes`);

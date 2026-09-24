@@ -1,23 +1,5 @@
 import { z } from "zod";
-
-// Canadian clinic PMS list first, then exits for readers who are not clinic staff.
-// The answer steers which integration ships first, so the labels match how clinics name them.
-export const PMS_OPTIONS = [
-  "ABELDent",
-  "ClearDent",
-  "Dentrix",
-  "Tracker",
-  "Open Dental",
-  "Paradigm",
-  "Power Practice",
-  "Curve",
-  "Dentitek",
-  "Progident",
-  "Other",
-  "I don't work in a clinic",
-] as const;
-
-export type Pms = (typeof PMS_OPTIONS)[number];
+import { PMS_OPTIONS, type Pms } from "@/lib/pms";
 
 const schema = z.object({
   email: z.email().max(254),

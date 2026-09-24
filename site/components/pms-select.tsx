@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useId, useRef, useState, useSyncExternalStore, type KeyboardEvent } from "react";
-import { PMS_OPTIONS } from "@/lib/subscribe";
+import { PMS_OPTIONS } from "@/lib/pms";
 import { copy } from "@/lib/copy";
 import { Icon } from "@/components/icons";
 

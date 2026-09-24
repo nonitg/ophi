@@ -1,9 +1,10 @@
 import * as THREE from "three";
-import { createStudio, type Studio } from "./tooth-studio";
+import { createStudio } from "./tooth-studio";
+import type { ToothMesh } from "./tooth-mesh";
 
 export type ToothControls = { xray: (enabled: boolean) => void; dispose: () => void };
 
-export async function createToothViewer(host: HTMLDivElement, signal: AbortSignal, onFacingAway?: (away: boolean) => void): Promise<ToothControls> {
+export async function createToothViewer(host: HTMLDivElement, mesh: ToothMesh, onFacingAway?: (away: boolean) => void): Promise<ToothControls> {
   const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: "low-power" });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.75));
   renderer.setClearColor(0x000000, 0);
@@ -14,13 +15,10 @@ export async function createToothViewer(host: HTMLDivElement, signal: AbortSigna
   const sculpture = new THREE.Group();
   sculpture.rotation.set(.17, -.35, -.21);
   scene.add(sculpture);
-  let studio: Studio;
-  try {
-    studio = await createStudio(renderer, scene, sculpture, signal);
-  } catch (error) {
-    renderer.dispose();
-    throw error;
-  }
+  const studio = createStudio(renderer, scene, sculpture, mesh);
+  // Where the browser compiles shaders in the background, the sculpture's main shaders finish there before the first
+  // frame instead of freezing the page on it.
+  if (renderer.extensions.has("KHR_parallel_shader_compile")) await renderer.compileAsync(scene, camera);
 
   // An original enamel sculpture: all material/lighting is live, not a rotating bitmap.
   host.appendChild(renderer.domElement);

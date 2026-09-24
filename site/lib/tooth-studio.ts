@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
+import type { ToothMesh } from "./tooth-mesh";
 
 export type Studio = { setXray: (on: boolean, instant: boolean) => void; step: (now: number) => boolean; dispose: () => void };
 
@@ -119,33 +120,23 @@ gl_FragColor.a *= (1. - smoothstep(.72, .98, edge.x)) * (1. - smoothstep(.72, .9
   return material;
 }
 
-function readStudioMesh(buffer: ArrayBuffer) {
-  const [toothVertices, toothIndices, pulpVertices, pulpIndices] = new Uint32Array(buffer, 0, 4);
-  let offset = 16;
-  const toothData = new Float32Array(buffer, offset, toothVertices * 5); offset += toothData.byteLength;
-  const toothIndex = new Uint16Array(buffer, offset, toothIndices); offset += Math.ceil(toothIndices / 2) * 4;
-  const pulpData = new Float32Array(buffer, offset, pulpVertices * 3); offset += pulpData.byteLength;
-  const pulpIndex = new Uint16Array(buffer, offset, pulpIndices);
-
-  const interleaved = new THREE.InterleavedBuffer(toothData, 5);
+function studioGeometry(mesh: ToothMesh) {
+  const interleaved = new THREE.InterleavedBuffer(mesh.tooth, 5);
   const tooth = new THREE.BufferGeometry();
   tooth.setAttribute("position", new THREE.InterleavedBufferAttribute(interleaved, 3, 0));
   tooth.setAttribute("aOcclusion", new THREE.InterleavedBufferAttribute(interleaved, 1, 3));
   tooth.setAttribute("aThickness", new THREE.InterleavedBufferAttribute(interleaved, 1, 4));
-  tooth.setIndex(new THREE.BufferAttribute(toothIndex, 1));
+  tooth.setIndex(new THREE.BufferAttribute(mesh.toothIndex, 1));
   tooth.computeVertexNormals();
   const pulp = new THREE.BufferGeometry();
-  pulp.setAttribute("position", new THREE.BufferAttribute(pulpData, 3));
-  pulp.setIndex(new THREE.BufferAttribute(pulpIndex, 1));
+  pulp.setAttribute("position", new THREE.BufferAttribute(mesh.pulp, 3));
+  pulp.setIndex(new THREE.BufferAttribute(mesh.pulpIndex, 1));
   pulp.computeVertexNormals();
   return { tooth, pulp };
 }
 
-export async function createStudio(renderer: THREE.WebGLRenderer, scene: THREE.Scene, sculpture: THREE.Group, signal: AbortSignal): Promise<Studio> {
-  const response = await fetch("/tooth.bin", { signal });
-  if (!response.ok) throw new Error("Tooth artwork unavailable");
-  const geometry = readStudioMesh(await response.arrayBuffer());
-  if (signal.aborted) throw new DOMException("Aborted", "AbortError");
+export function createStudio(renderer: THREE.WebGLRenderer, scene: THREE.Scene, sculpture: THREE.Group, mesh: ToothMesh): Studio {
+  const geometry = studioGeometry(mesh);
 
   renderer.toneMapping = THREE.NeutralToneMapping;
   renderer.toneMappingExposure = .9;
@@ -164,10 +155,12 @@ export async function createStudio(renderer: THREE.WebGLRenderer, scene: THREE.S
   const key = new THREE.DirectionalLight(0xfff0d8, 2.6);
   key.position.set(-3.5, 5, 3.5);
   key.castShadow = true;
-  key.shadow.mapSize.set(1024, 1024);
+  // Half the resolution with half the blur radius in texels: the same soft shadow for a quarter of the fill work,
+  // which was most of each frame's cost on phone GPUs.
+  key.shadow.mapSize.set(512, 512);
   Object.assign(key.shadow.camera, { left: -2.5, right: 2.5, top: 2.5, bottom: -2.5, near: 1, far: 16 });
-  key.shadow.radius = 14;
-  key.shadow.blurSamples = 20;
+  key.shadow.radius = 7;
+  key.shadow.blurSamples = 10;
   key.shadow.bias = -.0004;
   const fill = new THREE.DirectionalLight(0xdde6ee, .55);
   fill.position.set(4, 0, 2.5);
@@ -199,6 +192,8 @@ export async function createStudio(renderer: THREE.WebGLRenderer, scene: THREE.S
     tooth.castShadow = !on;
     pulp.visible = on;
     floor.visible = !on;
+    // Nothing casts a shadow on the film, so skip re-rendering the shadow map there.
+    renderer.shadowMap.autoUpdate = !on;
     fadeStart = on && !instant ? performance.now() : 0;
     xray.fade.value = on && instant ? 1 : 0;
   }
