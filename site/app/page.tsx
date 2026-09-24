@@ -82,7 +82,8 @@ export default function Page() {
       </main>
       <footer className="site-footer mt-auto border-t border-line pt-9 text-muted [box-shadow:var(--crease)] phone:pt-5">
         {/* Decorative; its oversized glyph box overlaps the contact row above and would swallow clicks. */}
-        <div className="footer-wordmark pointer-events-none flex items-center justify-between gap-5 pb-[38px] text-[length:min(35vw,520px)] leading-[1.05] font-semibold tracking-[-.085em] text-ink phone:gap-3 phone:pt-[13px] phone:pb-[25px]" aria-hidden="true"><span className="-ml-[.05em] xray:[filter:url(#xray-density)] xray:selection:bg-[#e6ece32e]">ophi<span className="text-rust">.</span></span></div>
+        {/* The wordmark spans the footer edge to edge; its size tracks the footer's width. */}
+        <div className="footer-wordmark @container pointer-events-none flex items-center pb-[38px] leading-[1.05] font-semibold text-ink phone:pt-[13px] phone:pb-[25px]" aria-hidden="true"><span className="-ml-[.05em] text-[length:52cqw] tracking-[-.085em] xray:[filter:url(#xray-density)] xray:selection:bg-[#e6ece32e]">ophi<span className="text-rust">.</span></span></div>
         {/* Phones: privacy left, a round back-to-top right, copyright last. */}
         <div className="footer-bottom flex min-h-[62px] items-center justify-between gap-6 border-t border-line text-[11px] [box-shadow:var(--crease)] phone:flex-col-reverse phone:items-start phone:gap-4 phone:pt-[18px] phone:pb-[22px] phone:text-[10px]">
           <span>© {new Date().getFullYear()} Ophi</span>
