@@ -1,17 +1,12 @@
 import { WaitlistForm } from "@/components/waitlist-form";
 import { ToothScene } from "@/components/tooth-scene";
 import { InfoPanel } from "@/components/info-panel";
+import { JsonLd } from "@/components/json-ld";
 import Link from "next/link";
 import { Icon } from "@/components/icons";
 import { CopyEmail } from "@/components/copy-email";
 import { pill, pillIcon, pillTag } from "@/components/pill";
 import { copy } from "@/lib/copy";
-
-const questions = [
-  { q: "Who is Ophi for?", a: "Dental clinics handling treatment paperwork and preauthorization requests." },
-  { q: "What are you building?", a: "Tools that help dental teams prepare preauthorization requests, so less time goes to paperwork." },
-  { q: "When can I try it?", a: "We’re still building. Join the waitlist to hear when Ophi is ready." },
-];
 
 export default function Page() {
   return (
@@ -65,7 +60,7 @@ export default function Page() {
           </div>
           {/* Relative keeps the questions above the copy pill where it overflows its narrow column (701–770px). */}
           <div className="faq-items relative [grid-area:items]">
-            {questions.map(({ q, a }) => (
+            {copy.faq.map(({ q, a }) => (
               // Answers ease open instead of snapping; browsers without interpolate-size get the fade only.
               <details key={q} className="group/faq border-line not-first:border-t motion-safe:[interpolate-size:allow-keywords] motion-safe:details-content:overflow-hidden motion-safe:details-content:[block-size:0] motion-safe:details-content:[transition:block-size_.4s_var(--ease-out),content-visibility_.4s_allow-discrete] motion-safe:open:details-content:[block-size:auto]">
                 <summary className="flex min-h-12 list-none items-center justify-between gap-4 py-3 text-[13px]">{q}<Icon name="plus" className="size-[18px] flex-none transition-transform duration-350 ease-out group-open/faq:rotate-45" /></summary>
@@ -93,6 +88,11 @@ export default function Page() {
           </div>
         </div>
       </footer>
+      {/* Structured data for search engines: invisible, mirrors the visible copy so rich results stay honest. */}
+      <JsonLd data={{ "@context": "https://schema.org", "@type": "Organization", name: copy.name, url: "https://ophi.app/", logo: "https://ophi.app/icon.svg", email: copy.contactEmail }} />
+      <JsonLd data={{ "@context": "https://schema.org", "@type": "WebSite", name: copy.name, url: "https://ophi.app/" }} />
+      <JsonLd data={{ "@context": "https://schema.org", "@type": "SoftwareApplication", name: copy.name, applicationCategory: "BusinessApplication", operatingSystem: "Web", description: copy.description, url: "https://ophi.app/" }} />
+      <JsonLd data={{ "@context": "https://schema.org", "@type": "FAQPage", mainEntity: copy.faq.map(({ q, a }) => ({ "@type": "Question", name: q, acceptedAnswer: { "@type": "Answer", text: a } })) }} />
     </div>
   );
 }
