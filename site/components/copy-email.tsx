@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Icon } from "@/components/icons";
+import { pill, pillIcon, pillTag } from "@/components/pill";
 
 export function CopyEmail({ email, className }: { email: string; className?: string }) {
   const [status, setStatus] = useState<"idle" | "copied" | "manual">("idle");
@@ -25,11 +26,11 @@ export function CopyEmail({ email, className }: { email: string; className?: str
 
   return (
     <span className={className}>
-      <button type="button" className="pill copy-email-button" onClick={copyAddress} aria-label={`Copy email address ${email}`}>
-        <span className="copy-email-address">{email}</span>
-        <span className="pill-tag" aria-hidden="true" data-done={status === "copied" || undefined}>
+      <button type="button" className={pill({ className: "copy-email-button cursor-copy" })} onClick={copyAddress} aria-label={`Copy email address ${email}`}>
+        <span className="text-[15px] select-text">{email}</span>
+        <span className={pillTag()} aria-hidden="true" data-done={status === "copied" || undefined}>
           {status === "copied" ? "Copied" : "Copy"}
-          <Icon name={status === "copied" ? "check" : "copy"} />
+          <Icon name={status === "copied" ? "check" : "copy"} className={pillIcon} />
         </span>
       </button>
       <span className="sr-only" role="status">{status === "copied" ? "Email address copied to clipboard." : status === "manual" ? "Copy blocked. Select the address to copy it." : ""}</span>

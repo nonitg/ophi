@@ -1,9 +1,9 @@
-// Display type on the X-ray film (app/xray.css) reads the way the tooth does: faint mass, density building
+// Display type on the X-ray film (the headline and footer wordmark's xray: filter) reads the way the tooth does: faint mass, density building
 // toward the outline, a bright rim, and halation around it. Edges come from the rendered glyphs rather than
 // a text stroke, so a variable font's overlapping contours never show.
 export function XrayFilters() {
   return (
-    <svg className="xray-filters" aria-hidden="true" focusable="false">
+    <svg className="absolute size-0 overflow-hidden" aria-hidden="true" focusable="false">
       <filter id="xray-density" x="-10%" y="-10%" width="120%" height="120%" colorInterpolationFilters="sRGB">
         <feFlood floodColor="#e6ece3" floodOpacity=".14" />
         <feComposite in2="SourceAlpha" operator="in" result="mass" />

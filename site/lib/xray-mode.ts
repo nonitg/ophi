@@ -1,4 +1,4 @@
-// Site-wide X-ray: the whole page is re-exposed as a radiograph (styles in app/xray.css).
+// Site-wide X-ray: the whole page is re-exposed as a radiograph (tokens in app/xray.css, component looks as xray: utilities).
 // Turning it on sweeps the new exposure across the page left to right, the way a panoramic
 // unit's arm builds its image; turning it off lets the film fade away.
 

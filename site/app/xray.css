@@ -1,7 +1,8 @@
 /* X-ray mode: the header's X-ray button re-exposes the whole page as a radiograph on a lightbox.
    Density logic throughout: printed matter is radiopaque and glows pale, bare paper becomes dark film,
    and the orange accents turn brightest of all, the way metal restorations do. Layout and copy never change.
-   A colour added to globals.css needs a token or a matching rule here, or it prints dark on the film. */
+   Tokens flip here; each component's own X-ray look is an `xray:` utility in its markup. A paper-only colour
+   (an arbitrary value, or a static @theme colour in globals.css) needs an `xray:` counterpart, or it prints dark on the film. */
 :root[data-xray] {
   color-scheme: dark;
   --film: #0e1f19;
@@ -17,83 +18,35 @@
   --sage: #e6ece30f;
   --orange: #f4f8f1;
   --crease: none;
+  --field: #e6ece30f;
+  --field-line: #e6ece380;
+  --band-line: var(--pill-line);
+  --tag-hover: #e6ece31f;
+  --sage-deep: #a9c0b1;
+  --error: #f2a58a;
 }
 
-/* Film grain replaces the cotton, and the body goes clear so the lightbox behind the film shows through. */
-:root[data-xray] body { background: url("/film.svg") 0 0 / 256px; }
-/* The window light gives way to a lightbox glowing behind the film, brightest at its centre. */
-:root[data-xray] .room-light { z-index: -1; background: radial-gradient(ellipse 70% 60% at 50% 40%, #9fd3b91a, transparent 72%), radial-gradient(ellipse 130% 110% at 50% 45%, transparent 55%, #0000004d); }
-/* A film exposed back to front records its lead backing (ToothScene sets data-film-reversed). */
-:root[data-xray] .room-light::after { content: ""; position: absolute; inset: 0; background: #e6ece30a url("/herringbone.svg") 0 0 / 40px 20px; opacity: 0; transition: opacity .5s var(--ease-out); }
-:root[data-xray][data-film-reversed] .room-light::after { opacity: 1; }
+@layer base {
+  /* Film grain replaces the cotton, and the body goes clear so the lightbox behind the film shows through. */
+  :root[data-xray] body { background: url("/film.svg") 0 0 / 256px; }
+  :root[data-xray] ::selection { background: var(--bone); color: var(--film); }
+  /* Anything clickable is pointed at by an X-rayed hand. */
+  :root[data-xray] :is(a, button, summary, [role="option"]) { cursor: url("/xray-hand.svg") 12 2, pointer; }
+  :root[data-xray] button:disabled { cursor: wait; }
+}
 
-/* Display type turns radiopaque (components/xray-filters.tsx), and the headline adds to the tooth wherever
-   the two overlap, as superimposed structures do on a radiograph. */
-:root[data-xray] :is(.poster-title, .footer-wordmark > span:first-child) { filter: url(#xray-density); }
-:root[data-xray] .poster-title { mix-blend-mode: screen; mix-blend-mode: plus-lighter; }
-:root[data-xray] :is(.wordmark > span, .footer-flower) { color: #fff; text-shadow: 0 0 14px #dff3e6a6; }
-:root[data-xray] .launch-status { color: var(--muted); }
-:root[data-xray] .launch-status > span { background: #fff; box-shadow: 0 0 8px #dff3e6; }
-:root[data-xray] ::selection { background: var(--bone); color: var(--film); }
-/* The density filter reads a solid highlight as mass and buries the glyphs, so filtered type selects faintly. */
-:root[data-xray] :is(.poster-title, .footer-wordmark > span:first-child) ::selection, :root[data-xray] .footer-wordmark > span:first-child::selection { background: #e6ece32e; }
-:root[data-xray] :focus-visible { outline-color: #a9c0b1; }
-:root[data-xray] .orbit { border-color: #e6ece333; }
+@layer components {
+  /* The window light gives way to a lightbox glowing behind the film, brightest at its centre. */
+  :root[data-xray] .room-light { z-index: -1; background: radial-gradient(ellipse 70% 60% at 50% 40%, #9fd3b91a, transparent 72%), radial-gradient(ellipse 130% 110% at 50% 45%, transparent 55%, #0000004d); }
+  /* A film exposed back to front records its lead backing (ToothScene sets data-film-reversed). */
+  :root[data-xray] .room-light::after { content: ""; position: absolute; inset: 0; background: #e6ece30a url("/herringbone.svg") 0 0 / 40px 20px; opacity: 0; transition: opacity .5s var(--ease-out); }
+  :root[data-xray][data-film-reversed] .room-light::after { opacity: 1; }
 
-:root[data-xray] .view-mode { color: var(--muted); border-color: var(--pill-line); background: #0e1f19b3; }
-:root[data-xray] .view-mode:hover { border-color: #e6ece380; background: #e6ece31a; }
-:root[data-xray] .view-mode[aria-pressed=true] { border-color: var(--bone); background: var(--bone); color: var(--film); box-shadow: 0 0 18px -4px #dff3e6b3; }
-:root[data-xray] .view-mode[aria-pressed=true]:hover { border-color: #fff; background: #fff; }
-
-:root[data-xray] :is(.introduction > p, .panel-content > p) { color: #c3cfc4; }
-:root[data-xray] :is(.entry-row .pms-trigger, .entry-row .pill, .close-button) { border-color: var(--pill-line); }
-:root[data-xray] .email-row { border-color: #e6ece359; }
-:root[data-xray] :is(.email-row:focus-within, .pms-trigger:focus-visible) { border-color: #a9c0b1; }
-:root[data-xray] .email-row:focus-within { background: var(--film); }
-:root[data-xray] .email-row input::placeholder { color: var(--muted); }
-:root[data-xray] .email-row:has(input[aria-invalid=true]) { border-color: #f2a58a; }
-:root[data-xray] .waitlist-error { color: #f2a58a; }
-:root[data-xray] .join-button { color: var(--film); box-shadow: 0 0 28px -6px #dff3e6b3; }
-:root[data-xray] .join-button:hover { background: #fff; }
-:root[data-xray] :is(.pill:hover, .pms-trigger:hover, .pms-field[data-open] .pms-trigger) { border-color: #e6ece380; background-color: #e6ece30f; }
-:root[data-xray] .pill-tag { color: var(--ink-soft); }
-:root[data-xray] :is(.pill:hover .pill-tag, .source-link:hover) { background: #e6ece31f; color: var(--bone); }
-:root[data-xray] .pill-tag[data-done] { background: var(--bone); color: var(--film); }
-:root[data-xray] .pms-menu { border-color: var(--line); background: #142a22; box-shadow: 0 18px 42px -14px #000000b3; }
-:root[data-xray] .pms-menu > li[data-active] { background: #e6ece31a; }
-:root[data-xray] .pms-menu > li .icon { color: #a9c0b1; }
-:root[data-xray] .info-panel { border-color: var(--line); box-shadow: 0 30px 120px #000000a6; }
-:root[data-xray] .info-panel::backdrop { background: #050d0ab3; }
-
-/* Anything clickable is pointed at by an X-rayed hand. */
-:root[data-xray] :is(a, button, summary, .pms-menu > li) { cursor: url("/xray-hand.svg") 12 2, pointer; }
-:root[data-xray] button:disabled { cursor: wait; }
-:root[data-xray] .copy-email-button { cursor: copy; }
-
-.xray-filters { position: absolute; width: 0; height: 0; overflow: hidden; }
-/* Notes found by playing with the X-ray view, written beside the film like a clinician's annotation. */
-.xray-note { position: absolute; top: 3%; right: 5%; z-index: 3; width: max-content; max-width: min(340px, 42vw); font-family: var(--font-display), Georgia, serif; font-size: 17px; font-style: italic; line-height: 1.3; text-align: right; color: var(--ink); }
+  /* The panoramic sweep's beam; lib/xray-mode.ts creates it and moves it. */
+  .xray-beam { position: fixed; inset: 0 auto 0 0; z-index: 60; width: 140px; translate: -140px 0; pointer-events: none; background: linear-gradient(90deg, transparent, #bfe3cf12 55%, #d7efe147 93%, #f2faf5 99.2%); }
+}
 
 /* The panoramic sweep: lib/xray-mode.ts runs the reveal and the beam on one clock. */
 :root[data-sweep="in"]::view-transition-old(root), :root[data-sweep="in"]::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
 :root[data-sweep="in"]::view-transition-new(root) { clip-path: inset(0 100% 0 0); }
 :root[data-sweep="out"]::view-transition-group(root) { animation-duration: .35s; }
-.xray-beam { position: fixed; inset: 0 auto 0 0; z-index: 60; width: 140px; translate: -140px 0; pointer-events: none; background: linear-gradient(90deg, transparent, #bfe3cf12 55%, #d7efe147 93%, #f2faf5 99.2%); }
-
-/* Phones: beside "Less", above "paperwork.", where X-ray leaves bare film (it casts no shadow). The note's
-   foot sits one headline line (13.11vw = .99 × .86 × 15.4vw) above the poster's, less the gap below the
-   sculpture, so these offsets follow globals.css's phone headline and poster sizes. scripts/site-xray-note.py
-   checks the fit. */
-@media (max-width: 700px) {
-  .xray-note { top: auto; bottom: min(calc(13.11vw - 28px), 61px); right: 0; max-width: min(440px, calc(80vw - 56px)); font-size: 15px; text-wrap: balance; }
-}
-@media (max-width: 479px) {
-  .xray-note { bottom: max(34px, calc(13.11vw - 20px)); max-width: min(260px, calc(100vw - 140px)); font-size: 14px; }
-}
-@media (max-width: 360px) {
-  .xray-note { bottom: 40px; font-size: 13px; }
-}
-@media (prefers-reduced-motion: no-preference) {
-  .xray-note:not(:empty) { animation: note-in .45s var(--ease-out) both; }
-  @keyframes note-in { from { opacity: 0; transform: translateY(-4px); } }
-}

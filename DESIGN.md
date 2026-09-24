@@ -39,6 +39,14 @@ No repeated geography, manifesto, empty specimen labels, fake customers, or orna
 - Thin rules and generous space. The signup band is the one panel on the page. No glass cards, gradient headings, sticky signup overlays, scroll hijacking or continuous motion.
 - Mobile rearranges the composition while preserving readable type, natural scrolling and visible controls.
 
+## Styling (2026-09-23)
+
+Tailwind v4 utilities in the markup. `site/app/globals.css` holds the tokens, element defaults, keyframes, the
+window light and the custom variants: `wide` (≥1600px), `tablet` (≤1100px), `phone` (≤700px), `phablet`
+(480–700px), `narrow` (≤479px), `small` (≤360px), `tiny` (≤345px) and `xray`. Secondary pills share
+`site/components/pill.ts`. A few semantic class names stay in the markup as hooks for scripts and code. Refactors
+that should not change the look are checked with `scripts/site-parity.py` (every breakpoint edge and state).
+
 ## Light and material (2026-09-22)
 
 The owner asked for texture and light across the whole site, not one flat colour. The page is a sheet
@@ -94,8 +102,10 @@ The page becomes a radiograph on a lightbox, built on one rule: density decides 
   - Five exposures within 20 seconds bring the dentist's radiation rule: “Five exposures. Dentists keep doses
     as low as reasonably achievable.”
   The X-ray button sits in the site header, left of the launch status. Notes stay beside the tooth (top right on desktop; on phones beside “Less”, above “paperwork.”) in a `role="status"` region and clear when X-ray turns off.
-- Styles live in `site/app/xray.css` under `:root[data-xray]`. A colour added to `globals.css` needs a token
-  or a matching X-ray rule, or it prints dark on the film. Contrast is checked by `scripts/site-contrast.py`.
+- Tokens flip in `site/app/xray.css` under `:root[data-xray]`, which also holds the page-level film (body,
+  lightbox, cursor, sweep). Each component's own X-ray look is an `xray:` utility in its markup. A paper-only
+  colour (an arbitrary value or a static `@theme` colour) needs an `xray:` counterpart, or it prints dark on the
+  film. Contrast is checked by `scripts/site-contrast.py`.
   Screens and behaviour checks: `scripts/site-xray.py`.
 
 ## Artwork provenance and performance
