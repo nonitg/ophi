@@ -51,6 +51,22 @@ def test_queue_lists_cases_with_verdicts(client):
     assert "of treatment at risk" in r.text
 
 
+def test_base_path_serves_every_screen_and_link_under_the_prefix(tmp_path):
+    """The hosted demo lives at ophi.app/<slug>; nothing it links to may escape that prefix."""
+    app = create_app(svc=CaseService(store=Store(tmp_path / "state")), packets_dir=tmp_path / "packets", base_path="/demo-x")
+    c = TestClient(app, follow_redirects=False)
+    c.cookies.set("actor", "dentist")
+    for path in ("/demo-x", "/demo-x/cases/singh", "/demo-x/cases/tremblay/packet", "/demo-x/look-back", "/demo-x/settings"):
+        page = c.get(path)
+        assert page.status_code == 200, path
+        urls = re.findall(r'(?:href|action|src)="(/[^"]*)"', page.text)
+        assert urls and all(u.startswith("/demo-x") for u in urls), (path, [u for u in urls if not u.startswith("/demo-x")])
+    assert c.get("/demo-x/static/app.css").status_code == 200
+    r = c.post("/demo-x/cases/singh/assert", data={"criterion_id": "ferrule_1_5mm", "value": "met"})
+    assert r.headers["location"] == "/demo-x/cases/singh#assertions"
+    assert c.post("/demo-x/reset").headers["location"] == "/demo-x"
+
+
 def test_case_review_shows_the_bitewing_explanation(client):
     r = client.get("/cases/singh")
     assert r.status_code == 200

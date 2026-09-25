@@ -19,7 +19,7 @@
         {% if actor.is_dentist %}
         <p class="assert-lede">Ophi never asserts these. You confirm each criterion once; the packet shows it as your clinical judgment with your name, licence and the date.</p>
         {# One form wraps every row: tick several, set a value once, Record selected submits them together. #}
-        <form method="post" action="/cases/{{ case.case_id }}/assert/bulk" id="bulk-assert-form">
+        <form method="post" action="{{ BASE }}/cases/{{ case.case_id }}/assert/bulk" id="bulk-assert-form">
           <div class="bulk-bar" id="bulk-bar">
             <label class="bulk-select-all"><input type="checkbox" id="bulk-select-all"> Select all</label>
             <div class="bulk-actions">
@@ -56,7 +56,7 @@
         {% else %}
         <div class="switch">
           <span>Only the treating dentist records these. You are acting as {{ actor.name }}.</span>
-          <form method="post" action="/actor"><input type="hidden" name="actor" value="dentist"><button class="btn btn-sm">Switch to {{ dentist }}</button></form>
+          <form method="post" action="{{ BASE }}/actor"><input type="hidden" name="actor" value="dentist"><button class="btn btn-sm">Switch to {{ dentist }}</button></form>
         </div>
         <ul class="na-list">
           {% for c in criteria %}
@@ -76,7 +76,7 @@
     </details>
 
 {% endset %}
-<nav class="crumbs" aria-label="Breadcrumb"><a href="/">Queue</a><span class="sep" aria-hidden="true">/</span><span>{{ case.patient.display_name }}</span></nav>
+<nav class="crumbs" aria-label="Breadcrumb"><a href="{{ HOME }}">Queue</a><span class="sep" aria-hidden="true">/</span><span>{{ case.patient.display_name }}</span></nav>
 
 <header class="head">
   <div>
@@ -91,7 +91,7 @@
       <div class="fact"><dt>Treating dentist</dt><dd>{{ dentist }}{% if t.provider.licence %}<span class="muted num">{{ t.provider.licence }}</span>{% endif %}</dd></div>
     </dl>
   </div>
-  <a class="btn{% if ready or view.signed %} btn-primary{% endif %}" href="/cases/{{ case.case_id }}/packet">Packet and sign-off</a>
+  <a class="btn{% if ready or view.signed %} btn-primary{% endif %}" href="{{ BASE }}/cases/{{ case.case_id }}/packet">Packet and sign-off</a>
 </header>
 
 <section class="frame verdict" aria-label="Where this case stands">
@@ -139,7 +139,7 @@
     <div class="proposal">
       <blockquote class="proposal-quote">“{{ pl.quote }}”</blockquote>
       <p class="proposal-meta">Quoted verbatim from the clinical note. It counts only after a person confirms it.</p>
-      <form method="post" action="/cases/{{ case.case_id }}/proposals/{{ w.proposal.artifact_id }}" class="inline-form">
+      <form method="post" action="{{ BASE }}/cases/{{ case.case_id }}/proposals/{{ w.proposal.artifact_id }}" class="inline-form">
         <button class="btn btn-sm btn-primary" name="decision" value="confirmed">Confirm</button>
         <button class="btn btn-sm" name="decision" value="rejected">Reject</button>
       </form>
@@ -194,7 +194,7 @@
     <a class="btn btn-sm btn-primary" href="#assertions">Record {{ plural(gaps.criteria_pending, 'criterion', 'criteria') }}</a>
     {% else %}
     <span>Ophi never asserts these. {{ dentist }} records each one under their name.</span>
-    <form method="post" action="/actor"><input type="hidden" name="actor" value="dentist"><button class="btn btn-sm">Switch to {{ dentist }}</button></form>
+    <form method="post" action="{{ BASE }}/actor"><input type="hidden" name="actor" value="dentist"><button class="btn btn-sm">Switch to {{ dentist }}</button></form>
     {% endif %}
   </div>
   {% endif %}
@@ -230,12 +230,12 @@
           <li class="step">
             {% if handoff.sign == 'done' %}{{ mark('ok', 'Signed') }}{% else %}{{ mark('open', 'Not signed yet') }}{% endif %}
             <h3 class="step-title">{{ avatar(dentist, 'dentist', sm=True) }} {% if handoff.sign == 'done' %}Signed by{% else %}Sign-off by{% endif %} {{ dentist }}</h3>
-            <span class="step-side">{% if handoff.sign == 'done' %}<span class="pill signed">Signed <span class="num">{{ short_date(handoff.signed_at.date()) }}</span></span>{% elif handoff.sign == 'ready' %}<a class="btn btn-sm{% if actor.is_dentist %} btn-primary{% endif %}" href="/cases/{{ case.case_id }}/packet">{{ 'Review and sign' if actor.is_dentist else 'Open the packet' }}</a>{% else %}<span class="pill locked">After documentation</span>{% endif %}</span>
+            <span class="step-side">{% if handoff.sign == 'done' %}<span class="pill signed">Signed <span class="num">{{ short_date(handoff.signed_at.date()) }}</span></span>{% elif handoff.sign == 'ready' %}<a class="btn btn-sm{% if actor.is_dentist %} btn-primary{% endif %}" href="{{ BASE }}/cases/{{ case.case_id }}/packet">{{ 'Review and sign' if actor.is_dentist else 'Open the packet' }}</a>{% else %}<span class="pill locked">After documentation</span>{% endif %}</span>
           </li>
           <li class="step">
             {% if handoff.submit == 'done' %}{{ mark('ok', 'Submitted') }}{% else %}{{ mark('open', 'Not submitted yet') }}{% endif %}
             <h3 class="step-title">{{ avatar(coordinator, 'coordinator', sm=True) }} {% if handoff.submit == 'done' %}Submitted{% else %}Submission{% endif %} through the clinic's PMS</h3>
-            <span class="step-side">{% if handoff.submit == 'done' %}<span class="pill submitted">Submitted</span>{% elif handoff.submit == 'ready' %}<a class="btn btn-sm" href="/cases/{{ case.case_id }}/packet">Download and submit</a>{% else %}<span class="pill locked">After sign-off</span>{% endif %}</span>
+            <span class="step-side">{% if handoff.submit == 'done' %}<span class="pill submitted">Submitted</span>{% elif handoff.submit == 'ready' %}<a class="btn btn-sm" href="{{ BASE }}/cases/{{ case.case_id }}/packet">Download and submit</a>{% else %}<span class="pill locked">After sign-off</span>{% endif %}</span>
             <div class="step-body"><p class="step-hint">Ophi never transmits. The clinic sends the packet.</p></div>
           </li>
         </ol>
@@ -331,7 +331,7 @@
               <div class="proposal">
                 <p class="proposal-meta">Proposed: {{ pl.claim|lower }}{% if pl.teeth_fdi %} ({{ teeth(pl.teeth_fdi) }}){% endif %}</p>
                 {% if seg.state == 'pending' %}
-                <form method="post" action="/cases/{{ case.case_id }}/proposals/{{ seg.proposal.artifact_id }}" class="inline-form">
+                <form method="post" action="{{ BASE }}/cases/{{ case.case_id }}/proposals/{{ seg.proposal.artifact_id }}" class="inline-form">
                   <button class="btn btn-sm btn-primary" name="decision" value="confirmed">Confirm</button>
                   <button class="btn btn-sm" name="decision" value="rejected">Reject</button>
                 </form>

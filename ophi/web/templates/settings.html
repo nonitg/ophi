@@ -57,7 +57,7 @@
       <div class="card-body">
         <h2 class="side-title" id="demo-h">Demo state</h2>
         <p class="tally-foot">Deletes every assertion, confirmation, narrative edit, sign-off and the audit log.</p>
-        <form method="post" action="/reset" data-confirm="Reset all demo state? Assertions, confirmations, narratives, sign-offs and the audit log will be deleted.">
+        <form method="post" action="{{ BASE }}/reset" data-confirm="Reset all demo state? Assertions, confirmations, narratives, sign-offs and the audit log will be deleted.">
           <button class="btn btn-danger btn-sm" type="submit">Reset demo state</button>
         </form>
       </div>
@@ -67,7 +67,7 @@
   <section class="card" aria-labelledby="audit-h">
     <div class="card-head">
       <h2 class="card-title" id="audit-h">Audit log <span class="ctx">newest first</span></h2>
-      <a class="btn btn-sm" href="/settings/audit.csv">Export CSV</a>
+      <a class="btn btn-sm" href="{{ BASE }}/settings/audit.csv">Export CSV</a>
     </div>
     {% if not events %}
     <p class="empty">No events yet. Every assertion, confirmation, narrative edit, sign-off and download lands here.</p>
@@ -78,7 +78,7 @@
         {% set who = ACTORS.values()|selectattr('name', 'equalto', e.actor)|first %}
         {{ avatar(e.actor, 'dentist' if who and who.is_dentist else 'coordinator', sm=True) }}
         <div>
-          <div class="audit-what">{{ e.actor }} <span class="muted">{{ (EVENT_LABEL.get(e.event, e.event))|lower }}</span> <a href="/cases/{{ e.case_id }}">{{ e.case_id }}</a></div>
+          <div class="audit-what">{{ e.actor }} <span class="muted">{{ (EVENT_LABEL.get(e.event, e.event))|lower }}</span> <a href="{{ BASE }}/cases/{{ e.case_id }}">{{ e.case_id }}</a></div>
           <div class="audit-detail">{{ e.detail }}</div>
         </div>
         <span class="audit-at">{{ e.at.strftime('%Y-%m-%d') }}<br>{{ e.at.strftime('%H:%M:%S') }} UTC</span>

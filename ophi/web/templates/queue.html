@@ -43,7 +43,7 @@
   </div>
   {% for r in rows %}
   {% set v = r.view %}{% set c = v.case %}{% set d = days_until(c.treatment.appointment_date, summary.today) %}
-  <a class="qrow{% if r.stage.key in ('signed', 'submitted') %} is-done{% endif %}" href="/cases/{{ c.case_id }}">
+  <a class="qrow{% if r.stage.key in ('signed', 'submitted') %} is-done{% endif %}" href="{{ BASE }}/cases/{{ c.case_id }}">
     <span class="q-pill">{{ stage_pill(r.stage) }}</span>
     <span class="q-who">
       <span class="q-name">{{ c.patient.display_name }}</span>

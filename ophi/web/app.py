@@ -10,6 +10,7 @@ import csv
 import hashlib
 import io
 import json
+import os
 import shutil
 import zipfile
 from datetime import UTC, datetime
@@ -55,9 +56,19 @@ def _actor(request: Request) -> Actor:
     return ACTORS.get(request.cookies.get("actor", ""), ACTORS[DEFAULT_ACTOR])
 
 
+def _base(request: Request) -> str:
+    return request.app.state.base_path
+
+
+def _home(request: Request) -> str:
+    return _base(request) or "/"
+
+
 def _render(request: Request, name: str, status: int = 200, **ctx) -> HTMLResponse:
     svc = _svc(request)
-    ctx.update(actor=_actor(request), pack=svc.pack, request=request)
+    base = _base(request)
+    ctx.update(actor=_actor(request), pack=svc.pack, request=request,
+               BASE=base, HOME=_home(request), here=request.url.path.removeprefix(base) or "/")
     return templates.TemplateResponse(request, name, ctx, status_code=status)
 
 
@@ -74,6 +85,10 @@ def _view(request: Request, case_id: str) -> CaseView | None:
 
 def _back(request: Request, fallback: str) -> RedirectResponse:
     return RedirectResponse(request.headers.get("referer") or fallback, status_code=303)
+
+
+def _to(request: Request, path: str) -> RedirectResponse:
+    return RedirectResponse(_base(request) + path, status_code=303)
 
 
 def _form_text(text: str) -> str:
@@ -161,7 +176,7 @@ def assert_criterion(request: Request, case_id: str, criterion_id: str = Form(..
         _svc(request).assert_criterion(case_id, criterion_id, value, actor.name, actor.licence, note.strip() or None, role=actor.role)
     except (KeyError, ValueError) as e:
         return _error(request, 400, "Invalid assertion", str(e))
-    return RedirectResponse(f"/cases/{case_id}#assertions", status_code=303)
+    return _to(request, f"/cases/{case_id}#assertions")
 
 
 @router.post("/cases/{case_id}/assert/bulk")
@@ -187,7 +202,7 @@ async def bulk_assert(request: Request, case_id: str):
         _svc(request).assert_many(case_id, items, actor.name, actor.licence, role=actor.role)
     except (KeyError, ValueError) as e:
         return _error(request, 400, "Invalid assertion", str(e))
-    return RedirectResponse(f"/cases/{case_id}#assertions", status_code=303)
+    return _to(request, f"/cases/{case_id}#assertions")
 
 
 @router.post("/cases/{case_id}/proposals/{artifact_id}")
@@ -199,7 +214,7 @@ def decide_proposal(request: Request, case_id: str, artifact_id: str, decision: 
         _svc(request).confirm_proposal(case_id, artifact_id, decision, _actor(request).name)
     except ValueError as e:
         return _error(request, 400, "Invalid decision", str(e))
-    return RedirectResponse(f"/cases/{case_id}", status_code=303)
+    return _to(request, f"/cases/{case_id}")
 
 
 # --- screen 3: packet preview & sign-off -------------------------------------------------------------
@@ -252,7 +267,7 @@ def save_narrative(request: Request, case_id: str, narrative: str = Form("")):
         _svc(request).save_narrative(case_id, _form_text(narrative), _actor(request).name)
     except NarrativeInvalid as e:
         return _narrative_error(request, e)
-    return RedirectResponse(f"/cases/{case_id}/packet", status_code=303)
+    return _to(request, f"/cases/{case_id}/packet")
 
 
 def _narrative_error(request: Request, e: NarrativeInvalid) -> HTMLResponse:
@@ -272,13 +287,13 @@ def sign_off(request: Request, case_id: str, narrative: str = Form("")):
         return _narrative_error(request, e)
     except PermissionError as e:
         return _error(request, 409, "Sign-off is blocked", f"{e}. Sign-off is blocked until every requirement is satisfied or accepted.")
-    return RedirectResponse(f"/cases/{case_id}/packet", status_code=303)
+    return _to(request, f"/cases/{case_id}/packet")
 
 
 @router.post("/cases/{case_id}/submitted")
 def mark_submitted(request: Request, case_id: str):
     _svc(request).mark_submitted(case_id, _actor(request).name)
-    return RedirectResponse(f"/cases/{case_id}/packet", status_code=303)
+    return _to(request, f"/cases/{case_id}/packet")
 
 
 # --- screen 4: look-back -----------------------------------------------------------------------------
@@ -322,7 +337,7 @@ def audit_csv(request: Request):
 def reset(request: Request):
     _svc(request).reset()
     shutil.rmtree(request.app.state.packets_dir, ignore_errors=True)
-    return RedirectResponse("/", status_code=303)
+    return RedirectResponse(_home(request), status_code=303)
 
 
 # --- api & actor ---------------------------------------------------------------------------------------
@@ -338,21 +353,26 @@ def assessment_json(request: Request, case_id: str):
 
 @router.post("/actor")
 def set_actor(request: Request, actor: str = Form(...)):
-    resp = _back(request, "/")
+    resp = _back(request, _home(request))
     if actor in ACTORS:
-        resp.set_cookie("actor", actor, httponly=True, samesite="lax")
+        resp.set_cookie("actor", actor, httponly=True, samesite="lax", path=_home(request))
     return resp
 
 
 # --- factory -----------------------------------------------------------------------------------------
 
 
-def create_app(svc: CaseService | None = None, packets_dir: Path | None = None) -> FastAPI:
+def create_app(svc: CaseService | None = None, packets_dir: Path | None = None, base_path: str | None = None) -> FastAPI:
+    """`base_path` serves every screen under a prefix, for the demo proxied at ophi.app/<slug>."""
+    base = (os.environ.get("OPHI_BASE_PATH", "") if base_path is None else base_path).rstrip("/")
     app = FastAPI(title="Ophi", docs_url=None, redoc_url=None)
     app.state.svc = svc or CaseService()
     app.state.packets_dir = packets_dir or (app.state.svc.store.root / "packets")
-    app.mount("/static", StaticFiles(directory=str(HERE / "static")), name="static")
-    app.include_router(router)
+    app.state.base_path = base
+    app.mount(f"{base}/static", StaticFiles(directory=str(HERE / "static")), name="static")
+    app.include_router(router, prefix=base)
+    if base:  # the proxy strips trailing slashes, so the queue must answer at the bare prefix too
+        app.add_api_route(base, queue, response_class=HTMLResponse, include_in_schema=False)
     return app
 
 

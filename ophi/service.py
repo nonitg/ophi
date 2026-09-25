@@ -8,6 +8,7 @@ The engine never sees the store; it only sees artifacts.
 from __future__ import annotations
 
 import hashlib
+import os
 import shutil
 import threading
 from datetime import UTC, date, datetime
@@ -29,7 +30,8 @@ from ophi.rules.schema import RulePack
 
 ROOT = Path(__file__).resolve().parents[1]
 CASES_DIR = ROOT / "cases" / "demo"
-VAR_DIR = ROOT / "var"
+# Hosted demo points this at a writable scratch dir; the repo checkout may be read-only.
+VAR_DIR = Path(os.environ.get("OPHI_VAR_DIR") or ROOT / "var")
 
 # Manual baseline per preauthorization, from docs/research/market.md (25 min per request, ~$26.70/hr
 # Ontario treatment coordinator). Shown as an estimate with its source, never as a measured saving.

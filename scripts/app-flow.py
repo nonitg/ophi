@@ -31,7 +31,7 @@ with sync_playwright() as p:
     page.goto(base + "/settings")
     page.once("dialog", lambda d: d.accept())
     page.get_by_role("button", name="Reset demo state").click()
-    page.wait_for_url(base + "/")
+    page.wait_for_url(lambda u: u.rstrip("/") == base)  # a prefixed demo lands on the bare prefix
     expect(page.locator(".stage.submitted .stage-n")).to_have_text("0")
     step("reset from Settings, queue shows 0 submitted")
 
@@ -68,7 +68,8 @@ with sync_playwright() as p:
     shot(page, "2-signed")
     step("signed off from the packet screen")
 
-    with page.expect_download() as dl:
+    # Headless Chromium has no PDF viewer, so the preview iframe also arrives as a download; skip it.
+    with page.expect_download(predicate=lambda d: d.suggested_filename.endswith(".zip")) as dl:
         page.get_by_role("link", name="Download packet (.zip)").click()
     assert dl.value.suggested_filename == "ophi-packet-tremblay.zip", dl.value.suggested_filename
     step(f"downloaded {dl.value.suggested_filename}")

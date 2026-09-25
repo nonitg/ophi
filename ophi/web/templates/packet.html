@@ -6,7 +6,7 @@
 {% set dentist = case.treatment.provider.name %}
 {% set coordinator = ACTORS.coordinator.name %}
 {% set verified = pk.report and pk.report.ok %}
-<nav class="crumbs" aria-label="Breadcrumb"><a href="/">Queue</a><span class="sep" aria-hidden="true">/</span><a href="/cases/{{ case.case_id }}">{{ case.patient.display_name }}</a><span class="sep" aria-hidden="true">/</span><span>Packet</span></nav>
+<nav class="crumbs" aria-label="Breadcrumb"><a href="{{ HOME }}">Queue</a><span class="sep" aria-hidden="true">/</span><a href="{{ BASE }}/cases/{{ case.case_id }}">{{ case.patient.display_name }}</a><span class="sep" aria-hidden="true">/</span><span>Packet</span></nav>
 
 <header class="head">
   <div>
@@ -56,7 +56,7 @@
     {% if pk.unavailable %}
     <div class="note">{{ pk.unavailable }}</div>
     {% else %}
-    <iframe class="pdf" src="/cases/{{ case.case_id }}/packet/preview.pdf" title="Packet preview, as the adjudicator receives it"></iframe>
+    <iframe class="pdf" src="{{ BASE }}/cases/{{ case.case_id }}/packet/preview.pdf" title="Packet preview, as the adjudicator receives it"></iframe>
     {% endif %}
   </section>
 
@@ -73,11 +73,11 @@
         <dt>Rule pack</dt><dd class="num">{{ so.ruleset_version }}</dd>
       </dl>
       <div class="btn-row">
-        {% if not pk.unavailable %}<a class="btn btn-primary" href="/cases/{{ case.case_id }}/packet/download">Download packet (.zip)</a>{% endif %}
+        {% if not pk.unavailable %}<a class="btn btn-primary" href="{{ BASE }}/cases/{{ case.case_id }}/packet/download">Download packet (.zip)</a>{% endif %}
         {% if view.state.submitted_at %}
         <span class="ok-text">Marked submitted <span class="num">{{ view.state.submitted_at.strftime('%Y-%m-%d %H:%M UTC') }}</span></span>
         {% else %}
-        <form method="post" action="/cases/{{ case.case_id }}/submitted"><button class="btn">Mark as submitted</button></form>
+        <form method="post" action="{{ BASE }}/cases/{{ case.case_id }}/submitted"><button class="btn">Mark as submitted</button></form>
         {% endif %}
       </div>
       <p class="closing">Ophi never transmits. You do.</p>
@@ -88,7 +88,7 @@
       <div class="person">{{ avatar(dentist, 'dentist') }}<div><div class="sign-name">{{ dentist }}</div>{% if case.treatment.provider.licence %}<div class="sign-lic">{{ case.treatment.provider.licence }}</div>{% endif %}</div></div>
       <p class="attest">“I have reviewed this packet and it reflects my clinical judgment and the contents of this patient's record.”</p>
       {% if actor.is_dentist %}
-      <form method="post" action="/cases/{{ case.case_id }}/sign-off" id="signoff-form">
+      <form method="post" action="{{ BASE }}/cases/{{ case.case_id }}/sign-off" id="signoff-form">
         <input type="hidden" name="narrative" id="signoff-narrative" value="{{ narrative }}">
         <button class="btn btn-primary" type="submit">Sign off as {{ actor.name }}</button>
       </form>
@@ -96,7 +96,7 @@
       {% else %}
       <div class="switch">
         <span>Only the treating dentist can sign.</span>
-        <form method="post" action="/actor"><input type="hidden" name="actor" value="dentist"><button class="btn btn-sm">Switch to {{ dentist }}</button></form>
+        <form method="post" action="{{ BASE }}/actor"><input type="hidden" name="actor" value="dentist"><button class="btn btn-sm">Switch to {{ dentist }}</button></form>
       </div>
       <p class="sign-foot">This preview is a draft, not for submission.</p>
       {% endif %}
@@ -106,7 +106,7 @@
       <h2 class="card-title" id="sign-h">Sign-off is blocked</h2>
       <p class="sign-foot">{{ plural(blocking|length, 'item') }} still open on the case. This preview is a draft, not for submission.</p>
       <ul class="plain block-list">{% for x in blocking %}<li><span>{{ x.title }}</span></li>{% endfor %}</ul>
-      <a class="btn" href="/cases/{{ case.case_id }}">Back to the case</a>
+      <a class="btn" href="{{ BASE }}/cases/{{ case.case_id }}">Back to the case</a>
     </section>
     {% endif %}
 
@@ -136,7 +136,7 @@
         <summary><span class="fold-title">Clinical narrative</span><span class="fold-sub">{{ 'Edited' if view.state.narrative_edits is not none else 'Draft: template plus verbatim chart quotes' }}</span></summary>
         <div class="fold-body">
           {% if narrative_note %}<div class="note">{{ narrative_note }}</div>{% endif %}
-          <form method="post" action="/cases/{{ case.case_id }}/narrative" id="narrative-form">
+          <form method="post" action="{{ BASE }}/cases/{{ case.case_id }}/narrative" id="narrative-form">
             <textarea name="narrative" id="narrative" rows="16" data-dirty-warn aria-label="Clinical narrative">{{ narrative }}</textarea>
             <div class="btn-row">
               <button class="btn btn-sm" type="submit">Save narrative</button>

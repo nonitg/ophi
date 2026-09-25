@@ -3,20 +3,21 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
 <title>{% block title %}Ophi{% endblock %}</title>
-<link rel="preload" href="/static/fonts/Geist-Variable.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="/static/app.css?v={{ STATIC_V }}">
+<link rel="preload" href="{{ BASE }}/static/fonts/Geist-Variable.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="{{ BASE }}/static/app.css?v={{ STATIC_V }}">
 </head>
 <body>
 <div class="demo">Demo on fictional data. No patient information.</div>
 <header class="top">
-  <a class="logo" href="/" aria-label="Ophi, back to the queue">{% include "wordmark.svg" %}</a>
+  <a class="logo" href="{{ HOME }}" aria-label="Ophi, back to the queue">{% include "wordmark.svg" %}</a>
   <nav class="nav" aria-label="Screens">
-    <a href="/" {% if request.url.path == '/' or request.url.path.startswith('/cases') %}class="on" aria-current="page"{% endif %}>Queue</a>
-    <a href="/look-back" {% if request.url.path == '/look-back' %}class="on" aria-current="page"{% endif %}>Look-back</a>
-    <a href="/settings" {% if request.url.path.startswith('/settings') %}class="on" aria-current="page"{% endif %}>Settings</a>
+    <a href="{{ HOME }}" {% if here == '/' or here.startswith('/cases') %}class="on" aria-current="page"{% endif %}>Queue</a>
+    <a href="{{ BASE }}/look-back" {% if here == '/look-back' %}class="on" aria-current="page"{% endif %}>Look-back</a>
+    <a href="{{ BASE }}/settings" {% if here.startswith('/settings') %}class="on" aria-current="page"{% endif %}>Settings</a>
   </nav>
-  <form class="who" method="post" action="/actor">
+  <form class="who" method="post" action="{{ BASE }}/actor">
     {{ avatar(actor.name, actor.key) }}
     <label for="actor-select" class="sr">Acting as</label>
     <select id="actor-select" name="actor" data-autosubmit title="Acting as">
@@ -30,6 +31,6 @@
 <main class="wrap">
 {% block content %}{% endblock %}
 </main>
-<script src="/static/app.js?v={{ STATIC_V }}"></script>
+<script src="{{ BASE }}/static/app.js?v={{ STATIC_V }}"></script>
 </body>
 </html>
