@@ -24,12 +24,16 @@ unset USE_MOCK_PMS_API; make demo # real (default)
 # scripts/demo-real.sh / scripts/demo-mock.sh do the same
 ```
 
-Screens: **Queue** (one sentence on what needs attention this week; one lead action per case) →
-**Case Review** (the verdict in a sentence, a 13-segment bar of the rule check, the first chart action
-as the hero with its clause; the full requirement list, the chart evidence and the Clinician
-Assertions in folds) → **Packet preview & sign-off** (PDF preview, editable rationale, attestation,
-download) → **Look-Back** (last 12 months of denials, re-derived from the chart) → **Settings & audit**.
-Every screen is built to be read in a 15-second glance first and in depth second. The demo script is
+Screens: **Queue** (one sentence on what needs attention this week, the five stages with counts and
+dollars, what the person acting owes, and one row per case with its next step, who it waits on and the
+rule check as a strip) → **Case Review** (the verdict in a sentence and the strip, then next steps split
+by who acts, with the first chart action as the hero and its clause, the hand-off to sign-off and
+submission, every documented requirement with its evidence, and a chart timeline against the
+12-month window) → **Packet and sign-off** (Ophi assembles, the verifier checks, the dentist signs,
+the clinic sends; PDF preview, attestation, files, narrative) → **Look-back** (last 12 months of
+requests, one square each, and the missing documents re-derived from the chart) → **Settings**
+(connection, who can act, rule pack, audit log). Every screen is built to be read in a 15-second
+glance first and in depth second. Design record: `docs/reviews/2026-09-24-app-redesign.md`. The demo script is
 `docs/demo-script.md`; `scripts/demo-screens.py` serves the demo with throwaway state for screenshots.
 
 Other entry points:

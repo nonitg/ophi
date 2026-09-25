@@ -1,16 +1,13 @@
-{# Shared fragments. The badge, the status mark and the segment bar must render identically on every screen. #}
+{# Shared fragments. Pills, marks, the strip and the people chips must render identically on every screen. #}
 
-{% macro verdict_badge(verdict, signed=False, short=False) -%}
-{%- if signed -%}
-<span class="badge signed">Signed</span>
-{%- else -%}
-<span class="badge {{ VERDICT_CLASS[verdict] }}">{{ VERDICT_SHORT[verdict] if short else VERDICT_LABEL[verdict] }}</span>
-{%- endif -%}
+{% macro stage_pill(st, suffix=None) -%}
+<span class="pill {{ st.cls }}">{{ st.label }}{% if suffix %} <span class="num">{{ suffix }}</span>{% endif %}</span>
 {%- endmacro %}
 
-{% macro clause_chip(clause, pack) -%}
-<span class="chip" tabindex="0">
-  <span class="chip-text"><span class="chip-src">{{ clause.source|capitalize }}</span> {{ clause.ref }}</span>
+{# `text` swaps the visible label for a name (the documented rows) while keeping the clause one hover away. #}
+{% macro clause_chip(clause, pack, text=None, cls='named', id=None) -%}
+<span class="chip{% if text %} {{ cls }}{% endif %}" tabindex="0"{% if id %} id="{{ id }}"{% endif %}>
+  <span class="chip-text">{% if text %}{{ text }}{% else %}<span class="chip-src">{{ clause.source|capitalize }}</span> {{ clause.ref }}{% endif %}</span>
   <span class="chip-pop" role="tooltip">
     <b>{{ source_title(pack, clause.source) }}</b>
     <span class="chip-ref">{{ clause.ref }}</span>
@@ -24,29 +21,62 @@
 {%- endmacro %}
 
 {# Status marks are drawn, not typed: one stroke weight, one size, colour from the status token. #}
-{% macro status_mark(status) -%}
+{% macro status_mark(status, size=16) -%}
 {%- set c = STATUS_CLASS[status] -%}
-<svg class="st st-{{ c }}" width="16" height="16" viewBox="0 0 16 16" role="img" aria-label="{{ STATUS_LABEL[status] }}"><title>{{ STATUS_LABEL[status] }}</title>
+{{ mark(c, STATUS_LABEL[status], size) }}
+{%- endmacro %}
+
+{% macro mark(c, label, size=16) -%}
+<svg class="st st-{{ c }}" width="{{ size }}" height="{{ size }}" viewBox="0 0 16 16" role="img" aria-label="{{ label }}"><title>{{ label }}</title>
 {%- if c == 'ok' -%}<circle cx="8" cy="8" r="8"/><path d="M4.6 8.3l2.2 2.2 4.6-4.8" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
 {%- elif c == 'bad' -%}<circle cx="8" cy="8" r="8"/><path d="M5.3 5.3l5.4 5.4M10.7 5.3l-5.4 5.4" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/>
 {%- elif c == 'ask' -%}<circle cx="8" cy="8" r="8"/><path d="M6.1 6.4a1.9 1.9 0 1 1 2.7 1.7c-.6.3-.8.6-.8 1.2" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/><circle cx="8" cy="11.6" r=".95" fill="#fff"/>
 {%- elif c == 'risk' -%}<circle cx="8" cy="8" r="7.2" fill="none" stroke-width="1.6"/><path d="M8 4.6v4.2" fill="none" stroke-width="1.8" stroke-linecap="round"/><circle cx="8" cy="11.4" r=".95"/>
 {%- elif c == 'pending' -%}<circle cx="8" cy="8" r="7.2" fill="none" stroke-width="1.5" stroke-dasharray="2.4 2.2"/><circle cx="4.9" cy="8" r=".95"/><circle cx="8" cy="8" r=".95"/><circle cx="11.1" cy="8" r=".95"/>
+{%- elif c == 'open' -%}<circle cx="8" cy="8" r="7.2" stroke-width="1.5"/>
+{%- elif c == 'unknown' -%}<circle cx="8" cy="8" r="7.2" fill="none" stroke-width="1.5"/><path d="M6.1 6.4a1.9 1.9 0 1 1 2.7 1.7c-.6.3-.8.6-.8 1.2" fill="none" stroke-width="1.6" stroke-linecap="round"/><circle cx="8" cy="11.6" r=".95" stroke="none"/>
 {%- else -%}<circle cx="8" cy="8" r="8"/><path d="M5 8h6" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/>
 {%- endif -%}</svg>
 {%- endmacro %}
 
-{# The whole rule check in one glance: one segment per applicable requirement, coloured by status.
-   `mini` renders inert spans (for inside a link); the full bar links each segment to its requirement row. #}
-{% macro seg_bar(segs, label, mini=False) -%}
+{# The glyph inside a large strip cell: shape carries the status as well as colour. #}
+{% macro cell_glyph(c) -%}
+{%- if c in ('ok', 'risk') -%}<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2.6 6.3l2.2 2.2 4.6-4.9" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+{%- elif c == 'bad' -%}<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M3.3 3.3l5.4 5.4M8.7 3.3l-5.4 5.4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+{%- elif c in ('ask', 'unknown') -%}<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M4.3 4.3a1.8 1.8 0 1 1 2.5 1.6c-.5.3-.8.6-.8 1.2" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="6" cy="9.4" r=".9" fill="currentColor"/></svg>
+{%- endif -%}
+{%- endmacro %}
+
+{# The whole rule check in one glance. `mini` renders inert cells (it sits inside a queue link) and keeps
+   not-applicable cells so columns align across rows; the large strip links each cell to its trail row. #}
+{% macro strip(fams, label, mini=False) -%}
 {%- if mini -%}
-<span class="segbar mini" role="img" aria-label="{{ label }}">
-{%- for s in segs -%}<span class="seg seg-{{ s.cls }}" title="{{ s.label }} — {{ s.status }}"></span>{%- endfor -%}
+<span class="strip mini" role="img" aria-label="{{ label }}">
+{%- for f in fams %}<span class="fam" style="flex: {{ f.cells|length }}"><span class="fam-cells">
+{%- for c in f.cells %}<span class="cell {{ c.cls }}" title="{{ c.short }}: {{ c.status }}"></span>{% endfor -%}
+</span></span>{% endfor -%}
 </span>
 {%- else -%}
-<nav class="segbar" aria-label="{{ label }}">
-{%- for s in segs -%}<a class="seg seg-{{ s.cls }}" href="#req-{{ s.id }}" title="{{ s.label }} — {{ s.status }}"><span class="sr">{{ s.label }}: {{ s.status }}</span></a>{%- endfor -%}
+<nav class="strip" aria-label="{{ label }}">
+{%- for f in fams %}{% set cells = f.cells|selectattr('applicable')|list %}{% if cells %}
+<div class="fam" style="flex: {{ cells|length }}">
+  <div class="fam-cells">{% for c in cells %}<a class="cell {{ c.cls }}" href="#req-{{ c.id }}" title="{{ c.short }}: {{ c.status }}">{{ cell_glyph(c.cls) }}<span class="sr">{{ c.label }}: {{ c.status }}</span></a>{% endfor %}</div>
+  <span class="fam-label">{{ f.family }}</span>
+</div>{% endif %}
+{%- endfor %}
 </nav>
+{%- endif -%}
+{%- endmacro %}
+
+{% macro avatar(name, role, sm=False, title=None) -%}
+<span class="av{% if role == 'dentist' %} dentist{% endif %}{% if sm %} sm{% endif %}" title="{{ title or name }}" aria-hidden="true">{{ monogram(name) }}</span>
+{%- endmacro %}
+
+{# Who produced a piece of evidence: the chart, Ophi's own check, or the dentist's attributed judgment. #}
+{% macro source_tag(kind, name=None) -%}
+{%- if kind == 'dentist' -%}<span class="src">{{ avatar(name or 'Dentist', 'dentist', sm=True) }}Dentist</span>
+{%- elif kind == 'chart' -%}<span class="src"><svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path d="M3 1.5h4.2L9.5 3.8v6.7H3z" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><path d="M4.7 6h3M4.7 8h3" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></svg>Chart</span>
+{%- else -%}<span class="src"><svg width="13" height="13" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="18" fill="currentColor"/><ellipse cx="30" cy="33" rx="14" ry="17" fill="none" stroke="#fff" stroke-width="8"/><circle cx="50" cy="48" r="5" fill="#fff"/></svg>Ophi</span>
 {%- endif -%}
 {%- endmacro %}
 

@@ -1,46 +1,88 @@
 {% extends "base.html" %}
-{% block title %}Look-Back — Ophi{% endblock %}
+{% block title %}Look-back — Ophi{% endblock %}
 {% block content %}
-<header class="page-head">
-  <h1>What happened to last year's crown preauthorizations</h1>
-  {% if report %}<p class="page-sub">CDCP preauthorization look-back, {{ report.window_label|lower }}. Gaps are re-derived from the chart as it stood on each submission date, using rule pack <span class="num">{{ report.ruleset_version }}</span>.</p>{% endif %}
+<header class="head">
+  <div>
+    <h1 class="title">Look-back <span class="ctx">crown preauthorizations, {{ report.window_label if report else 'last 12 months' }}</span></h1>
+    {% if report %}
+    <p class="lede">{{ report.never_resubmitted }} of {{ report.denied }} denied requests were never resubmitted. <span class="ctx"><span class="num">{{ money(report.never_resubmitted_dollars) }}</span> of treatment that never happened.</span></p>
+    {% endif %}
+  </div>
 </header>
 
 {% if not report %}
-<div class="note amber">{{ unavailable }}</div>
+<div class="note">{{ unavailable }}</div>
 {% else %}
+{# Four numbers read as one chain, left to right. The last is the one that lands. #}
 <section class="chain" aria-label="Look-back summary">
-  <div class="chain-step"><div class="n num">{{ report.submitted }}</div><div class="l">preauthorizations submitted</div></div>
-  <div class="chain-step"><div class="n num">{{ report.denied }}</div><div class="l">denied, <b class="num">{{ money(report.denied_dollars) }}</b> of treatment</div></div>
-  <div class="chain-step"><div class="n num">{{ report.denied_with_doc_gap }}<span class="of">of {{ report.denied }}</span></div><div class="l">were missing a document CDCP explicitly requires</div></div>
-  <div class="chain-step anchor"><div class="n num">{{ report.never_resubmitted }}<span class="of">of {{ report.denied }}</span></div><div class="l">were never resubmitted. <b class="num">{{ money(report.never_resubmitted_dollars) }}</b> of treatment that never happened.</div></div>
+  <div class="link"><div class="link-n">{{ report.submitted }}</div><div class="link-l">preauthorizations submitted</div></div>
+  <div class="link"><div class="link-n">{{ report.denied }}</div><div class="link-l">denied, <b class="num">{{ money(report.denied_dollars) }}</b> of treatment</div></div>
+  <div class="link"><div class="link-n">{{ report.denied_with_doc_gap }}<span class="of">of {{ report.denied }}</span></div><div class="link-l">were missing a document CDCP explicitly requires</div></div>
+  <div class="link anchor"><div class="link-n">{{ report.never_resubmitted }}<span class="of">of {{ report.denied }}</span></div><div class="link-l">were never resubmitted. <b class="num">{{ money(report.never_resubmitted_dollars) }}</b> of treatment that never happened.</div></div>
 </section>
 
-<section class="card">
-  <table class="tbl lookback">
-    <thead><tr><th>Patient</th><th>Code</th><th>Tooth</th><th>Submitted</th><th>Decision</th><th>Fee</th><th>Gaps found as of submission</th><th>Resubmitted</th></tr></thead>
+<div class="lb-grid">
+  <section class="card" aria-labelledby="months-h">
+    <div class="card-body">
+      <h2 class="side-title" id="months-h">Every request, by month <span class="ctx">one square each</span></h2>
+      <div class="units" role="img" aria-label="{{ report.submitted }} requests by month: {{ report.denied }} denied, {{ report.denied_with_doc_gap }} with a missing document, {{ report.never_resubmitted }} never resubmitted">
+        {% for m in months %}
+        <div class="umonth">
+          <div class="ucells">{% for r in m.rows %}<span class="ucell{% if r.decision == 'denied' %} denied{% if r.gaps %} gap{% endif %}{% if not r.resubmitted %} lost{% endif %}{% endif %}" title="{{ r.patient_label }} #{{ r.tooth_fdi }}, {{ r.submitted_on }}: {{ r.decision }}{% if r.gaps %}, missing {{ r.gaps|join('; ')|lower }}{% endif %}{% if r.decision == 'denied' %}{{ ', resubmitted' if r.resubmitted else ', never resubmitted' }}{% endif %}"></span>{% endfor %}</div>
+          <span class="ulabel">{{ m.label }}</span>
+        </div>
+        {% endfor %}
+      </div>
+      <p class="ukey">
+        <span><i class="ucell"></i>Approved</span>
+        <span><i class="ucell denied gap"></i>Denied, a required document was missing</span>
+        <span><i class="ucell denied"></i>Denied, no gap found</span>
+        <span><i class="ucell denied lost"></i>Never resubmitted</span>
+      </p>
+    </div>
+  </section>
+
+  <section class="card" aria-labelledby="gaps-h">
+    <div class="card-body">
+      <h2 class="side-title" id="gaps-h">What was missing <span class="ctx">on the day each denied request went out</span></h2>
+      <ul class="bars">
+        {% for g in gaps %}
+        <li><div class="bar-top"><span>{{ g.label }}</span><b>{{ g.count }}</b></div><div class="bar" aria-hidden="true"><i style="width: {{ g.pct }}%"></i></div></li>
+        {% else %}
+        <li class="muted">No documentation gaps found.</li>
+        {% endfor %}
+      </ul>
+      <p class="foot">Gaps are re-derived from the chart as it stood on each submission date, using rule pack <span class="num">{{ report.ruleset_version }}</span>. Sun Life's denial text is not used to find them.</p>
+    </div>
+  </section>
+</div>
+
+<section class="card" aria-labelledby="rows-h">
+  <div class="card-head"><h2 class="card-title" id="rows-h">All {{ report.submitted }} requests <span class="ctx">newest first</span></h2><span class="count">{{ report.denied }} denied</span></div>
+  <div class="tbl-wrap">
+  <table class="tbl">
+    <thead><tr><th>Patient</th><th>Submitted</th><th>Code</th><th>Tooth</th><th>Decision</th><th class="r">Fee</th><th>Gap found as of submission</th><th>Resubmitted</th></tr></thead>
     <tbody>
     {% for r in report.rows %}
     <tr class="{% if r.decision == 'denied' %}denied{% endif %}">
-      <td class="num">{{ r.patient_label }}</td>
-      <td class="num">{{ r.code }}</td>
-      <td class="num">#{{ r.tooth_fdi }}</td>
-      <td class="num nowrap">{{ r.submitted_on }}</td>
-      <td><span class="badge {{ 'blocked' if r.decision == 'denied' else 'muted' }}">{{ r.decision }}</span></td>
-      <td class="num">{{ money(r.fee_dollars) }}</td>
+      <td>{{ r.patient_label }}</td>
+      <td class="mono nowrap">{{ r.submitted_on }}</td>
+      <td class="mono">{{ r.code }}</td>
+      <td class="mono">#{{ r.tooth_fdi }}</td>
+      <td><span class="pill {{ 'denied' if r.decision == 'denied' else 'approved' }}">{{ r.decision }}</span></td>
+      <td class="mono r">{{ money(r.fee_dollars) }}</td>
       <td>
-        {% if r.gaps %}<ul class="plain small">{% for g in r.gaps %}<li>{{ g }}</li>{% endfor %}</ul>{% else %}<span class="muted">none found</span>{% endif %}
-        {% if r.denial_text %}<div class="small muted denial">Sun Life: “{{ r.denial_text }}”</div>{% endif %}
+        {% for g in r.gaps %}<span class="gapchip">{{ g }}</span>{% else %}<span class="muted">None found</span>{% endfor %}
+        {% if r.denial_text %}<div class="denial">Sun Life: “{{ r.denial_text }}”</div>{% endif %}
       </td>
-      <td>{% if r.decision == 'denied' %}{{ 'yes' if r.resubmitted else 'no' }}{% if r.resubmitted and r.resubmitted_decision %} <span class="muted">({{ r.resubmitted_decision }})</span>{% endif %}{% else %}<span class="muted">—</span>{% endif %}</td>
+      <td>{% if r.decision == 'denied' %}{{ 'Yes' if r.resubmitted else 'No' }}{% if r.resubmitted and r.resubmitted_decision %} <span class="muted">({{ r.resubmitted_decision }})</span>{% endif %}{% else %}<span class="muted">—</span>{% endif %}</td>
     </tr>
     {% endfor %}
     </tbody>
   </table>
+  </div>
 </section>
 
-<footer class="strip">
-  Sun Life denial text is shown verbatim where present. Published approval rates (Health Canada: ~37% for crowns) are context only and never enter a per-case computation.
-</footer>
+<p class="foot">Sun Life denial text is shown verbatim where present. Published approval rates (Health Canada: about 37% for crowns) are context only and never enter a per-case computation.</p>
 {% endif %}
 {% endblock %}

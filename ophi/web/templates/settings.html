@@ -1,78 +1,91 @@
 {% extends "base.html" %}
-{% from "macros.html" import clause_chip %}
-{% block title %}Settings &amp; Audit — Ophi{% endblock %}
+{% from "macros.html" import clause_chip, avatar %}
+{% block title %}Settings — Ophi{% endblock %}
 {% block content %}
-<header class="page-head">
-  <h1>Settings and audit</h1>
-  <p class="page-sub">Fictional Dental Centre. Rule pack, provider roster, connection, and the log of every human action Ophi recorded.</p>
+<header class="head">
+  <div>
+    <h1 class="title">Settings <span class="ctx">Fictional Dental Centre</span></h1>
+    <p class="lede">Every human action Ophi recorded, the rule pack behind each check, and who can sign.</p>
+  </div>
 </header>
 
 <div class="settings-grid">
-  <section class="col">
-    <div class="card">
-      <h2>Connection</h2>
-      <p><span class="dot amber"></span> Demo: casegen fixtures — no PMS connected; ABELDent driver in lab.</p>
-      <p class="muted small">{{ case_count }} demo cases loaded from cases/demo/. Engine {{ engine_version }}.</p>
-    </div>
-
-    <div class="card">
-      <h2>Provider roster</h2>
-      <table class="tbl">
-        <thead><tr><th>Name</th><th>Role</th><th>Licence</th></tr></thead>
-        <tbody>
-        {% for a in ACTORS.values() %}<tr><td>{{ a.name }}</td><td>{{ a.role }}</td><td class="num">{{ a.licence or '—' }}</td></tr>{% endfor %}
-        </tbody>
-      </table>
-    </div>
-
-    <div class="card">
-      <h2>Rule pack</h2>
-      <dl class="kv">
-        <dt>Id</dt><dd class="num">{{ pack.id }}</dd>
-        <dt>Version</dt><dd class="num">{{ pack.version }}</dd>
-        <dt>Payer</dt><dd>{{ pack.payer }} · {{ pack.jurisdiction.province }} {{ pack.jurisdiction.provider_type|upper }} grid {{ pack.jurisdiction.grid_year }}</dd>
-        <dt>Effective from</dt><dd class="num">{{ pack.effective_from }}</dd>
-        <dt>Verified on</dt><dd class="num">{{ pack.verified_on }}</dd>
-        <dt>Content hash</dt><dd class="mono small">{{ pack.content_hash }}</dd>
-        <dt>Requirements</dt><dd class="num">{{ pack.requirements|length }}</dd>
-      </dl>
-      <h3>Sources</h3>
-      <ul class="plain small">
-        {% for key, s in pack.sources.items() %}<li><b>{{ key }}</b> — <a href="{{ s.url }}" target="_blank" rel="noopener">{{ s.title }}</a></li>{% endfor %}
-      </ul>
-      <h3>Requirements</h3>
-      <ul class="reqs compact">
-        {% for r in pack.requirements %}
-        <li class="req"><div class="req-body"><div class="req-label"><span class="mono small muted">{{ r.id }}</span> {{ r.label }}</div><div class="req-meta">{{ clause_chip(r.clause, pack) }}</div></div></li>
-        {% endfor %}
-      </ul>
-    </div>
-
-    <div class="card danger">
-      <h2>Demo state</h2>
-      <form method="post" action="/reset" data-confirm="Reset all demo state? Assertions, confirmations, narratives, sign-offs and the audit log will be deleted.">
-        <button class="btn btn-danger" type="submit">Reset demo state</button>
-      </form>
-    </div>
-  </section>
-
-  <section class="col">
-    <div class="card">
-      <div class="card-head">
-        <h2>Audit log <span class="muted num">({{ events|length }})</span></h2>
-        <a class="btn btn-sm" href="/settings/audit.csv">Export CSV</a>
+  <div class="stack">
+    <section class="card" aria-labelledby="conn-h">
+      <div class="card-body">
+        <h2 class="side-title" id="conn-h">Connection</h2>
+        <p class="conn"><span class="dot" aria-hidden="true"></span>Demo fixtures. No PMS connected; the ABELDent driver runs in the lab.</p>
+        <p class="tally-foot">{{ plural(case_count, 'demo case') }} from cases/demo/. Engine <span class="num">{{ engine_version }}</span>.</p>
       </div>
-      {% if not events %}<p class="muted">No events yet. Every assertion, confirmation, narrative edit, sign-off and download is recorded here.</p>{% else %}
-      <table class="tbl audit">
-        <thead><tr><th>Time (UTC)</th><th>Case</th><th>Actor</th><th>Event</th><th>Detail</th></tr></thead>
-        <tbody>
-        {% for e in events %}
-        <tr><td class="num">{{ e.at.strftime('%Y-%m-%d %H:%M:%S') }}</td><td><a href="/cases/{{ e.case_id }}">{{ e.case_id }}</a></td><td>{{ e.actor }}</td><td class="mono small">{{ e.event }}</td><td class="small">{{ e.detail }}</td></tr>
-        {% endfor %}
-        </tbody>
-      </table>
-      {% endif %}
+    </section>
+
+    <section class="card" aria-labelledby="roster-h">
+      <div class="card-body">
+        <h2 class="side-title" id="roster-h">Who can act</h2>
+        <ul class="roster">
+          {% for a in ACTORS.values() %}
+          <li><span class="person">{{ avatar(a.name, a.key) }}<span><span class="strong">{{ a.name }}</span><br><span class="role">{{ a.role|capitalize }}{% if a.is_dentist %}, records clinical criteria and signs{% else %}, fixes the chart and submits{% endif %}</span></span></span><span class="mono muted">{{ a.licence or '' }}</span></li>
+          {% endfor %}
+        </ul>
+      </div>
+    </section>
+
+    <section class="card" aria-labelledby="pack-h">
+      <div class="card-body">
+        <h2 class="side-title" id="pack-h">Rule pack <span class="ctx">{{ pack.payer }}, {{ pack.jurisdiction.province }} {{ pack.jurisdiction.provider_type|upper }} grid {{ pack.jurisdiction.grid_year }}</span></h2>
+        <dl class="kv">
+          <dt>Id</dt><dd class="mono">{{ pack.id }}</dd>
+          <dt>Version</dt><dd class="mono">{{ pack.version }}</dd>
+          <dt>Effective from</dt><dd class="mono">{{ pack.effective_from }}</dd>
+          <dt>Verified on</dt><dd class="mono">{{ pack.verified_on }}</dd>
+          <dt>Content hash</dt><dd class="mono">{{ pack.content_hash }}</dd>
+        </dl>
+        <h3 class="sec-h">Sources</h3>
+        <ul class="sources">
+          {% for key, s in pack.sources.items() %}<li><span class="key">{{ key }}</span><a href="{{ s.url }}" target="_blank" rel="noopener">{{ s.title }}</a></li>{% endfor %}
+        </ul>
+        <h3 class="sec-h">{{ pack.requirements|length }} requirements</h3>
+        <ul class="reqs">
+          {% for r in pack.requirements %}
+          <li><span class="req-label">{{ r.label }}</span><span class="req-meta"><span class="rid">{{ r.id }}</span>{{ clause_chip(r.clause, pack) }}</span></li>
+          {% endfor %}
+        </ul>
+      </div>
+    </section>
+
+    <section class="card" aria-labelledby="demo-h">
+      <div class="card-body">
+        <h2 class="side-title" id="demo-h">Demo state</h2>
+        <p class="tally-foot">Deletes every assertion, confirmation, narrative edit, sign-off and the audit log.</p>
+        <form method="post" action="/reset" data-confirm="Reset all demo state? Assertions, confirmations, narratives, sign-offs and the audit log will be deleted.">
+          <button class="btn btn-danger btn-sm" type="submit">Reset demo state</button>
+        </form>
+      </div>
+    </section>
+  </div>
+
+  <section class="card" aria-labelledby="audit-h">
+    <div class="card-head">
+      <h2 class="card-title" id="audit-h">Audit log <span class="ctx">newest first</span></h2>
+      <a class="btn btn-sm" href="/settings/audit.csv">Export CSV</a>
     </div>
+    {% if not events %}
+    <p class="empty">No events yet. Every assertion, confirmation, narrative edit, sign-off and download lands here.</p>
+    {% else %}
+    <ul class="audit">
+      {% for e in events %}
+      <li>
+        {% set who = ACTORS.values()|selectattr('name', 'equalto', e.actor)|first %}
+        {{ avatar(e.actor, 'dentist' if who and who.is_dentist else 'coordinator', sm=True) }}
+        <div>
+          <div class="audit-what">{{ e.actor }} <span class="muted">{{ (EVENT_LABEL.get(e.event, e.event))|lower }}</span> <a href="/cases/{{ e.case_id }}">{{ e.case_id }}</a></div>
+          <div class="audit-detail">{{ e.detail }}</div>
+        </div>
+        <span class="audit-at">{{ e.at.strftime('%Y-%m-%d') }}<br>{{ e.at.strftime('%H:%M:%S') }} UTC</span>
+      </li>
+      {% endfor %}
+    </ul>
+    {% endif %}
   </section>
 </div>
 {% endblock %}

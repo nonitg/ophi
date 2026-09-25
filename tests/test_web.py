@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import re
+from html.parser import HTMLParser
 
 import pytest
 from fastapi.testclient import TestClient
@@ -14,8 +15,8 @@ RESTORABILITY = ["no_active_perio", "crown_root_ratio", "no_furcation", "margin_
                  "mesiodistal_space", "no_adjunctive_needed"]
 ALL_TREMBLAY = RESTORABILITY + ["extensively_restored", "active_disease_addressed", "endo_healed"]
 
-# Ophi's own voice never predicts payer behaviour. Chart quotes and Sun Life text are exempt.
-FORBIDDEN = re.compile(r"\b(will be approved|approved|eligible|covered|likely|probability)\b", re.I)
+# Ophi's own voice never predicts payer behaviour. Chart quotes, cited clause titles and rule ids are exempt.
+FORBIDDEN = re.compile(r"\b(will be approved|approved|eligib\w*|covered|coverage|likely|probability)\b", re.I)
 
 
 @pytest.fixture
@@ -175,12 +176,57 @@ def test_actor_cookie_and_reset(client):
     assert client.app.state.svc.store.audit_log() == []
 
 
+class _OphiVoice(HTMLParser):
+    """Collects the text Ophi says in its own voice: skips chart quotes, clause chips (they cite the CDCP
+    source's own headings), rule ids and markup that is never shown."""
+
+    EXEMPT_TAGS = {"q", "blockquote", "mark", "script", "style", "title", "svg"}
+    EXEMPT_CLASSES = {"chip", "rid", "note-text"}
+    VOID = {"input", "br", "img", "meta", "link", "hr", "source", "wbr"}
+
+    def __init__(self):
+        super().__init__()
+        self.stack: list[bool] = []
+        self.text: list[str] = []
+
+    def handle_starttag(self, tag, attrs):
+        if tag in self.VOID:
+            return
+        classes = set((dict(attrs).get("class") or "").split())
+        self.stack.append(bool(self.stack and self.stack[-1]) or tag in self.EXEMPT_TAGS or bool(classes & self.EXEMPT_CLASSES))
+
+    def handle_endtag(self, tag):
+        if tag not in self.VOID and self.stack:
+            self.stack.pop()
+
+    def handle_data(self, data):
+        if not (self.stack and self.stack[-1]):
+            self.text.append(data)
+
+
+def ophi_voice(html: str) -> str:
+    parser = _OphiVoice()
+    parser.feed(html)
+    return " ".join(parser.text)
+
+
 def test_copy_law_in_ophi_voice(client):
-    # Look-Back is excluded: it reports Sun Life's recorded decisions ("approved"/"denied"), not Ophi's voice.
-    for path in ["/", "/cases/singh", "/cases/deng", "/cases/rosco", "/cases/whitfield/packet", "/settings"]:
-        html = client.get(path).text
-        hits = [m.group(0) for m in FORBIDDEN.finditer(html)]
-        assert not hits, f"{path}: {hits}"
+    # Look-back is excluded: it reports Sun Life's recorded decisions ("approved"/"denied"), not Ophi's voice.
+    for actor in ("coordinator", "dentist"):
+        client.cookies.set("actor", actor)
+        for path in ["/", "/cases/singh", "/cases/deng", "/cases/rosco", "/cases/tremblay", "/cases/kowalchuk",
+                     "/cases/whitfield", "/cases/whitfield/packet", "/settings"]:
+            hits = [m.group(0) for m in FORBIDDEN.finditer(ophi_voice(client.get(path).text))]
+            assert not hits, f"{path} as {actor}: {hits}"
+
+
+def test_every_strip_cell_links_to_one_row_on_the_page(client):
+    for case_id in ["singh", "kowalchuk", "deng", "rosco", "tremblay", "whitfield"]:
+        html = client.get(f"/cases/{case_id}").text
+        targets = re.findall(r'href="#(req-[a-z_]+)"', html)
+        ids = re.findall(r'id="(req-[a-z_]+)"', html)
+        assert targets and len(ids) == len(set(ids)), case_id
+        assert set(targets) <= set(ids), f"{case_id}: {set(targets) - set(ids)}"
 
 
 def test_unknown_case_is_404(client):

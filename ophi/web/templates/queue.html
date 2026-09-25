@@ -1,47 +1,76 @@
 {% extends "base.html" %}
-{% from "macros.html" import verdict_badge, seg_bar %}
-{% block title %}Preauth Queue — Ophi{% endblock %}
+{% from "macros.html" import stage_pill, strip, avatar %}
+{% block title %}Queue — Ophi{% endblock %}
 {% block content %}
-<header class="page-head">
-  {% if summary.needs_attention %}
-  <h1>{{ summary.needs_attention }} of {{ summary.open_count }} open CDCP preauthorization{{ '' if summary.open_count == 1 else 's' }} need{{ 's' if summary.needs_attention == 1 else '' }} something before {{ 'it' if summary.needs_attention == 1 else 'they' }} can go out <span class="money-at-risk"><b class="num">{{ money(summary.dollars_at_risk) }}</b> of treatment at risk</span></h1>
-  {% else %}
-  <h1 class="calm">Nothing needs attention this week</h1>
-  {% endif %}
-  <p class="page-sub">{{ summary.week }} at {{ summary.clinic }}. Ophi read <b class="num">{{ summary.artifacts_scanned }}</b> chart entries across <b class="num">{{ summary.subsystems }}</b> subsystems and checked each case against the CDCP crown rules in under a second.</p>
+<header class="head">
+  <div>
+    <h1 class="title">Crown preauthorizations <span class="ctx">{{ summary.week }}</span></h1>
+    {% if summary.needs_attention %}
+    <p class="lede">{{ summary.needs_attention }} of {{ summary.open_count }} need something before {{ 'it' if summary.needs_attention == 1 else 'they' }} can go out. <span class="ctx"><span class="num">{{ money(summary.dollars_at_risk) }}</span> of treatment at risk.</span></p>
+    {% else %}
+    <p class="lede calm">Nothing needs attention this week.</p>
+    {% endif %}
+  </div>
 </header>
 
+{% set total = rows|length or 1 %}
+<section class="stages" aria-label="Where this week's cases stand">
+  {% for s in stages %}
+  <div class="stage {{ s.key }}{% if not s.count %} zero{% endif %}">
+    <div class="stage-n">{{ s.count }}</div>
+    <div class="stage-l">{{ s.label }}{% if s.count %}<span class="stage-d">{{ money(s.dollars) }}</span>{% endif %}</div>
+    <div class="stage-bar" aria-hidden="true"><i style="width: {{ (s.count / total * 100)|round(1) }}%"></i></div>
+  </div>
+  {% endfor %}
+</section>
+
+{% if inbox %}
+<section class="inbox" aria-label="Waiting on you">
+  {{ avatar(actor.name, actor.key, sm=True) }}
+  <span class="lead">Waiting on you</span>
+  {% for t in inbox %}
+  <span class="task"><b class="num">{{ t.text }}</b> <span class="cases">{% if t.cases|length == 1 %}for {{ t.cases[0] }}{% else %}across {{ t.cases|length }} cases{% endif %}</span></span>
+  {% endfor %}
+</section>
+{% endif %}
+
 {% if rows %}
-<section class="queue" aria-label="Open cases">
+<section class="card qlist" aria-label="Open cases">
+  <div class="qhead" aria-hidden="true">
+    <span>Status</span><span>Patient</span><span>Next step</span><span>Waiting on</span><span>Appointment</span>
+    <span class="fams">{% for name, ids in families %}<span style="flex: {{ ids|length }}">{{ name }}</span>{% endfor %}</span>
+    <span class="q-fee">Fee</span>
+  </div>
   {% for r in rows %}
   {% set v = r.view %}{% set c = v.case %}{% set d = days_until(c.treatment.appointment_date, summary.today) %}
-  <a class="qrow{% if v.signed %} is-signed{% endif %}" href="/cases/{{ c.case_id }}">
-    <span class="q-badge">{{ verdict_badge(v.assessment.verdict, v.signed, short=True) }}</span>
+  <a class="qrow{% if r.stage.key in ('signed', 'submitted') %} is-done{% endif %}" href="/cases/{{ c.case_id }}">
+    <span class="q-pill">{{ stage_pill(r.stage) }}</span>
     <span class="q-who">
-      <b class="q-name">{{ c.patient.display_name }}</b>
-      <span class="q-tooth num" title="{{ c.treatment.code }} {{ c.treatment.description or '' }}">#{{ c.requested_tooth }} {{ (c.treatment.description or '').split(',')[0]|lower }} <span class="q-code">{{ c.treatment.code }}</span></span>
+      <span class="q-name">{{ c.patient.display_name }}</span>
+      <span class="q-tooth" title="{{ c.treatment.code }} {{ c.treatment.description or '' }}">#{{ c.requested_tooth }} {{ (c.treatment.description or '').split(',')[0]|lower }}  {{ c.treatment.code }}</span>
     </span>
     <span class="q-lead">
-      {% if v.signed %}
-        <span class="muted">Signed by {{ v.state.sign_off.signed_by }}{% if v.state.submitted_at %}, marked submitted{% endif %}</span>
-      {% elif r.lead %}
-        {{ r.lead.title }}{% if r.lead.hint %} <span class="muted">— {{ r.lead.hint }}</span>{% endif %}
-        {% if r.lead.more %}<span class="q-more">+{{ r.lead.more }} more</span>{% endif %}
-      {% elif v.assessment.verdict.value == 'READY_TO_SUBMIT' %}
-        <span class="muted">Awaiting {{ c.treatment.provider.name }}'s sign-off</span>
-      {% elif v.assessment.verdict.value == 'READY_WITH_RISKS' %}
-        <span class="muted">Documented with noted risks; awaiting {{ c.treatment.provider.name }}'s sign-off</span>
+      {% if r.stage.key == 'submitted' %}Submitted through the PMS
+      {% elif r.stage.key == 'signed' %}Download the packet and submit it through the PMS
+      {% elif r.lead %}{{ r.lead.title }}{% if r.lead.more %}<span class="q-more">+{{ r.lead.more }} more</span>{% endif %}
+        {% if r.lead.hint %}<span class="q-hint">{{ r.lead.hint|capitalize }}</span>{% endif %}
+      {% elif r.stage.key == 'ready' %}{{ c.treatment.provider.name }} reviews and signs the packet
       {% endif %}
     </span>
-    <span class="q-appt num">{% if c.treatment.appointment_date %}{{ short_date(c.treatment.appointment_date) }} <span class="muted">{{ d }}d</span>{% else %}<span class="muted">no appt</span>{% endif %}</span>
-    <span class="q-bar">{{ seg_bar(r.segs, v.assessment.completeness.satisfied ~ ' of ' ~ v.assessment.completeness.applicable ~ ' requirements documented', mini=True) }}<span class="q-count num muted">{{ v.assessment.completeness.satisfied }} of {{ v.assessment.completeness.applicable }}</span></span>
-    <span class="q-fee num">{{ money(v.dollars_at_risk) }}</span>
+    <span class="q-wait avs">{% for p in r.waiting %}{{ avatar(p.name, p.role, sm=True, title=p.name ~ ': ' ~ p.what) }}{% endfor %}{% if not r.waiting %}<span class="muted" aria-hidden="true">—</span>{% endif %}<span class="sr">{% if r.waiting %}Waiting on {% for p in r.waiting %}{{ p.name }} for {{ p.what }}{{ '; ' if not loop.last }}{% endfor %}{% else %}Waiting on no one{% endif %}</span></span>
+    <span class="q-appt">{% if c.treatment.appointment_date %}{{ short_date(c.treatment.appointment_date) }}<span class="muted">{% if d == 0 %}today{% elif d == 1 %}tomorrow{% elif d > 0 %}in {{ d }} days{% else %}{{ -d }} days ago{% endif %}</span>{% else %}<span class="muted">No appointment</span>{% endif %}</span>
+    <span class="q-checks">{{ strip(r.strip, v.assessment.completeness.satisfied ~ ' of ' ~ v.assessment.completeness.applicable ~ ' CDCP requirements documented', mini=True) }}<span class="q-count">{{ v.assessment.completeness.satisfied }} of {{ v.assessment.completeness.applicable }} documented</span></span>
+    <span class="q-fee">{{ money(v.dollars_at_risk) }}</span>
   </a>
   {% endfor %}
 </section>
 {% else %}
-<p class="muted">No cases in the demo set.</p>
+<section class="card"><p class="empty">No cases in the demo set.</p></section>
 {% endif %}
 
-<footer class="strip">Sorted by what blocks each case, then by appointment. A coordinator spends an estimated ~{{ summary.manual_minutes }} minutes per preauthorization on this cross-check (estimate; source: docs/research/market.md).</footer>
+<p class="machine">
+  <span>Ophi read <b>{{ summary.artifacts_scanned }}</b> chart entries across {{ summary.subsystems }} PMS subsystems</span>
+  <span>checked <b>{{ summary.requirements_checked }}</b> CDCP requirements in under a second</span>
+  <span>by hand, about <b>{{ summary.manual_minutes }}</b> minutes per preauthorization (estimate)</span>
+</p>
 {% endblock %}

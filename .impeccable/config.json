@@ -35,6 +35,18 @@
         "value": "arial",
         "createdAt": "2026-09-23T02:17:13.707Z",
         "reason": "Welcome email only: user picked the 'Plain personal note' deliverability fix; Arial matches Gmail's compose default so the note reads as hand-written, not a newsletter"
+      },
+      {
+        "rule": "overused-font",
+        "value": "geist",
+        "createdAt": "2026-09-24T22:49:33.918Z",
+        "reason": "owner decision recorded in docs/plan/04-app-restyle-moxo.md section 7: Geist and Geist Mono chosen 2026-09-24 as the free OFL match for Moxo's ABC Diatype, self-hosted for offline clinic installs"
+      },
+      {
+        "rule": "overused-font",
+        "value": "geist mono",
+        "createdAt": "2026-09-24T22:49:33.934Z",
+        "reason": "owner decision recorded in docs/plan/04-app-restyle-moxo.md section 7: Geist and Geist Mono chosen 2026-09-24 as the free OFL match for Moxo's ABC Diatype, self-hosted for offline clinic installs"
       }
     ]
   }

@@ -10,13 +10,12 @@
     if (!form) return;
     var selectAll = document.getElementById("bulk-select-all");
     var checks = form.querySelectorAll(".assert-select");
-    var countEl = document.getElementById("bulk-count");
     var submit = document.getElementById("bulk-submit");
+    var msg = document.getElementById("bulk-msg");
     var bulkBtns = document.querySelectorAll("[data-bulk-value]");
 
     function update() {
-      var n = form.querySelectorAll(".assert-select:checked").length;
-      if (countEl) countEl.textContent = n + " selected";
+      var n = form.querySelectorAll(".assert-rows .assert-select:checked").length;
       if (submit) {
         submit.disabled = n === 0;
         submit.textContent = n ? "Record selected (" + n + ")" : "Record selected";
@@ -27,8 +26,12 @@
       }
       checks.forEach(function (ch) {
         var row = ch.closest(".assert-row");
-        if (row) row.classList.toggle("is-selected", ch.checked);
+        if (!row) return;
+        row.classList.toggle("is-selected", ch.checked);
+        // A row flagged by a failed submit clears once it has a value or is deselected.
+        if (!ch.checked || row.querySelector('input[type="radio"]:checked')) row.classList.remove("is-missing");
       });
+      if (msg && !form.querySelector(".assert-row.is-missing")) msg.textContent = "";
     }
 
     if (selectAll) {
@@ -43,7 +46,7 @@
       var row = ch.closest(".assert-row");
       if (row) {
         row.querySelectorAll('input[type="radio"], .assert-note').forEach(function (el) {
-          el.addEventListener("change", function () { if (!ch.checked && !ch.disabled) { ch.checked = true; update(); } });
+          el.addEventListener("change", function () { if (!ch.checked && !ch.disabled) ch.checked = true; update(); });
           el.addEventListener("input", function () { if (!ch.checked && !ch.disabled && el.value) { ch.checked = true; update(); } });
         });
       }
@@ -57,23 +60,20 @@
           var radio = row.querySelector('input[type="radio"][value="' + val + '"]');
           if (radio && !radio.disabled) radio.checked = true;
         });
+        update();
       });
     });
-    // Validate on submit: require a value for each selected row
+    // Validate on submit: every selected row needs a value. Say so in place instead of a browser alert.
     form.addEventListener("submit", function (e) {
-      var selected = form.querySelectorAll(".assert-select:checked");
-      if (selected.length === 0) { e.preventDefault(); alert("Select at least one criterion."); return; }
-      var missing = [];
-      selected.forEach(function (ch) {
+      var missing = 0;
+      form.querySelectorAll(".assert-rows .assert-select").forEach(function (ch) {
         var row = ch.closest(".assert-row");
-        var cid = ch.value;
-        var has = row && row.querySelector('input[name="value_' + cid + '"]:checked');
-        if (!has) missing.push(cid);
+        var gap = ch.checked && !row.querySelector('input[name="value_' + ch.value + '"]:checked');
+        row.classList.toggle("is-missing", gap);
+        if (gap) missing++;
       });
-      if (missing.length) {
-        e.preventDefault();
-        alert("Choose Met / Not met / N/A for each selected row.");
-      }
+      if (msg) msg.textContent = missing ? "Choose Met, Not met or N/A for " + missing + (missing === 1 ? " selected row." : " selected rows.") : "";
+      if (missing) e.preventDefault();
     });
     update();
   })();

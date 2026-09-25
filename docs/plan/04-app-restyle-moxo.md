@@ -1,7 +1,9 @@
 # Internal app restyle in Moxo's design language: plan
 
-Status: plan only, 2026-09-24. No code changed. Scope: `ophi/web` (Queue, Case Review, Packet, Look-Back,
-Settings). The public site (`site/`, `DESIGN.md`) is untouched.
+Status: implemented 2026-09-24 as a full redesign that goes past this restyle (structure changed too).
+`docs/reviews/2026-09-24-app-redesign.md` records what shipped and where it departs from this plan.
+Scope: `ophi/web` (Queue, Case Review, Packet, Look-Back, Settings). The public site (`site/`, `DESIGN.md`)
+is untouched.
 
 Reference: moxo.com, mainly `/lp/prior-authorization`. The owner loves this look. Screenshots of Moxo and of
 the current app were captured into the session scratchpad and are not committed.

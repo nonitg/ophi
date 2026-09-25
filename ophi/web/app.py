@@ -36,8 +36,9 @@ STATIC_V = max(int(p.stat().st_mtime) for p in (HERE / "static").iterdir())
 templates = Jinja2Templates(directory=str(HERE / "templates"))
 templates.env.globals.update(STATIC_V=STATIC_V,
     money=present.money, short_date=present.short_date, days_until=present.days_until, tooth_name=present.tooth_name,
-    source_title=present.source_title, kb=present.kb, requirement_detail=present.requirement_detail, VERDICT_LABEL=present.VERDICT_LABEL, VERDICT_SHORT=present.VERDICT_SHORT,
-    VERDICT_CLASS=present.VERDICT_CLASS, STATUS_LABEL=present.STATUS_LABEL, STATUS_CLASS=present.STATUS_CLASS, STATUS_NA=Status.NOT_APPLICABLE, ACTORS=ACTORS,
+    source_title=present.source_title, kb=present.kb, requirement_detail=present.requirement_detail, monogram=present.monogram,
+    plural=present.plural, STATUS_LABEL=present.STATUS_LABEL, STATUS_CLASS=present.STATUS_CLASS,
+    STATUS_NA=Status.NOT_APPLICABLE, ACTORS=ACTORS, EVENT_LABEL=present.EVENT_LABEL, REQ_SHORT=present.REQ_SHORT,
 )
 
 router = APIRouter()
@@ -128,8 +129,10 @@ def _existing_manifest(out: Path, view: CaseView, narrative: str, sign_off) -> d
 @router.get("/", response_class=HTMLResponse)
 def queue(request: Request):
     views = _svc(request).queue()
-    rows = [{"view": v, "lead": present.queue_lead(v), "segs": present.segments(v.assessment)} for v in views]
-    return _render(request, "queue.html", rows=rows, summary=present.queue_summary(views))
+    rows = [{"view": v, "lead": present.queue_lead(v), "strip": present.strip(v.assessment), "stage": present.stage(v),
+             "waiting": present.waiting_on(v)} for v in views]
+    return _render(request, "queue.html", rows=rows, stages=present.stage_rail(views), families=present.REQ_FAMILIES,
+                   inbox=present.inbox(views, _actor(request)), summary=present.queue_summary(views))
 
 
 # --- screen 2: case review --------------------------------------------------------------------------
@@ -143,10 +146,9 @@ def case_review(request: Request, case_id: str):
     relevant, other = present.assertion_rows(view, _svc(request).pack)
     gaps = present.gap_groups(view)
     return _render(request, "case.html", view=view, case=view.case, a=view.assessment, gaps=gaps,
-                   head=present.headline(view, gaps), segs=present.segments(view.assessment),
-                   parts=present.completeness_parts(view.assessment),
-                   evidence=present.evidence_panel(view), criteria=relevant, criteria_other=other,
-                   applicable=[r for r in view.assessment.requirements if r.applicable],
+                   head=present.headline(view, gaps), strip=present.strip(view.assessment), stage=present.stage(view),
+                   parts=present.completeness_parts(view.assessment), documented=present.documented(view), handoff=present.handoff(view), work=present.work_done(view),
+                   timeline=present.chart_timeline(view), evidence=present.evidence_panel(view), criteria=relevant, criteria_other=other,
                    not_applicable=[r for r in view.assessment.requirements if not r.applicable])
 
 
@@ -288,8 +290,9 @@ def look_back(request: Request):
     try:
         report = run_lookback()
     except Exception as e:  # a broken retrospective must not take the demo down
-        return _render(request, "lookback.html", report=None, unavailable=f"Look-Back could not run: {e}")
-    return _render(request, "lookback.html", report=report, unavailable=None)
+        return _render(request, "lookback.html", report=None, unavailable=f"Look-back could not run: {e}")
+    return _render(request, "lookback.html", report=report, unavailable=None,
+                   months=present.lookback_months(report), gaps=present.lookback_gaps(report))
 
 
 # --- screen 5: settings & audit -----------------------------------------------------------------------
