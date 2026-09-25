@@ -20,7 +20,7 @@ float cervicalLine(vec3 p) { return -.02 + .07 * cos(2. * atan(p.z, p.x)); }
 `;
 
 const ENAMEL = /* glsl */ `
-void surface(vec3 p, out vec3 color, out float rough, out float coat, out float height) {
+void surface(vec3 p, out vec3 color, out float rough, out float coat) {
   float line = cervicalLine(p);
   float crown = smoothstep(line - .09, line + .09, p.y);
   // Cusp tips are thin enamel over little dentin, so they read cooler and more glassy.
@@ -30,10 +30,6 @@ void surface(vec3 p, out vec3 color, out float rough, out float coat, out float 
   color = mix(root, enamel, crown);
   rough = mix(.7, .26, crown);
   coat = crown * .8;
-  // Perikymata: fine growth ridges circling the crown, strongest near the gumline.
-  float cervical = crown * (1. - smoothstep(line + .05, line + .45, p.y));
-  float ridges = sin(p.y * 150. + fbm3(p * 4.) * 5.);
-  height = cervical * ridges * .00035 + (fbm3(p * 22.) - .5) * mix(.0024, .0008, crown);
 }
 `;
 
@@ -45,17 +41,9 @@ function enamelMaterial() {
       .replace("#include <common>", "#include <common>\nattribute float aOcclusion;\nattribute float aThickness;\nvarying vec3 vObj;\nvarying float vOcc;\nvarying float vThick;")
       .replace("#include <begin_vertex>", "#include <begin_vertex>\nvObj = position; vOcc = aOcclusion; vThick = aThickness;");
     shader.fragmentShader = shader.fragmentShader
-      .replace("#include <clipping_planes_pars_fragment>", `#include <clipping_planes_pars_fragment>\nvarying float vOcc;\nvarying float vThick;\n${GLSL_COMMON}\n${ENAMEL}
-vec3 bumpNormal(vec3 n, float h) {
-  vec3 pos = -vViewPosition, dpx = dFdx(pos), dpy = dFdy(pos);
-  vec3 r1 = cross(dpy, n), r2 = cross(n, dpx);
-  float det = dot(dpx, r1);
-  return normalize(abs(det) * n - sign(det) * (dFdx(h) * r1 + dFdy(h) * r2));
-}`)
-      .replace("#include <color_fragment>", "#include <color_fragment>\nvec3 sColor; float sRough, sCoat, sHeight;\nsurface(vObj, sColor, sRough, sCoat, sHeight);\ndiffuseColor.rgb = sColor;")
+      .replace("#include <clipping_planes_pars_fragment>", `#include <clipping_planes_pars_fragment>\nvarying float vOcc;\nvarying float vThick;\n${GLSL_COMMON}\n${ENAMEL}`)
+      .replace("#include <color_fragment>", "#include <color_fragment>\nvec3 sColor; float sRough, sCoat;\nsurface(vObj, sColor, sRough, sCoat);\ndiffuseColor.rgb = sColor;")
       .replace("#include <roughnessmap_fragment>", "#include <roughnessmap_fragment>\nroughnessFactor = sRough;")
-      .replace("#include <normal_fragment_maps>", "#include <normal_fragment_maps>\nnormal = bumpNormal(normal, sHeight);")
-      .replace("#include <clearcoat_normal_fragment_maps>", "#include <clearcoat_normal_fragment_maps>\n#ifdef USE_CLEARCOAT\nclearcoatNormal = normalize(mix(clearcoatNormal, normal, .5));\n#endif")
       .replace("#include <emissivemap_fragment>", `#include <emissivemap_fragment>
 // Thin walls let warm light through, most visibly at the silhouette.
 float rim = 1. - clamp(dot(nonPerturbedNormal, normalize(vViewPosition)), 0., 1.);
