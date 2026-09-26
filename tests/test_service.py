@@ -25,6 +25,18 @@ def _make_ready(svc: CaseService, case_id: str = "tremblay") -> str:
     return draft_narrative(v.case, v.assessment, svc.pack)
 
 
+def test_apply_fix_closes_a_gap_ophi_can_fix_itself(svc: CaseService):
+    assert svc.apply_fixes("deng", ["lab_codes_current"], "Kim Osei") == ["lab_codes_current"]
+    v = svc.view("deng")
+    assert v.case.treatment.lab_codes == ["99113"] and v.base_case.treatment.lab_codes == ["99333"]  # the PMS read is untouched
+    assert v.assessment.requirement("lab_codes_current").status.value == "satisfied"
+    assert [e.detail for e in svc.store.audit_log("deng") if e.event == "apply_fix"] == ["Replace lab code 99333 with 99113"]
+    with pytest.raises(ValueError):
+        svc.apply_fixes("deng", ["lab_codes_current"], "Kim Osei")  # already closed
+    with pytest.raises(ValueError):
+        svc.apply_fixes("singh", ["radiograph_pa"], "Kim Osei")  # a film is taken, not applied
+
+
 def test_coordinator_cannot_assert_or_sign(svc: CaseService):
     with pytest.raises(PermissionError):
         svc.assert_criterion("tremblay", "ferrule_1_5mm", "met", "Kim Osei", None, role="treatment coordinator")

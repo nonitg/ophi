@@ -12,6 +12,7 @@ from dataclasses import dataclass
 from datetime import date, datetime
 from zoneinfo import ZoneInfo
 
+from ophi import fixes
 from ophi.assertions import criteria
 from ophi.cdm.models import (
     ArtifactType, AssertionPayload, Availability, ChartArtifact, ExtractedDetailPayload, NotePayload,
@@ -19,6 +20,7 @@ from ophi.cdm.models import (
 )
 from ophi.dental import notation, sextants
 from ophi.engine.models import Action, Status, Verdict
+from ophi.outcomes.readout import Readout
 from ophi.rules.schema import RulePack
 from ophi.service import MANUAL_MINUTES_PER_PREAUTH, CaseView
 from ophi.workflow import (
@@ -226,6 +228,124 @@ def advisory(view: CaseView) -> list[Action]:
     return [x for x in view.assessment.actions if not x.blocking]
 
 
+# --- fix plan: what past decisions say to fix first (docs/plan/05-outcomes-learning.md §5) ---------------
+
+RISK_LABEL = {"low": "Low", "medium": "Medium", "high": "High"}
+# The dentist's criteria Laya's note questions bear on: (question, the answer that supports the criterion). A
+# "yes only" question supports on a yes and says nothing on a no (a lost cusp is one route to "extensively restored").
+NOTE_CRITERIA: dict[str, list[tuple[str, str]]] = {
+    "extensively_restored": [("extensively_restored", "yes"), ("structure_lost", "yes only")],
+    "endo_healed": [("endo_not_healed", "no")], "active_disease_addressed": [("pending_basic", "no")],
+    "no_furcation": [("poor_support", "no")], "crown_root_ratio": [("poor_support", "no")],
+    "margin_3mm": [("subgingival_margin", "no")], "ferrule_1_5mm": [("subgingival_margin", "no")],
+    "no_adjunctive_needed": [("subgingival_margin", "no")],
+}
+# The note backs a criterion when Laya is this sure of the supporting answer; it goes against one past the fixer's
+# own flag (ophi.outcomes.fixer.FLAG), so the page and the fixer's concerns agree.
+SURE, FLAG = 0.7, 0.5
+
+
+def plan_for(view: CaseView, readout: Readout | None) -> dict | None:
+    """The fix plan made for the chart as it stands, or None (none made, or the chart changed since)."""
+    return readout.matching(view.case) if readout else None
+
+
+def risk_levels(plan: dict | None) -> dict | None:
+    """The board card's chip: denial risk now and after the fixes."""
+    if not plan:
+        return None
+    after = plan.get("after_fixes")
+    return {"now": plan["now"]["level"], "after": after["level"] if after else None}
+
+
+def safe_fixes(view: CaseView, pack: RulePack) -> dict:
+    """The chart gaps Ophi can close itself (ophi.fixes), and those staff already had it close."""
+    return {"open": [{"id": rid, "title": fixes.title(view.case, rid, pack)} for rid in fixes.open_on(view.assessment)],
+            "applied": list(view.state.fixes.values())}
+
+
+def _levels(plan: dict) -> dict:
+    now, after = plan["now"], plan.get("after_fixes")
+    return {"now": {"level": now["level"], "label": RISK_LABEL[now["level"]]},
+            "after": {"level": after["level"], "label": RISK_LABEL[after["level"]], "because": after.get("because")} if after else None,
+            "remaining": plan.get("remaining"), "model": plan["model"]}
+
+
+def _still_open(plan: dict, view: CaseView) -> list[dict]:
+    """The plan's fixes the chart still needs: one whose requirement is now documented is done."""
+    a = view.assessment
+    return [f for f in plan["fixes"]
+            if not ((r := a.requirement(f["requirement_id"]) if f.get("requirement_id") else None) and r.status == Status.SATISFIED)]
+
+
+EFFECT_FLOOR = 0.01  # a fix that lowers P(denied) by less than this has no effect the model can tell apart
+
+
+def fix_panel(view: CaseView, readout: Readout | None, pack: RulePack, gaps: list[dict]) -> dict:
+    """The Fix chart step, from the fixer's plan (Laya + LightGBM on top of the rule engine) for the chart as it stands.
+    `rows` is staff's work in the plan's order: each fix with its effect on denial risk in words (the size never
+    reaches the screen), its reason, and, when it closes an engine gap, that gap's facts from the real chart. The
+    plan's clinical and timing calls go to `dentist`. With no plan for this chart, the engine's gaps (`gap_rows`) in
+    its order. Rows keep the gap dicts they were given, so anything the caller adds to a gap reaches the template."""
+    plan = plan_for(view, readout)
+    out: dict = {"apply": safe_fixes(view, pack), "risk": _levels(plan) if plan else None,
+                 "stale_since": readout.scored_on if readout and not plan else None, "rows": [], "dentist": []}
+    shown: set[int] = set()
+    if plan:
+        gap_of = {rid: g for g in gaps for rid in g["action"].unblocks}
+        live = _still_open(plan, view)
+        staff = [f for f in live if f["kind"] in ("auto", "task") and f["who"] != "dentist"]
+        top = max((f.get("risk_drop") or 0 for f in staff), default=0)
+        out["dentist"] = [f for f in live if f.get("concern") or f["kind"] == "draft" or (f["kind"] == "task" and f["who"] == "dentist")]
+        for f in staff:
+            g = gap_of.get(f.get("requirement_id"))
+            if g is not None and id(g) in shown:
+                continue
+            shown |= {id(g)} if g is not None else set()
+            d = f.get("risk_drop")
+            out["rows"].append(_item(view, pack, g, f, None if d is None else "none" if d < EFFECT_FLOOR else "most" if d == top else "some"))
+    out["rows"] += [_item(view, pack, g, None, None) for g in gaps if id(g) not in shown]  # engine gaps the plan didn't score
+    return out
+
+
+def _item(view: CaseView, pack: RulePack, gap: dict | None, fix: dict | None, effect: str | None) -> dict:
+    """One row of staff work: the real chart's gap where there is one (its facts outrank the plan's copy of the
+    request), the plan's reason and effect where there is a plan."""
+    act = gap["action"] if gap else None
+    rid = (fix or {}).get("requirement_id") or (act.unblocks[0] if act and act.unblocks else None)
+    auto = rid in fixes.open_on(view.assessment)
+    title = fixes.title(view.case, rid, pack) if auto else gap["title"] if gap else fix["title"]
+    req = view.assessment.requirement(rid) if rid else None
+    return {"title": title, "auto": auto, "effect": effect, "gap": gap, "why": (fix or {}).get("why") or (act.why if act else ""),
+            "clause": (fix or {}).get("clause") or (req.clause if req else None)}
+
+
+def _note_read(answers: dict[str, float], questions: list[tuple[str, str]]) -> str | None:
+    """'not_shown' if any answer goes against the criterion, else 'supports' if one surely backs it, else None."""
+    backs = against = False
+    for q, supporting in questions:
+        if (p := answers.get(q)) is None:
+            continue
+        p_backs = 1 - p if supporting == "no" else p
+        backs |= p_backs >= SURE
+        against |= 1 - p_backs > FLAG and supporting != "yes only"
+    return "not_shown" if against else "supports" if backs else None
+
+
+def dentist_panel(view: CaseView, readout: Readout | None) -> dict | None:
+    """What the dentist needs from the plan: the risk left after the fixes and why, what the note shows for each
+    criterion, narrative drafts to approve, and clinical calls no requirement asks for yet."""
+    plan = plan_for(view, readout)
+    if not plan:
+        return None
+    reads = {cid: r for cid, qs in NOTE_CRITERIA.items() if (r := _note_read(plan["note_answers"], qs))}
+    asked = {rid for x in view.assessment.actions if x.action_type == "assert" for rid in x.unblocks}
+    live = _still_open(plan, view)
+    return {**_levels(plan), "reads": reads,
+            "drafts": [f for f in live if f["kind"] == "draft" and (f.get("patch") or {}).get("narrative")],
+            "decide": [f for f in live if (f["kind"] == "dentist" and f.get("requirement_id") not in asked)
+                       or (f["kind"] == "task" and f["who"] == "dentist")]}
+
 # --- timing: the appointment is the deadline -------------------------------------------------------
 
 
@@ -343,7 +463,7 @@ def card_action(view: CaseView, actor: Actor, today: date) -> dict:
     return out
 
 
-def card(view: CaseView, actor: Actor, today: date) -> dict:
+def card(view: CaseView, actor: Actor, today: date, risk: dict | None = None) -> dict:
     t = timing(view, today)
     # Late for the appointment first (a patient is affected), then Sun Life running past its usual turnaround,
     # then the nearest deadline (or the longest wait at Sun Life).
@@ -353,7 +473,7 @@ def card(view: CaseView, actor: Actor, today: date) -> dict:
     if not mine and view.stage != Stage.DONE:
         act["waiting"] = who_label(OWNER[view.stage], actor, view.case.treatment.provider.name)
     return {"view": view, "case": view.case, "stage": view.stage, "timing": t, "action": act,
-            "mine": mine, "advice": advice(view, t, today), "sort": (urgency, due)}
+            "mine": mine, "advice": advice(view, t, today), "sort": (urgency, due), "risk": risk}
 
 
 def _mine_first(cards: list[dict]) -> list[dict]:
@@ -361,10 +481,11 @@ def _mine_first(cards: list[dict]) -> list[dict]:
     return sorted((c for c in cards if c["mine"]), key=lambda c: c["sort"])
 
 
-def board(views: list[CaseView], actor: Actor, today: date) -> dict:
+def board(views: list[CaseView], actor: Actor, today: date, risks: dict[str, dict] | None = None) -> dict:
     """Every preauthorization as a card in the column for the step it is on. Cards the viewer acts on are
-    marked `mine`; the most urgent of them is `start`, the one thing to do first."""
-    cards = [card(v, actor, today) for v in views if v.stage != Stage.NOT_NEEDED]
+    marked `mine`; the most urgent of them is `start`, the one thing to do first. `risks` is Laya's level per
+    case id, for the cards still at Fix chart."""
+    cards = [card(v, actor, today, (risks or {}).get(v.case.case_id)) for v in views if v.stage != Stage.NOT_NEEDED]
     provider = views[0].case.treatment.provider.name if views else "the dentist"
     columns = []
     for key, label, stages, owner, (you_do, they_do) in COLUMNS:
@@ -505,7 +626,7 @@ def now_step(steps: list[dict], actor: Actor) -> dict | None:
     return next((s for s in steps if s["state"] == "current"), None)
 
 
-_ACTIVITY = {"assert": ("recorded a criterion", "recorded {n} criteria"), "confirm_proposal": ("reviewed a chart note", "reviewed {n} chart notes"),
+_ACTIVITY = {"apply_fix": ("applied a fix", "applied {n} fixes"), "assert": ("recorded a criterion", "recorded {n} criteria"), "confirm_proposal": ("reviewed a chart note", "reviewed {n} chart notes"),
              "edit_narrative": ("edited the narrative",), "sign_off": ("signed the packet",), "download_packet": ("downloaded the packet",),
              "mark_submitted": ("marked it sent",), "record_decision": ("recorded Sun Life's decision",),
              "start_resubmission": ("started a resubmission",), "mark_booked": ("marked the crown booked",),
