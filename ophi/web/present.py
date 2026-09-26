@@ -100,6 +100,7 @@ STAGE_LABEL: dict[Stage, str] = {
     Stage.NOT_NEEDED: "No preauthorization needed",
 }
 PIPELINE = ORDER[:6]  # the six stages that hold open work
+BOOK_SOON_DAYS = 30
 
 # --- formatting -----------------------------------------------------------------------------------
 
@@ -234,6 +235,8 @@ def timing(view: CaseView, today: date) -> dict:
     st, stage = view.state, view.stage
     appt = st.booked_on or view.case.treatment.appointment_date
     out: dict = {"appt": appt, "appt_in": days_until(appt, today), "late": False, "tone": "", "text": ""}
+    if view.test_run:  # nothing is really due on a test run; its deadlines would compete with real work
+        return out
     if appt and appt < today and stage not in (Stage.DONE, Stage.BOOK):
         out.update(tone="bad", late=True, text="Appointment passed")
         return out
@@ -256,7 +259,9 @@ def timing(view: CaseView, today: date) -> dict:
         if waited > SUN_LIFE_TURNAROUND_DAYS:
             out.update(tone="warn", late=True)
     elif stage == Stage.BOOK:
-        out.update(text=f"Book by {full_date(valid_until(st.decision.decided_on))}")
+        left = (valid_until(st.decision.decided_on) - today).days
+        if left <= BOOK_SOON_DAYS:  # a decision is valid for a year; only its last month is worth a chip
+            out.update(tone="bad" if left < 0 else "warn", text=f"Book by {full_date(valid_until(st.decision.decided_on))}")
     elif stage == Stage.DONE:
         out.update(tone="ok", text=f"Booked {short_date(st.booked_on)}")
     return out
@@ -265,62 +270,13 @@ def timing(view: CaseView, today: date) -> dict:
 def advice(view: CaseView, t: dict, today: date) -> str | None:
     """The one recommendation a late case needs, in the words an MOA would use."""
     if view.stage == Stage.SUN_LIFE and t["late"]:
-        return f"Sent {plural(t['waited'], 'day')} ago. Sun Life usually replies within {SUN_LIFE_TURNAROUND_DAYS}."
+        return f"Past Sun Life's usual {SUN_LIFE_TURNAROUND_DAYS} days."
     if t["late"] and t["appt"] and t["appt"] < today:
         return "The appointment has passed. Rebook the patient."
     if t["late"] and t["appt"]:
         return (f"The crown is {long_date(t['appt'])}, sooner than Sun Life's usual {SUN_LIFE_TURNAROUND_DAYS} days. "
                 "Move it, or tell the patient.")
     return None
-
-
-# --- the next step on a case ---------------------------------------------------------------------
-
-
-def next_step(view: CaseView, today: date) -> dict:
-    """One line saying what happens next and who does it. `payer` carries Sun Life's decision, which the
-    template renders as Sun Life's words, never Ophi's."""
-    a, st, stage = view.assessment, view.state, view.stage
-    provider = view.case.treatment.provider.name
-    crit = pending_criteria(a)
-    out: dict = {"title": "", "detail": None, "also": None, "more": 0, "payer": None, "prior": None}
-    if stage == Stage.PREPARE:
-        work = chart_actions(a)
-        if work:
-            out.update(title=action_title(work[0]), detail=_action_hint(view, work[0]), more=len(work) - 1)
-        else:
-            out.update(title="Check the procedure code", detail=a.schedule.detail)
-        if crit:
-            n = plural(crit, "clinical criterion", "clinical criteria")
-            out["also"] = f"{provider} can confirm {n} now" if criteria_can_start(a) else f"Then {provider}: {n}"
-    elif stage == Stage.DENTIST:
-        if crit:
-            out.update(title=f"Confirm {plural(crit, 'clinical criterion', 'clinical criteria')}", detail="The chart work is done.")
-        else:
-            out.update(title="Review and sign the packet", detail="Every applicable CDCP requirement is documented.")
-    elif stage == Stage.SEND:
-        out.update(title="Send the signed packet through your PMS",
-                   detail=f"Signed by {st.sign_off.signed_by} on {short_date(st.sign_off.signed_at.date())}")
-    elif stage == Stage.SUN_LIFE:
-        out["title"] = "Waiting for Sun Life's decision"
-        waited = (today - st.submitted_on).days
-        out["detail"] = (f"Past the usual {SUN_LIFE_TURNAROUND_DAYS} days. Check your CDAnet mailbox for the decision."
-                         if waited > SUN_LIFE_TURNAROUND_DAYS else "Sun Life processes most requests within 7 days.")
-    elif stage == Stage.BOOK:
-        out.update(title="Call the patient to book the crown", payer=_payer(st.decision))
-    elif stage == Stage.RESUBMIT:
-        appt = view.case.treatment.appointment_date
-        if appt and send_by(appt) < today:  # a new request can't be back in time: the appointment moves first
-            out.update(title=f"Move the {long_date(appt)} appointment and tell {view.case.patient.display_name.split()[0]}", payer=_payer(st.decision))
-        else:
-            out.update(title="Resubmit, or ask for reconsideration", payer=_payer(st.decision))
-    elif stage == Stage.DONE:
-        out["title"] = f"Crown booked for {long_date(st.booked_on)}"
-    else:
-        out.update(title="No preauthorization needed", detail=a.schedule.detail)
-    if st.attempts and stage in (Stage.PREPARE, Stage.DENTIST, Stage.SEND):
-        out["prior"] = _payer(st.attempts[-1].decision)  # a resubmission shows what Sun Life said last time
-    return out
 
 
 def _payer(d) -> dict | None:
@@ -332,9 +288,9 @@ def _payer(d) -> dict | None:
 # The board's columns, in the order the job happens: key, title, the stages it holds, who has the case, and
 # what they do there (as "you ..." and as "<name> ...").
 COLUMNS: list[tuple[str, str, tuple[Stage, ...], str | None, tuple[str, str]]] = [
-    ("prepare", "Fix chart", (Stage.PREPARE,), "coordinator", ("fix gaps in the PMS", "fixes gaps in the PMS")),
+    ("prepare", "Fix chart", (Stage.PREPARE,), "coordinator", ("fix the chart", "fixes the chart")),
     ("dentist", "Dentist review", (Stage.DENTIST,), "dentist", ("sign", "signs")),
-    ("send", "Ready to send", (Stage.SEND,), "coordinator", ("send from the PMS", "sends from the PMS")),
+    ("send", "Ready to send", (Stage.SEND,), "coordinator", ("send from the PMS", "sends it")),
     ("sun_life", "With Sun Life", (Stage.SUN_LIFE,), "sun_life", ("", "decides")),
     ("decision", "Decision back", (Stage.BOOK, Stage.RESUBMIT), "coordinator", ("book or resubmit", "books or resubmits")),
     ("done", "Booked", (Stage.DONE,), None, ("", "")),
@@ -359,7 +315,7 @@ def card_action(view: CaseView, actor: Actor, today: date) -> dict:
     stage, st = view.stage, view.state
     provider = view.case.treatment.provider.name
     crit = pending_criteria(view.assessment)
-    out: dict = {"title": "", "more": 0, "note": None, "payer": None}
+    out: dict = {"title": "", "more": 0, "note": None, "payer": None, "waiting": None}
     if stage == Stage.PREPARE:
         work = chart_actions(view.assessment)
         if actor.is_dentist and _can_confirm_early(view):
@@ -392,9 +348,17 @@ def card(view: CaseView, actor: Actor, today: date) -> dict:
     # Late for the appointment first (a patient is affected), then Sun Life running past its usual turnaround,
     # then the nearest deadline (or the longest wait at Sun Life).
     due = t.get("send_by") or view.state.submitted_on or t["appt"] or date.max
-    urgency = (1 if view.stage == Stage.SUN_LIFE else 0) if t["late"] else 2
-    return {"view": view, "case": view.case, "stage": view.stage, "timing": t, "action": card_action(view, actor, today),
-            "mine": _is_mine(view, t, actor), "advice": advice(view, t, today), "sort": (urgency, due)}
+    urgency = 3 if view.test_run else (1 if view.stage == Stage.SUN_LIFE else 0) if t["late"] else 2
+    mine, act = _is_mine(view, t, actor), card_action(view, actor, today)
+    if not mine and view.stage != Stage.DONE:
+        act["waiting"] = who_label(OWNER[view.stage], actor, view.case.treatment.provider.name)
+    return {"view": view, "case": view.case, "stage": view.stage, "timing": t, "action": act,
+            "mine": mine, "advice": advice(view, t, today), "sort": (urgency, due)}
+
+
+def _mine_first(cards: list[dict]) -> list[dict]:
+    """The viewer's cases, most urgent first."""
+    return sorted((c for c in cards if c["mine"]), key=lambda c: c["sort"])
 
 
 def board(views: list[CaseView], actor: Actor, today: date) -> dict:
@@ -411,7 +375,7 @@ def board(views: list[CaseView], actor: Actor, today: date) -> dict:
         job = f"{who['label']} {you_do if who['label'] == 'You' else they_do}" if who else they_do
         columns.append({"key": key, "label": label, "cards": cs, "who": who, "job": job,
                         "mine": owner == ("dentist" if actor.is_dentist else "coordinator")})
-    mine = sorted((c for c in cards if c["mine"]), key=lambda c: c["sort"])
+    mine = _mine_first(cards)
     n = len(mine)
     if actor.is_dentist:
         headline = f"{plural(n, 'case is', 'cases are')} waiting on you" if n else "Nothing is waiting on you"
@@ -421,14 +385,13 @@ def board(views: list[CaseView], actor: Actor, today: date) -> dict:
     return {"today": today, "headline": headline, "late": late, "columns": columns, "start": mine[0] if mine else None}
 
 
-def next_for_dentist(views: list[CaseView], exclude: str, today: date) -> dict | None:
-    """After the dentist signs, the next case on their pile, so they can clear it in one sitting."""
-    for v in sorted(views, key=lambda v: (v.stage != Stage.DENTIST, v.case.treatment.appointment_date or date.max)):
-        if v.case.case_id != exclude and (v.stage == Stage.DENTIST or (v.stage == Stage.PREPARE and pending_criteria(v.assessment)
-                                                                        and criteria_can_start(v.assessment))):
-            return {"case": v.case, "next": next_step(v, today) if v.stage == Stage.DENTIST else
-                    {"title": f"Confirm {plural(pending_criteria(v.assessment), 'clinical criterion', 'clinical criteria')}"}}
-    return None
+def next_up(views: list[CaseView], current: CaseView, actor: Actor, today: date) -> dict | None:
+    """Once nothing on this case is the viewer's, their most urgent other case, so the next job is one click away."""
+    if _is_mine(current, timing(current, today), actor):
+        return None
+    cards = [card(v, actor, today) for v in views if v.case.case_id != current.case.case_id and v.stage != Stage.NOT_NEEDED]
+    mine = _mine_first(cards)
+    return mine[0] if mine else None
 
 
 # --- case page: the steps from chart to chair -----------------------------------------------------
@@ -520,6 +483,19 @@ def stepper(view: CaseView, actor: Actor) -> list[dict]:
             for i, (key, label, _, owner, _) in enumerate(COLUMNS)]
 
 
+def waiting_on(step: dict | None, actor: Actor, provider: str, t: dict) -> str | None:
+    """Whom the case waits on when its open step isn't the viewer's to take, as the viewer names them."""
+    if step is None:
+        return None
+    if step["key"] in ("criteria", "sign") and not actor.is_dentist:
+        return provider
+    if step["key"] == "chart" and actor.is_dentist:
+        return ACTORS["coordinator"].name
+    if step["key"] == "decision" and not t["late"]:
+        return "Sun Life"
+    return None
+
+
 def now_step(steps: list[dict], actor: Actor) -> dict | None:
     """The step whose work the case page opens: the dentist's own step when they can act on it, else the current one."""
     if actor.is_dentist:
@@ -529,28 +505,12 @@ def now_step(steps: list[dict], actor: Actor) -> dict | None:
     return next((s for s in steps if s["state"] == "current"), None)
 
 
-def primary_action(view: CaseView, actor: Actor) -> dict | None:
-    """The header button: the current step's action, when the viewer is the one who takes it."""
-    stage, cid = view.stage, view.case.case_id
-    if actor.is_dentist:
-        if stage == Stage.DENTIST and not pending_criteria(view.assessment):
-            return {"label": "Review and sign", "href": f"/cases/{cid}/packet"}
-        if pending_criteria(view.assessment) and (stage == Stage.DENTIST or (stage == Stage.PREPARE and criteria_can_start(view.assessment))):
-            return {"label": "Jump to the criteria", "href": "#step-criteria", "jump": True}
-        return None
-    # A real action gets the primary button; a jump down to the current step's form is labelled as a jump.
-    return {Stage.PREPARE: {"label": "Jump to the chart gaps", "href": "#step-chart", "jump": True},
-            Stage.SEND: {"label": "Download packet", "href": f"/cases/{cid}/packet/download"},
-            Stage.SUN_LIFE: {"label": "Jump to the decision form", "href": "#step-decision", "jump": True},
-            Stage.BOOK: {"label": "Jump to booking", "href": "#step-book", "jump": True},
-            Stage.RESUBMIT: {"label": "Jump to the options", "href": "#step-resubmit", "jump": True}}.get(stage)
-
-
 _ACTIVITY = {"assert": ("recorded a criterion", "recorded {n} criteria"), "confirm_proposal": ("reviewed a chart note", "reviewed {n} chart notes"),
              "edit_narrative": ("edited the narrative",), "sign_off": ("signed the packet",), "download_packet": ("downloaded the packet",),
              "mark_submitted": ("marked it sent",), "record_decision": ("recorded Sun Life's decision",),
              "start_resubmission": ("started a resubmission",), "mark_booked": ("marked the crown booked",),
-             "undo": ("took back a step",), "recover_followup": ("logged a call-back",)}
+             "undo": ("took back a step",), "recover_followup": ("logged a call-back",),
+             "test_skip": ("skipped the chart gaps for a test run",), "test_restore": ("restored the skipped gaps",)}
 
 
 def activity(events: list) -> list[dict]:
@@ -722,7 +682,19 @@ def assertion_rows(view: CaseView, pack: RulePack) -> tuple[list[dict], list[dic
 # --- packet ---------------------------------------------------------------------------------------
 
 
-def manifest_files(manifest: dict | None) -> list[dict]:
+FILE_LABEL = {"index": "Index", "claim_form": "Claim form", "perio_chart": "Perio chart", "psr": "PSR",
+              "narrative": "Narrative (Word)", "narrative_txt": "Narrative (text)"}
+
+
+def _file_label(kind: str, artifact: ChartArtifact | None) -> str:
+    """A packet file as staff would name it: 'PA #24', 'BW right', 'Narrative (Word)'."""
+    pl = artifact.payload if artifact else None
+    if isinstance(pl, RadiographPayload):
+        return f"{pl.view.value} {pl.laterality.value}" if pl.laterality else f"{pl.view.value} {', '.join(f'#{t}' for t in pl.teeth_fdi[:2])}"
+    return FILE_LABEL.get(kind, sentence(kind.replace("_", " ")))
+
+
+def manifest_files(manifest: dict | None, case) -> list[dict]:
     """Normalise the packet manifest's file list; key names are the packet engineer's, so be lenient."""
     if not manifest:
         return []
@@ -735,6 +707,7 @@ def manifest_files(manifest: dict | None) -> list[dict]:
             "seq": f.get("seq", i),
             "filename": f.get("filename") or f.get("name") or f.get("path", "—"),
             "kind": f.get("kind") or f.get("type", "—"),
+            "label": _file_label(f.get("kind") or "", case.artifact(f["artifact_id"]) if f.get("artifact_id") else None),
             "requirements": f.get("requirement_ids") or f.get("requirements") or [],
             "spec_ok": spec,
             "bytes": f.get("bytes"),
@@ -771,7 +744,9 @@ def recover(rows: list[dict]) -> dict:
 
 def results(views: list[CaseView], pack: RulePack, report, recovered: dict) -> dict:
     """Plain facts for the owner, in the order they matter: treatment moving, gaps caught before they reached
-    Sun Life, Sun Life's recorded decisions, past denials being won back, then staff time (an estimate)."""
+    Sun Life, Sun Life's recorded decisions, past denials being won back, then staff time (an estimate).
+    Test runs are left out: nothing they skipped was documented."""
+    views = [v for v in views if not v.test_run]
     stages = [{"label": STAGE_LABEL[s], "count": sum(1 for v in views if v.stage == s),
                "dollars": sum(v.dollars_at_risk for v in views if v.stage == s)} for s in PIPELINE]
     labels = {r.id: r.label for r in pack.requirements}

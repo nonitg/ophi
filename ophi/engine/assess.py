@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING
 from ophi.cdm.models import Case
 from ophi.engine.evaluate import evaluate_requirement
 from ophi.engine.models import (
-    SEVERITY, Action, Assessment, Deadline, RequirementResult, RulesetRef, ScheduleResult, Status, Verdict, Workload,
+    SEVERITY, Action, Assessment, Deadline, RequirementResult, RulesetRef, ScheduleResult, Shortfall, Status, Verdict, Workload,
 )
 from ophi.rules.schema import EFFORT_ORDER, Requirement, RulePack
 
@@ -26,7 +26,8 @@ NOTES = [
 ]
 
 
-def assess(case: Case, pack: RulePack, weights: Weights | None = None) -> Assessment:
+def assess(case: Case, pack: RulePack, weights: Weights | None = None, skipped: frozenset[str] = frozenset()) -> Assessment:
+    """`skipped`: requirement ids whose chart gaps a test run treats as fixed (see `_skip`)."""
     t0 = time.perf_counter()
     sched = check_schedule(case, pack)
     if sched.disposition in ("not_required", "excluded"):
@@ -35,6 +36,7 @@ def assess(case: Case, pack: RulePack, weights: Weights | None = None) -> Assess
                                      applicable=False, explanation=f"{r.id}: not evaluated — {sched.detail}") for r in pack.requirements]
     else:
         results = [evaluate_requirement(r, case, pack) for r in pack.requirements]
+    results = [_skip(r) if r.requirement_id in skipped else r for r in results]
     verdict = decide(sched, results)
     if weights and weights.pack_version != pack.version:
         weights = None  # lift measured against another pack's requirements says nothing about this one
@@ -44,11 +46,11 @@ def assess(case: Case, pack: RulePack, weights: Weights | None = None) -> Assess
          for r in results if r.status in (Status.SATISFIED, Status.AT_RISK) for e in r.evidence if e.expires_on),
         key=lambda d: (d.expires_on, d.requirement_id, d.artifact_id))
     applicable = [r for r in results if r.applicable]
-    satisfied = [r for r in applicable if r.status == Status.SATISFIED]
+    satisfied = [r for r in applicable if r.status == Status.SATISFIED and not r.skipped]
     elapsed = int((time.perf_counter() - t0) * 1000)
 
     weights_hash = weights.content_hash if weights else None
-    digest = hashlib.sha256((case.model_dump_json() + (pack.content_hash or "") + (weights_hash or "")).encode()).hexdigest()[:16]
+    digest = hashlib.sha256((case.model_dump_json() + (pack.content_hash or "") + (weights_hash or "") + ",".join(sorted(skipped))).encode()).hexdigest()[:16]
     return Assessment(
         assessment_id=f"asm_{digest}",
         case_id=case.case_id,
@@ -71,6 +73,19 @@ def assess(case: Case, pack: RulePack, weights: Weights | None = None) -> Assess
             elapsed_ms=elapsed,
         ),
     )
+
+
+def _skip(r: RequirementResult) -> RequirementResult:
+    """Test runs only: treat the chart gap as fixed, with no evidence to ship. The dentist's own criteria still
+    wait for the dentist, and a criterion they recorded as not met stands."""
+    sf = r.shortfall
+    if not r.applicable or r.status in (Status.SATISFIED, Status.AT_RISK) or sf.not_met_assertions:
+        return r
+    if sf.missing_assertions:
+        return r.model_copy(update={"status": Status.INDETERMINATE, "skipped": True, "evidence": [],
+                                    "shortfall": Shortfall(missing_assertions=sf.missing_assertions)})
+    return r.model_copy(update={"status": Status.SATISFIED, "skipped": True, "evidence": [], "shortfall": Shortfall(),
+                                "satisfied_via": None, "risk_reason": None})
 
 
 def check_schedule(case: Case, pack: RulePack) -> ScheduleResult:

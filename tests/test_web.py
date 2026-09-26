@@ -143,7 +143,7 @@ def test_tremblay_happy_path_reaches_ready_then_signs_off(client):
     assert client.post("/cases/tremblay/submitted", data={"on": "2026-09-17"}).status_code == 303
     assert "Marked as sent on Sep 17, 2026" in client.get("/cases/tremblay/packet").text
     client.cookies.set("actor", "coordinator")
-    assert "Waiting for the decision" in client.get("/").text
+    assert "Waiting on Sun Life" in client.get("/").text
 
 
 def test_sign_off_blocked_when_verdict_not_ready(client):
@@ -185,7 +185,7 @@ def test_results_report_and_the_old_look_back_link(seeded):
 def test_record_decision_then_book(seeded):
     r = seeded.post("/cases/park/decision", data={"outcome": "approved", "decided_on": "2026-09-16", "reason": ""})
     assert r.status_code == 303 and "done=decision" in r.headers["location"]
-    assert "Book by Sep 16, 2027" in seeded.get("/cases/park").text
+    assert "Book the crown by <b>Sep 16, 2027</b>" in seeded.get("/cases/park").text
     assert seeded.post("/cases/park/booked", data={"on": "2026-10-05"}).status_code == 303
     assert "Crown booked for" in seeded.get("/cases/park").text
 
@@ -297,3 +297,14 @@ def test_copy_law_in_ophi_voice(seeded):
 
 def test_unknown_case_is_404(client):
     assert client.get("/cases/nobody").status_code == 404
+
+
+def test_skip_gaps_to_test_moves_the_case_on_and_restore_brings_them_back(client):
+    assert "Skip gaps to test" in client.get("/cases/singh").text
+    r = client.post("/cases/singh/test-skip")
+    assert r.status_code == 303 and "done=skipped" in r.headers["location"]
+    page = client.get("/cases/singh").text
+    assert "Test run." in page and "Waiting on Dr. Priya Lau" in page
+    assert 'tag-test">Test' in client.get("/").text
+    assert client.post("/cases/singh/test-restore").status_code == 303
+    assert "Test run." not in client.get("/cases/singh").text

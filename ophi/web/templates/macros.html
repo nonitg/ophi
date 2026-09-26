@@ -55,3 +55,43 @@ Crown on #{{ c.requested_tooth }} <span class="num">({{ c.treatment.code }})</sp
 {% macro teeth(list) -%}
 {%- for t in list %}#{{ t }}{% if not loop.last %}, {% endif %}{% endfor -%}
 {%- endmacro %}
+
+{# A test run skipped chart gaps: say so wherever the case appears, and offer the way back while it can still change. #}
+{% macro test_banner(view, cid) -%}
+{%- if view.test_run %}
+<div class="test-run" role="note">
+  <p><b>Test run.</b> {{ plural(view.state.test_skips|length, 'chart gap was', 'chart gaps were') }} skipped, so this packet can't be downloaded or sent.</p>
+  {% if not view.state.sent %}<form method="post" action="{{ BASE }}/cases/{{ cid }}/test-restore"><button class="btn btn-sm" type="submit">Restore the gaps</button></form>{% endif %}
+</div>
+{%- endif %}
+{%- endmacro %}
+
+{# Sending happens in the clinic's PMS; Ophi only hands over the files and records the day. #}
+{% macro send_steps(view, case, cid, can_download) -%}
+<ol class="substeps">
+  <li>{% if view.test_run %}<span class="muted">No download in a test run.</span>{% elif can_download %}<a class="btn btn-sm" href="{{ BASE }}/cases/{{ cid }}/packet/download">Download packet (.zip)</a>{% else %}<span class="muted">Download is blocked until the packet check passes.</span>{% endif %}</li>
+  <li>{% if view.test_run %}Don't send this one. Mark it as sent to try the next steps.{% else %}In your PMS, send a CDCP preauthorization for <span class="num">{{ case.treatment.code }}</span> on #{{ case.requested_tooth }}. Attach every file.{% endif %}</li>
+  <li>
+    {% if view.state.submitted_on %}<span class="t-ok">Marked as sent on {{ full_date(view.state.submitted_on) }}.</span>
+    {% else %}
+    <form class="inline-form" method="post" action="{{ BASE }}/cases/{{ cid }}/submitted">
+      <label class="field"><span>Sent on</span><input class="input num" type="date" name="on" value="{{ today.isoformat() }}" max="{{ today.isoformat() }}" required></label>
+      <button class="btn btn-primary" type="submit">Mark as sent</button>
+    </form>
+    {% endif %}
+  </li>
+</ol>
+{%- endmacro %}
+
+{# The viewer's next case, once nothing here is theirs. #}
+{% macro next_up(c) -%}
+<div class="next-up">
+  <p><span class="muted">Next for you</span> <b>{{ c.case.patient.display_name }}</b> <span class="next-up-act">{{ c.action.title }}</span></p>
+  <a class="btn btn-primary" href="{{ BASE }}/cases/{{ c.case.case_id }}">Open</a>
+</div>
+{%- endmacro %}
+
+{# A fold's heading and its one-line summary, kept together so the summary never wraps under the chevron. #}
+{% macro fold_summary(title, sub=None) -%}
+<summary><span class="fold-label"><span class="fold-title">{{ title }}</span>{% if sub %}<span class="fold-sub">{{ sub }}</span>{% endif %}</span></summary>
+{%- endmacro %}

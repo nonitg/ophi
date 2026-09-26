@@ -35,7 +35,7 @@ from ophi.outcomes.weights import Weights
 from ophi.lookback import LookBackReport, run_lookback
 from ophi.rules.loader import default_pack
 from ophi.rules.schema import RulePack
-from ophi.workflow import Stage, documentation_gaps, stage_of, valid_until
+from ophi.workflow import Stage, chart_actions, documentation_gaps, stage_of, valid_until
 
 ROOT = Path(__file__).resolve().parents[1]
 CASES_DIR = ROOT / "cases" / "demo"
@@ -127,6 +127,7 @@ class CaseState(BaseModel):
     booked_on: date | None = None
     attempts: list[Attempt] = Field(default_factory=list)
     first_check: FirstCheck | None = None
+    test_skips: list[str] = Field(default_factory=list)  # requirement ids a test run treats as fixed
 
     @model_validator(mode="after")
     def _sent_day_from_legacy_state(self) -> CaseState:
@@ -242,6 +243,11 @@ class CaseView(BaseModel):
         return (self.case.treatment.fee_cents or 0) / 100
 
     @property
+    def test_run(self) -> bool:
+        """Chart gaps were skipped to try the flow: the packet is incomplete and must never be sent."""
+        return self.assessment.test_run
+
+    @property
     def stage(self) -> Stage:
         st = self.state
         return stage_of(self.assessment, self.signed, st.submitted_on, st.decision.outcome if st.decision else None, st.booked_on)
@@ -317,7 +323,7 @@ class CaseService:
         proposals = [self._apply_confirmation(p, st) for p in propose_for_case(base)]
         user_assertions = [self._assertion_artifact(base, cid, a) for cid, a in st.assertions.items()]
         case = base.with_artifacts(proposals + user_assertions)
-        a = assess(case, self.pack, self.weights)
+        a = assess(case, self.pack, self.weights, frozenset(st.test_skips))
         if st.first_check is None:
             st.first_check = FirstCheck(at=self.now(), gaps=[r.requirement_id for r in documentation_gaps(a)])
             self.store.record_first_check(case_id, st.first_check)
@@ -470,6 +476,28 @@ class CaseService:
         st.booked_on = on
         self.store.save(case_id, st)
         self.audit(case_id, by, "mark_booked", f"crown appointment booked for {on.isoformat()}")
+
+    def skip_gaps(self, case_id: str, by: str) -> None:
+        """Test runs: move the case past its chart gaps without fixing them, to try the rest of the flow."""
+        v = self.view(case_id)
+        _not_sent(v.state)
+        rids = [rid for x in chart_actions(v.assessment) if x.action_type != "criterion_not_met" for rid in x.unblocks]
+        if not rids:
+            raise PermissionError("this case has no chart gaps to skip")
+        st = v.state
+        st.test_skips = sorted(set(st.test_skips) | set(rids))
+        st.sign_off = None
+        self.store.save(case_id, st)
+        self.audit(case_id, by, "test_skip", ", ".join(rids))
+
+    def restore_gaps(self, case_id: str, by: str) -> None:
+        st = self.store.load(case_id)
+        _not_sent(st)
+        if not st.test_skips:
+            raise PermissionError("no gaps were skipped on this case")
+        st.test_skips, st.sign_off = [], None
+        self.store.save(case_id, st)
+        self.audit(case_id, by, "test_restore", "")
 
     def undo(self, case_id: str, step: str, by: str) -> None:
         """Take back the latest recorded step (a mis-tap at a busy front desk). Only the latest can go."""

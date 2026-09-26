@@ -120,6 +120,7 @@ class RequirementResult(BaseModel):
     near_miss_option: str | None = None  # when nothing passed: the cheapest option tried
     near_miss_title: str | None = None
     expires_on: date | None = None
+    skipped: bool = False  # a test run skipped this chart gap; nothing was documented
 
 
 class Action(BaseModel):
@@ -181,6 +182,11 @@ class Assessment(BaseModel):
 
     def requirement(self, rid: str) -> RequirementResult | None:
         return next((r for r in self.requirements if r.requirement_id == rid), None)
+
+    @property
+    def test_run(self) -> bool:
+        """A test run skipped chart gaps to try the flow; nothing it skipped is documented."""
+        return any(r.skipped for r in self.requirements)
 
     @property
     def blocking_count(self) -> int:

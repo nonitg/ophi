@@ -35,7 +35,7 @@ with sync_playwright() as p:
 
     # Coordinator confirms the chart note on Tremblay: chart work done, case moves to the dentist.
     page.goto(base + "/cases/tremblay")
-    page.get_by_role("button", name="Yes, it says this").click()
+    page.get_by_role("button", name="Yes", exact=True).click()
     expect(page.locator(".done-note")).to_have_text("Chart note confirmed.")
     on_step(page, "Dentist review")
     shot(page, "tremblay-quote-confirmed")
@@ -70,8 +70,8 @@ with sync_playwright() as p:
     shot(page, "fontaine-sent")
 
     page.goto(base + "/cases/park")
+    page.get_by_text("Decision arrived? Record it").click()
     page.locator('.choice-cards label:has-text("Approved")').click()
-    page.fill('textarea[name="reason"]', "")
     page.get_by_role("button", name="Record decision").click()
     on_step(page, "Decision back")
     expect(page.locator(".now-head h2")).to_have_text("Book the crown")
@@ -97,6 +97,38 @@ with sync_playwright() as p:
     first.get_by_role("button", name="Rebooking").click()
     expect(page.locator(".done-note")).to_have_text("Follow-up saved.")
     shot(page, "recover-followup")
+
+    # Test run: Singh has no periapical on file. Skip the gap and walk the rest of the flow.
+    page.goto(base + "/cases/singh")
+    page.once("dialog", lambda d: d.accept())  # the skip asks first
+    page.get_by_role("button", name="Skip gaps to test").click()
+    expect(page.locator(".test-run")).to_be_visible()
+    on_step(page, "Dentist review")
+    shot(page, "singh-skipped")
+    page.get_by_role("button", name="View as Dr. Priya Lau").first.click()
+    page.wait_for_load_state("networkidle")
+    page.get_by_role("button", name="Set the rest to Met").click()
+    flagged = page.locator(".crit[data-needs-look]")
+    for i in range(flagged.count()):
+        flagged.nth(i).locator('label:has-text("Met")').first.click()
+    page.get_by_role("button", name="Record answers").click()
+    page.get_by_role("link", name="Review and sign").first.click()
+    expect(page.locator(".test-run")).to_be_visible()
+    page.get_by_role("button", name="Sign test run as Dr. Priya Lau (ON-48213)").click()
+    expect(page.locator(".done-note")).to_have_text("Test packet signed.")
+    shot(page, "singh-test-signed")
+    act_as(page, "coordinator")
+    page.goto(base + "/cases/singh")
+    expect(page.locator(".substeps")).to_contain_text("No download in a test run.")
+    page.get_by_role("button", name="Mark as sent").click()
+    on_step(page, "With Sun Life")
+    page.get_by_text("Decision arrived? Record it").click()
+    page.locator('.choice-cards label:has-text("Approved")').click()
+    page.get_by_role("button", name="Record decision").click()
+    page.get_by_role("button", name="Mark as booked").click()
+    expect(page.locator(".now-head h2")).to_contain_text("Crown booked for")
+    shot(page, "singh-test-booked")
+    assert page.request.get(base + "/cases/singh/packet/download").status == 409, "a test run's packet must never download"
 
     page.goto(base + "/")
     shot(page, "board-after")

@@ -124,3 +124,39 @@ def test_recover_followup_is_recorded_against_a_never_resubmitted_denial(svc: Ca
     assert got.status == "rebooking" and got.note == "wants it before year end"
     with pytest.raises(KeyError):
         svc.record_followup("not-a-denial", "rebooking", None, "Kim Osei")
+
+
+def test_test_run_skips_chart_gaps_through_to_booking_but_never_ships(svc: CaseService, tmp_path: Path):
+    from datetime import date
+
+    from ophi.packet.build import build_packet
+    from ophi.verify.verifier import verify_packet
+    from ophi.workflow import Stage
+    assert svc.view("singh").stage == Stage.PREPARE  # no periapical of #16 on file
+    svc.skip_gaps("singh", "Kim Osei")
+    v = svc.view("singh")
+    assert v.stage == Stage.DENTIST and v.test_run
+    assert v.assessment.completeness["satisfied"] < v.assessment.completeness["applicable"]  # a skip documents nothing
+    for c in CRITERIA:
+        svc.assert_criterion("singh", c, "met", "Dr. Priya Lau", "ON-48213")
+    v = svc.view("singh")
+    svc.sign_off("singh", "Dr. Priya Lau", "ON-48213", draft_narrative(v.case, v.assessment, svc.pack))
+    v = svc.view("singh")
+    build_packet(v.case, v.assessment, tmp_path / "pk", sign_off=v.state.sign_off, pack=svc.pack)
+    assert not verify_packet(tmp_path / "pk").shippable
+    svc.mark_submitted("singh", "Kim Osei")
+    svc.record_decision("singh", "approved", svc.today(), None, "Kim Osei")
+    svc.mark_booked("singh", date(2026, 9, 24), "Kim Osei")
+    assert svc.view("singh").stage == Stage.DONE
+
+
+def test_restoring_skipped_gaps_voids_the_signature(svc: CaseService):
+    from ophi.workflow import Stage
+    svc.skip_gaps("tremblay", "Kim Osei")
+    for c in CRITERIA:
+        svc.assert_criterion("tremblay", c, "met", "Dr. Priya Lau", "ON-48213")
+    v = svc.view("tremblay")
+    svc.sign_off("tremblay", "Dr. Priya Lau", "ON-48213", draft_narrative(v.case, v.assessment, svc.pack))
+    svc.restore_gaps("tremblay", "Kim Osei")
+    v = svc.view("tremblay")
+    assert v.stage == Stage.PREPARE and not v.test_run and not v.signed

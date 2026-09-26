@@ -8,9 +8,10 @@
 <link rel="preload" href="{{ BASE }}/static/fonts/Geist-Variable.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="{{ BASE }}/static/app.css?v={{ STATIC_V }}">
 </head>
-<body class="{% block body_class %}{% endblock %}">
+<body>
 {% set path = here %}
-<div class="demo">Demo with fictional patients. Today is fixed at {{ today.strftime('%a %b %-d, %Y') }}.</div>
+<div class="demo"><span>Demo with fictional patients. Today is fixed at {{ full_date(today) }}.</span>
+  <form method="post" action="{{ BASE }}/reset" data-confirm="Start the demo over? Every answer, signature, decision and test run is cleared."><button class="linkish" type="submit">Start over</button></form></div>
 <header class="bar">
   <div class="bar-in">
     <a class="brand" href="{{ HOME }}" aria-label="Ophi board">{% include "wordmark.svg" %}</a>

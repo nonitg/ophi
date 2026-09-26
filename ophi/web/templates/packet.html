@@ -1,64 +1,46 @@
 {% extends "base.html" %}
-{% from "macros.html" import who %}
+{% from "macros.html" import who, test_banner, send_steps, next_up, fold_summary with context %}
 {% block title %}Packet, {{ case.patient.display_name }} — Ophi{% endblock %}
 {% block content %}
 {% set so = view.state.sign_off %}{% set st = view.state %}{% set provider = case.treatment.provider.name %}{% set cid = case.case_id %}
 <div class="case">
 <a class="back" href="{{ BASE }}/cases/{{ cid }}">{{ case.patient.display_name }}</a>
 <header class="case-head">
-  <div>
-    <h1>{{ 'Signed packet' if view.signed else ('Review and sign' if can_sign and actor.is_dentist else 'Packet preview') }}</h1>
-    <p class="case-tx">{{ case.patient.display_name }} · Crown on <b class="num">#{{ case.requested_tooth }}</b>{% if pk.report and pk.report.ok %} · {{ plural(pk.report.file_count, 'file') }}, all checks passed{% endif %}</p>
-  </div>
+  <div class="case-title"><h1>{{ 'Signed packet' if view.signed else ('Review and sign' if can_sign and actor.is_dentist else 'Packet preview') }}</h1></div>
+  <p class="case-tx">{{ case.patient.display_name }} · Crown on <b class="num">#{{ case.requested_tooth }}</b>{% if pk.report and pk.report.ok %} · {{ plural(pk.report.file_count, 'file') }}, within CDAnet's limits{% endif %}</p>
 </header>
 
-{% if next_case and view.signed %}
-<div class="next-up">
-  <div><b>Signed. Next on your board: {{ next_case.case.patient.display_name }}</b><p>{{ next_case.next.title }}</p></div>
-  <a class="btn btn-primary" href="{{ BASE }}/cases/{{ next_case.case.case_id }}">Open the next case</a>
-</div>
-{% endif %}
+{{ test_banner(view, cid) }}
 
-{% if pk.report and not pk.report.ok %}
-<div class="note note-bad gap-below"><b>The packet check failed.</b> Download stays blocked until these are fixed.
+<div class="case-grid">
+<div class="case-main">
+{% if pk.report and not pk.report.ok and not view.test_run %}
+<div class="note note-bad"><b>The packet check failed.</b> Download stays blocked until these are fixed.
   <ul>{% for f in pk.report.findings %}<li>{{ f }}</li>{% endfor %}</ul>
 </div>
 {% endif %}
-{% if view.sign_off_stale %}<p class="note note-warn gap-below">{{ so.signed_by }}'s signature from {{ full_date(so.signed_at.date()) }} no longer applies because the chart or an answer changed. Review and sign again.</p>{% endif %}
+{% if view.sign_off_stale %}<p class="note note-warn">{{ so.signed_by }}'s signature from {{ full_date(so.signed_at.date()) }} no longer applies because the chart or an answer changed. Review and sign again.</p>{% endif %}
 
-<section class="now" aria-labelledby="now-title">
+<section class="now{% if can_sign and not view.signed and not actor.is_dentist %} is-waiting{% endif %}" aria-labelledby="now-title">
   {% if view.signed %}
-  <div class="now-head"><span class="now-k now-k-ok">Signed</span><h2 id="now-title">Signed by {{ so.signed_by }} on {{ full_date(so.signed_at.date()) }}</h2>{{ who(who_tag('coordinator', actor, provider)) }}</div>
+  <div class="now-head"><h2 id="now-title">Signed by {{ so.signed_by }} on {{ full_date(so.signed_at.date()) }}</h2>{% if not actor.is_dentist %}{{ who(who_tag('coordinator', actor, provider)) }}{% endif %}</div>
   {% if actor.is_dentist %}
   <p class="now-lead">{% if st.submitted_on %}Marked as sent on {{ full_date(st.submitted_on) }}.{% else %}{{ ACTORS['coordinator'].name }} sends it next, from the PMS. Ophi never transmits anything to Sun Life.{% endif %}</p>
   {% else %}
-  <ol class="substeps">
-    <li>{% if pk.report and pk.report.shippable %}<a class="btn btn-sm" href="{{ BASE }}/cases/{{ cid }}/packet/download">Download packet (.zip)</a>{% else %}<span class="muted">Download is blocked until the packet check passes.</span>{% endif %}</li>
-    <li>In your PMS, send a CDCP preauthorization for <span class="num">{{ case.treatment.code }}</span> on #{{ case.requested_tooth }} with every file attached, on the same day.</li>
-    <li>
-      {% if st.submitted_on %}
-      <span class="t-ok">Marked as sent on {{ full_date(st.submitted_on) }}.</span>
-      {% else %}
-      <form class="inline-form" method="post" action="{{ BASE }}/cases/{{ cid }}/submitted">
-        <label class="field"><span>Sent on</span><input class="input num" type="date" name="on" value="{{ today.isoformat() }}" max="{{ today.isoformat() }}" required></label>
-        <button class="btn btn-primary" type="submit">Mark as sent</button>
-      </form>
-      {% endif %}
-    </li>
-  </ol>
+  {{ send_steps(view, case, cid, pk.report and pk.report.shippable) }}
   <p class="now-foot">Ophi never transmits anything to Sun Life. Your PMS sends it.</p>
   {% endif %}
   {% elif can_sign and actor.is_dentist %}
-  <div class="now-head"><span class="now-k">Now</span><h2 id="now-title">Sign the packet</h2>{{ who(who_tag('dentist', actor, provider)) }}</div>
+  <div class="now-head"><h2 id="now-title">Sign the packet</h2>{{ who(who_tag('dentist', actor, provider)) }}</div>
   <p class="attest">“I have reviewed this packet and it reflects my clinical judgment and the contents of this patient's record.”</p>
-  <form method="post" action="{{ BASE }}/cases/{{ cid }}/sign-off" id="signoff-form">
+  <form method="post" action="{{ BASE }}/cases/{{ cid }}/sign-off" id="signoff-form" class="btn-row">
     <input type="hidden" name="narrative" id="signoff-narrative" value="{{ narrative }}">
-    <button class="btn btn-primary" type="submit">Sign as {{ actor.name }}{% if actor.licence %} ({{ actor.licence }}){% endif %}</button>
+    <button class="btn btn-primary" type="submit">{{ 'Sign test run' if view.test_run else 'Sign' }} as {{ actor.name }}{% if actor.licence %} ({{ actor.licence }}){% endif %}</button>
+    <span class="small muted">Until you sign, the preview is a draft, not for submission.</span>
   </form>
-  <p class="now-foot">Until it's signed, the preview below is a draft, not for submission.</p>
   {% elif can_sign %}
-  <div class="now-head"><h2 id="now-title">Waiting on {{ provider }}'s signature</h2>{{ who(who_tag('dentist', actor, provider)) }}</div>
-  <p class="now-lead">Only {{ provider }} can sign. It's on their board. Until then, the preview below is a draft, not for submission.</p>
+  <div class="now-head"><h2 id="now-title">Waiting on {{ provider }}</h2></div>
+  <p class="now-lead">Only {{ provider }} can sign. Until then, the preview is a draft, not for submission.</p>
   {% else %}
   <div class="now-head"><h2 id="now-title">Sign-off is blocked</h2></div>
   <p class="now-lead">{{ plural(blocking|length, 'item is', 'items are') }} still open on the case:</p>
@@ -67,16 +49,21 @@
   {% endif %}
 </section>
 
-<iframe class="pdf" src="{{ BASE }}/cases/{{ cid }}/packet/preview.pdf" title="The packet as Sun Life receives it"></iframe>
+{% if next_case and view.signed %}{{ next_up(next_case) }}{% endif %}
+
+<div class="pdf-frame">
+  <iframe class="pdf" src="{{ BASE }}/cases/{{ cid }}/packet/preview.pdf" title="The packet as Sun Life receives it"></iframe>
+  <a class="pdf-open small" href="{{ BASE }}/cases/{{ cid }}/packet/preview.pdf" target="_blank" rel="noopener">Open the preview in a new tab</a>
+</div>
 
 <div class="folds">
   {% if view.signed %}
   <details class="fold">
-    <summary><span class="fold-title">Narrative, as signed</span></summary>
+    {{ fold_summary('Narrative, as signed') }}
     <div class="fold-body"><pre class="narrative-ro">{{ narrative }}</pre></div>
   </details>
   <details class="fold">
-    <summary><span class="fold-title">Sign-off record</span></summary>
+    {{ fold_summary('Sign-off record') }}
     <div class="fold-body">
       <p class="attest">“{{ so.attestation }}”</p>
       <dl class="kv">
@@ -90,7 +77,7 @@
   </details>
   {% else %}
   <details class="fold" id="narrative-fold">
-    <summary><span class="fold-title">Edit the narrative</span><span class="fold-sub">{{ 'Edited' if st.narrative_edits is not none else 'Drafted from the chart' }}</span></summary>
+    {{ fold_summary('Edit the narrative', 'Edited' if st.narrative_edits is not none else 'Drafted from the chart') }}
     <form method="post" action="{{ BASE }}/cases/{{ cid }}/narrative" class="fold-body" id="narrative-form">
       <textarea class="input" name="narrative" id="narrative" rows="16" data-dirty-warn aria-label="Clinical narrative">{{ narrative }}</textarea>
       <div class="btn-row mt-12">
@@ -100,30 +87,21 @@
     </form>
   </details>
   {% endif %}
+</div>
+</div>
+
+<aside class="case-side" aria-label="Packet details">
   {% if pk.files %}
-  <details class="fold">
-    <summary><span class="fold-title">Files in the packet</span><span class="fold-sub">{{ plural(pk.files|length, 'file') }}, checked against CDAnet's limits</span></summary>
-    <div class="fold-body tbl-wrap">
-      <table class="tbl">
-        <thead><tr><th>#</th><th>File</th><th>Kind</th><th>Check</th></tr></thead>
-        <tbody>
-        {% for f in pk.files %}
-        <tr><td class="num">{{ f.seq }}</td><td class="mono">{{ f.filename }}</td><td>{{ f.kind }}</td>
-          <td>{% if f.spec_ok is none %}<span class="muted">—</span>{% elif f.spec_ok %}<span class="t-ok">Pass</span>{% else %}<span class="t-bad">Fail</span>{% endif %}</td></tr>
-        {% endfor %}
-        </tbody>
-      </table>
-    </div>
-  </details>
+  <h2 class="side-h">{{ plural(pk.files|length, 'file') }}</h2>
+  <ol class="files">
+    {% for f in pk.files %}<li>{{ f.label }}{% if f.spec_ok == false %} <span class="t-bad small">Fails CDAnet's limits</span>{% endif %}</li>{% endfor %}
+  </ol>
   {% endif %}
   {% if a.deadlines %}
-  <details class="fold">
-    <summary><span class="fold-title">When the evidence goes stale</span></summary>
-    <div class="fold-body">
-      <ul class="plain">{% for d in a.deadlines|sort(attribute='expires_on') %}<li>{{ sentence(d.label) }} <span class="muted num">{{ full_date(d.expires_on) }}</span></li>{% endfor %}</ul>
-    </div>
-  </details>
+  <h2 class="side-h">Current until</h2>
+  <ul class="plain small">{% for d in a.deadlines|sort(attribute='expires_on') %}<li>{{ sentence(d.label) }} <span class="muted num">{{ full_date(d.expires_on) }}</span></li>{% endfor %}</ul>
   {% endif %}
+</aside>
 </div>
 </div>
 {% endblock %}

@@ -101,6 +101,7 @@ class _Manifest(BaseModel):
     total_bytes: int
     preview: str
     status: str
+    test_run: bool = False
     verdict: str
     narrative_sha256: str | None
     attestation: _Attestation | None
@@ -401,6 +402,8 @@ def _check_status(pkt: _Packet) -> list[str]:
         findings.append(f"{MANIFEST_NAME}: status signed but no attestation")
     if m.status == "draft" and m.attestation is not None:
         findings.append(f"{MANIFEST_NAME}: status draft but an attestation is present")
+    if m.test_run:
+        findings.append(f"{MANIFEST_NAME}: a test run skipped chart gaps; this packet is never for submission")
     if m.status == "signed" and m.verdict not in SIGNED_VERDICTS:
         findings.append(f"{MANIFEST_NAME}: signed packet for verdict {m.verdict}; only {', '.join(SIGNED_VERDICTS)} may be signed")
     return findings

@@ -132,7 +132,8 @@ def _index_line(f: PacketFile, assessment: Assessment) -> str:
 def _write_index(files: list[PacketFile], case: Case, assessment: Assessment, out_dir: Path, signed: bool) -> PacketFile:
     t = case.treatment
     lines = [
-        "Ophi packet index" + ("" if signed else " — DRAFT, not signed, not for submission"),
+        "Ophi packet index" + (" — TEST RUN, chart gaps skipped, not for submission" if assessment.test_run
+                               else "" if signed else " — DRAFT, not signed, not for submission"),
         f"Clinic: {case.clinic}",
         f"Reference: {assessment.assessment_id}",
         f"Procedure: {t.code} ({t.description or 'no description'}) on tooth #{t.tooth.tooth_fdi} (FDI)",
@@ -172,6 +173,7 @@ def _manifest(case: Case, assessment: Assessment, files: list[PacketFile], text:
         "total_bytes": sum(f.bytes for f in files),
         "preview": "preview.pdf",
         "status": "signed" if sign_off else "draft",
+        "test_run": assessment.test_run,
         "verdict": assessment.verdict.value,
         "narrative_sha256": hashlib.sha256(txt.path.read_bytes()).hexdigest(),
         "attestation": sign_off.model_dump(mode="json") if sign_off else None,

@@ -52,9 +52,10 @@ templates.env.globals.update(
 # Confirmation after a write, named with the same verb as the button that caused it.
 DONE_MESSAGES = {
     "confirmed": "Chart note confirmed.", "rejected": "Chart note rejected.", "criteria": "Criteria recorded.",
-    "saved": "Narrative saved.", "signed": "Packet signed.", "sent": "Marked as sent.",
+    "saved": "Narrative saved.", "signed": "Packet signed.", "signed_test": "Test packet signed.", "sent": "Marked as sent.",
     "decision": "Sun Life's decision recorded.", "resubmit": "Resubmission started. The dentist reviews and signs the new request.",
     "booked": "Marked as booked.", "followup": "Follow-up saved.", "undone": "Step taken back.",
+    "skipped": "Gaps skipped for this test run.", "restored": "Gaps are back.",
 }
 _RESET_LOCK = threading.Lock()  # a double-submitted reset must not reseed twice at once
 
@@ -164,7 +165,7 @@ def _build_packet(request: Request, view: CaseView, narrative: str) -> dict:
     if manifest is None:
         manifest = build_packet(view.case, view.assessment, out, narrative_text=narrative, sign_off=sign_off, pack=_svc(request).pack)
     result["manifest"] = manifest
-    result["files"] = present.manifest_files(manifest)
+    result["files"] = present.manifest_files(manifest, view.case)
     result["report"] = verify_packet(out, forbidden_tokens=identity_tokens(view.case))
     return result
 
@@ -201,18 +202,17 @@ def case_page(request: Request, case_id: str):
     view = _view(request, case_id)
     if view is None:
         return _error(request, 404, "Case not found", f"No case '{case_id}' in the demo set.")
-    svc, actor = _svc(request), _actor(request)
+    svc, actor, today = _svc(request), _actor(request), _svc(request).today()
     relevant, other = present.assertion_rows(view, svc.pack)
-    dentist_done = actor.is_dentist and present.primary_action(view, actor) is None
-    nxt = present.next_for_dentist(svc.queue(), case_id, svc.today()) if dentist_done else None
-    steps, today = present.case_steps(view), svc.today()
+    steps = present.case_steps(view)
     now = present.now_step(steps, actor)
     timing = present.timing(view, today)
     return _render(request, "case.html", view=view, case=view.case, a=view.assessment, stage=view.stage,
-                   steps=steps, now=now, then=next((s for s in steps if s["state"] == "upcoming"), None),
+                   steps=steps, now=now, waiting=present.waiting_on(now, actor, view.case.treatment.provider.name, timing),
+                   next_case=present.next_up(svc.queue(), view, actor, today),
                    stepper=present.stepper(view, actor), gaps=present.gap_rows(view), advisory=present.advisory(view),
                    timing=timing, advice=present.advice(view, timing, today), evidence=present.evidence_panel(view),
-                   criteria=relevant, criteria_other=other, activity=present.activity(svc.store.audit_log(case_id)), next_case=nxt,
+                   criteria=relevant, criteria_other=other, activity=present.activity(svc.store.audit_log(case_id)),
                    applicable=[r for r in view.assessment.requirements if r.applicable],
                    not_applicable=[r for r in view.assessment.requirements if not r.applicable])
 
@@ -331,6 +331,26 @@ def mark_booked(request: Request, case_id: str, on: str = Form("")):
     return _done(request, f"/cases/{case_id}", "booked")
 
 
+@router.post("/cases/{case_id}/test-skip")
+def test_skip(request: Request, case_id: str):
+    try:
+        _svc(request).skip_gaps(case_id, _actor(request).name)
+    except FileNotFoundError:
+        return _error(request, 404, "Case not found", f"No case '{case_id}' in the demo set.")
+    except PermissionError as e:
+        return _error(request, 409, "Nothing to skip", str(e).capitalize() + ".")
+    return _done(request, f"/cases/{case_id}", "skipped")
+
+
+@router.post("/cases/{case_id}/test-restore")
+def test_restore(request: Request, case_id: str):
+    try:
+        _svc(request).restore_gaps(case_id, _actor(request).name)
+    except PermissionError as e:
+        return _error(request, 409, "Can't restore the gaps", str(e).capitalize() + ".")
+    return _done(request, f"/cases/{case_id}", "restored")
+
+
 @router.post("/cases/{case_id}/undo")
 def undo(request: Request, case_id: str, step: str = Form("")):
     try:
@@ -351,7 +371,7 @@ def packet(request: Request, case_id: str):
     svc = _svc(request)
     narrative = _narrative(view, svc.pack)
     pk = _build_packet(request, view, narrative)
-    nxt = present.next_for_dentist(svc.queue(), case_id, svc.today()) if _actor(request).is_dentist else None
+    nxt = present.next_up(svc.queue(), view, _actor(request), svc.today())
     return _render(request, "packet.html", view=view, case=view.case, a=view.assessment, narrative=narrative, pk=pk,
                    can_sign=view.assessment.verdict in READY_VERDICTS, stage=view.stage, next_case=nxt,
                    blocking=[x for x in view.assessment.actions if x.blocking])
@@ -414,7 +434,7 @@ def sign_off(request: Request, case_id: str, narrative: str = Form("")):
         return _narrative_error(request, e)
     except PermissionError as e:
         return _error(request, 409, "Sign-off is blocked", str(e).capitalize() + ".")
-    return _done(request, f"/cases/{case_id}/packet", "signed")
+    return _done(request, f"/cases/{case_id}/packet", "signed_test" if _view(request, case_id).test_run else "signed")
 
 
 # --- recover & results ------------------------------------------------------------------------------

@@ -21,7 +21,7 @@ from ophi.rules.loader import default_pack
 ROOT = Path(__file__).resolve().parents[1]
 CASES = sorted((ROOT / "cases" / "demo").glob("*.yaml"))
 MANIFEST_KEYS = {"packet_version", "case_id", "assessment_id", "engine_version", "ruleset", "built_at", "file_count",
-                 "total_bytes", "preview", "status", "verdict", "narrative_sha256", "attestation", "files"}
+                 "total_bytes", "preview", "status", "test_run", "verdict", "narrative_sha256", "attestation", "files"}
 FILE_KEYS = {"seq", "filename", "sha256", "bytes", "media_type", "kind", "requirement_ids", "artifact_id", "captured_at",
              "spec_checks", "transformations_applied"}
 SPEC_KEYS = {"dpi", "bit_depth", "format", "colour", "pass"}

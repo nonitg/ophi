@@ -143,7 +143,7 @@ def _completeness_flowables(case: Case, assessment: Assessment) -> list:
     for r in assessment.requirements:
         if not r.applicable:
             continue
-        rows.append([r.label, r.status.value.replace("_", " "), _evidence_summary(r.evidence, case)])
+        rows.append([r.label, "SKIPPED (test run)" if r.skipped else r.status.value.replace("_", " "), _evidence_summary(r.evidence, case)])
     out = [
         pdf.P("Documentation completeness", "h1"),
         pdf.P(f"{c['satisfied']} of {c['applicable']} applicable CDCP requirements satisfied under {assessment.ruleset.id} "
@@ -188,7 +188,7 @@ def render_preview(case: Case, assessment: Assessment, pack: RulePack, narrative
                    sign_off: SignOff | None, out_path) -> None:
     t = case.treatment
     flow = [
-        pdf.P("Packet preview — review and sign-off", "title"),
+        pdf.P("Packet preview — " + ("TEST RUN, chart gaps skipped, not for submission" if assessment.test_run else "review and sign-off"), "title"),
         pdf.P(f"{case.clinic} — reference {assessment.assessment_id} — {t.code} on tooth #{t.tooth.tooth_fdi} — "
               f"{t.provider.name}", "small"),
         pdf.spacer(6),
