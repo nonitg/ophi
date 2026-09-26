@@ -285,7 +285,7 @@ def test_copy_law_parser_sees_past_void_tags_inside_payer_text():
 def test_copy_law_in_ophi_voice(seeded):
     as_dentist(seeded)
     seeded.post("/cases/park/decision", data={"outcome": "approved", "decided_on": "2026-09-16", "reason": ""})
-    pages = ["/", "/cases/singh", "/cases/deng", "/cases/rosco", "/cases/nguyen", "/cases/marchand", "/cases/park", "/cases/okafor",
+    pages = ["/", "/cases/singh", "/cases/deng", "/cases/rosco", "/cases/tremblay", "/cases/nguyen", "/cases/marchand", "/cases/park", "/cases/okafor",
              "/cases/whitfield/packet", "/recover", "/results", "/settings"]
     for actor in ("dentist", "coordinator"):
         seeded.cookies.set("actor", actor)
@@ -293,6 +293,17 @@ def test_copy_law_in_ophi_voice(seeded):
             text = _ophi_voice(seeded.get(path).text)
             hits = [m.group(0) for m in FORBIDDEN.finditer(text)]
             assert not hits, f"{actor} {path}: {hits}"
+
+
+def test_fix_chart_step_shows_denial_risk_and_applies_ophis_fixes(seeded):
+    assert "Risk <b class=\"lvl lvl-high\">High</b>" in seeded.get("/").text
+    page = seeded.get("/cases/deng").text
+    assert "Denial risk" in page and "Replace lab code 99333 with 99113" in page and "Apply it" in page
+    assert "Lowers denial risk the most" in page and "For Dr. Priya Lau" in page  # the plan's ranking and its clinical/timing calls
+    r = seeded.post("/cases/deng/fixes", data={"all": "1"})
+    assert r.status_code == 303 and r.headers["location"].endswith("/cases/deng?done=fixed#now")
+    page = seeded.get("/cases/deng").text
+    assert "Apply it" not in page and "applied by Kim Osei" in page and "Denial risk" in page
 
 
 def test_unknown_case_is_404(client):

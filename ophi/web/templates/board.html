@@ -39,6 +39,7 @@
         {% if act.payer %}<span class="tile-note payer" data-voice="payer">Sun Life {{ act.payer.outcome }} it {{ short_date(act.payer.on) }}</span>
         {% elif act.note %}<span class="tile-note">{{ act.note }}</span>{% endif %}
         {% endif %}
+        {% if c.risk %}<span class="tile-risk">Risk <b class="lvl lvl-{{ c.risk.now }}">{{ RISK_LABEL[c.risk.now] }}</b>{% if c.risk.after %} <span aria-label="after fixes">→</span> <b class="lvl lvl-{{ c.risk.after }}">{{ RISK_LABEL[c.risk.after] }}</b>{% endif %}</span>{% endif %}
         {% if c.timing.text %}<span class="tile-foot">{{ due(c.timing) }}</span>{% endif %}
       </a></li>
       {% else %}

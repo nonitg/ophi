@@ -1,0 +1,218 @@
+{
+ "case_id": "kowalchuk",
+ "scored_on": "2026-09-26",
+ "plans": [
+  {
+   "state": "as_charted",
+   "text_sha256": "b15bc3387f4dee8adef2cacacc77f85dccdf535692c2ba0aca48c443322be935",
+   "plan": {
+    "request_id": "kowalchuk",
+    "as_of": "2026-09-17",
+    "model": {
+     "laya": "laya-cdcp 2026-09-26 data d8f8c71bc46c",
+     "risk": "risk-tree 2026-09-26 581e0edc6f82"
+    },
+    "now": {
+     "level": "high",
+     "score": 0.7978,
+     "because": null
+    },
+    "after_fixes": {
+     "level": "medium",
+     "score": 0.6137,
+     "because": null
+    },
+    "remaining": "Most of what's left: bleeding at the tooth.",
+    "fixes": [
+     {
+      "id": "radiograph_pa",
+      "kind": "task",
+      "who": "moa",
+      "title": "Take a periapical of #46",
+      "why": "The most recent PA of #46 is dated 2023-11-14, 1038 days before submission (673 days past the 12-month bound). CDCP crown criteria (crown-to-root ratio, restoration margin relative to the alveolar crest) are assessed on a periapical.",
+      "requirement_id": "radiograph_pa",
+      "clause": {
+       "source": "matrix",
+       "ref": "Restorative services — PA+BW (R&L) <=12mo: Yes",
+       "quote": null,
+       "also": {
+        "source": "guide",
+        "ref": "6.1.2 Radiograph standards",
+        "quote": "Intraoral radiographs are considered 'current' for preauthorization purposes if dated within the last 12 months of the preauthorization submission.",
+        "also": null
+       }
+      },
+      "patch": {
+       "added_attachments": [
+        {
+         "type": "periapical_radiograph",
+         "count": 1,
+         "captured_date": "2026-09-17"
+        }
+       ]
+      },
+      "risk_drop": 0.1316,
+      "concern": null,
+      "wait": false
+     },
+     {
+      "id": "perio_chart",
+      "kind": "task",
+      "who": "moa",
+      "title": "Record 6-site measurements for #46 to complete the PSR path",
+      "why": "CDCP requires a dated complete periodontal chart within 12 months for crown preauthorizations.",
+      "requirement_id": "perio_chart",
+      "clause": {
+       "source": "matrix",
+       "ref": "Restorative services — Complete perio chart <=12mo: Yes, crowns only (footnote 7)",
+       "quote": "If a complete perio chart is not available, a dated PSR for each sextant plus 6-site periodontal measurements for each tooth requested, within last 12 months, will be considered.",
+       "also": null
+      },
+      "patch": {
+       "added_attachments": [
+        {
+         "type": "periodontal_charting",
+         "count": 1,
+         "captured_date": "2026-09-17"
+        }
+       ],
+       "perio_summary": {
+        "chart_type": "complete",
+        "captured_date": "2026-09-17",
+        "psr": {
+         "S2": 2,
+         "S1": 2,
+         "S3": 2,
+         "S5": 2,
+         "S4": 2,
+         "S6": 2
+        },
+        "tooth_sites_mm": null,
+        "bop_at_tooth": null,
+        "furcation_class": null
+       }
+      },
+      "risk_drop": 0.0,
+      "concern": null,
+      "wait": false
+     },
+     {
+      "id": "narrative",
+      "kind": "draft",
+      "who": "dentist",
+      "title": "Add a narrative for the dentist to approve",
+      "why": "It restates the chart's own entries and the documentation against each CDCP rule; the dentist edits and signs it.",
+      "requirement_id": null,
+      "clause": null,
+      "patch": {
+       "narrative": "Preauthorization documentation narrative\nReference asm_74ec74858b1d5b38 — Fictional Dental Centre — prepared 2026-09-17\n\n1. Proposed treatment\nProcedure 27211 — no PMS description on file.\nTooth #46 (FDI), the lower right first molar.\nProvider: Dr. Lau, licence ON-00000.\nPlanned date: undated. Appointment: undated.\n\n2. Treatment plan status\nCompleted treatment on record:\n- 21224 #46, 2026-09-17\n- 01202, 2026-09-17\nNo other planned treatment on record.\nTreatment plan plan_1 dated 2026-09-17: pending 27211; completed 21224, 01202.\n\n3. Clinical findings recorded in the chart\n“46 large MODB amalgam, recurrent decay at the distal margin, cusp fracture buccal. Plan crown 46. Discussed CDCP coverage; patient consents to predetermination.”\n— clinical note dated 2026-06-10, author not recorded\n\n4. Clinician assessment of CDCP crown criteria\nNo clinician assertions recorded.\n\n5. Supporting documentation\n- Treatment plan details — all relevant completed and pending treatment: treatment plan plan_1, captured 2026-09-17. Rule tx_plan_details; matrix Restorative services — Tx plan: Yes (footnote 1).\n- Dated bitewing radiographs, right and left, within 12 months: bitewing radiograph, right (#14, #15, #16, #17, #44, #45, #46, #47), captured 2026-06-10; bitewing radiograph, left (#24, #25, #26, #27, #34, #35, #36, #37), captured 2026-06-10. Rule radiograph_bw; matrix Restorative services — PA+BW (R&L) <=12mo: Yes.\n\nPrepared with Ophi for review by the treating provider. Documentation completeness assessed against cdcp-preauth-crowns 2026.01.26 (content hash 827a75b05555) on 2026-09-17. The treating dentist is solely responsible for clinical content and the decision to submit.\n"
+      },
+      "risk_drop": 0.0,
+      "concern": null,
+      "wait": false
+     },
+     {
+      "id": "basic_treatment_complete",
+      "kind": "dentist",
+      "who": "dentist",
+      "title": "Dentist to confirm: All basic treatment for active caries and periodontal disease completed",
+      "why": "Laya's reading of the note raises no concern here. The Guide requires basic caries and periodontal treatment to be completed before a crown request.",
+      "requirement_id": "basic_treatment_complete",
+      "clause": {
+       "source": "guide",
+       "ref": "6.3.5 Crowns",
+       "quote": "All basic treatment addressing any existing active biological disease (caries and periodontal) must be completed before submitting requests for crowns.",
+       "also": null
+      },
+      "patch": null,
+      "risk_drop": null,
+      "concern": null,
+      "wait": false
+     },
+     {
+      "id": "extensively_restored",
+      "kind": "dentist",
+      "who": "dentist",
+      "title": "Dentist to confirm: Tooth meets the \"extensively restored\" definition",
+      "why": "Laya's reading of the note raises no concern here. CDCP defines \"extensively restored\" by tooth type; the dentist confirms which definition applies and that it is met.",
+      "requirement_id": "extensively_restored",
+      "clause": {
+       "source": "guide",
+       "ref": "6.3.5 Crowns — extensively restored",
+       "quote": null,
+       "also": null
+      },
+      "patch": null,
+      "risk_drop": null,
+      "concern": null,
+      "wait": false
+     },
+     {
+      "id": "restorability",
+      "kind": "dentist",
+      "who": "dentist",
+      "title": "Dentist to confirm 7 criteria: Restorability criteria confirmed by the treating dentist",
+      "why": "Laya's reading of the note raises no concern here. Four of these are radiographic measurements the dentist makes on the film; CDCP requires each to be met.",
+      "requirement_id": "restorability",
+      "clause": {
+       "source": "guide",
+       "ref": "6.3.5 Crowns — restorability",
+       "quote": null,
+       "also": null
+      },
+      "patch": null,
+      "risk_drop": null,
+      "concern": null,
+      "wait": false
+     }
+    ],
+    "note_answers": {
+     "structure_lost": 0.9961,
+     "extensively_restored": 0.9702,
+     "endo_not_healed": 0.0334,
+     "pending_basic": 0.2327,
+     "subgingival_margin": 0.1597,
+     "uncovered_indication": 0.0132,
+     "poor_support": 0.1042
+    },
+    "drivers": [
+     {
+      "feature": "pa_age_days",
+      "push": 0.5764,
+      "label": "age of the periapical"
+     },
+     {
+      "feature": "verdict",
+      "push": 0.1745,
+      "label": "the rule check's overall result"
+     },
+     {
+      "feature": "req_radiograph_pa",
+      "push": 0.1039,
+      "label": "Dated periapical radiograph of the requested tooth, within 12 months"
+     },
+     {
+      "feature": "laya_subgingival_margin",
+      "push": -0.0439,
+      "label": "what the note says about the margin"
+     },
+     {
+      "feature": "bleeding_at_tooth",
+      "push": -0.0344,
+      "label": "bleeding at the tooth"
+     },
+     {
+      "feature": "perio_complete",
+      "push": 0.0268,
+      "label": "a complete perio chart"
+     },
+     {
+      "feature": "laya_uncovered_indication",
+      "push": -0.0246,
+      "label": "a cracked-tooth, sensitivity or cosmetic reason in the note"
+     }
+    ]
+   }
+  }
+ ]
+}

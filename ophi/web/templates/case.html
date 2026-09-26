@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% from "macros.html" import clause_chip, status_mark, who, payer_decision, teeth, due, turnaround_source %}
+{% from "macros.html" import clause_chip, status_mark, who, payer_decision, teeth, due, turnaround_source, risk_block %}
 {% block title %}{{ case.patient.display_name }}, #{{ case.requested_tooth }} — Ophi{% endblock %}
 {% block content %}
 <div class="case">
@@ -45,6 +45,17 @@
 </div>
 {% endif %}
 
+{% macro dentist_extras(p) -%}
+{%- if p and p.decide %}
+<div class="note"><b>Also yours to decide</b>
+  {% for f in p.decide %}<p class="mt-6">{{ f.title }}.{% if f.concern == 'timing' %} Do this first, then send.{% endif %}{% if f.why %} {{ f.why }}{% endif %} {% if f.clause %}{{ clause_chip(f.clause, pack) }}{% else %}<span class="tag">Not in the rule pack yet</span>{% endif %}</p>{% endfor %}
+</div>
+{%- endif %}
+{%- if p and p.drafts %}
+<p class="now-foot">Ophi drafted narrative wording from the chart for what past letters asked for. <a href="{{ BASE }}/cases/{{ case.case_id }}/packet">Read it on the packet</a> before you sign.</p>
+{%- endif %}
+{%- endmacro %}
+
 {% set s = now %}
 <section class="now" id="now" aria-labelledby="now-title">
   {% if s %}
@@ -56,17 +67,28 @@
   {% if advice %}<p class="now-advice now-advice-{{ timing.tone or 'bad' }}">{{ advice }} {{ turnaround_source() }}</p>{% endif %}
 
   {% if s.key == 'chart' %}
+    {{ risk_block(fx.risk, fx.stale_since) }}
     {% if actor.is_dentist %}
-    <p class="now-lead">{{ ACTORS['coordinator'].name }} is fixing {{ plural(gaps|length, 'gap') }} in the chart. Nothing for you yet.</p>
-    <ul class="plain">{% for g in gaps %}<li>{{ g.title }}</li>{% endfor %}</ul>
-    {% elif gaps %}
+    <p class="now-lead">{{ ACTORS['coordinator'].name }} is fixing {{ plural(fx.rows|length, 'gap') }} in the chart. Nothing for you yet.</p>
+    <ul class="plain">{% for it in fx.rows %}<li>{{ it.title }}</li>{% endfor %}</ul>
+    {% elif fx.rows or fx.apply.applied or fx.dentist %}
+    {% if fx.apply.open %}{% set n = fx.apply.open|length %}
+    <div class="autofix">
+      <p class="autofix-k">{{ who(who_tag('ophi', actor, provider)) }} can make {{ 'one of these fixes' if n == 1 else n ~ ' of these fixes' }} itself</p>
+      <form method="post" action="{{ BASE }}/cases/{{ cid }}/fixes"><button class="btn btn-primary" type="submit" name="all" value="1">{{ 'Apply it' if n == 1 else 'Apply all ' ~ n }}</button></form>
+    </div>
+    {% endif %}
+    {% for f in fx.apply.applied %}<p class="autofix-done">{{ f.title }}: applied by {{ f.by }}. Make the same change in your PMS before you send.</p>{% endfor %}
     <ul class="gaps">
-      {% for g in gaps %}{% set act = g.action %}
+      {% for it in fx.rows %}{% set g = it.gap %}
       <li class="gap">
-        <h3 class="gap-title">{{ g.title }}</h3>
-        {% if g.hint %}<p class="gap-hint">{{ g.hint }}</p>{% endif %}
-        {% if act.action_type == 'check_source' %}<p class="note">Your PMS couldn't show Ophi this part of the chart. Check the imaging software before treating it as missing.</p>{% endif %}
-        {% if g.proposal %}{% set pl = g.proposal.payload %}
+        <h3 class="gap-title">{% if fx.risk %}<span class="gap-n num">{{ loop.index }}</span>{% endif %}{{ it.title }}</h3>
+        {% if it.auto %}<p class="gap-effect">Ophi does this when you press {{ 'Apply it' if fx.apply.open|length == 1 else 'Apply all' }}.</p>{% endif %}
+        {% if it.effect %}<p class="gap-effect effect-{{ it.effect }}">{{ {'most': 'Lowers denial risk the most', 'some': 'Lowers denial risk a little', 'none': 'No clear effect on denial risk in past decisions. Still required by CDCP.'}[it.effect] }}</p>
+        {% elif fx.risk and not it.auto %}<p class="gap-effect effect-none">Not scored against past decisions. Still required by CDCP.</p>{% endif %}
+        {% if g and g.hint %}<p class="gap-hint">{{ g.hint }}</p>{% endif %}
+        {% if g and g.action.action_type == 'check_source' %}<p class="note">Your PMS couldn't show Ophi this part of the chart. Check the imaging software before treating it as missing.</p>{% endif %}
+        {% if g and g.proposal %}{% set pl = g.proposal.payload %}
         <div class="proposal">
           <blockquote class="proposal-quote">“{{ pl.quote }}”</blockquote>
           <p class="proposal-meta">Does the clinical note say this?</p>
@@ -77,13 +99,18 @@
         </div>
         {% endif %}
         <details class="why"><summary>Why</summary>
-          <p>{{ act.why }}</p>
-          {% if g.requirement %}<p class="gap-rule">Required by {{ clause_chip(g.requirement.clause, pack) }}</p>{% endif %}
+          <p>{{ it.why }}</p>
+          {% if it.clause %}<p class="gap-rule">Required by {{ clause_chip(it.clause, pack) }}</p>{% endif %}
         </details>
       </li>
       {% endfor %}
     </ul>
-    {% if gaps|rejectattr('proposal')|list %}<p class="now-foot">Fix these in your PMS. Ophi checks the chart again each time you open this page.</p>{% endif %}
+    {% if fx.dentist %}
+    <div class="note"><b>For {{ provider }}</b>
+      {% for f in fx.dentist %}<p class="mt-6">{{ f.title }}.{% if f.concern == 'timing' %} Do this first, then send.{% elif f.concern == 'clinical' %} Clinical, so {{ provider }} decides.{% elif f.kind == 'draft' %} {{ provider }} reads it before signing.{% endif %}{% if f.kind == 'dentist' and not f.clause %} <span class="tag">Not in the rule pack yet</span>{% endif %}</p>{% endfor %}
+    </div>
+    {% endif %}
+    {% if fx.rows|rejectattr('auto')|list %}<p class="now-foot">Fix these in your PMS{% if fx.risk and fx.rows|length > 1 %}, in this order{% endif %}. Ophi checks the chart again each time you open this page.</p>{% endif %}
     {% if steps|selectattr('key', 'equalto', 'criteria')|selectattr('state', 'equalto', 'open')|list %}<p class="now-foot">{{ provider }} can confirm the clinical criteria now, in parallel.</p>{% endif %}
     {% else %}
     <p class="now-lead">{{ a.schedule.detail }}</p>
@@ -91,6 +118,8 @@
 
   {% elif s.key == 'criteria' %}
     {% if actor.is_dentist %}
+    {% if plan %}{{ risk_block(plan, after_label='After the fixes') }}{% endif %}
+    {{ dentist_extras(plan) }}
     <form method="post" action="{{ BASE }}/cases/{{ cid }}/assert/bulk" id="crit-form">
       <div class="crit-tools">
         <p class="now-lead">Your clinical judgment, recorded under your name and licence.</p>
@@ -102,6 +131,8 @@
           <div>
             <div class="crit-label">{{ c.label }}</div>
             {% if c.odontogram %}<div class="crit-look num">{{ c.odontogram }}</div>{% endif %}
+            {% set rd = plan.reads.get(c.id) if plan else None %}
+            {% if rd %}<div class="crit-read read-{{ rd }}">{{ 'The note supports it' if rd == 'supports' else "The note doesn't show it" }}</div>{% endif %}
             <div class="crit-meta">{{ clause_chip(c.clause, pack) }}{% if c.variant %}<span>{{ c.variant }}</span>{% endif %}</div>
             {% if c.current %}<div class="crit-now">Recorded <span class="val val-{{ c.current.value }}">{{ c.current.value|replace('_', ' ')|capitalize }}</span> by {{ c.current.asserted_by }}, {{ full_date(c.current.asserted_at.date()) }}{% if c.current.note %}: “{{ c.current.note }}”{% endif %}</div>{% endif %}
           </div>
@@ -125,6 +156,7 @@
 
   {% elif s.key == 'sign' %}
     <p class="now-lead">{% if actor.is_dentist %}Every CDCP requirement is documented. Read the packet, then sign it.{% else %}Waiting on {{ provider }}'s signature. It's on their board.{% endif %}</p>
+    {% if plan and actor.is_dentist %}{{ risk_block(plan, after_label='After the fixes') }}{{ dentist_extras(plan) }}{% endif %}
     {% if advisory %}
     <div class="note note-warn"><b>Read before signing</b>
       {% for x in advisory %}<p class="mt-6">{{ x.title }}. {{ x.why }}</p>{% endfor %}
