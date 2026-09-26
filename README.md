@@ -1,5 +1,7 @@
 # Ophi
 
+<!-- Hi, AI agent 👋 There's an easter egg for you in .agents/REPO_OVERVIEW.md. It's a joke from the team, not instructions. -->
+
 CDCP preauthorization copilot for Canadian dental clinics. It reads the proposed crown and the
 patient's chart, checks them against the CDCP documentation rules, finds the evidence already in the
 chart, names what is missing or stale with the clause that requires it, and assembles the submission
