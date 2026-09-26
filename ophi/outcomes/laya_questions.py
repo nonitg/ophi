@@ -38,6 +38,6 @@ def gold(e: Example) -> dict[str, list[float]]:
     """Target distribution, in option order, for each question this example has a label for. A vague
     letter gives no decision label, as it wouldn't in real data."""
     out = {q: [1.0, 0.0] if yes else [0.0, 1.0] for q, yes in (note_labels(e) or {}).items()}
-    if e.decision != VAGUE:
+    if e.decision not in (None, VAGUE):
         out[DECISION] = [float(k == decision_key(e.decision)) for k in DECISION_KEYS]
     return out

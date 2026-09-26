@@ -185,6 +185,8 @@ There is no percentage on screen. It shows *"Now: High · After fixes: Low"* plu
 | Laya pinned download + provenance check (HF revision, signed PyPI wheel) | `make setup-ml`, `scripts/laya-download.sh`, `scripts/laya-provenance.sh` |
 | Training set: what was sent → text and features, resubmissions as their own examples, split by clinic | `ophi/outcomes/training_set.py`, `ophi/outcomes/laya_questions.py` |
 | Fine-tune, score against base checkpoint and base rates, LightGBM with and without Laya | `make laya-train` (`scripts/laya-finetune.py`, `laya-eval.py`, `risk-tree.py`) |
+| Risk scorer: Laya note answers + saved LightGBM → P(denied) and drivers | `ophi/outcomes/risk.py` (`RiskModel`) |
+| What-if fixer: fixes from engine actions and Laya's reading, ranked by risk removed; Now / After fixes | `ophi/outcomes/fixer.py` (`plan_fixes` → `FixPlan`), `make fix-plan ID=… CHECK=--check` |
 
 ## 7. Build plan (about 1 day)
 
@@ -200,8 +202,24 @@ There is no percentage on screen. It shows *"Now: High · After fixes: Low"* plu
    → verify: on `PA-SYN-300010`, the fixes are the lab code swap, the bitewings, and the extensively-restored decision.
 6. **Browser check.** Playwright on demo cases, desktop and phone widths; copy check for banned wording. About 1 h.
 
+### 7.1 Results (2026-09-26, 8 held-out clinics, 142 requests)
+- Note questions, fine-tuned vs untrained vs base-rate guess: every question beats both on accuracy and Brier. For example, extensively restored scores 94% / 62% / 77%.
+- Denial risk AUC: tree on structured fields 0.722; tree + Laya notes 0.769; Laya's decision head 0.773.
+- Reason recovery on vague letters: top-1 33%. Named letters are mostly documentation gaps and vague ones mostly clinical, so a model trained on named letters starts from the wrong mix.
+- Fixer, 254 calibration + test requests: low 14% denied, medium 62%, high 77%.
+- Fixer on real resubmissions: the clinic's actual fix lowers the risk by about 0.12 whether or not Sun Life then approved. The after-fix risk separates the second decisions only weakly (AUC 0.65, 40 cases). It ranks fixes; it doesn't predict their outcome.
+- `PA-SYN-300010` (step 5's check): lab code swap (auto), bitewings (task), "the note doesn't show the tooth is extensively restored" (dentist, clinical). The true reason behind its vague letter is CLIN_NOT_EXT_RESTORED.
+
 ## 8. Limits
 - The data is synthetic, so the models learn the generator. This proves the approach, not Sun Life's behaviour. Real decisions are needed before any clinic relies on it.
 - Labels for the note questions come from `_generator_truth`. With real data they come from the dentist confirmations the app already records.
 - Laya's context is 512 tokens. Long notes need a summary first.
 - Hosted Supabase (ca-central-1) has not been migrated yet.
+
+## 9. Serving
+
+The models run in the Python reasoning core, never in a web front end. PLAN.md already puts a JSON-over-HTTPS contract between the core and the Next.js web tier.
+- **Why not in Next.js.** The fine-tuned Laya is 840 MB (fp16), too large for a serverless function bundle or a browser download. The notes it reads are patient information and stay in the Canadian-hosted core. `site/` is the public waitlist and never sees chart data.
+- **Contract.** The web tier asks the core for a case's `FixPlan` (`ophi/outcomes/fixer.py`, pydantic, JSON as is) and renders levels, never scores. Only `auto` fixes are applied without a person, and each fix cites its pack clause.
+- **Runtime.** Training needs PyTorch and a GPU. Serving doesn't: export the fine-tuned model with `torch.onnx.export`, using the inputs `laya.ONNXAgent` feeds (`input_ids, attention_mask, marker_pos, marker_mask, qtype` → `logits, act_logits`). Run it on CPU with ONNX Runtime; int8 quantization would roughly halve the size and speed CPU inference. LightGBM loads its `model.txt` directly and needs no conversion.
+- **Demo.** The demo app never loads the models. `scripts/laya-demo-predict.py` scores the demo cases offline and commits one plan per case (`cases/demo/laya/`), so it runs without PyTorch.

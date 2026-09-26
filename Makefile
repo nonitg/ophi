@@ -2,7 +2,7 @@
 PY := .venv/bin/python
 PIP := .venv/bin/pip
 
-.PHONY: setup setup-ml laya-train test eval demo demo-real demo-mock assess packet verify reset
+.PHONY: setup setup-ml laya-train fix-plan laya-ask test eval demo demo-real demo-mock assess packet verify reset
 
 setup:            ## create venv, install package + dev deps
 	python3 -m venv .venv
@@ -13,10 +13,16 @@ setup-ml:         ## add CUDA torch, laya, LightGBM and fetch the pinned Laya we
 	uv pip install -q --python $(PY) -e ".[ml]"
 	PATH=.venv/bin:$$PATH scripts/laya-download.sh
 
-laya-train:       ## fine-tune Laya on fixtures/cdcp_crowns, score it on held-out clinics, then the LightGBM comparison
+laya-train:       ## fine-tune Laya on fixtures/cdcp_crowns, score it on held-out clinics, then train and save the LightGBM risk model
 	$(PY) scripts/laya-finetune.py
 	$(PY) scripts/laya-eval.py
-	$(PY) scripts/risk-tree.py --laya var/models/laya-cdcp/predictions.jsonl
+	$(PY) scripts/risk-tree.py --laya var/models/laya-cdcp/predictions.jsonl --save
+
+fix-plan:         ## what to fix before sending, ranked by risk removed: make fix-plan ID=PA-SYN-300010 (add CHECK=--check)
+	$(PY) scripts/fix-plan.py $(or $(ID),PA-SYN-300010) $(CHECK)
+
+laya-ask:         ## interactive: run one request through the rule engine, Laya, LightGBM and the fixer
+	$(PY) scripts/laya-ask.py
 
 test:             ## unit + property tests
 	$(PY) -m pytest

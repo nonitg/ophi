@@ -119,7 +119,8 @@ def _perio(summary: dict | None, tooth: int) -> tuple[list[dict], list[dict]]:
     psr = [{"date": when, "scores": summary["psr"]}] if summary.get("psr") else []
     if summary["chart_type"] != "complete":
         return [], psr
-    return [{"date": when, "sites": 6, "depth": 3, "teeth": {tooth: summary["tooth_sites_mm"]}}], psr
+    sites = summary.get("tooth_sites_mm")  # a chart can be attached before its values are known (a what-if)
+    return [{"date": when, "sites": 6, "depth": 3, **({"teeth": {tooth: sites}} if sites else {})}], psr
 
 
 def _radiographs(view: str, count: int, tooth: int, captured: str | None) -> list[dict]:
