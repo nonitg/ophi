@@ -10,13 +10,14 @@ from pathlib import Path
 from ophi.casegen.dsl import load_case
 from ophi.engine.assess import assess
 from ophi.extract.proposer import propose_for_case
+from ophi.outcomes.weights import load as load_weights
 from ophi.rules.loader import default_pack
 
 
 def cmd_assess(args: argparse.Namespace) -> int:
     case = load_case(Path(args.case))
     case = case.with_artifacts(propose_for_case(case))
-    a = assess(case, default_pack())
+    a = assess(case, default_pack(), load_weights())
     if args.json:
         print(a.model_dump_json(indent=2))
         return 0
@@ -72,6 +73,26 @@ def cmd_serve(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_outcomes(args: argparse.Namespace) -> int:
+    from ophi.outcomes import store, weights
+    from ophi.outcomes.ingest import ingest_dir
+
+    pack = default_pack()
+    with store.connect() as conn:
+        if args.action == "ingest":
+            c = ingest_dir(conn, [Path(d) for d in args.dirs], pack)
+            print(f"ingested {c['submissions']} submissions, {c['assessed']} assessed against {pack.id} {pack.version}")
+            return 0
+        rows = store.denial_lift(conn, pack.version)
+    w = weights.compute(pack.version, rows)
+    path = weights.write(w)
+    print(f"{'requirement':<26} {'missing':>12} {'present':>12}  lift")
+    for r in rows:
+        print(f"{r['requirement_id']:<26} {r['denied_missing']:>4}/{r['n_missing']:<4} denied {r['denied_present']:>4}/{r['n_present']:<4} denied {w.lift[r['requirement_id']]:+.2f}")
+    print(f"weights: {path}  (lift is 0 when either side has fewer than {weights.MIN_N} cases)")
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(prog="ophi")
     sub = p.add_subparsers(dest="cmd", required=True)
@@ -92,6 +113,11 @@ def main(argv: list[str] | None = None) -> int:
     ev.add_argument("--expected", default="evals/expected")
     ev.add_argument("--write", action="store_true", help="(re)write expectations from current output")
     ev.set_defaults(fn=cmd_eval)
+
+    oc = sub.add_parser("outcomes", help="ingest past preauth decisions; derive action tie-break weights")
+    oc.add_argument("action", choices=["ingest", "stats"])
+    oc.add_argument("dirs", nargs="*", default=["fixtures/cdcp_approvals", "fixtures/cdcp_denials", "fixtures/cdcp_crowns"])
+    oc.set_defaults(fn=cmd_outcomes)
 
     sv = sub.add_parser("serve", help="run the web app")
     sv.add_argument("--host", default="127.0.0.1")

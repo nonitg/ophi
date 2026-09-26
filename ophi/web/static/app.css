@@ -552,7 +552,7 @@ mark.q-rejected { background: var(--linen); box-shadow: none; text-decoration: l
 }
 @media (max-width: 700px) {
   .top { gap: 16px; padding: 0 16px; height: 56px; }
-  .nav { gap: 16px; }
+  .nav { gap: 16px; min-width: 0; overflow-x: auto; scrollbar-width: none; }  /* the tabs outgrow a phone: scroll them, not the page */
   .who select { width: 64px; padding: 0 22px 0 0; color: transparent; background-position: right 10px center; }
   .who select option { color: var(--ink); }
   .wrap { padding: 20px 16px 48px; }

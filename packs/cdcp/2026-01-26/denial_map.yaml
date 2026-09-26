@@ -1,0 +1,26 @@
+# Administrator denial reason codes -> the pack requirements whose gap would produce that denial.
+# The SME edits this file. An empty list means "reviewed: no requirement in this pack covers it" and
+# the code is reported as a pack blind spot. A code missing from this file is reported as unmapped.
+# Used only to attribute past denials; it never changes an assessment.
+
+DOC_MISSING_RADIOGRAPH: [radiograph_pa, radiograph_bw]
+DOC_MISSING_PERIO_CHART: [perio_chart]
+DOC_INSUFFICIENT_NOTES: [tx_plan_details, extensively_restored]
+FREQ_LIMIT: [frequency_tooth, frequency_client]
+ELIGIBILITY: [client_age, tooth_eligibility]
+CLIN_POOR_PROGNOSIS: [restorability]
+CLIN_NEED_NOT_MET: [extensively_restored]
+CLIN_ALT_BENEFIT: []
+NOT_COVERED: []
+DUPLICATE_REQUEST: []
+# Reason codes seen on schema-2 exports (fixtures/cdcp_crowns). UNSPECIFIED is Sun Life's vague letter:
+# nothing to attribute, so it stays unmapped and the report shows it as such.
+DOC_RADIOGRAPH_STALE: [radiograph_pa, radiograph_bw]
+CLIN_ACTIVE_DISEASE: [basic_treatment_complete]
+CLIN_NOT_EXT_RESTORED: [extensively_restored]
+CLIN_ENDO_NOT_HEALED: [endo_healed]
+CLIN_PERIO_PROGNOSIS: [restorability, perio_chart]
+CLIN_FERRULE: [restorability]
+CLIN_NOT_COVERED_INDICATION: []
+TOOTH_INELIGIBLE: [tooth_eligibility]
+ADMIN_INVALID_CODE: [lab_codes_current]

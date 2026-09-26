@@ -25,6 +25,7 @@ from ophi.engine.models import Assessment, Verdict
 from ophi.extract.proposer import propose_for_case
 from ophi.packet.documents import narrative_ascii
 from ophi.packet.narrative import validate_narrative
+from ophi.outcomes.weights import Weights
 from ophi.rules.loader import default_pack
 from ophi.rules.schema import RulePack
 
@@ -156,10 +157,12 @@ class CaseService:
         store: Store | None = None,
         pack: RulePack | None = None,
         repository=None,
+        weights: Weights | None = None,
     ) -> None:
         self.cases_dir = cases_dir
         self.store = store or Store()
         self.pack = pack or default_pack()
+        self.weights = weights
         # Optional PMS repository abstraction; toggle-aware default.
         if repository is not None:
             self.repository = repository
@@ -189,7 +192,7 @@ class CaseService:
         proposals = [self._apply_confirmation(p, st) for p in propose_for_case(base)]
         user_assertions = [self._assertion_artifact(base, cid, a) for cid, a in st.assertions.items()]
         case = base.with_artifacts(proposals + user_assertions)
-        a = assess(case, self.pack)
+        a = assess(case, self.pack, self.weights)
         return CaseView(case=case, base_case=base, proposals=proposals, state=st, assessment=a,
                         minutes_estimate=self.minutes_estimate(case, a))
 

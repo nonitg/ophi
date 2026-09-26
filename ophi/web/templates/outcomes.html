@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}Past outcomes — Ophi{% endblock %}
+{% block content %}
+<header class="head">
+  <div>
+    <h1 class="title">Past outcomes <span class="ctx">what denied requests show the rule pack does not cover</span></h1>
+    {% if report %}<p class="lede">Rule pack <span class="num">{{ report.pack_version }}</span>. For the rules editor: each row is a pattern to review, not a finding about any one patient.</p>{% endif %}
+  </div>
+</header>
+
+{% if not report %}
+<div class="note">{{ unavailable }}</div>
+{% else %}
+<div class="lb-grid">
+  <section class="card" aria-labelledby="spots-h">
+    <div class="card-body">
+      <h2 class="side-title" id="spots-h">Denials the pack cannot explain</h2>
+      <ul class="bars">
+        {% for s in report.blind_spots %}
+        <li><div class="bar-top"><span><span class="mono">{{ s.reason_code or 'no reason code' }}</span> <span class="muted">{{ s.label }}</span></span><b>{{ s.count }}</b></div></li>
+        {% else %}
+        <li class="muted">Every past denial maps to a requirement the engine found missing.</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </section>
+
+  <section class="card" aria-labelledby="att-h">
+    <div class="card-body">
+      <h2 class="side-title" id="att-h">Documents sent that no rule checks <span class="ctx">on those denials</span></h2>
+      <ul class="bars">
+        {% for name, n in report.unmodelled_attachments %}
+        <li><div class="bar-top"><span class="mono">{{ name }}</span><b>{{ n }}</b></div></li>
+        {% else %}
+        <li class="muted">None.</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </section>
+</div>
+
+<section class="card" aria-labelledby="lift-h">
+  <div class="card-head"><h2 class="card-title" id="lift-h">Denials by requirement <span class="ctx">as the engine read each request on its submission date</span></h2></div>
+  <div class="tbl-wrap">
+  <table class="tbl">
+    <thead><tr><th>Requirement</th><th class="r">Denied when missing</th><th class="r">Denied otherwise</th></tr></thead>
+    <tbody>
+    {% for r in report.lift %}
+    <tr><td class="mono">{{ r.requirement_id }}</td>
+      <td class="mono r">{{ r.denied_missing }} of {{ r.n_missing }}</td>
+      <td class="mono r">{{ r.denied_present }} of {{ r.n_present }}</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  </div>
+</section>
+<p class="foot">Counts only order actions the rules already rank equal, and only once both sides have at least 10 requests. They never change a requirement or a verdict.</p>
+{% endif %}
+{% endblock %}

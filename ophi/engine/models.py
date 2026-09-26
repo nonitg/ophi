@@ -160,6 +160,7 @@ class RulesetRef(BaseModel):
     version: str
     content_hash: str
     effective_from: date
+    weights_hash: str | None = None  # outcome weights used to order equal-ranked actions, if any
 
 
 class Assessment(BaseModel):

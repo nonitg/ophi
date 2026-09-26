@@ -15,6 +15,7 @@
   <nav class="nav" aria-label="Screens">
     <a href="{{ HOME }}" {% if here == '/' or here.startswith('/cases') %}class="on" aria-current="page"{% endif %}>Queue</a>
     <a href="{{ BASE }}/look-back" {% if here == '/look-back' %}class="on" aria-current="page"{% endif %}>Look-back</a>
+    <a href="{{ BASE }}/outcomes" {% if here == '/outcomes' %}class="on" aria-current="page"{% endif %}>Past outcomes</a>
     <a href="{{ BASE }}/settings" {% if here.startswith('/settings') %}class="on" aria-current="page"{% endif %}>Settings</a>
   </nav>
   <form class="who" method="post" action="{{ BASE }}/actor">

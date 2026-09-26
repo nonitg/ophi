@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 import time
 from datetime import UTC, datetime
+from typing import TYPE_CHECKING
 
 from ophi.cdm.models import Case
 from ophi.engine.evaluate import evaluate_requirement
@@ -12,6 +13,9 @@ from ophi.engine.models import (
     SEVERITY, Action, Assessment, Deadline, RequirementResult, RulesetRef, ScheduleResult, Status, Verdict, Workload,
 )
 from ophi.rules.schema import EFFORT_ORDER, Requirement, RulePack
+
+if TYPE_CHECKING:
+    from ophi.outcomes.weights import Weights
 
 ENGINE_VERSION = "0.1.0"
 
@@ -22,7 +26,7 @@ NOTES = [
 ]
 
 
-def assess(case: Case, pack: RulePack) -> Assessment:
+def assess(case: Case, pack: RulePack, weights: Weights | None = None) -> Assessment:
     t0 = time.perf_counter()
     sched = check_schedule(case, pack)
     if sched.disposition in ("not_required", "excluded"):
@@ -32,7 +36,9 @@ def assess(case: Case, pack: RulePack) -> Assessment:
     else:
         results = [evaluate_requirement(r, case, pack) for r in pack.requirements]
     verdict = decide(sched, results)
-    actions = rank_actions(results, pack, sched, case)
+    if weights and weights.pack_version != pack.version:
+        weights = None  # lift measured against another pack's requirements says nothing about this one
+    actions = rank_actions(results, pack, sched, case, weights.lift if weights else {})
     deadlines = sorted(
         (Deadline(artifact_id=e.artifact_id, label=e.label, expires_on=e.expires_on, requirement_id=r.requirement_id)
          for r in results if r.status in (Status.SATISFIED, Status.AT_RISK) for e in r.evidence if e.expires_on),
@@ -41,11 +47,13 @@ def assess(case: Case, pack: RulePack) -> Assessment:
     satisfied = [r for r in applicable if r.status == Status.SATISFIED]
     elapsed = int((time.perf_counter() - t0) * 1000)
 
-    digest = hashlib.sha256((case.model_dump_json() + (pack.content_hash or "")).encode()).hexdigest()[:16]
+    weights_hash = weights.content_hash if weights else None
+    digest = hashlib.sha256((case.model_dump_json() + (pack.content_hash or "") + (weights_hash or "")).encode()).hexdigest()[:16]
     return Assessment(
         assessment_id=f"asm_{digest}",
         case_id=case.case_id,
-        ruleset=RulesetRef(id=pack.id, version=pack.version, content_hash=pack.content_hash or "", effective_from=pack.effective_from),
+        ruleset=RulesetRef(id=pack.id, version=pack.version, content_hash=pack.content_hash or "", effective_from=pack.effective_from,
+                           weights_hash=weights_hash),
         assessed_at=datetime.now(UTC),
         submission_date_assumed=case.as_of,
         engine_version=ENGINE_VERSION,
@@ -97,12 +105,14 @@ def decide(sched: ScheduleResult, results: list[RequirementResult]) -> Verdict:
     return Verdict.READY_TO_SUBMIT
 
 
-def rank_actions(results: list[RequirementResult], pack: RulePack, sched: ScheduleResult, case: Case) -> list[Action]:
+def rank_actions(results: list[RequirementResult], pack: RulePack, sched: ScheduleResult, case: Case,
+                 lift: dict[str, float] | None = None) -> list[Action]:
     """Deterministic order: blocking first; within blocking, evidence that is actually missing or stale
     (unsatisfied) before things a human only has to confirm (indeterminate / pending); then the action
-    that unblocks most; then cheapest effort; then requirement id as the final tiebreak so identical
-    runs never reorder."""
-    raw: list[tuple[int, int, int, int, str, Action]] = []
+    that unblocks most; then cheapest effort; then the gap most associated with past denials (`lift`);
+    then requirement id as the final tiebreak so identical runs never reorder."""
+    lift = lift or {}
+    raw: list[tuple[int, int, int, int, float, str, Action]] = []
     if sched.disposition == "not_required":
         return []  # the crown requirements are informational only
     if sched.disposition == "excluded":
@@ -111,18 +121,19 @@ def rank_actions(results: list[RequirementResult], pack: RulePack, sched: Schedu
     if sched.disposition == "not_in_schedule_b":
         a = Action(rank=0, blocking=True, effort="confirm_in_app", action_type="confirm_code",
                    title="Confirm the procedure code against the CDCP grid", why=sched.detail, unblocks=["schedule"])
-        raw.append((0, 0, -1, EFFORT_ORDER["confirm_in_app"], "0_schedule", a))
+        raw.append((0, 0, -1, EFFORT_ORDER["confirm_in_app"], 0.0, "0_schedule", a))
     for r in results:
         if not r.applicable or r.status == Status.SATISFIED:
             continue
         req = pack.requirement(r.requirement_id)
         a = _action_for(r, req, case)
-        raw.append((0 if a.blocking else 1, -SEVERITY[r.status], -len(a.unblocks), EFFORT_ORDER.get(a.effort, 99), r.requirement_id, a))
-    raw.sort(key=lambda t: t[:5])
+        raw.append((0 if a.blocking else 1, -SEVERITY[r.status], -len(a.unblocks), EFFORT_ORDER.get(a.effort, 99),
+                    -lift.get(r.requirement_id, 0.0), r.requirement_id, a))
+    raw.sort(key=lambda t: t[:6])
     out = []
     for i, t in enumerate(raw, start=1):
-        t[5].rank = i
-        out.append(t[5])
+        t[6].rank = i
+        out.append(t[6])
     return out
 
 

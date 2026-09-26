@@ -27,6 +27,7 @@ from ophi.packet.documents import narrative_ascii
 from ophi.packet.narrative import draft_narrative
 from ophi.verify.verifier import verify_packet
 from ophi.engine.models import Status
+from ophi.outcomes.weights import load as load_weights
 from ophi.service import CaseService, CaseView, NarrativeInvalid, identity_tokens
 from ophi.web import abeldent_api, present
 from ophi.web.present import ACTORS, DEFAULT_ACTOR, READY_VERDICTS, Actor
@@ -310,6 +311,16 @@ def look_back(request: Request):
                    months=present.lookback_months(report), gaps=present.lookback_gaps(report))
 
 
+@router.get("/outcomes", response_class=HTMLResponse)
+def outcomes(request: Request):
+    from ophi.outcomes.report import build
+    try:
+        report = build(_svc(request).pack)
+    except Exception as e:  # no outcomes database configured must not take the demo down
+        return _render(request, "outcomes.html", report=None, unavailable=f"Past outcomes are unavailable: {e}")
+    return _render(request, "outcomes.html", report=report, unavailable=None)
+
+
 # --- screen 5: settings & audit -----------------------------------------------------------------------
 
 
@@ -366,7 +377,7 @@ def create_app(svc: CaseService | None = None, packets_dir: Path | None = None, 
     """`base_path` serves every screen under a prefix, for the demo proxied at ophi.app/<slug>."""
     base = (os.environ.get("OPHI_BASE_PATH", "") if base_path is None else base_path).rstrip("/")
     app = FastAPI(title="Ophi", docs_url=None, redoc_url=None)
-    app.state.svc = svc or CaseService()
+    app.state.svc = svc or CaseService(weights=load_weights())
     app.state.packets_dir = packets_dir or (app.state.svc.store.root / "packets")
     app.state.base_path = base
     app.mount(f"{base}/static", StaticFiles(directory=str(HERE / "static")), name="static")
