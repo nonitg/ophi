@@ -250,12 +250,6 @@ def plan_for(view: CaseView, readout: Readout | None) -> dict | None:
     return readout.matching(view.case) if readout else None
 
 
-def risk_levels(plan: dict | None) -> dict | None:
-    """The board card's chip: denial risk now and after the fixes."""
-    if not plan:
-        return None
-    after = plan.get("after_fixes")
-    return {"now": plan["now"]["level"], "after": after["level"] if after else None}
 
 
 def safe_fixes(view: CaseView, pack: RulePack) -> dict:
@@ -306,6 +300,17 @@ def fix_panel(view: CaseView, readout: Readout | None, pack: RulePack, gaps: lis
             out["rows"].append(_item(view, pack, g, f, None if d is None else "none" if d < EFFECT_FLOOR else "most" if d == top else "some"))
     out["rows"] += [_item(view, pack, g, None, None) for g in gaps if id(g) not in shown]  # engine gaps the plan didn't score
     return out
+
+
+def board_risk(view: CaseView, readout: Readout | None, pack: RulePack) -> dict | None:
+    """The plan as a Fix chart card shows it: denial risk now and after the fixes, and staff's first fix in the
+    plan's order with how many follow."""
+    fx = fix_panel(view, readout, pack, gap_rows(view))
+    if not fx["risk"]:
+        return None
+    rows, after = fx["rows"], fx["risk"]["after"]
+    return {"now": fx["risk"]["now"]["level"], "after": after["level"] if after else None,
+            "next": rows[0]["title"] if rows else None, "more": max(len(rows) - 1, 0)}
 
 
 def _item(view: CaseView, pack: RulePack, gap: dict | None, fix: dict | None, effect: str | None) -> dict:
@@ -471,6 +476,8 @@ def card(view: CaseView, actor: Actor, today: date, risk: dict | None = None) ->
     due = t.get("send_by") or view.state.submitted_on or t["appt"] or date.max
     urgency = 3 if view.test_run else (1 if view.stage == Stage.SUN_LIFE else 0) if t["late"] else 2
     mine, act = _is_mine(view, t, actor), card_action(view, actor, today)
+    if risk and risk["next"] and view.stage == Stage.PREPARE and not (actor.is_dentist and _can_confirm_early(view)):
+        act.update(title=risk["next"], more=risk["more"])  # the plan's first fix, not the engine's
     if not mine and view.stage != Stage.DONE:
         act["waiting"] = who_label(OWNER[view.stage], actor, view.case.treatment.provider.name)
     return {"view": view, "case": view.case, "stage": view.stage, "timing": t, "action": act,
@@ -484,8 +491,8 @@ def _mine_first(cards: list[dict]) -> list[dict]:
 
 def board(views: list[CaseView], actor: Actor, today: date, risks: dict[str, dict] | None = None) -> dict:
     """Every preauthorization as a card in the column for the step it is on. Cards the viewer acts on are
-    marked `mine`; the most urgent of them is `start`, the one thing to do first. `risks` is Laya's level per
-    case id, for the cards still at Fix chart."""
+    marked `mine`; the most urgent of them is `start`, the one thing to do first. `risks` is the fix plan per case
+    id (`board_risk`), for the cards still at Fix chart."""
     cards = [card(v, actor, today, (risks or {}).get(v.case.case_id)) for v in views if v.stage != Stage.NOT_NEEDED]
     provider = views[0].case.treatment.provider.name if views else "the dentist"
     columns = []

@@ -296,7 +296,9 @@ def test_copy_law_in_ophi_voice(seeded):
 
 
 def test_fix_chart_step_shows_denial_risk_and_applies_ophis_fixes(seeded):
-    assert "Risk <b class=\"lvl lvl-high\">High</b>" in seeded.get("/").text
+    board = seeded.get("/").text
+    assert "Risk <b class=\"lvl lvl-high\">High</b>" in board
+    assert "Take a periapical of #46" in board  # Kowalchuk's card leads with the plan's first fix, not the engine's
     page = seeded.get("/cases/deng").text
     assert "Denial risk" in page and "Replace lab code 99333 with 99113" in page and "Apply it" in page
     assert "Lowers denial risk the most" in page and "Do this first, then send." in page  # the plan's ranking and timing

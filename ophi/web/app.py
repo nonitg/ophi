@@ -195,7 +195,7 @@ def worklist(request: Request):
     svc = _svc(request)
     views = svc.queue()
     risks = {v.case.case_id: r for v in views if v.stage == workflow.Stage.PREPARE
-             and (r := present.risk_levels(present.plan_for(v, readout.load(v.case.case_id))))}
+             and (r := present.board_risk(v, readout.load(v.case.case_id), svc.pack))}
     return _render(request, "board.html", b=present.board(views, _actor(request), svc.today(), risks))
 
 
