@@ -1,0 +1,63 @@
+{
+  "_synthetic": true,
+  "preauth_id": "PA-SYN-100051",
+  "program": "CDCP",
+  "administrator": "Sun Life (CDCP administrator)",
+  "submission_channel": "provider_portal",
+  "submitted_date": "2025-07-25",
+  "decision_date": "2025-08-07",
+  "member": {
+    "member_id": "SYN-M-49613214",
+    "age_band": "87+",
+    "province": "MB",
+    "income_band": "<70k",
+    "copay_pct": 0
+  },
+  "provider": {
+    "provider_id": "SYN-P-6549",
+    "specialty": "general_dentist",
+    "province": "MB",
+    "cdcp_participating": true
+  },
+  "services": [
+    {
+      "procedure_code": "33131",
+      "description": "Root canal, three canals",
+      "category": "endodontics",
+      "tooth": "46",
+      "fee_submitted": 1320.0,
+      "fee_grid_amount": 1061.68
+    }
+  ],
+  "attachments": [
+    {
+      "type": "pulp_vitality_test",
+      "count": 1
+    }
+  ],
+  "clinical_notes": "Pt wants crown.",
+  "prior_history": {
+    "same_code_last_5y": false,
+    "previous_preauth_ids": []
+  },
+  "decision": {
+    "status": "denied",
+    "reason_code": "DOC_MISSING_RADIOGRAPH",
+    "reason_category": "incomplete_submission",
+    "explanation_of_benefits_text": "Required radiograph(s) not submitted or not diagnostic.",
+    "missing_documents": [
+      "periapical_radiograph",
+      "clinical_notes"
+    ],
+    "reviewer_type": "dental_consultant"
+  },
+  "followup": {
+    "type": "resubmission",
+    "submitted_date": "2025-08-28",
+    "added_documents": [
+      "periapical_radiograph",
+      "clinical_notes"
+    ],
+    "outcome": "denied"
+  }
+}

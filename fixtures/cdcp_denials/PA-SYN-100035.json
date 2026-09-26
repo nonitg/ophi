@@ -1,0 +1,56 @@
+{
+  "_synthetic": true,
+  "preauth_id": "PA-SYN-100035",
+  "program": "CDCP",
+  "administrator": "Sun Life (CDCP administrator)",
+  "submission_channel": "cdanet_eclaim",
+  "submitted_date": "2026-05-06",
+  "decision_date": "2026-06-08",
+  "member": {
+    "member_id": "SYN-M-87446468",
+    "age_band": "87+",
+    "province": "NB",
+    "income_band": "70k-80k",
+    "copay_pct": 40
+  },
+  "provider": {
+    "provider_id": "SYN-P-1878",
+    "specialty": "general_dentist",
+    "province": "NB",
+    "cdcp_participating": true
+  },
+  "services": [
+    {
+      "procedure_code": "92441",
+      "description": "Parenteral conscious sedation (IV)",
+      "category": "sedation",
+      "tooth": null,
+      "fee_submitted": 610.0,
+      "fee_grid_amount": 455.58
+    }
+  ],
+  "attachments": [
+    {
+      "type": "clinical_notes",
+      "count": 1
+    },
+    {
+      "type": "sedation_justification",
+      "count": 1
+    }
+  ],
+  "clinical_notes": "Generalized 5-7mm pockets with BOP, subgingival calculus noted on BW.",
+  "prior_history": {
+    "same_code_last_5y": true,
+    "previous_preauth_ids": []
+  },
+  "decision": {
+    "status": "denied",
+    "reason_code": "CLIN_NEED_NOT_MET",
+    "reason_category": "clinical_necessity",
+    "explanation_of_benefits_text": "Documentation does not meet CDCP criteria for clinical necessity.",
+    "missing_documents": [],
+    "reviewer_type": "automated"
+  },
+  "followup": null
+}

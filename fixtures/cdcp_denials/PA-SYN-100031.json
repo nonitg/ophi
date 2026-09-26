@@ -1,0 +1,52 @@
+{
+  "_synthetic": true,
+  "preauth_id": "PA-SYN-100031",
+  "program": "CDCP",
+  "administrator": "Sun Life (CDCP administrator)",
+  "submission_channel": "provider_portal",
+  "submitted_date": "2025-10-02",
+  "decision_date": "2025-10-27",
+  "member": {
+    "member_id": "SYN-M-13852048",
+    "age_band": "70-74",
+    "province": "SK",
+    "income_band": "80k-90k",
+    "copay_pct": 60
+  },
+  "provider": {
+    "provider_id": "SYN-P-6325",
+    "specialty": "general_dentist",
+    "province": "SK",
+    "cdcp_participating": true
+  },
+  "services": [
+    {
+      "procedure_code": "11117",
+      "description": "Scaling, additional units beyond frequency limit",
+      "category": "periodontics",
+      "tooth": null,
+      "fee_submitted": 320.0,
+      "fee_grid_amount": 258.48
+    }
+  ],
+  "attachments": [
+    {
+      "type": "bitewing_radiographs",
+      "count": 1
+    }
+  ],
+  "clinical_notes": "Symptomatic irreversible pulpitis, cold test lingering >30s, percussion positive.",
+  "prior_history": {
+    "same_code_last_5y": false,
+    "previous_preauth_ids": []
+  },
+  "decision": {
+    "status": "denied",
+    "reason_code": "CLIN_ALT_BENEFIT",
+    "reason_category": "clinical_necessity",
+    "explanation_of_benefits_text": "A less costly alternative (e.g. large restoration) would restore function.",
+    "missing_documents": [],
+    "reviewer_type": "dental_consultant"
+  },
+  "followup": null
+}

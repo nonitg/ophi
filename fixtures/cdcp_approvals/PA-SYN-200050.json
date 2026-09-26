@@ -1,0 +1,62 @@
+{
+  "_synthetic": true,
+  "preauth_id": "PA-SYN-200050",
+  "program": "CDCP",
+  "administrator": "Sun Life (CDCP administrator)",
+  "submission_channel": "cdanet_eclaim",
+  "submitted_date": "2025-07-26",
+  "decision_date": "2025-08-24",
+  "member": {
+    "member_id": "SYN-M-92634772",
+    "age_band": "87+",
+    "province": "MB",
+    "income_band": "80k-90k",
+    "copay_pct": 60
+  },
+  "provider": {
+    "provider_id": "SYN-P-4920",
+    "specialty": "general_dentist",
+    "province": "MB",
+    "cdcp_participating": true
+  },
+  "services": [
+    {
+      "procedure_code": "33141",
+      "description": "Root canal, four or more canals",
+      "category": "endodontics",
+      "tooth": "15",
+      "fee_submitted": 1480.0,
+      "fee_grid_amount": 1079.12
+    }
+  ],
+  "attachments": [
+    {
+      "type": "periapical_radiograph",
+      "count": 1
+    },
+    {
+      "type": "clinical_notes",
+      "count": 1
+    },
+    {
+      "type": "pulp_vitality_test",
+      "count": 1
+    }
+  ],
+  "clinical_notes": "Generalized 5-7mm pockets with BOP, subgingival calculus noted on BW.",
+  "prior_history": {
+    "same_code_last_5y": false,
+    "previous_preauth_ids": []
+  },
+  "decision": {
+    "status": "approved",
+    "reason_code": null,
+    "reason_category": null,
+    "explanation_of_benefits_text": "Service approved as submitted; payable at CDCP fee grid less applicable co-pay.",
+    "missing_documents": [],
+    "reviewer_type": "automated",
+    "approved_amount": 431.65,
+    "approval_valid_until": "2026-08-24"
+  },
+  "followup": null
+}

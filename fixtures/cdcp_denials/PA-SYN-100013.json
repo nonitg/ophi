@@ -1,0 +1,58 @@
+{
+  "_synthetic": true,
+  "preauth_id": "PA-SYN-100013",
+  "program": "CDCP",
+  "administrator": "Sun Life (CDCP administrator)",
+  "submission_channel": "cdanet_eclaim",
+  "submitted_date": "2026-02-18",
+  "decision_date": "2026-03-02",
+  "member": {
+    "member_id": "SYN-M-99889098",
+    "age_band": "87+",
+    "province": "NS",
+    "income_band": "80k-90k",
+    "copay_pct": 60
+  },
+  "provider": {
+    "provider_id": "SYN-P-6147",
+    "specialty": "general_dentist",
+    "province": "NS",
+    "cdcp_participating": true
+  },
+  "services": [
+    {
+      "procedure_code": "33141",
+      "description": "Root canal, four or more canals",
+      "category": "endodontics",
+      "tooth": "22",
+      "fee_submitted": 1480.0,
+      "fee_grid_amount": 1136.36
+    }
+  ],
+  "attachments": [
+    {
+      "type": "clinical_notes",
+      "count": 1
+    },
+    {
+      "type": "pulp_vitality_test",
+      "count": 1
+    }
+  ],
+  "clinical_notes": "Tooth sore.",
+  "prior_history": {
+    "same_code_last_5y": false,
+    "previous_preauth_ids": []
+  },
+  "decision": {
+    "status": "denied",
+    "reason_code": "DOC_MISSING_RADIOGRAPH",
+    "reason_category": "incomplete_submission",
+    "explanation_of_benefits_text": "Required radiograph(s) not submitted or not diagnostic.",
+    "missing_documents": [
+      "periapical_radiograph"
+    ],
+    "reviewer_type": "dental_consultant"
+  },
+  "followup": null
+}

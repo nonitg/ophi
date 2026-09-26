@@ -1,0 +1,62 @@
+{
+  "_synthetic": true,
+  "preauth_id": "PA-SYN-200039",
+  "program": "CDCP",
+  "administrator": "Sun Life (CDCP administrator)",
+  "submission_channel": "cdanet_eclaim",
+  "submitted_date": "2025-04-10",
+  "decision_date": "2025-04-14",
+  "member": {
+    "member_id": "SYN-M-53947691",
+    "age_band": "75-86",
+    "province": "SK",
+    "income_band": "80k-90k",
+    "copay_pct": 60
+  },
+  "provider": {
+    "provider_id": "SYN-P-6123",
+    "specialty": "general_dentist",
+    "province": "SK",
+    "cdcp_participating": true
+  },
+  "services": [
+    {
+      "procedure_code": "33131",
+      "description": "Root canal, three canals",
+      "category": "endodontics",
+      "tooth": "21",
+      "fee_submitted": 1320.0,
+      "fee_grid_amount": 1131.72
+    }
+  ],
+  "attachments": [
+    {
+      "type": "periapical_radiograph",
+      "count": 1
+    },
+    {
+      "type": "clinical_notes",
+      "count": 1
+    },
+    {
+      "type": "pulp_vitality_test",
+      "count": 1
+    }
+  ],
+  "clinical_notes": "Symptomatic irreversible pulpitis, cold test lingering >30s, percussion positive.",
+  "prior_history": {
+    "same_code_last_5y": false,
+    "previous_preauth_ids": []
+  },
+  "decision": {
+    "status": "approved",
+    "reason_code": null,
+    "reason_category": null,
+    "explanation_of_benefits_text": "Service approved as submitted; payable at CDCP fee grid less applicable co-pay.",
+    "missing_documents": [],
+    "reviewer_type": "dental_consultant",
+    "approved_amount": 452.69,
+    "approval_valid_until": "2026-04-14"
+  },
+  "followup": null
+}

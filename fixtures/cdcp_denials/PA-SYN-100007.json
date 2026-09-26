@@ -1,0 +1,58 @@
+{
+  "_synthetic": true,
+  "preauth_id": "PA-SYN-100007",
+  "program": "CDCP",
+  "administrator": "Sun Life (CDCP administrator)",
+  "submission_channel": "provider_portal",
+  "submitted_date": "2026-01-18",
+  "decision_date": "2026-02-02",
+  "member": {
+    "member_id": "SYN-M-42138745",
+    "age_band": "0-17",
+    "province": "BC",
+    "income_band": "<70k",
+    "copay_pct": 0
+  },
+  "provider": {
+    "provider_id": "SYN-P-4946",
+    "specialty": "periodontist",
+    "province": "BC",
+    "cdcp_participating": true
+  },
+  "services": [
+    {
+      "procedure_code": "33131",
+      "description": "Root canal, three canals",
+      "category": "endodontics",
+      "tooth": "25",
+      "fee_submitted": 1320.0,
+      "fee_grid_amount": 1175.4
+    }
+  ],
+  "attachments": [
+    {
+      "type": "periapical_radiograph",
+      "count": 1
+    },
+    {
+      "type": "pulp_vitality_test",
+      "count": 1
+    }
+  ],
+  "clinical_notes": "Pt wants crown.",
+  "prior_history": {
+    "same_code_last_5y": false,
+    "previous_preauth_ids": []
+  },
+  "decision": {
+    "status": "denied",
+    "reason_code": "DOC_INSUFFICIENT_NOTES",
+    "reason_category": "incomplete_submission",
+    "explanation_of_benefits_text": "Clinical notes do not describe condition supporting the proposed service.",
+    "missing_documents": [
+      "clinical_notes"
+    ],
+    "reviewer_type": "automated"
+  },
+  "followup": null
+}

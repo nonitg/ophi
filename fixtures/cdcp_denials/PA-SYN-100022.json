@@ -1,0 +1,51 @@
+{
+  "_synthetic": true,
+  "preauth_id": "PA-SYN-100022",
+  "program": "CDCP",
+  "administrator": "Sun Life (CDCP administrator)",
+  "submission_channel": "cdanet_eclaim",
+  "submitted_date": "2025-12-10",
+  "decision_date": "2025-12-20",
+  "member": {
+    "member_id": "SYN-M-73771720",
+    "age_band": "75-86",
+    "province": "ON",
+    "income_band": "<70k",
+    "copay_pct": 0
+  },
+  "provider": {
+    "provider_id": "SYN-P-2193",
+    "specialty": "endodontist",
+    "province": "ON",
+    "cdcp_participating": true
+  },
+  "services": [
+    {
+      "procedure_code": "92221",
+      "description": "General anesthesia",
+      "category": "sedation",
+      "tooth": null,
+      "fee_submitted": 780.0,
+      "fee_grid_amount": 619.79
+    }
+  ],
+  "attachments": [],
+  "clinical_notes": "Tooth sore.",
+  "prior_history": {
+    "same_code_last_5y": false,
+    "previous_preauth_ids": []
+  },
+  "decision": {
+    "status": "denied",
+    "reason_code": "DOC_INSUFFICIENT_NOTES",
+    "reason_category": "incomplete_submission",
+    "explanation_of_benefits_text": "Clinical notes do not describe condition supporting the proposed service.",
+    "missing_documents": [
+      "clinical_notes",
+      "medical_history",
+      "sedation_justification"
+    ],
+    "reviewer_type": "dental_consultant"
+  },
+  "followup": null
+}

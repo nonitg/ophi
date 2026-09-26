@@ -1,0 +1,66 @@
+{
+  "_synthetic": true,
+  "preauth_id": "PA-SYN-200007",
+  "program": "CDCP",
+  "administrator": "Sun Life (CDCP administrator)",
+  "submission_channel": "cdanet_eclaim",
+  "submitted_date": "2025-06-25",
+  "decision_date": "2025-07-23",
+  "member": {
+    "member_id": "SYN-M-68614462",
+    "age_band": "0-17",
+    "province": "NS",
+    "income_band": "80k-90k",
+    "copay_pct": 60
+  },
+  "provider": {
+    "provider_id": "SYN-P-4986",
+    "specialty": "endodontist",
+    "province": "NS",
+    "cdcp_participating": true
+  },
+  "services": [
+    {
+      "procedure_code": "52201",
+      "description": "Partial denture, mandibular, cast metal, initial",
+      "category": "prosthodontics",
+      "tooth": null,
+      "fee_submitted": 1890.0,
+      "fee_grid_amount": 1561.13
+    }
+  ],
+  "attachments": [
+    {
+      "type": "panoramic_radiograph",
+      "count": 1
+    },
+    {
+      "type": "clinical_notes",
+      "count": 1
+    },
+    {
+      "type": "missing_teeth_chart",
+      "count": 1
+    },
+    {
+      "type": "abutment_prognosis",
+      "count": 1
+    }
+  ],
+  "clinical_notes": "Generalized 5-7mm pockets with BOP, subgingival calculus noted on BW.",
+  "prior_history": {
+    "same_code_last_5y": false,
+    "previous_preauth_ids": []
+  },
+  "decision": {
+    "status": "approved",
+    "reason_code": null,
+    "reason_category": null,
+    "explanation_of_benefits_text": "Service approved as submitted; payable at CDCP fee grid less applicable co-pay.",
+    "missing_documents": [],
+    "reviewer_type": "dental_consultant",
+    "approved_amount": 624.45,
+    "approval_valid_until": "2026-07-23"
+  },
+  "followup": null
+}

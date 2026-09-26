@@ -1,0 +1,65 @@
+{
+  "_synthetic": true,
+  "preauth_id": "PA-SYN-100058",
+  "program": "CDCP",
+  "administrator": "Sun Life (CDCP administrator)",
+  "submission_channel": "paper",
+  "submitted_date": "2025-11-29",
+  "decision_date": "2025-12-28",
+  "member": {
+    "member_id": "SYN-M-97364555",
+    "age_band": "75-86",
+    "province": "BC",
+    "income_band": "80k-90k",
+    "copay_pct": 60
+  },
+  "provider": {
+    "provider_id": "SYN-P-4522",
+    "specialty": "endodontist",
+    "province": "BC",
+    "cdcp_participating": true
+  },
+  "services": [
+    {
+      "procedure_code": "52101",
+      "description": "Partial denture, maxillary, acrylic base, initial",
+      "category": "prosthodontics",
+      "tooth": null,
+      "fee_submitted": 1050.0,
+      "fee_grid_amount": 841.34
+    }
+  ],
+  "attachments": [
+    {
+      "type": "clinical_notes",
+      "count": 1
+    },
+    {
+      "type": "missing_teeth_chart",
+      "count": 1
+    }
+  ],
+  "clinical_notes": "Tooth sore.",
+  "prior_history": {
+    "same_code_last_5y": false,
+    "previous_preauth_ids": []
+  },
+  "decision": {
+    "status": "denied",
+    "reason_code": "DOC_MISSING_RADIOGRAPH",
+    "reason_category": "incomplete_submission",
+    "explanation_of_benefits_text": "Required radiograph(s) not submitted or not diagnostic.",
+    "missing_documents": [
+      "panoramic_radiograph"
+    ],
+    "reviewer_type": "automated"
+  },
+  "followup": {
+    "type": "resubmission",
+    "submitted_date": "2026-02-25",
+    "added_documents": [
+      "panoramic_radiograph"
+    ],
+    "outcome": "approved"
+  }
+}

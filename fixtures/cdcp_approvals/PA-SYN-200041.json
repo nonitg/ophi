@@ -1,0 +1,58 @@
+{
+  "_synthetic": true,
+  "preauth_id": "PA-SYN-200041",
+  "program": "CDCP",
+  "administrator": "Sun Life (CDCP administrator)",
+  "submission_channel": "provider_portal",
+  "submitted_date": "2025-01-09",
+  "decision_date": "2025-02-08",
+  "member": {
+    "member_id": "SYN-M-59115280",
+    "age_band": "0-17",
+    "province": "NS",
+    "income_band": "80k-90k",
+    "copay_pct": 60
+  },
+  "provider": {
+    "provider_id": "SYN-P-7563",
+    "specialty": "general_dentist",
+    "province": "NS",
+    "cdcp_participating": true
+  },
+  "services": [
+    {
+      "procedure_code": "92221",
+      "description": "General anesthesia",
+      "category": "sedation",
+      "tooth": null,
+      "fee_submitted": 780.0,
+      "fee_grid_amount": 641.67
+    }
+  ],
+  "attachments": [
+    {
+      "type": "medical_history",
+      "count": 1
+    },
+    {
+      "type": "sedation_justification",
+      "count": 1
+    }
+  ],
+  "clinical_notes": "Mesial-occlusal-distal fracture with >50% cusp loss, confirmed on PA.",
+  "prior_history": {
+    "same_code_last_5y": false,
+    "previous_preauth_ids": []
+  },
+  "decision": {
+    "status": "approved",
+    "reason_code": null,
+    "reason_category": null,
+    "explanation_of_benefits_text": "Service approved as submitted; payable at CDCP fee grid less applicable co-pay.",
+    "missing_documents": [],
+    "reviewer_type": "dental_consultant",
+    "approved_amount": 256.67,
+    "approval_valid_until": "2026-02-08"
+  },
+  "followup": null
+}

@@ -1,0 +1,65 @@
+{
+  "_synthetic": true,
+  "preauth_id": "PA-SYN-100018",
+  "program": "CDCP",
+  "administrator": "Sun Life (CDCP administrator)",
+  "submission_channel": "provider_portal",
+  "submitted_date": "2025-09-12",
+  "decision_date": "2025-10-04",
+  "member": {
+    "member_id": "SYN-M-50962024",
+    "age_band": "18-64",
+    "province": "NB",
+    "income_band": "<70k",
+    "copay_pct": 0
+  },
+  "provider": {
+    "provider_id": "SYN-P-4652",
+    "specialty": "general_dentist",
+    "province": "NB",
+    "cdcp_participating": true
+  },
+  "services": [
+    {
+      "procedure_code": "11117",
+      "description": "Scaling, additional units beyond frequency limit",
+      "category": "periodontics",
+      "tooth": null,
+      "fee_submitted": 320.0,
+      "fee_grid_amount": 268.42
+    }
+  ],
+  "attachments": [
+    {
+      "type": "periodontal_charting",
+      "count": 1
+    },
+    {
+      "type": "bitewing_radiographs",
+      "count": 1
+    }
+  ],
+  "clinical_notes": "See chart.",
+  "prior_history": {
+    "same_code_last_5y": false,
+    "previous_preauth_ids": []
+  },
+  "decision": {
+    "status": "denied",
+    "reason_code": "DOC_INSUFFICIENT_NOTES",
+    "reason_category": "incomplete_submission",
+    "explanation_of_benefits_text": "Clinical notes do not describe condition supporting the proposed service.",
+    "missing_documents": [
+      "clinical_notes"
+    ],
+    "reviewer_type": "dental_consultant"
+  },
+  "followup": {
+    "type": "resubmission",
+    "submitted_date": "2025-10-15",
+    "added_documents": [
+      "clinical_notes"
+    ],
+    "outcome": "denied"
+  }
+}

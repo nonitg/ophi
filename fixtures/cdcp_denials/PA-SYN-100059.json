@@ -1,0 +1,67 @@
+{
+  "_synthetic": true,
+  "preauth_id": "PA-SYN-100059",
+  "program": "CDCP",
+  "administrator": "Sun Life (CDCP administrator)",
+  "submission_channel": "cdanet_eclaim",
+  "submitted_date": "2026-03-14",
+  "decision_date": "2026-04-08",
+  "member": {
+    "member_id": "SYN-M-60015814",
+    "age_band": "18-64",
+    "province": "SK",
+    "income_band": "<70k",
+    "copay_pct": 0
+  },
+  "provider": {
+    "provider_id": "SYN-P-1982",
+    "specialty": "periodontist",
+    "province": "SK",
+    "cdcp_participating": true
+  },
+  "services": [
+    {
+      "procedure_code": "52201",
+      "description": "Partial denture, mandibular, cast metal, initial",
+      "category": "prosthodontics",
+      "tooth": null,
+      "fee_submitted": 1890.0,
+      "fee_grid_amount": 1686.24
+    }
+  ],
+  "attachments": [
+    {
+      "type": "clinical_notes",
+      "count": 1
+    },
+    {
+      "type": "missing_teeth_chart",
+      "count": 1
+    }
+  ],
+  "clinical_notes": "Generalized 5-7mm pockets with BOP, subgingival calculus noted on BW.",
+  "prior_history": {
+    "same_code_last_5y": false,
+    "previous_preauth_ids": []
+  },
+  "decision": {
+    "status": "denied",
+    "reason_code": "DOC_MISSING_RADIOGRAPH",
+    "reason_category": "incomplete_submission",
+    "explanation_of_benefits_text": "Required radiograph(s) not submitted or not diagnostic.",
+    "missing_documents": [
+      "panoramic_radiograph",
+      "abutment_prognosis"
+    ],
+    "reviewer_type": "dental_consultant"
+  },
+  "followup": {
+    "type": "resubmission",
+    "submitted_date": "2026-04-22",
+    "added_documents": [
+      "panoramic_radiograph",
+      "abutment_prognosis"
+    ],
+    "outcome": "approved"
+  }
+}

@@ -1,0 +1,62 @@
+{
+  "_synthetic": true,
+  "preauth_id": "PA-SYN-200027",
+  "program": "CDCP",
+  "administrator": "Sun Life (CDCP administrator)",
+  "submission_channel": "provider_portal",
+  "submitted_date": "2025-03-22",
+  "decision_date": "2025-04-07",
+  "member": {
+    "member_id": "SYN-M-23770458",
+    "age_band": "0-17",
+    "province": "MB",
+    "income_band": "80k-90k",
+    "copay_pct": 60
+  },
+  "provider": {
+    "provider_id": "SYN-P-6372",
+    "specialty": "prosthodontist",
+    "province": "MB",
+    "cdcp_participating": true
+  },
+  "services": [
+    {
+      "procedure_code": "11117",
+      "description": "Scaling, additional units beyond frequency limit",
+      "category": "periodontics",
+      "tooth": null,
+      "fee_submitted": 320.0,
+      "fee_grid_amount": 247.43
+    }
+  ],
+  "attachments": [
+    {
+      "type": "periodontal_charting",
+      "count": 1
+    },
+    {
+      "type": "clinical_notes",
+      "count": 1
+    },
+    {
+      "type": "bitewing_radiographs",
+      "count": 1
+    }
+  ],
+  "clinical_notes": "Symptomatic irreversible pulpitis, cold test lingering >30s, percussion positive.",
+  "prior_history": {
+    "same_code_last_5y": false,
+    "previous_preauth_ids": []
+  },
+  "decision": {
+    "status": "approved",
+    "reason_code": null,
+    "reason_category": null,
+    "explanation_of_benefits_text": "Service approved as submitted; payable at CDCP fee grid less applicable co-pay.",
+    "missing_documents": [],
+    "reviewer_type": "dental_consultant",
+    "approved_amount": 98.97,
+    "approval_valid_until": "2026-04-07"
+  },
+  "followup": null
+}

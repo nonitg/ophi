@@ -1,0 +1,65 @@
+{
+  "_synthetic": true,
+  "preauth_id": "PA-SYN-100016",
+  "program": "CDCP",
+  "administrator": "Sun Life (CDCP administrator)",
+  "submission_channel": "paper",
+  "submitted_date": "2025-10-11",
+  "decision_date": "2025-10-18",
+  "member": {
+    "member_id": "SYN-M-11297845",
+    "age_band": "0-17",
+    "province": "SK",
+    "income_band": "80k-90k",
+    "copay_pct": 60
+  },
+  "provider": {
+    "provider_id": "SYN-P-2232",
+    "specialty": "prosthodontist",
+    "province": "SK",
+    "cdcp_participating": true
+  },
+  "services": [
+    {
+      "procedure_code": "11117",
+      "description": "Scaling, additional units beyond frequency limit",
+      "category": "periodontics",
+      "tooth": null,
+      "fee_submitted": 320.0,
+      "fee_grid_amount": 282.47
+    }
+  ],
+  "attachments": [
+    {
+      "type": "periodontal_charting",
+      "count": 1
+    },
+    {
+      "type": "bitewing_radiographs",
+      "count": 1
+    }
+  ],
+  "clinical_notes": "Generalized 5-7mm pockets with BOP, subgingival calculus noted on BW.",
+  "prior_history": {
+    "same_code_last_5y": false,
+    "previous_preauth_ids": []
+  },
+  "decision": {
+    "status": "denied",
+    "reason_code": "DOC_INSUFFICIENT_NOTES",
+    "reason_category": "incomplete_submission",
+    "explanation_of_benefits_text": "Clinical notes do not describe condition supporting the proposed service.",
+    "missing_documents": [
+      "clinical_notes"
+    ],
+    "reviewer_type": "automated"
+  },
+  "followup": {
+    "type": "resubmission",
+    "submitted_date": "2025-11-17",
+    "added_documents": [
+      "clinical_notes"
+    ],
+    "outcome": "approved"
+  }
+}

@@ -1,0 +1,60 @@
+{
+  "_synthetic": true,
+  "preauth_id": "PA-SYN-100027",
+  "program": "CDCP",
+  "administrator": "Sun Life (CDCP administrator)",
+  "submission_channel": "provider_portal",
+  "submitted_date": "2026-04-18",
+  "decision_date": "2026-05-04",
+  "member": {
+    "member_id": "SYN-M-43859311",
+    "age_band": "0-17",
+    "province": "MB",
+    "income_band": "70k-80k",
+    "copay_pct": 40
+  },
+  "provider": {
+    "provider_id": "SYN-P-8705",
+    "specialty": "general_dentist",
+    "province": "MB",
+    "cdcp_participating": true
+  },
+  "services": [
+    {
+      "procedure_code": "33131",
+      "description": "Root canal, three canals",
+      "category": "endodontics",
+      "tooth": "44",
+      "fee_submitted": 1320.0,
+      "fee_grid_amount": 1128.37
+    }
+  ],
+  "attachments": [
+    {
+      "type": "periapical_radiograph",
+      "count": 1
+    },
+    {
+      "type": "clinical_notes",
+      "count": 1
+    },
+    {
+      "type": "pulp_vitality_test",
+      "count": 1
+    }
+  ],
+  "clinical_notes": "Pt wants crown.",
+  "prior_history": {
+    "same_code_last_5y": false,
+    "previous_preauth_ids": []
+  },
+  "decision": {
+    "status": "denied",
+    "reason_code": "CLIN_POOR_PROGNOSIS",
+    "reason_category": "clinical_necessity",
+    "explanation_of_benefits_text": "Tooth/abutment prognosis does not support proposed treatment.",
+    "missing_documents": [],
+    "reviewer_type": "automated"
+  },
+  "followup": null
+}

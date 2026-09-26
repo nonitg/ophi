@@ -1,0 +1,56 @@
+{
+  "_synthetic": true,
+  "preauth_id": "PA-SYN-100045",
+  "program": "CDCP",
+  "administrator": "Sun Life (CDCP administrator)",
+  "submission_channel": "cdanet_eclaim",
+  "submitted_date": "2025-02-07",
+  "decision_date": "2025-02-20",
+  "member": {
+    "member_id": "SYN-M-29348212",
+    "age_band": "70-74",
+    "province": "NB",
+    "income_band": "<70k",
+    "copay_pct": 0
+  },
+  "provider": {
+    "provider_id": "SYN-P-3529",
+    "specialty": "general_dentist",
+    "province": "NB",
+    "cdcp_participating": true
+  },
+  "services": [
+    {
+      "procedure_code": "92441",
+      "description": "Parenteral conscious sedation (IV)",
+      "category": "sedation",
+      "tooth": null,
+      "fee_submitted": 610.0,
+      "fee_grid_amount": 490.75
+    }
+  ],
+  "attachments": [
+    {
+      "type": "clinical_notes",
+      "count": 1
+    },
+    {
+      "type": "medical_history",
+      "count": 1
+    }
+  ],
+  "clinical_notes": "Symptomatic irreversible pulpitis, cold test lingering >30s, percussion positive.",
+  "prior_history": {
+    "same_code_last_5y": true,
+    "previous_preauth_ids": []
+  },
+  "decision": {
+    "status": "denied",
+    "reason_code": "FREQ_LIMIT",
+    "reason_category": "frequency",
+    "explanation_of_benefits_text": "Service exceeds CDCP frequency limitation.",
+    "missing_documents": [],
+    "reviewer_type": "dental_consultant"
+  },
+  "followup": null
+}

@@ -1,0 +1,58 @@
+{
+  "_synthetic": true,
+  "preauth_id": "PA-SYN-100021",
+  "program": "CDCP",
+  "administrator": "Sun Life (CDCP administrator)",
+  "submission_channel": "provider_portal",
+  "submitted_date": "2026-02-20",
+  "decision_date": "2026-04-01",
+  "member": {
+    "member_id": "SYN-M-69295515",
+    "age_band": "70-74",
+    "province": "NS",
+    "income_band": "80k-90k",
+    "copay_pct": 60
+  },
+  "provider": {
+    "provider_id": "SYN-P-4501",
+    "specialty": "periodontist",
+    "province": "NS",
+    "cdcp_participating": true
+  },
+  "services": [
+    {
+      "procedure_code": "52101",
+      "description": "Partial denture, maxillary, acrylic base, initial",
+      "category": "prosthodontics",
+      "tooth": null,
+      "fee_submitted": 1050.0,
+      "fee_grid_amount": 845.43
+    }
+  ],
+  "attachments": [
+    {
+      "type": "clinical_notes",
+      "count": 1
+    },
+    {
+      "type": "missing_teeth_chart",
+      "count": 1
+    }
+  ],
+  "clinical_notes": "Generalized 5-7mm pockets with BOP, subgingival calculus noted on BW.",
+  "prior_history": {
+    "same_code_last_5y": false,
+    "previous_preauth_ids": [
+      "PA-SYN-100002"
+    ]
+  },
+  "decision": {
+    "status": "denied",
+    "reason_code": "DUPLICATE_REQUEST",
+    "reason_category": "administrative",
+    "explanation_of_benefits_text": "Duplicate of a preauthorization already on file.",
+    "missing_documents": [],
+    "reviewer_type": "dental_consultant"
+  },
+  "followup": null
+}

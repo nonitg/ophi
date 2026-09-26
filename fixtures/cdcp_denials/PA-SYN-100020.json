@@ -1,0 +1,65 @@
+{
+  "_synthetic": true,
+  "preauth_id": "PA-SYN-100020",
+  "program": "CDCP",
+  "administrator": "Sun Life (CDCP administrator)",
+  "submission_channel": "paper",
+  "submitted_date": "2026-03-18",
+  "decision_date": "2026-03-27",
+  "member": {
+    "member_id": "SYN-M-64813568",
+    "age_band": "65-69",
+    "province": "MB",
+    "income_band": "80k-90k",
+    "copay_pct": 60
+  },
+  "provider": {
+    "provider_id": "SYN-P-7592",
+    "specialty": "prosthodontist",
+    "province": "MB",
+    "cdcp_participating": true
+  },
+  "services": [
+    {
+      "procedure_code": "52201",
+      "description": "Partial denture, mandibular, cast metal, initial",
+      "category": "prosthodontics",
+      "tooth": null,
+      "fee_submitted": 1890.0,
+      "fee_grid_amount": 1461.38
+    }
+  ],
+  "attachments": [
+    {
+      "type": "missing_teeth_chart",
+      "count": 1
+    }
+  ],
+  "clinical_notes": "Mesial-occlusal-distal fracture with >50% cusp loss, confirmed on PA.",
+  "prior_history": {
+    "same_code_last_5y": false,
+    "previous_preauth_ids": []
+  },
+  "decision": {
+    "status": "denied",
+    "reason_code": "DOC_MISSING_RADIOGRAPH",
+    "reason_category": "incomplete_submission",
+    "explanation_of_benefits_text": "Required radiograph(s) not submitted or not diagnostic.",
+    "missing_documents": [
+      "panoramic_radiograph",
+      "clinical_notes",
+      "abutment_prognosis"
+    ],
+    "reviewer_type": "automated"
+  },
+  "followup": {
+    "type": "resubmission",
+    "submitted_date": "2026-05-15",
+    "added_documents": [
+      "panoramic_radiograph",
+      "clinical_notes",
+      "abutment_prognosis"
+    ],
+    "outcome": "denied"
+  }
+}

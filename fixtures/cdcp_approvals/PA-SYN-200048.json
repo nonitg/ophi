@@ -1,0 +1,62 @@
+{
+  "_synthetic": true,
+  "preauth_id": "PA-SYN-200048",
+  "program": "CDCP",
+  "administrator": "Sun Life (CDCP administrator)",
+  "submission_channel": "paper",
+  "submitted_date": "2025-07-16",
+  "decision_date": "2025-07-26",
+  "member": {
+    "member_id": "SYN-M-37820354",
+    "age_band": "87+",
+    "province": "MB",
+    "income_band": "70k-80k",
+    "copay_pct": 40
+  },
+  "provider": {
+    "provider_id": "SYN-P-9011",
+    "specialty": "general_dentist",
+    "province": "MB",
+    "cdcp_participating": true
+  },
+  "services": [
+    {
+      "procedure_code": "92441",
+      "description": "Parenteral conscious sedation (IV)",
+      "category": "sedation",
+      "tooth": null,
+      "fee_submitted": 610.0,
+      "fee_grid_amount": 491.88
+    }
+  ],
+  "attachments": [
+    {
+      "type": "clinical_notes",
+      "count": 1
+    },
+    {
+      "type": "medical_history",
+      "count": 1
+    },
+    {
+      "type": "sedation_justification",
+      "count": 1
+    }
+  ],
+  "clinical_notes": "Generalized 5-7mm pockets with BOP, subgingival calculus noted on BW.",
+  "prior_history": {
+    "same_code_last_5y": false,
+    "previous_preauth_ids": []
+  },
+  "decision": {
+    "status": "approved",
+    "reason_code": null,
+    "reason_category": null,
+    "explanation_of_benefits_text": "Service approved as submitted; payable at CDCP fee grid less applicable co-pay.",
+    "missing_documents": [],
+    "reviewer_type": "dental_consultant",
+    "approved_amount": 295.13,
+    "approval_valid_until": "2026-07-26"
+  },
+  "followup": null
+}

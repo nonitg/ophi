@@ -12,3 +12,5 @@ out/
 worktrees/
 outputs/
 .DS_Store
+
+.env

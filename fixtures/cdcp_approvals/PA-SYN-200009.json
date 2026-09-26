@@ -1,0 +1,62 @@
+{
+  "_synthetic": true,
+  "preauth_id": "PA-SYN-200009",
+  "program": "CDCP",
+  "administrator": "Sun Life (CDCP administrator)",
+  "submission_channel": "cdanet_eclaim",
+  "submitted_date": "2025-07-22",
+  "decision_date": "2025-07-30",
+  "member": {
+    "member_id": "SYN-M-94281857",
+    "age_band": "70-74",
+    "province": "BC",
+    "income_band": "80k-90k",
+    "copay_pct": 60
+  },
+  "provider": {
+    "provider_id": "SYN-P-8601",
+    "specialty": "periodontist",
+    "province": "BC",
+    "cdcp_participating": true
+  },
+  "services": [
+    {
+      "procedure_code": "52101",
+      "description": "Partial denture, maxillary, acrylic base, initial",
+      "category": "prosthodontics",
+      "tooth": null,
+      "fee_submitted": 1050.0,
+      "fee_grid_amount": 899.62
+    }
+  ],
+  "attachments": [
+    {
+      "type": "panoramic_radiograph",
+      "count": 1
+    },
+    {
+      "type": "clinical_notes",
+      "count": 1
+    },
+    {
+      "type": "missing_teeth_chart",
+      "count": 1
+    }
+  ],
+  "clinical_notes": "Symptomatic irreversible pulpitis, cold test lingering >30s, percussion positive.",
+  "prior_history": {
+    "same_code_last_5y": false,
+    "previous_preauth_ids": []
+  },
+  "decision": {
+    "status": "approved",
+    "reason_code": null,
+    "reason_category": null,
+    "explanation_of_benefits_text": "Service approved as submitted; payable at CDCP fee grid less applicable co-pay.",
+    "missing_documents": [],
+    "reviewer_type": "dental_consultant",
+    "approved_amount": 359.85,
+    "approval_valid_until": "2026-07-30"
+  },
+  "followup": null
+}
