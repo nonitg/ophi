@@ -1,10 +1,10 @@
 {% extends "base.html" %}
 {% block title %}Results — Ophi{% endblock %}
 {% block content %}
-{% set rep = res.report %}{% set top = (res.in_progress|map(attribute='dollars')|max) if res.in_progress else 0 %}
+{% set rep = res.report %}
 <header class="head">
   <div class="head-row"><h1>What Ophi has done for the clinic</h1><button class="btn btn-sm print-hide" type="button" data-print>Print</button></div>
-  <p class="lede">Every figure comes from this clinic's own cases and the decisions staff recorded from Sun Life. Ophi checks documentation; it doesn't predict Sun Life's decisions.</p>
+  <p class="lede">From this clinic's own cases and the decisions staff recorded from Sun Life.</p>
 </header>
 
 <div class="report">
@@ -12,10 +12,8 @@
     <h2 class="fact-k">In progress</h2>
     <div>
       <p class="fact-v"><b class="num">{{ money(res.in_progress_dollars) }}</b> of crown treatment is moving through {{ plural(res.in_progress_count, 'open preauthorization') }}.</p>
-      <ul class="bars">
-        {% for s in res.in_progress %}
-        <li class="bar-row"><span>{{ s.label }}</span><span class="bar-track"><span class="bar-fill" style="--w: {{ (s.dollars / top * 100)|round(1) if top else 0 }}%"></span></span><span class="bar-val num">{{ money(s.dollars) }}</span></li>
-        {% endfor %}
+      <ul class="counts">
+        {% for s in res.in_progress %}<li><span>{{ s.label }} <span class="muted">· {{ plural(s.count, 'case') }}</span></span><span class="num">{{ money(s.dollars) }}</span></li>{% endfor %}
       </ul>
     </div>
   </section>

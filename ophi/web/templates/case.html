@@ -1,354 +1,320 @@
 {% extends "base.html" %}
-{% from "macros.html" import clause_chip, status_mark, who, runway, payer_decision, teeth %}
+{% from "macros.html" import clause_chip, status_mark, who, payer_decision, teeth, due, turnaround_source %}
 {% block title %}{{ case.patient.display_name }}, #{{ case.requested_tooth }} — Ophi{% endblock %}
 {% block content %}
+<div class="case">
 {% set t = case.treatment %}{% set provider = t.provider.name %}{% set st = view.state %}{% set cid = case.case_id %}
-{% set check_svg %}<svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.6 8.4l2.8 2.8 6-6.2" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>{% endset %}
-<a class="back" href="{{ HOME }}">Worklist</a>
+{% set first = case.patient.display_name.split()[0] %}
+<a class="back" href="{{ HOME }}">Board</a>
 
 <header class="case-head">
   <div>
     <h1>{{ case.patient.display_name }}</h1>
-    <p class="case-tx">{{ t.description or 'Crown' }} <span class="num">({{ t.code }})</span> on <b class="num">#{{ case.requested_tooth }}</b>, {{ tooth_name(case.requested_tooth) }}</p>
-    <div class="case-now">
-      <span class="stage-tag stage-{{ stage.value }}">{{ STAGE_LABEL[stage] }}</span>
-      <span>{{ next.title }}</span>
-    </div>
+    <p class="case-tx">Crown on <b class="num">#{{ case.requested_tooth }}</b>, {{ tooth_name(case.requested_tooth) }}{% if timing.appt %} · Appointment {{ long_date(timing.appt) }}{% endif %}</p>
   </div>
-  {% if primary %}<a class="btn {{ 'btn-jump' if primary.jump else 'btn-primary' }}" href="{{ primary.href if primary.jump else BASE ~ primary.href }}">{{ primary.label }}</a>{% endif %}
+  {{ due(timing) }}
 </header>
+
+{% if stepper %}
+<ol class="stepper" aria-label="Where this case is">
+  {% for s in stepper %}
+  <li class="stp is-{{ s.state }}"{% if s.state == 'current' %} aria-current="step"{% endif %}>
+    <span class="stp-mark" aria-hidden="true">{% if s.state == 'done' %}<svg width="12" height="12" viewBox="0 0 16 16"><path d="M3.6 8.4l2.8 2.8 6-6.2" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>{% endif %}</span>
+    <span class="stp-label">{{ s.label }}</span>
+    {% if s.who and s.state != 'done' %}<span class="stp-who">{{ s.who.label }}</span>{% endif %}
+  </li>
+  {% endfor %}
+</ol>
+{% for s in stepper if s.state == 'current' %}<p class="stp-now" aria-hidden="true">Step {{ stepper.index(s) + 1 }} of {{ stepper|length }}: <b>{{ s.label }}</b>{% if s.who %} · {{ s.who.label }}{% endif %}</p>{% endfor %}
+{% endif %}
 
 {% if next_case %}
 <div class="next-up">
-  <div><b>Nothing more for you on this case. Next: {{ next_case.case.patient.display_name }}</b><p>{{ next_case.next.title }}</p></div>
+  <div><b>You're done here. Next: {{ next_case.case.patient.display_name }}</b><p>{{ next_case.next.title }}</p></div>
   <a class="btn btn-primary" href="{{ BASE }}/cases/{{ next_case.case.case_id }}">Open the next case</a>
 </div>
 {% endif %}
 
 {% if view.sign_off_stale and not st.submitted_on %}
-<p class="note note-warn" style="margin-bottom:22px">{{ st.sign_off.signed_by }}'s signature from {{ full_date(st.sign_off.signed_at.date()) }} no longer applies: the chart or an answer changed since. The packet needs a new review and signature.</p>
+<p class="note note-warn gap-below">{{ st.sign_off.signed_by }}'s signature from {{ full_date(st.sign_off.signed_at.date()) }} no longer applies because the chart or an answer changed. The packet needs a new signature.</p>
 {% endif %}
 
 {% if st.attempts %}
 <div class="attempts">
-  {% for x in st.attempts %}<p><b>Attempt {{ loop.index }}</b>: sent {{ full_date(x.submitted_on) }}. {{ payer_decision({'outcome': x.decision.outcome, 'on': x.decision.decided_on, 'reason': x.decision.reason}) }}</p>{% endfor %}
+  {% for x in st.attempts %}<p><b>Attempt {{ loop.index }}</b>, sent {{ full_date(x.submitted_on) }}. {{ payer_decision({'outcome': x.decision.outcome, 'on': x.decision.decided_on, 'reason': x.decision.reason}) }}</p>{% endfor %}
 </div>
 {% endif %}
 
-<div class="case-grid">
-<div>
-  <ol class="steps" aria-label="Steps for this preauthorization">
-  {% for s in steps %}
-    <li class="step is-{{ s.state }}" id="step-{{ s.key }}">
-      <span class="step-mark num" aria-hidden="true">{% if s.state == 'done' %}{{ check_svg }}{% else %}{{ s.n }}{% endif %}</span>
-      <div class="step-content">
-        <div class="step-top">
-          <div>
-            <h2 class="step-title">{{ s.title }}<span class="sr">, {{ {'done': 'done', 'current': 'current step', 'open': 'can be done now', 'upcoming': 'not yet'}[s.state] }}</span></h2>
-            <p class="step-summary">{% if s.payer %}{{ payer_decision(s.payer) }}{% else %}{{ s.summary }}{% endif %}</p>
-          </div>
-          <div class="step-side">
-            {% if s.undo %}<form method="post" action="{{ BASE }}/cases/{{ cid }}/undo" data-confirm="Take back this step? The case goes back to the step before."><input type="hidden" name="step" value="{{ {'send': 'sent', 'decision': 'decision', 'book': 'booked'}[s.key] }}"><button class="linkish" type="submit">Undo</button></form>{% endif %}
-            {{ who(who_tag(s.who, actor, provider)) }}
-          </div>
-        </div>
-
-        {% set show = (s.state == 'current' and not (s.key == 'chart' and actor.is_dentist)) or (s.state == 'open' and actor.is_dentist) %}
-        {% if show %}
-        <div class="step-body">
-        {% if s.key == 'chart' %}
-          {% if gaps %}
-          <ul class="gaps">
-            {% for g in gaps %}{% set act = g.action %}
-            <li class="gap">
-              <h3 class="gap-title">{{ g.title }}</h3>
-              {% if g.hint %}<p class="gap-hint">{{ g.hint }}</p>{% endif %}
-              <p class="gap-why">{{ act.why }}</p>
-              {% if act.action_type == 'check_source' %}
-              <p class="note">The connected PMS could not see this part of the chart. Check the imaging software before you conclude it is missing.</p>
-              {% endif %}
-              {% if g.proposal %}{% set pl = g.proposal.payload %}
-              <div class="proposal">
-                <blockquote class="proposal-quote">“{{ pl.quote }}”</blockquote>
-                <p class="proposal-meta">Quoted word for word from the clinical note. If it says what Ophi read, confirm it and it counts as {{ pl.claim|lower }}.</p>
-                <form method="post" action="{{ BASE }}/cases/{{ cid }}/proposals/{{ g.proposal.artifact_id }}" class="btn-row">
-                  <button class="btn btn-sm btn-primary" name="decision" value="confirmed">Confirm quote</button>
-                  <button class="btn btn-sm" name="decision" value="rejected">Reject quote</button>
-                </form>
-              </div>
-              {% endif %}
-              {% if g.requirement %}<p class="gap-rule">Required by {{ clause_chip(g.requirement.clause, pack) }}</p>{% endif %}
-            </li>
-            {% endfor %}
-          </ul>
-          <p class="small muted">Book or record these in your practice software{% if gaps|selectattr('proposal')|list %}, and confirm quotes here{% endif %}. Ophi reads the chart again every time this page opens.</p>
-          {% else %}
-          <p class="step-lead">{{ a.schedule.detail }}</p>
-          {% endif %}
-
-        {% elif s.key == 'criteria' %}
-          {% if actor.is_dentist %}
-          <form method="post" action="{{ BASE }}/cases/{{ cid }}/assert/bulk" id="crit-form">
-            <div class="crit-tools">
-              <p class="step-lead">Your clinical judgment, recorded under your name and licence. Ophi never answers these.</p>
-              <button type="button" class="btn btn-sm" data-all-met>Set the rest to Met</button>
-            </div>
-            {% if criteria|selectattr('odontogram')|list %}<p class="small muted">Rows where Ophi has a chart note for you are left for you to answer.</p>{% endif %}
-            <ul class="crits">
-              {% for c in criteria %}
-              <li class="crit"{% if c.odontogram %} data-needs-look{% endif %}>
-                <div>
-                  <div class="crit-label">{{ c.label }}</div>
-                  <div class="crit-meta">{{ clause_chip(c.clause, pack) }}{% if c.variant %}<span>{{ c.variant }}</span>{% endif %}</div>
-                  {% if c.odontogram %}<div class="crit-now num">{{ c.odontogram }}</div>{% endif %}
-                  <div class="crit-now">{% if c.current %}Recorded <span class="val val-{{ c.current.value }}">{{ c.current.value|replace('_', ' ')|capitalize }}</span> by {{ c.current.asserted_by }} on {{ full_date(c.current.asserted_at.date()) }}{% if c.current.note %}: “{{ c.current.note }}”{% endif %}{% else %}Not yet recorded{% endif %}</div>
-                </div>
-                <div class="seg" role="radiogroup" aria-label="{{ c.label }}">
-                  {% for val, lab in [('met', 'Met'), ('not_met', 'Not met'), ('not_applicable', 'N/A')] %}
-                  <label><input type="radio" name="value_{{ c.id }}" value="{{ val }}" {% if c.current and c.current.value == val %}checked{% endif %}><span>{{ lab }}</span></label>
-                  {% endfor %}
-                </div>
-                <details class="crit-note"{% if c.current and c.current.note %} open{% endif %}><summary>Add a note</summary><input class="input" type="text" name="note_{{ c.id }}" value="{{ (c.current.note or '') if c.current else '' }}" aria-label="Note for {{ c.label }}"></details>
-              </li>
-              {% endfor %}
-            </ul>
-            <div class="btn-row"><button class="btn btn-primary" type="submit">Record answers</button><span class="small muted">Changing an answer after the packet is signed voids the signature.</span></div>
-          </form>
-          {% else %}
-          <p class="step-lead">{{ provider }} confirms these from their own review of the films and the chart. The case is on {{ provider }}'s worklist; nothing to do here.</p>
-          <ul class="readonly-crits">
-            {% for c in criteria %}<li><span>{{ c.label }}</span>{% if c.current %}<span class="val val-{{ c.current.value }}">{{ c.current.value|replace('_', ' ')|capitalize }}</span>{% else %}<span class="muted nowrap">Not yet recorded</span>{% endif %}</li>{% endfor %}
-          </ul>
-          {% endif %}
-
-        {% elif s.key == 'sign' %}
-          {% if actor.is_dentist %}
-          <p class="step-lead">Every applicable CDCP requirement is documented. Review the packet Sun Life will receive and sign it.</p>
-          {% else %}
-          <p class="step-lead">The packet is ready for {{ provider }}'s review and signature. It is on {{ provider }}'s worklist.</p>
-          {% endif %}
-          {% if advisory %}
-          <div class="note note-warn"><b>Worth reading before signing.</b>
-            {% for x in advisory %}<p style="margin-top:6px">{{ x.title }}. {{ x.why }}</p>{% endfor %}
-          </div>
-          {% endif %}
-          <div class="btn-row"><a class="btn {{ 'btn-primary' if actor.is_dentist else '' }}" href="{{ BASE }}/cases/{{ cid }}/packet">{{ 'Review and sign' if actor.is_dentist else 'Preview the packet' }}</a></div>
-
-        {% elif s.key == 'send' %}
-          <ol class="substeps">
-            <li><a class="btn btn-sm" href="{{ BASE }}/cases/{{ cid }}/packet/download">Download packet (.zip)</a></li>
-            <li>In your PMS, open the CDCP preauthorization for <span class="num">{{ t.code }}</span> on #{{ case.requested_tooth }}, attach the files and send it. Send the attachments the same day as the request.</li>
-            <li>
-              <form class="inline-form" method="post" action="{{ BASE }}/cases/{{ cid }}/submitted">
-                <label class="field"><span>Sent on</span><input class="input num" type="date" name="on" value="{{ today.isoformat() }}" max="{{ today.isoformat() }}" required></label>
-                <button class="btn btn-primary" type="submit">Mark as sent</button>
-              </form>
-            </li>
-          </ol>
-          <p class="small muted">Ophi never sends anything to Sun Life. The clinic sends it from its own PMS.</p>
-
-        {% elif s.key == 'decision' %}
-          <p class="step-lead">Sent {{ full_date(st.submitted_on) }}, {{ plural((today - st.submitted_on).days, 'day') }} ago. When the decision arrives in your CDAnet mailbox or by mail, record it here.</p>
-          <form method="post" action="{{ BASE }}/cases/{{ cid }}/decision" class="report-form">
-            <fieldset class="choice-cards" data-voice="payer" aria-label="Sun Life's decision">
-              <legend class="sr">Sun Life's decision</legend>
-              <label><input type="radio" name="outcome" value="approved" required><span>Approved</span></label>
-              <label><input type="radio" name="outcome" value="denied"><span>Denied</span></label>
-            </fieldset>
-            <div class="inline-form" style="margin-top:14px">
-              <label class="field"><span>Date on the decision</span><input class="input num" type="date" name="decided_on" value="{{ today.isoformat() }}" min="{{ st.submitted_on.isoformat() }}" max="{{ today.isoformat() }}" required></label>
-            </div>
-            <label class="field" style="margin-top:14px"><span>Sun Life's reason, word for word (optional)</span><textarea class="input" name="reason" rows="2"></textarea></label>
-            <div class="btn-row" style="margin-top:14px"><button class="btn btn-primary" type="submit">Record decision</button></div>
-          </form>
-
-        {% elif s.key == 'book' %}
-          <p class="step-lead">{{ payer_decision({'outcome': st.decision.outcome, 'on': st.decision.decided_on, 'reason': None}) }} The decision is valid until <b>{{ full_date(s.valid_until) }}</b>, as long as {{ case.patient.display_name.split()[0] }} is still enrolled in CDCP on the day of the appointment.</p>
-          <p>Call {{ case.patient.display_name.split()[0] }} to book the crown{% if t.appointment_date %}, or confirm the appointment on {{ long_date(t.appointment_date) }}{% endif %}.</p>
-          <form class="inline-form" method="post" action="{{ BASE }}/cases/{{ cid }}/booked">
-            <label class="field"><span>Crown appointment</span><input class="input num" type="date" name="on" value="{{ t.appointment_date.isoformat() if t.appointment_date else '' }}" min="{{ today.isoformat() }}" max="{{ s.valid_until.isoformat() }}" required></label>
-            <button class="btn btn-primary" type="submit">Mark as booked</button>
-          </form>
-
-        {% elif s.key == 'resubmit' %}
-          <p class="step-lead">Ophi's check of the chart today: {{ a.completeness.satisfied }} of {{ a.completeness.applicable }} CDCP requirements documented{% if gaps %}, with {{ plural(gaps|length, 'gap') }} to fix before sending again{% endif %}.{% if not gaps %} If Sun Life names a document the packet already had, check that the attachments went out with the request.{% endif %}</p>
-          <div class="options">
-            <div class="option">
-              <h3>Send a new request</h3>
-              <p>A resubmission is a new request. {{ provider }} reviews and signs it again, then you send it with every attachment on the same day.</p>
-              <form method="post" action="{{ BASE }}/cases/{{ cid }}/resubmit"><button class="btn btn-primary" type="submit">Start resubmission</button></form>
-            </div>
-            <div class="option">
-              <h3>Ask for reconsideration by {{ full_date(s.reconsider_by) }}</h3>
-              <p>Within {{ RECONSIDERATION_DAYS }} days of the denial, and only with new clinical information. There is one level of reconsideration, and its decision is final. It is requested outside Ophi.</p>
-            </div>
-          </div>
-        {% endif %}
-        </div>
-        {% endif %}
-      </div>
-    </li>
-  {% endfor %}
-  </ol>
-
-  <div class="folds">
-    <details class="fold" id="requirements">
-      <summary><span class="fold-title">The {{ applicable|length }} CDCP requirements that apply</span><span class="fold-sub">the clause behind each, and the chart entry that meets it</span></summary>
-      <div class="fold-body">
-        <ul class="reqs">
-          {% for r in applicable %}
-          <li class="req" id="req-{{ r.requirement_id }}">
-            {{ status_mark(r.status) }}
-            <div>
-              <div>{{ r.label }}</div>
-              <div class="req-meta">{{ clause_chip(r.clause, pack) }}{% if r.satisfied_via %}<span>via {{ r.satisfied_via|replace('_', ' ') }}</span>{% endif %}</div>
-              {% if r.status.value != 'satisfied' and r.detail %}<div class="req-detail">{{ requirement_detail(r) }}</div>{% endif %}
-              {% if r.risk_reason %}<div class="req-detail t-warn">{{ r.risk_reason }}</div>{% endif %}
-              {% for esc in r.escalations_evaluated if esc.fired %}<div class="req-detail">{{ esc.detail }}</div>{% endfor %}
-            </div>
-          </li>
-          {% endfor %}
-        </ul>
-        {% if not_applicable %}
-        <p class="small muted" style="margin-top:12px">Not applicable to this case: {% for r in not_applicable %}{{ r.label }}{% if not loop.last %}; {% endif %}{% endfor %}.</p>
-        {% endif %}
-        <p class="small muted" style="margin-top:12px">{{ a.schedule.detail }} Lab codes <span class="num">{{ t.lab_codes|join(', ') if t.lab_codes else 'none' }}</span>. Judged as of <span class="num">{{ full_date(a.submission_date_assumed) }}</span> against rule pack <span class="num">{{ pack.version }}</span>.</p>
-      </div>
-    </details>
-
-    <details class="fold" id="evidence">
-      <summary><span class="fold-title">What Ophi read in the chart</span><span class="fold-sub">{{ plural(evidence.radiographs|length, 'radiograph') }}, {{ plural((evidence.perio|length) + (evidence.psr|length), 'periodontal record') }}, {{ plural(evidence.notes|length, 'clinical note') }}, {{ plural(evidence.history|length, 'procedure') }}</span></summary>
-      <div class="fold-body">
-        {% for sec, sa in evidence.assurance %}
-        <p class="note note-warn" style="margin-bottom:14px">The connected PMS reports <b>{{ sec|replace('_', ' ') }}</b> as <b>{{ sa.availability.value }}</b>{% if sa.reason %}: {{ sa.reason }}{% endif %}. Ophi can't tell whether it is missing or just not visible to it.</p>
-        {% endfor %}
-        <div class="ev-grid">
-          <section class="ev-col">
-            <h3>Radiographs</h3>
-            {% if not evidence.radiographs %}<p class="muted small">None in the chart.</p>{% endif %}
-            {% for r in evidence.radiographs %}
-            <div class="ev{% if r.stale %} is-stale{% endif %}">
-              <div><b>{{ r.view }}</b>{% if r.laterality %} {{ r.laterality }}{% endif %} <span class="muted">{{ teeth(r.teeth) }}</span></div>
-              <div class="ev-meta num">{{ full_date(r.captured_at) if r.captured_at else 'Undated' }}{% if r.age_days is not none %}, {{ r.age_days }} days old{% endif %}{% if r.expires_on %}; current until {{ full_date(r.expires_on) }}{% endif %}{% if r.stale %}; {{ r.stale.over_by_days }} days past the limit{% endif %}</div>
-              {% if r.view == 'BW' and r.covers_tooth %}<div class="ev-meta">A bitewing does not show the root tip.</div>{% endif %}
-            </div>
-            {% endfor %}
-          </section>
-          <section class="ev-col">
-            <h3>Periodontal charting</h3>
-            {% if not evidence.perio and not evidence.psr %}<p class="muted small">None in the chart.</p>{% endif %}
-            {% for p in evidence.perio %}
-            <div class="ev{% if p.stale %} is-stale{% endif %}">
-              <div><b>Perio chart</b> <span class="num">{{ full_date(p.captured_at) if p.captured_at else 'Undated' }}</span>{% if not p.certified %} <span class="tag">uncertified draft</span>{% endif %}</div>
-              <div class="ev-meta num">{{ p.points }}/{{ p.possible }} points, {{ p.sites_per_tooth }} sites per tooth, {{ p.teeth_charted }} of {{ p.present }} present teeth{% if p.expires_on %}; current until {{ full_date(p.expires_on) }}{% endif %}{% if p.stale %}; {{ p.stale.over_by_days }} days past the limit{% endif %}</div>
-              {% if p.requested_depths %}
-              <div class="depths"><span class="muted">#{{ case.requested_tooth }}</span>
-                {% for d in p.requested_depths %}<span class="depth num{% if d is not none and d >= 4 %} deep{% endif %}">{{ d if d is not none else '–' }}</span>{% endfor %}
-              </div>
-              {% endif %}
-              {% if p.examiner %}<div class="ev-meta">{{ p.examiner }}</div>{% endif %}
-            </div>
-            {% endfor %}
-            {% for s in evidence.psr %}
-            <div class="ev">
-              <div><b>PSR</b> <span class="num">{{ full_date(s.captured_at) if s.captured_at else 'Undated' }}</span></div>
-              <div class="psr">
-                {% for sx in evidence.sextants %}
-                <div class="sextant{% if sx == s.highlight %} hl{% endif %}{% if s.scores[sx] is not none and s.scores[sx] >= 3 %} high{% endif %}"><span>{{ sx }}</span><span class="score num">{{ s.scores[sx] if s.scores[sx] is not none else '–' }}</span></div>
-                {% endfor %}
-              </div>
-              <div class="ev-meta">{{ s.highlight }} is the sextant of #{{ case.requested_tooth }}.</div>
-            </div>
-            {% endfor %}
-          </section>
-          <section class="ev-col">
-            <h3>Clinical notes</h3>
-            {% if not evidence.notes %}<p class="muted small">None in the chart.</p>{% endif %}
-            {% for n in evidence.notes %}
-            <div class="ev">
-              <div class="ev-meta"><span class="num">{{ full_date(n.captured_at) if n.captured_at else 'Undated' }}</span>, {{ n.author or 'unknown author' }}{% if n.teeth %} <span>{{ teeth(n.teeth) }}</span>{% endif %}</div>
-              <p class="note-text">{% for seg in n.segments %}{% if seg.proposal %}<mark class="q-{{ seg.state }}">{{ seg.text }}</mark>{% else %}{{ seg.text }}{% endif %}{% endfor %}</p>
-              {% for seg in n.segments if seg.proposal and seg.state == 'confirmed' %}<div class="ev-meta t-ok">Confirmed by {{ seg.proposal.payload.confirmed_by }}</div>{% endfor %}
-            </div>
-            {% endfor %}
-            <h3 style="margin-top:18px">Procedure history</h3>
-            {% if not evidence.history %}<p class="muted small">None in the chart.</p>{% else %}
-            <table class="tbl">
-              <thead><tr><th>Code</th><th>Tooth</th><th>Date</th></tr></thead>
-              <tbody>
-              {% for h in evidence.history %}
-              <tr class="{% if h.status == 'planned' %}muted{% endif %}"><td class="num">{{ h.code }}{% if h.status == 'planned' %} <span class="small">planned</span>{% endif %}</td><td class="num">{{ '#' ~ h.tooth_fdi if h.tooth_fdi else '—' }}</td><td class="num nowrap">{{ full_date(h.performed_on) }}</td></tr>
-              {% endfor %}
-              </tbody>
-            </table>
-            {% endif %}
-          </section>
-        </div>
-      </div>
-    </details>
+{% set s = now %}
+<section class="now" id="now" aria-labelledby="now-title">
+  {% if s %}
+  <div class="now-head">
+    <span class="now-k">Now</span>
+    <h2 id="now-title">{{ {'decision': "Record Sun Life's decision", 'sign': 'Review and sign', 'chart': 'Fix the chart'}.get(s.key, s.title) }}</h2>
+    {{ who(who_tag('coordinator' if s.key == 'decision' else s.who, actor, provider)) }}{# Sun Life decides; staff record it #}
   </div>
-</div>
+  {% if advice %}<p class="now-advice now-advice-{{ timing.tone or 'bad' }}">{{ advice }} {{ turnaround_source() }}</p>{% endif %}
 
-<aside class="aside" aria-label="Case facts">
-  <section class="card">
-    <h2>Appointment</h2>
-    {% if timing.appt %}
-    <p class="card-big">{{ long_date(timing.appt) }}</p>
-    <p class="small muted">{{ in_days(timing.appt_in)|capitalize }}</p>
-    {% else %}
-    <p class="card-big">Not booked</p>
-    {% endif %}
-    {% if st.booked_on %}<p class="small t-ok">Crown booked</p>{% endif %}
-    {% if timing.runway %}
-    <div style="margin-top:12px">{{ runway(timing.runway, large=True) }}</div>
-    <div class="runway-key"><span><i class="key-lead"></i>Time to prepare</span><span><i class="key-win"></i>Sun Life's usual {{ TURNAROUND_DAYS }} days</span></div>
-    {% endif %}
-    {% if timing.text and timing.appt %}
-    <p style="margin-top:12px"><b class="{{ {'bad': 't-bad', 'warn': 't-warn'}.get(timing.tone, '') }}">{{ timing.text }}</b></p>
-    {% if timing.late and stage.value in ('prepare', 'dentist', 'send', 'resubmit') %}<p class="small">Send as soon as the chart is ready. Tell the patient the decision may not be back in time, or move the appointment.</p>
-    {% elif timing.sub and stage.value not in ('prepare', 'dentist', 'send', 'resubmit') %}<p class="small muted">{{ timing.sub }}</p>{% endif %}
-    {% endif %}
-    {% if stage.value in ('prepare', 'dentist', 'send', 'resubmit', 'sun_life') %}
-    <p class="source">Health Canada reports that over 95% of preauthorization requests are processed within {{ TURNAROUND_DAYS }} days (<a href="{{ TURNAROUND_SOURCE[1] }}" target="_blank" rel="noopener">Oral Health Group, June 2026</a>).</p>
-    {% endif %}
-  </section>
-
-  <section class="card">
-    <h2>Treatment</h2>
-    <dl class="kv">
-      <dt>Code</dt><dd><span class="num">{{ t.code }}</span> {{ t.description or '' }}</dd>
-      <dt>Tooth</dt><dd>#{{ case.requested_tooth }}, {{ tooth_name(case.requested_tooth) }}{% if t.surfaces %}, surfaces {{ t.surfaces|join('') }}{% endif %}</dd>
-      <dt>Lab</dt><dd class="num">{{ t.lab_codes|join(', ') if t.lab_codes else 'None' }}</dd>
-      <dt>Fee</dt><dd class="num">{{ money(view.dollars_at_risk) }}</dd>
-      <dt>Dentist</dt><dd>{{ provider }}{% if t.provider.licence %} <span class="muted num">{{ t.provider.licence }}</span>{% endif %}</dd>
-    </dl>
-  </section>
-
-  <section class="card">
-    <h2>Patient</h2>
-    <dl class="kv">
-      <dt>Born</dt><dd class="num">{{ full_date(case.patient.dob) }}</dd>
-      <dt>CDCP ID</dt><dd class="num">{{ case.patient.cdcp_client_id or 'Not on file' }}</dd>
-    </dl>
-  </section>
-
-  {% if a.deadlines and stage.value in ('prepare', 'dentist', 'send', 'resubmit') %}
-  <section class="card">
-    <h2>Evidence goes stale</h2>
-    <ul class="plain">
-      {% for d in (a.deadlines|sort(attribute='expires_on'))[:4] %}<li>{{ sentence(d.label) }}<br><span class="muted num">{{ full_date(d.expires_on) }}</span></li>{% endfor %}
+  {% if s.key == 'chart' %}
+    {% if actor.is_dentist %}
+    <p class="now-lead">{{ ACTORS['coordinator'].name }} is fixing {{ plural(gaps|length, 'gap') }} in the chart. Nothing for you yet.</p>
+    <ul class="plain">{% for g in gaps %}<li>{{ g.title }}</li>{% endfor %}</ul>
+    {% elif gaps %}
+    <ul class="gaps">
+      {% for g in gaps %}{% set act = g.action %}
+      <li class="gap">
+        <h3 class="gap-title">{{ g.title }}</h3>
+        {% if g.hint %}<p class="gap-hint">{{ g.hint }}</p>{% endif %}
+        {% if act.action_type == 'check_source' %}<p class="note">Your PMS couldn't show Ophi this part of the chart. Check the imaging software before treating it as missing.</p>{% endif %}
+        {% if g.proposal %}{% set pl = g.proposal.payload %}
+        <div class="proposal">
+          <blockquote class="proposal-quote">“{{ pl.quote }}”</blockquote>
+          <p class="proposal-meta">Does the clinical note say this?</p>
+          <form method="post" action="{{ BASE }}/cases/{{ cid }}/proposals/{{ g.proposal.artifact_id }}" class="btn-row">
+            <button class="btn btn-sm btn-primary" name="decision" value="confirmed">Yes, it says this</button>
+            <button class="btn btn-sm" name="decision" value="rejected">No</button>
+          </form>
+        </div>
+        {% endif %}
+        <details class="why"><summary>Why</summary>
+          <p>{{ act.why }}</p>
+          {% if g.requirement %}<p class="gap-rule">Required by {{ clause_chip(g.requirement.clause, pack) }}</p>{% endif %}
+        </details>
+      </li>
+      {% endfor %}
     </ul>
-  </section>
+    {% if gaps|rejectattr('proposal')|list %}<p class="now-foot">Fix these in your PMS. Ophi checks the chart again each time you open this page.</p>{% endif %}
+    {% if steps|selectattr('key', 'equalto', 'criteria')|selectattr('state', 'equalto', 'open')|list %}<p class="now-foot">{{ provider }} can confirm the clinical criteria now, in parallel.</p>{% endif %}
+    {% else %}
+    <p class="now-lead">{{ a.schedule.detail }}</p>
+    {% endif %}
+
+  {% elif s.key == 'criteria' %}
+    {% if actor.is_dentist %}
+    <form method="post" action="{{ BASE }}/cases/{{ cid }}/assert/bulk" id="crit-form">
+      <div class="crit-tools">
+        <p class="now-lead">Your clinical judgment, recorded under your name and licence.</p>
+        <button type="button" class="btn btn-sm" data-all-met>Set the rest to Met</button>
+      </div>
+      <ul class="crits">
+        {% for c in criteria %}
+        <li class="crit"{% if c.odontogram %} data-needs-look{% endif %}>
+          <div>
+            <div class="crit-label">{{ c.label }}</div>
+            {% if c.odontogram %}<div class="crit-look num">{{ c.odontogram }}</div>{% endif %}
+            <div class="crit-meta">{{ clause_chip(c.clause, pack) }}{% if c.variant %}<span>{{ c.variant }}</span>{% endif %}</div>
+            {% if c.current %}<div class="crit-now">Recorded <span class="val val-{{ c.current.value }}">{{ c.current.value|replace('_', ' ')|capitalize }}</span> by {{ c.current.asserted_by }}, {{ full_date(c.current.asserted_at.date()) }}{% if c.current.note %}: “{{ c.current.note }}”{% endif %}</div>{% endif %}
+          </div>
+          <div class="seg" role="radiogroup" aria-label="{{ c.label }}">
+            {% for val, lab in [('met', 'Met'), ('not_met', 'Not met'), ('not_applicable', 'N/A')] %}
+            <label><input type="radio" name="value_{{ c.id }}" value="{{ val }}" {% if c.current and c.current.value == val %}checked{% endif %}><span>{{ lab }}</span></label>
+            {% endfor %}
+          </div>
+          <details class="crit-note"{% if c.current and c.current.note %} open{% endif %}><summary>Add a note</summary><input class="input" type="text" name="note_{{ c.id }}" value="{{ (c.current.note or '') if c.current else '' }}" aria-label="Note for {{ c.label }}"></details>
+        </li>
+        {% endfor %}
+      </ul>
+      <div class="btn-row"><button class="btn btn-primary" type="submit">Record answers</button>{% if view.signed %}<span class="small muted">Changing an answer voids your signature.</span>{% endif %}</div>
+    </form>
+    {% else %}
+    <p class="now-lead">Waiting on {{ provider }}. It's on their board.</p>
+    <ul class="readonly-crits">
+      {% for c in criteria %}<li><span>{{ c.label }}</span>{% if c.current %}<span class="val val-{{ c.current.value }}">{{ c.current.value|replace('_', ' ')|capitalize }}</span>{% else %}<span class="muted nowrap">Not yet recorded</span>{% endif %}</li>{% endfor %}
+    </ul>
+    {% endif %}
+
+  {% elif s.key == 'sign' %}
+    <p class="now-lead">{% if actor.is_dentist %}Every CDCP requirement is documented. Read the packet, then sign it.{% else %}Waiting on {{ provider }}'s signature. It's on their board.{% endif %}</p>
+    {% if advisory %}
+    <div class="note note-warn"><b>Read before signing</b>
+      {% for x in advisory %}<p class="mt-6">{{ x.title }}. {{ x.why }}</p>{% endfor %}
+    </div>
+    {% endif %}
+    <div class="btn-row"><a class="btn {{ 'btn-primary' if actor.is_dentist else '' }}" href="{{ BASE }}/cases/{{ cid }}/packet">{{ 'Review and sign' if actor.is_dentist else 'Preview the packet' }}</a></div>
+
+  {% elif s.key == 'send' %}
+    <ol class="substeps">
+      <li><a class="btn btn-sm" href="{{ BASE }}/cases/{{ cid }}/packet/download">Download packet (.zip)</a></li>
+      <li>In your PMS, send a CDCP preauthorization for <span class="num">{{ t.code }}</span> on #{{ case.requested_tooth }} with every file attached, on the same day.</li>
+      <li>
+        <form class="inline-form" method="post" action="{{ BASE }}/cases/{{ cid }}/submitted">
+          <label class="field"><span>Sent on</span><input class="input num" type="date" name="on" value="{{ today.isoformat() }}" max="{{ today.isoformat() }}" required></label>
+          <button class="btn btn-primary" type="submit">Mark as sent</button>
+        </form>
+      </li>
+    </ol>
+
+  {% elif s.key == 'decision' %}
+    <p class="now-lead">When Sun Life's decision arrives in your CDAnet mailbox, record it here.</p>
+    <form method="post" action="{{ BASE }}/cases/{{ cid }}/decision" class="stack">
+      <fieldset class="choice-cards" data-voice="payer" aria-label="Sun Life's decision">
+        <legend class="sr">Sun Life's decision</legend>
+        <label><input type="radio" name="outcome" value="approved" required><span>Approved</span></label>
+        <label><input type="radio" name="outcome" value="denied"><span>Denied</span></label>
+      </fieldset>
+      <label class="field"><span>Date on the decision</span><input class="input num" type="date" name="decided_on" value="{{ today.isoformat() }}" min="{{ st.submitted_on.isoformat() }}" max="{{ today.isoformat() }}" required></label>
+      <label class="field"><span>Sun Life's reason, word for word (optional)</span><textarea class="input" name="reason" rows="2"></textarea></label>
+      <div class="btn-row"><button class="btn btn-primary" type="submit">Record decision</button></div>
+    </form>
+
+  {% elif s.key == 'book' %}
+    <p class="now-lead">{{ payer_decision({'outcome': st.decision.outcome, 'on': st.decision.decided_on, 'reason': None}) }} Book the crown by <b>{{ full_date(s.valid_until) }}</b>, while {{ first }} is still enrolled in CDCP.</p>
+    <form class="inline-form" method="post" action="{{ BASE }}/cases/{{ cid }}/booked">
+      <label class="field"><span>Crown appointment</span><input class="input num" type="date" name="on" value="{{ t.appointment_date.isoformat() if t.appointment_date else '' }}" min="{{ today.isoformat() }}" max="{{ s.valid_until.isoformat() }}" required></label>
+      <button class="btn btn-primary" type="submit">Mark as booked</button>
+    </form>
+
+  {% elif s.key == 'resubmit' %}
+    <p class="now-lead">{{ payer_decision({'outcome': st.decision.outcome, 'on': st.decision.decided_on, 'reason': st.decision.reason}) }}</p>
+    {% if gaps %}<p class="now-lead">Ophi found {{ plural(gaps|length, 'gap') }} to fix before sending again.</p>{% endif %}
+    <div class="options">
+      <div class="option">
+        <h3>Send a new request</h3>
+        <p>{{ provider }} signs it again, then you send it with every file.</p>
+        <form method="post" action="{{ BASE }}/cases/{{ cid }}/resubmit"><button class="btn btn-primary" type="submit">Start resubmission</button></form>
+      </div>
+      <div class="option">
+        <h3>Ask for reconsideration</h3>
+        <p>By <b>{{ full_date(s.reconsider_by) }}</b>, with new clinical information. One chance, and it's final. Done outside Ophi.</p>
+      </div>
+    </div>
   {% endif %}
 
-  <section class="card">
-    <h2>Activity</h2>
-    {% if activity %}
-    <ul class="feed">{% for e in activity[:8] %}<li><time datetime="{{ e.at.isoformat() }}">{{ local_time(e.at) }}</time>{{ e.actor }} {{ e.what }}</li>{% endfor %}</ul>
-    {% else %}
-    <p class="small muted">Nothing recorded yet. Every confirmation, signature and status change appears here.</p>
-    {% endif %}
-  </section>
-</aside>
+  {% for u in steps if u.undo %}
+  <form class="now-undo" method="post" action="{{ BASE }}/cases/{{ cid }}/undo" data-confirm="Undo this step? The case goes back one step.">
+    <input type="hidden" name="step" value="{{ {'send': 'sent', 'decision': 'decision', 'book': 'booked'}[u.key] }}">
+    <button class="linkish" type="submit">Undo “{{ {'send': 'Mark as sent', 'decision': 'Record decision', 'book': 'Mark as booked'}[u.key] }}”</button>
+  </form>
+  {% endfor %}
+
+  {% elif stage.value == 'done' %}
+  <div class="now-head"><span class="now-k now-k-ok">Done</span><h2 id="now-title">Crown booked for {{ long_date(st.booked_on) }}</h2></div>
+  {% for u in steps if u.undo %}
+  <form class="now-undo" method="post" action="{{ BASE }}/cases/{{ cid }}/undo" data-confirm="Undo this step? The case goes back one step.">
+    <input type="hidden" name="step" value="booked"><button class="linkish" type="submit">Undo “Mark as booked”</button>
+  </form>
+  {% endfor %}
+  {% else %}
+  <div class="now-head"><h2 id="now-title">No preauthorization needed</h2></div>
+  <p class="now-lead">{{ a.schedule.detail }}</p>
+  {% endif %}
+</section>
+
+{% if then and now %}
+<p class="then">Then: {{ then.title }}<span class="muted"> · {{ who_tag(then.who, actor, provider).label }}</span></p>
+{% endif %}
+
+<div class="folds">
+  <details class="fold" id="requirements">
+    <summary><span class="fold-title">CDCP requirements</span><span class="fold-sub">{{ a.completeness.satisfied }} of {{ a.completeness.applicable }} documented</span></summary>
+    <div class="fold-body">
+      <ul class="reqs">
+        {% for r in applicable %}
+        <li class="req" id="req-{{ r.requirement_id }}">
+          {{ status_mark(r.status) }}
+          <div>
+            <div>{{ r.label }}</div>
+            <div class="req-meta">{{ clause_chip(r.clause, pack) }}{% if r.satisfied_via %}<span>via {{ r.satisfied_via|replace('_', ' ') }}</span>{% endif %}</div>
+            {% if r.status.value != 'satisfied' and r.detail %}<div class="req-detail">{{ requirement_detail(r) }}</div>{% endif %}
+            {% if r.risk_reason %}<div class="req-detail t-warn">{{ r.risk_reason }}</div>{% endif %}
+            {% for esc in r.escalations_evaluated if esc.fired %}<div class="req-detail">{{ esc.detail }}</div>{% endfor %}
+          </div>
+        </li>
+        {% endfor %}
+      </ul>
+      {% if not_applicable %}
+      <p class="small muted mt-12">Not applicable here: {% for r in not_applicable %}{{ r.label }}{% if not loop.last %}; {% endif %}{% endfor %}.</p>
+      {% endif %}
+      <p class="small muted mt-12">{{ a.schedule.detail }} Checked as of <span class="num">{{ full_date(a.submission_date_assumed) }}</span> against rule pack <span class="num">{{ pack.version }}</span>.</p>
+    </div>
+  </details>
+
+  <details class="fold" id="evidence">
+    <summary><span class="fold-title">What Ophi read in the chart</span><span class="fold-sub">{{ plural(evidence.radiographs|length, 'radiograph') }}, {{ plural((evidence.perio|length) + (evidence.psr|length), 'perio record') }}, {{ plural(evidence.notes|length, 'note') }}</span></summary>
+    <div class="fold-body">
+      {% for sec, sa in evidence.assurance %}
+      <p class="note note-warn gap-below">Your PMS reports <b>{{ sec|replace('_', ' ') }}</b> as <b>{{ sa.availability.value }}</b>{% if sa.reason %}: {{ sa.reason }}{% endif %}. Ophi can't tell if it is missing or just hidden from it.</p>
+      {% endfor %}
+      <div class="ev-grid">
+        <section class="ev-col">
+          <h3>Radiographs</h3>
+          {% if not evidence.radiographs %}<p class="muted small">None in the chart.</p>{% endif %}
+          {% for r in evidence.radiographs %}
+          <div class="ev{% if r.stale %} is-stale{% endif %}">
+            <div><b>{{ r.view }}</b>{% if r.laterality %} {{ r.laterality }}{% endif %} <span class="muted">{{ teeth(r.teeth) }}</span></div>
+            <div class="ev-meta num">{{ full_date(r.captured_at) if r.captured_at else 'Undated' }}{% if r.expires_on %}, current until {{ full_date(r.expires_on) }}{% endif %}{% if r.stale %}, {{ r.stale.over_by_days }} days past the limit{% endif %}</div>
+            {% if r.view == 'BW' and r.covers_tooth %}<div class="ev-meta">A bitewing does not show the root tip.</div>{% endif %}
+          </div>
+          {% endfor %}
+        </section>
+        <section class="ev-col">
+          <h3>Periodontal charting</h3>
+          {% if not evidence.perio and not evidence.psr %}<p class="muted small">None in the chart.</p>{% endif %}
+          {% for p in evidence.perio %}
+          <div class="ev{% if p.stale %} is-stale{% endif %}">
+            <div><b>Perio chart</b> <span class="num">{{ full_date(p.captured_at) if p.captured_at else 'Undated' }}</span>{% if not p.certified %} <span class="tag">uncertified draft</span>{% endif %}</div>
+            <div class="ev-meta num">{{ p.sites_per_tooth }} sites per tooth, {{ p.teeth_charted }} of {{ p.present }} teeth{% if p.expires_on %}, current until {{ full_date(p.expires_on) }}{% endif %}{% if p.stale %}, {{ p.stale.over_by_days }} days past the limit{% endif %}</div>
+            {% if p.requested_depths %}
+            <div class="depths"><span class="muted">#{{ case.requested_tooth }}</span>
+              {% for d in p.requested_depths %}<span class="depth num{% if d is not none and d >= 4 %} deep{% endif %}">{{ d if d is not none else '–' }}</span>{% endfor %}
+            </div>
+            {% endif %}
+          </div>
+          {% endfor %}
+          {% for s in evidence.psr %}
+          <div class="ev">
+            <div><b>PSR</b> <span class="num">{{ full_date(s.captured_at) if s.captured_at else 'Undated' }}</span></div>
+            <div class="psr">
+              {% for sx in evidence.sextants %}
+              <div class="sextant{% if sx == s.highlight %} hl{% endif %}{% if s.scores[sx] is not none and s.scores[sx] >= 3 %} high{% endif %}"><span>{{ sx }}</span><span class="score num">{{ s.scores[sx] if s.scores[sx] is not none else '–' }}</span></div>
+              {% endfor %}
+            </div>
+          </div>
+          {% endfor %}
+        </section>
+        <section class="ev-col">
+          <h3>Clinical notes</h3>
+          {% if not evidence.notes %}<p class="muted small">None in the chart.</p>{% endif %}
+          {% for n in evidence.notes %}
+          <div class="ev">
+            <div class="ev-meta"><span class="num">{{ full_date(n.captured_at) if n.captured_at else 'Undated' }}</span>, {{ n.author or 'unknown author' }}</div>
+            <p class="note-text">{% for seg in n.segments %}{% if seg.proposal %}<mark class="q-{{ seg.state }}">{{ seg.text }}</mark>{% else %}{{ seg.text }}{% endif %}{% endfor %}</p>
+            {% for seg in n.segments if seg.proposal and seg.state == 'confirmed' %}<div class="ev-meta t-ok">Confirmed by {{ seg.proposal.payload.confirmed_by }}</div>{% endfor %}
+          </div>
+          {% endfor %}
+          <h3 class="mt-18">Procedure history</h3>
+          {% if not evidence.history %}<p class="muted small">None in the chart.</p>{% else %}
+          <table class="tbl">
+            <thead><tr><th>Code</th><th>Tooth</th><th>Date</th></tr></thead>
+            <tbody>
+            {% for h in evidence.history %}
+            <tr class="{% if h.status == 'planned' %}muted{% endif %}"><td class="num">{{ h.code }}{% if h.status == 'planned' %} <span class="small">planned</span>{% endif %}</td><td class="num">{{ '#' ~ h.tooth_fdi if h.tooth_fdi else '—' }}</td><td class="num nowrap">{{ full_date(h.performed_on) }}</td></tr>
+            {% endfor %}
+            </tbody>
+          </table>
+          {% endif %}
+        </section>
+      </div>
+    </div>
+  </details>
+
+  <details class="fold" id="details">
+    <summary><span class="fold-title">Patient, treatment and history</span></summary>
+    <div class="fold-body details-grid">
+      <dl class="kv">
+        <dt>Treatment</dt><dd><span class="num">{{ t.code }}</span> {{ t.description or 'Crown' }}{% if t.surfaces %}, surfaces {{ t.surfaces|join('') }}{% endif %}</dd>
+        <dt>Lab</dt><dd class="num">{{ t.lab_codes|join(', ') if t.lab_codes else 'None' }}</dd>
+        <dt>Fee</dt><dd class="num">{{ money(view.dollars_at_risk) }}</dd>
+        <dt>Dentist</dt><dd>{{ provider }}{% if t.provider.licence %} <span class="muted num">{{ t.provider.licence }}</span>{% endif %}</dd>
+        <dt>Born</dt><dd class="num">{{ full_date(case.patient.dob) }}</dd>
+        <dt>CDCP ID</dt><dd class="num">{{ case.patient.cdcp_client_id or 'Not on file' }}</dd>
+        {% if a.deadlines %}<dt>Goes stale</dt><dd>{% for d in (a.deadlines|sort(attribute='expires_on'))[:3] %}{{ sentence(d.label) }} <span class="muted num">{{ full_date(d.expires_on) }}</span>{% if not loop.last %}<br>{% endif %}{% endfor %}</dd>{% endif %}
+      </dl>
+      {% if activity %}
+      <ul class="feed">{% for e in activity[:8] %}<li><time datetime="{{ e.at.isoformat() }}">{{ local_time(e.at) }}</time>{{ e.actor }} {{ e.what }}</li>{% endfor %}</ul>
+      {% endif %}
+    </div>
+  </details>
+</div>
 </div>
 {% endblock %}

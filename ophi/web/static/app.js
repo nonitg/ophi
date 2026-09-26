@@ -34,6 +34,10 @@
     });
   }
 
+  // The confirmation after a write is a toast: it says what happened, then gets out of the way.
+  var note = document.querySelector(".done-note");
+  if (note) setTimeout(function () { note.classList.add("is-gone"); }, 4000);
+
   document.querySelectorAll("[data-print]").forEach(function (btn) {
     btn.addEventListener("click", function () { window.print(); });
   });

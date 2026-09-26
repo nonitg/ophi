@@ -8,27 +8,23 @@
 <link rel="preload" href="{{ BASE }}/static/fonts/Geist-Variable.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="{{ BASE }}/static/app.css?v={{ STATIC_V }}">
 </head>
-<body>
+<body class="{% block body_class %}{% endblock %}">
 {% set path = here %}
-<div class="demo">Demo with fictional patients. The date is fixed at {{ today.strftime('%A, %B %-d, %Y') }}.</div>
+<div class="demo">Demo with fictional patients. Today is fixed at {{ today.strftime('%a %b %-d, %Y') }}.</div>
 <header class="bar">
   <div class="bar-in">
-    <a class="brand" href="{{ HOME }}" aria-label="Ophi worklist">{% include "wordmark.svg" %}</a>
+    <a class="brand" href="{{ HOME }}" aria-label="Ophi board">{% include "wordmark.svg" %}</a>
     <nav class="nav" aria-label="Main">
-      <a href="{{ HOME }}" {% if path == '/' or path.startswith('/cases') %}aria-current="page"{% endif %}>Worklist</a>
-      <a href="{{ BASE }}/recover" {% if path.startswith('/recover') %}aria-current="page"{% endif %}>Recover</a>
+      <a href="{{ HOME }}" {% if path == '/' or path.startswith('/cases') %}aria-current="page"{% endif %}>Board</a>
+      <a href="{{ BASE }}/recover" {% if path.startswith('/recover') %}aria-current="page"{% endif %}>Past denials</a>
       <a href="{{ BASE }}/results" {% if path.startswith('/results') %}aria-current="page"{% endif %}>Results</a>
       <a href="{{ BASE }}/settings" {% if path.startswith('/settings') or path == '/outcomes' %}aria-current="page"{% endif %}>Settings</a>
     </nav>
-    <form class="me" method="post" action="{{ BASE }}/actor">
-      <span>Acting as</span>
-      <label class="sr" for="actor-select">Acting as</label>
-      <select id="actor-select" name="actor" data-autosubmit>
-        {% for key, a in ACTORS.items() %}
-        <option value="{{ key }}" {% if a.key == actor.key %}selected{% endif %}>{{ a.name }}, {{ a.role }}</option>
-        {% endfor %}
-      </select>
-      <noscript><button type="submit" class="btn btn-sm">Switch</button></noscript>
+    <form class="me" method="post" action="{{ BASE }}/actor" aria-label="View as">
+      <span class="me-k">View as</span>
+      {% for key, a in ACTORS.items() %}
+      <button type="submit" name="actor" value="{{ key }}" aria-pressed="{{ 'true' if a.key == actor.key else 'false' }}"><span class="mono-mark" aria-hidden="true">{{ initials(a.name) }}</span>{{ a.name }}</button>
+      {% endfor %}
     </form>
   </div>
 </header>

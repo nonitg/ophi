@@ -52,10 +52,10 @@ def _draft(case_id: str) -> str:
     return draft_narrative(case, assess(case, default_pack()), default_pack())
 
 
-def test_worklist_groups_cases_by_step_with_send_by_dates(seeded):
+def test_board_shows_a_column_per_step_with_deadline_chips(seeded):
     r = seeded.get("/")
     assert r.status_code == 200
-    for text in ("Fix chart gaps", "Waiting on Sun Life", "Resubmit", "Kowalchuk", "4 days late to send", "Send by Sep 22"):
+    for text in ("Fix chart", "With Sun Life", "Decision back", "Start here", "Kowalchuk", "Late for Sep 20 crown", "Send by Sep 22"):
         assert text in r.text
 
 
@@ -142,8 +142,8 @@ def test_tremblay_happy_path_reaches_ready_then_signs_off(client):
 
     assert client.post("/cases/tremblay/submitted", data={"on": "2026-09-17"}).status_code == 303
     assert "Marked as sent on Sep 17, 2026" in client.get("/cases/tremblay/packet").text
-    client.cookies.set("actor", "coordinator")  # the dentist's worklist leaves out cases waiting on Sun Life
-    assert "Waiting for Sun Life&#39;s decision" in client.get("/").text
+    client.cookies.set("actor", "coordinator")
+    assert "Waiting for the decision" in client.get("/").text
 
 
 def test_sign_off_blocked_when_verdict_not_ready(client):
@@ -185,9 +185,9 @@ def test_results_report_and_the_old_look_back_link(seeded):
 def test_record_decision_then_book(seeded):
     r = seeded.post("/cases/park/decision", data={"outcome": "approved", "decided_on": "2026-09-16", "reason": ""})
     assert r.status_code == 303 and "done=decision" in r.headers["location"]
-    assert "Valid until Sep 16, 2027" in seeded.get("/cases/park").text
+    assert "Book by Sep 16, 2027" in seeded.get("/cases/park").text
     assert seeded.post("/cases/park/booked", data={"on": "2026-10-05"}).status_code == 303
-    assert "Booked for" in seeded.get("/cases/park").text
+    assert "Crown booked for" in seeded.get("/cases/park").text
 
 
 def test_decision_needs_an_outcome_and_a_date(seeded):
@@ -240,7 +240,7 @@ def test_actor_cookie_and_reset(client):
     as_dentist(client)
     client.post("/cases/tremblay/assert", data={"criterion_id": "ferrule_1_5mm", "value": "met"})
     assert client.post("/reset").status_code == 303
-    assert "Not yet recorded" in client.get("/cases/tremblay").text
+    assert 'value="met" checked' not in client.get("/cases/tremblay").text
     assert client.app.state.svc.store.audit_log() == []
 
 

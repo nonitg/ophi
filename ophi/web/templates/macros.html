@@ -38,14 +38,14 @@
 <span class="payer" data-voice="payer">Sun Life {{ p.outcome }} it on {{ full_date(p.on) }}{% if with_reason and p.reason %}: <q class="payer-quote">{{ p.reason }}</q>{% else %}.{% endif %}</span>
 {%- endmacro %}
 
-{# Today to the appointment on the shared four-week scale; the hatched stretch is Sun Life's usual turnaround. #}
-{% macro runway(rw, large=False) -%}
-{%- if rw -%}
-<div class="runway{% if large %} runway-lg{% endif %}{% if rw.late %} is-late{% endif %}{% if rw.beyond %} is-beyond{% endif %}" style="--appt: {{ rw.appt }}%; --win: {{ rw.win }}%; --win-w: {{ rw.win_w }}%"
-     role="img" aria-label="Appointment in {{ rw.days }} days{% if rw.late %}, less than Sun Life's usual {{ TURNAROUND_DAYS }} days{% endif %}">
-  <span class="rw-lead"></span><span class="rw-win"></span><span class="rw-today"></span><span class="rw-appt"></span>
-</div>
-{%- endif -%}
+{# The one date that matters now. Colour carries the urgency: red late, amber due within two days, green done. #}
+{% macro due(t) -%}
+{%- if t.text %}<span class="due{% if t.tone %} due-{{ t.tone }}{% endif %}">{{ t.text }}</span>{% endif -%}
+{%- endmacro %}
+
+{# Sun Life's usual turnaround is a published figure; wherever Ophi relies on it, the source is one tap away. #}
+{% macro turnaround_source() -%}
+<a class="src" href="{{ TURNAROUND_SOURCE[1] }}" target="_blank" rel="noopener" title="{{ TURNAROUND_SOURCE[0] }}">Source</a>
 {%- endmacro %}
 
 {% macro treatment_line(c) -%}
