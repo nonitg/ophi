@@ -138,6 +138,8 @@
     ],
     "fired": [
       "furcation"
-    ]
+    ],
+    "denial_reason": "CLIN_PERIO_PROGNOSIS",
+    "resubmission_denial_reason": null
   }
 }

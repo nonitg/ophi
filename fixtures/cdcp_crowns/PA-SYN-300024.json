@@ -117,7 +117,42 @@
     "type": "resubmission",
     "submitted_date": "2026-07-20",
     "fixed": "no_perio",
-    "outcome": "denied"
+    "changes": {
+      "added_attachments": [
+        {
+          "type": "periodontal_charting",
+          "count": 1,
+          "captured_date": "2026-07-17"
+        }
+      ],
+      "perio_summary": {
+        "chart_type": "complete",
+        "captured_date": "2026-07-17",
+        "psr": {
+          "S1": 2,
+          "S2": 2,
+          "S3": 3,
+          "S4": 3,
+          "S5": 2,
+          "S6": 4
+        },
+        "tooth_sites_mm": [
+          5,
+          6,
+          7,
+          5,
+          6,
+          4
+        ],
+        "bop_at_tooth": true,
+        "furcation_class": 0
+      }
+    },
+    "outcome": "denied",
+    "reason_code": "UNSPECIFIED",
+    "reason_category": null,
+    "explanation_of_benefits_text": "The service does not meet the CDCP criteria for this benefit.",
+    "missing_documents": []
   },
   "_generator_truth": {
     "clinical": {
@@ -162,6 +197,8 @@
     "fired": [
       "no_perio",
       "poor_support"
-    ]
+    ],
+    "denial_reason": "DOC_MISSING_PERIO_CHART",
+    "resubmission_denial_reason": "CLIN_PERIO_PROGNOSIS"
   }
 }

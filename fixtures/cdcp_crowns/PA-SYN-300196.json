@@ -129,6 +129,8 @@
     "fired": [
       "not_ext_restored",
       "ferrule"
-    ]
+    ],
+    "denial_reason": "CLIN_NOT_EXT_RESTORED",
+    "resubmission_denial_reason": null
   }
 }

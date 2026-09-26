@@ -115,6 +115,15 @@
     "type": "resubmission",
     "submitted_date": "2026-09-07",
     "fixed": "no_bw",
+    "changes": {
+      "added_attachments": [
+        {
+          "type": "bitewing_radiographs",
+          "count": 2,
+          "captured_date": "2026-08-17"
+        }
+      ]
+    },
     "outcome": "approved"
   },
   "_generator_truth": {
@@ -148,6 +157,8 @@
     ],
     "fired": [
       "no_bw"
-    ]
+    ],
+    "denial_reason": "DOC_MISSING_RADIOGRAPH",
+    "resubmission_denial_reason": null
   }
 }

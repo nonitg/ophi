@@ -106,6 +106,8 @@
       "no_perio",
       "poor_support"
     ],
-    "fired": []
+    "fired": [],
+    "denial_reason": null,
+    "resubmission_denial_reason": null
   }
 }

@@ -130,6 +130,8 @@
       "stale_pa",
       "not_ext_restored",
       "poor_support"
-    ]
+    ],
+    "denial_reason": "DOC_RADIOGRAPH_STALE",
+    "resubmission_denial_reason": null
   }
 }

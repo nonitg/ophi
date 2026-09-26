@@ -151,6 +151,8 @@
       "ferrule",
       "no_bw"
     ],
-    "fired": []
+    "fired": [],
+    "denial_reason": null,
+    "resubmission_denial_reason": null
   }
 }

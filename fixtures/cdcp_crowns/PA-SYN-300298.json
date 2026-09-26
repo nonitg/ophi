@@ -120,6 +120,8 @@
     ],
     "fired": [
       "no_bw"
-    ]
+    ],
+    "denial_reason": "DOC_MISSING_RADIOGRAPH",
+    "resubmission_denial_reason": null
   }
 }

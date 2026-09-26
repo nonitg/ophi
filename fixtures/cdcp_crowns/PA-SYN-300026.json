@@ -82,14 +82,51 @@
     "reason_code": "DOC_MISSING_PERIO_CHART",
     "reason_category": "incomplete_submission",
     "explanation_of_benefits_text": "A complete periodontal charting within 12 months is required for crowns.",
-    "missing_documents": [],
+    "missing_documents": [
+      "periodontal_charting"
+    ],
     "reviewer_type": "dental_consultant"
   },
   "followup": {
     "type": "resubmission",
     "submitted_date": "2026-06-28",
     "fixed": "no_perio",
-    "outcome": "denied"
+    "changes": {
+      "added_attachments": [
+        {
+          "type": "periodontal_charting",
+          "count": 1,
+          "captured_date": "2026-05-13"
+        }
+      ],
+      "perio_summary": {
+        "chart_type": "complete",
+        "captured_date": "2026-05-13",
+        "psr": {
+          "S1": 3,
+          "S2": 3,
+          "S3": 4,
+          "S4": 3,
+          "S5": 3,
+          "S6": 2
+        },
+        "tooth_sites_mm": [
+          4,
+          7,
+          4,
+          4,
+          4,
+          6
+        ],
+        "bop_at_tooth": true,
+        "furcation_class": null
+      }
+    },
+    "outcome": "denied",
+    "reason_code": "CLIN_PERIO_PROGNOSIS",
+    "reason_category": "clinical_necessity",
+    "explanation_of_benefits_text": "Crown-to-root ratio or bone support does not meet CDCP criteria.",
+    "missing_documents": []
   },
   "_generator_truth": {
     "clinical": {
@@ -127,6 +164,8 @@
     "fired": [
       "no_perio",
       "poor_support"
-    ]
+    ],
+    "denial_reason": "DOC_MISSING_PERIO_CHART",
+    "resubmission_denial_reason": "CLIN_PERIO_PROGNOSIS"
   }
 }

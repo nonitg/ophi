@@ -161,6 +161,8 @@
     "fired": [
       "frequency",
       "pending_basic"
-    ]
+    ],
+    "denial_reason": "FREQ_LIMIT",
+    "resubmission_denial_reason": null
   }
 }

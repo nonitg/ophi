@@ -151,6 +151,8 @@
     "fired": [
       "no_perio",
       "retired_lab_code"
-    ]
+    ],
+    "denial_reason": "DOC_MISSING_PERIO_CHART",
+    "resubmission_denial_reason": null
   }
 }

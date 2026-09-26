@@ -63,6 +63,10 @@ PATTERNS = {
     "thin_note":         (0.5, "DOC_INSUFFICIENT_NOTES", "incomplete_submission", "Clinical notes do not describe the condition supporting the proposed service.", True),
 }
 VAGUE = "The service does not meet the CDCP criteria for this benefit."
+NO_PATTERN = (0, "CLIN_NEED_NOT_MET", "clinical_necessity", VAGUE, False)
+# A letter that names a documentation gap also lists the document it wants.
+MISSING_DOC = {"no_pa": "periapical_radiograph", "stale_pa": "periapical_radiograph", "no_bw": "bitewing_radiographs",
+               "no_perio": "periodontal_charting", "thin_note": "clinical_notes"}
 BASELINE_DENY = 0.04  # consultant variance: some complete, clinically sound requests are still denied
 CONSULTANT_ACTS = 0.8  # share of visible problems a consultant acts on; tuned to the ~37% crown approval rate
 
@@ -148,35 +152,35 @@ def violations(s: dict, age_band: str, dup: bool, retired: bool) -> set[str]:
 SURF = {1: "O", 2: "MO", 3: "MOD", 4: "MODB", 5: "MODBL"}
 
 
-def render_note(s: dict, style: str) -> str:
+def render_note(s: dict, style: str, rng=random) -> str:
     t, bits = s["tooth"], []
-    if style == "terse" and random.random() < 0.45:
-        return random.choice([f"#{t} needs crown.", f"Pt wants crown on {t}.", f"{t} crown recommended, see chart.",
-                              f"Recommend crown #{t} as discussed.", f"{t} broken, crown."])
+    if style == "terse" and rng.random() < 0.45:
+        return rng.choice([f"#{t} needs crown.", f"Pt wants crown on {t}.", f"{t} crown recommended, see chart.",
+                           f"Recommend crown #{t} as discussed.", f"{t} broken, crown."])
     if s["class"] == "anterior":
         bits.append(f"#{t} {'fractured incisal edge, loss extends to both contacts' if s['incisal_edge_lost'] else 'large class IV composite, incisal edge intact'}.")
     else:
-        rest = random.choice(["amalgam", "composite"])
-        bits.append(f"#{t} {SURF[s['surfaces']]} {rest}" + (f", {random.choice(['DL', 'ML', 'DB', 'MB'])} cusp fractured" if s["cusp_fractured"] else "") + ".")
+        rest = rng.choice(["amalgam", "composite"])
+        bits.append(f"#{t} {SURF[s['surfaces']]} {rest}" + (f", {rng.choice(['DL', 'ML', 'DB', 'MB'])} cusp fractured" if s["cusp_fractured"] else "") + ".")
     if s["endo"]:
         wk = s["endo_weeks_ago"]
         bits.append(f"RCT completed {f'{wk} weeks ago' if wk < 12 else f'{wk // 4} months ago' if wk < 104 else 'in ' + str(2026 - wk // 52)}" +
-                    (", PA radiolucency still present" if s["periapical_lesion"] and random.random() < 0.7 else ", asymptomatic") + ".")
+                    (", PA radiolucency still present" if s["periapical_lesion"] and rng.random() < 0.7 else ", asymptomatic") + ".")
     ind = {"fracture": "Tooth fractured, unrestorable with direct restoration.", "large_restoration": "Existing restoration failing, marginal breakdown.",
            "post_endo": "Crown indicated to protect endo-treated tooth.", "recurrent_caries": "Recurrent caries under existing restoration.",
-           "cracked_tooth": random.choice(["Cracked tooth syndrome, pain on biting.", "Craze lines, sensitive to cold."]),
-           "cosmetic": random.choice(["Pt unhappy with shade, wants crown for appearance.", "Discoloured, pt requests crown to improve esthetics."])}
+           "cracked_tooth": rng.choice(["Cracked tooth syndrome, pain on biting.", "Craze lines, sensitive to cold."]),
+           "cosmetic": rng.choice(["Pt unhappy with shade, wants crown for appearance.", "Discoloured, pt requests crown to improve esthetics."])}
     bits.append(ind[s["indication"]])
     if style == "detailed":
-        if s["pending_basic"] and random.random() < 0.6:
+        if s["pending_basic"] and rng.random() < 0.6:
             bits.append("Also " + ", ".join(f"{'SRP' if c == '43421' else 'restore'} {'' if tt is None else '#' + str(tt)}".strip() for c, tt in s["pending_basic"]) + " planned.")
         if s["subgingival_margin"]:
-            bits.append(random.choice(["Decay extends subgingivally, crown lengthening may be required.", "Margin at bone level distally."]))
-        if s["furcation"] >= 2 and random.random() < 0.7:
+            bits.append(rng.choice(["Decay extends subgingivally, crown lengthening may be required.", "Margin at bone level distally."]))
+        if s["furcation"] >= 2 and rng.random() < 0.7:
             bits.append(f"Class {'II' if s['furcation'] == 2 else 'III'} furcation.")
-        if s["bone_loss_pct"] > 50 and random.random() < 0.6:
+        if s["bone_loss_pct"] > 50 and rng.random() < 0.6:
             bits.append("Moderate-severe bone loss on PA.")
-        bits.append(random.choice(["Tooth vital." if not s["endo"] else "No TTP.", "Occlusion stable.", "Pt informed of options."]))
+        bits.append(rng.choice(["Tooth vital." if not s["endo"] else "No TTP.", "Occlusion stable.", "Pt informed of options."]))
     return " ".join(bits)
 
 
@@ -186,6 +190,39 @@ def render_narrative(s: dict, style: str) -> str | None:
     return (f"Request for crown on #{s['tooth']}. The tooth meets the CDCP definition of extensively restored"
             f"{' following endodontic treatment' if s['endo'] else ''}. All other basic treatment is complete. "
             "Periodontal status is stable at the requested tooth.")  # clinics template this whether or not it is true
+
+
+def denial_letter(pattern: str | None, rng) -> dict:
+    """The reason fields of a denial letter. Clinical letters are often vague, and any letter sometimes is."""
+    _, rcode, cat, text, _ = PATTERNS.get(pattern, NO_PATTERN)
+    vague = cat == "clinical_necessity" and rng.random() < 0.5 or rng.random() < 0.1
+    return {"reason_code": "UNSPECIFIED" if vague else rcode, "reason_category": None if vague else cat,
+            "explanation_of_benefits_text": VAGUE if vague else text,
+            "missing_documents": [MISSING_DOC[pattern]] if pattern in MISSING_DOC and not vague else []}
+
+
+def resubmission_changes(fix: str, s: dict, decided: date, resub: date, rng) -> dict:
+    """What the clinic sends differently to answer the letter, as a diff on the first request."""
+    def since_letter() -> str:
+        return str(decided + timedelta(days=rng.randint(1, (resub - decided).days - 1)))
+    if fix in ("no_pa", "stale_pa", "endo_not_healed"):  # endo: wait for healing, then a fresh film
+        return {"added_attachments": [{"type": "periapical_radiograph", "count": 1, "captured_date": since_letter()}]}
+    if fix == "no_bw":
+        return {"added_attachments": [{"type": "bitewing_radiographs", "count": 2, "captured_date": since_letter()}]}
+    if fix == "no_perio":
+        when = since_letter()
+        return {"added_attachments": [{"type": "periodontal_charting", "count": 1, "captured_date": when}],
+                "perio_summary": {"chart_type": "complete", "captured_date": when, "psr": s["psr"], "tooth_sites_mm": s["pd_mm"],
+                                  "bop_at_tooth": s["bop"], "furcation_class": s["furcation"] if s["class"] == "molar" else None}}
+    if fix == "pending_basic":
+        return {"completed_treatment": [{"code": c, "tooth": t, "date": since_letter()} for c, t in s["pending_basic"]]}
+    if fix == "active_perio":  # scaling and root planing, then a re-evaluation chart
+        srp, chart = decided + timedelta(days=rng.randint(1, 5)), resub - timedelta(days=rng.randint(0, 3))
+        return {"completed_treatment": [{"code": "43421", "tooth": None, "date": str(srp)}],
+                "added_attachments": [{"type": "periodontal_charting", "count": 1, "captured_date": str(chart)}]}
+    if fix == "retired_lab_code":
+        return {"lab_codes": ["99112"]}
+    return {"clinical_notes": render_note(s, "standard", rng)}  # thin_note
 
 
 def make(i: int, clinic: dict, prior: list[dict]) -> dict:
@@ -268,6 +305,7 @@ def make(i: int, clinic: dict, prior: list[dict]) -> dict:
                           "previous_preauth_ids": [random.choice(prior)["preauth_id"]] if dup else []},
     }
     fee_grid = rec["services"][0]["fee_grid_amount"]
+    reasons = {"denial_reason": None, "resubmission_denial_reason": None}  # what each letter would name if it weren't vague
     if not denied:
         rec["decision"] = {"status": "approved", "reason_code": None, "reason_category": None,
                            "explanation_of_benefits_text": "Service approved as submitted; payable at CDCP fee grid less applicable co-pay.",
@@ -276,18 +314,24 @@ def make(i: int, clinic: dict, prior: list[dict]) -> dict:
         rec["followup"] = None
     else:
         main = fired[0] if fired else None
-        _, rcode, cat, text, fixable = PATTERNS[main] if main else (0, "CLIN_NEED_NOT_MET", "clinical_necessity", VAGUE, False)
-        vague = cat == "clinical_necessity" and random.random() < 0.5 or random.random() < 0.1
-        rec["decision"] = {"status": "denied", "reason_code": "UNSPECIFIED" if vague else rcode, "reason_category": None if vague else cat,
-                           "explanation_of_benefits_text": VAGUE if vague else text,
-                           "missing_documents": [], "reviewer_type": "dental_consultant" if cat == "clinical_necessity" else random.choice(["automated", "dental_consultant"])}
+        _, reasons["denial_reason"], cat, _, fixable = PATTERNS.get(main, NO_PATTERN)
+        rec["decision"] = {"status": "denied", **denial_letter(main, random),
+                           "reviewer_type": "dental_consultant" if cat == "clinical_necessity" else random.choice(["automated", "dental_consultant"])}
         rec["followup"] = None
         if fixable and random.random() < 0.45:
             rest = [p for p in fired[1:] if not PATTERNS[p][4]]
-            rec["followup"] = {"type": "resubmission", "submitted_date": str(decided + timedelta(days=random.randint(10, 60))),
-                               "fixed": main, "outcome": "denied" if rest or random.random() < 0.15 else "approved"}
+            second = rest[0] if rest else None
+            resub = decided + timedelta(days=random.randint(10, 60))
+            outcome = "denied" if rest or random.random() < 0.15 else "approved"
+            # Own random stream, so adding resubmission detail leaves every other generated value unchanged.
+            fu_rng = random.Random(f"{rec['preauth_id']}-resubmission")
+            if outcome == "denied":
+                reasons["resubmission_denial_reason"] = PATTERNS.get(second, NO_PATTERN)[1]
+            rec["followup"] = {"type": "resubmission", "submitted_date": str(resub), "fixed": main,
+                               "changes": resubmission_changes(main, s, decided, resub, fu_rng), "outcome": outcome,
+                               **(denial_letter(second, fu_rng) if outcome == "denied" else {})}
     rec["_generator_truth"] = {"clinical": {k: v for k, v in s.items() if k != "psr"}, "violations": sorted(truth),
-                               "visible_to_consultant": sorted(visible), "fired": fired}
+                               "visible_to_consultant": sorted(visible), "fired": fired, **reasons}
     return rec
 
 

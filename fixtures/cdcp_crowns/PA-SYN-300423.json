@@ -110,6 +110,8 @@
       "retired_lab_code",
       "thin_note"
     ],
-    "fired": []
+    "fired": [],
+    "denial_reason": null,
+    "resubmission_denial_reason": null
   }
 }

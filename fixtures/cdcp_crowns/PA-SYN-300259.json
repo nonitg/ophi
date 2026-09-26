@@ -142,6 +142,8 @@
     "fired": [
       "age_under_18",
       "active_perio"
-    ]
+    ],
+    "denial_reason": "ELIGIBILITY",
+    "resubmission_denial_reason": null
   }
 }

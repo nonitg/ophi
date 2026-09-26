@@ -72,7 +72,9 @@
     "reason_code": "DOC_MISSING_RADIOGRAPH",
     "reason_category": "incomplete_submission",
     "explanation_of_benefits_text": "A current periapical radiograph of the requested tooth is required.",
-    "missing_documents": [],
+    "missing_documents": [
+      "periapical_radiograph"
+    ],
     "reviewer_type": "automated"
   },
   "followup": null,
@@ -111,6 +113,8 @@
       "no_pa",
       "no_perio",
       "thin_note"
-    ]
+    ],
+    "denial_reason": "DOC_MISSING_RADIOGRAPH",
+    "resubmission_denial_reason": null
   }
 }

@@ -148,6 +148,8 @@
     "fired": [
       "duplicate",
       "furcation"
-    ]
+    ],
+    "denial_reason": "DUPLICATE_REQUEST",
+    "resubmission_denial_reason": null
   }
 }

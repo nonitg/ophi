@@ -82,13 +82,24 @@
     "reason_code": "DOC_RADIOGRAPH_STALE",
     "reason_category": "incomplete_submission",
     "explanation_of_benefits_text": "Radiographs must be dated within 12 months of the submission.",
-    "missing_documents": [],
+    "missing_documents": [
+      "periapical_radiograph"
+    ],
     "reviewer_type": "dental_consultant"
   },
   "followup": {
     "type": "resubmission",
     "submitted_date": "2026-07-28",
     "fixed": "stale_pa",
+    "changes": {
+      "added_attachments": [
+        {
+          "type": "periapical_radiograph",
+          "count": 1,
+          "captured_date": "2026-07-11"
+        }
+      ]
+    },
     "outcome": "approved"
   },
   "_generator_truth": {
@@ -123,6 +134,8 @@
     ],
     "fired": [
       "stale_pa"
-    ]
+    ],
+    "denial_reason": "DOC_RADIOGRAPH_STALE",
+    "resubmission_denial_reason": null
   }
 }

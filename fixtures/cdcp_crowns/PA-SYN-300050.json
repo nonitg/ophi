@@ -146,6 +146,8 @@
       "crack_or_cosmetic",
       "furcation",
       "thin_note"
-    ]
+    ],
+    "denial_reason": "FREQ_LIMIT",
+    "resubmission_denial_reason": null
   }
 }

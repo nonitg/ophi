@@ -148,6 +148,8 @@
     "fired": [
       "endo_not_healed",
       "retired_lab_code"
-    ]
+    ],
+    "denial_reason": "CLIN_ENDO_NOT_HEALED",
+    "resubmission_denial_reason": null
   }
 }

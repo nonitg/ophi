@@ -151,6 +151,8 @@
     "visible_to_consultant": [
       "pending_basic"
     ],
-    "fired": []
+    "fired": [],
+    "denial_reason": "CLIN_NEED_NOT_MET",
+    "resubmission_denial_reason": null
   }
 }

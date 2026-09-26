@@ -112,6 +112,8 @@
     ],
     "fired": [
       "no_perio"
-    ]
+    ],
+    "denial_reason": "DOC_MISSING_PERIO_CHART",
+    "resubmission_denial_reason": null
   }
 }

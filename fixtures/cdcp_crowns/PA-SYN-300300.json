@@ -157,6 +157,8 @@
       "pending_basic",
       "crack_or_cosmetic",
       "thin_note"
-    ]
+    ],
+    "denial_reason": "CLIN_ACTIVE_DISEASE",
+    "resubmission_denial_reason": null
   }
 }

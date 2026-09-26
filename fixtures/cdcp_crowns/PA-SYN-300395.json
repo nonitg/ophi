@@ -133,6 +133,8 @@
     "fired": [
       "pending_basic",
       "ferrule"
-    ]
+    ],
+    "denial_reason": "CLIN_ACTIVE_DISEASE",
+    "resubmission_denial_reason": null
   }
 }

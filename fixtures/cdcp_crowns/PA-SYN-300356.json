@@ -136,6 +136,8 @@
     "fired": [
       "frequency",
       "stale_pa"
-    ]
+    ],
+    "denial_reason": "FREQ_LIMIT",
+    "resubmission_denial_reason": null
   }
 }

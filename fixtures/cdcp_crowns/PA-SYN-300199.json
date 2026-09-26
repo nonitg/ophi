@@ -162,6 +162,8 @@
       "third_molar",
       "no_pa",
       "pending_basic"
-    ]
+    ],
+    "denial_reason": "TOOTH_INELIGIBLE",
+    "resubmission_denial_reason": null
   }
 }

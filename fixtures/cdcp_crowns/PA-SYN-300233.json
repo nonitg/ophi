@@ -143,6 +143,8 @@
     "visible_to_consultant": [
       "not_ext_restored"
     ],
-    "fired": []
+    "fired": [],
+    "denial_reason": null,
+    "resubmission_denial_reason": null
   }
 }

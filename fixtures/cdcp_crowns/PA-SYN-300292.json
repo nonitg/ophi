@@ -108,14 +108,23 @@
     "reason_code": "DOC_INSUFFICIENT_NOTES",
     "reason_category": "incomplete_submission",
     "explanation_of_benefits_text": "Clinical notes do not describe the condition supporting the proposed service.",
-    "missing_documents": [],
+    "missing_documents": [
+      "clinical_notes"
+    ],
     "reviewer_type": "dental_consultant"
   },
   "followup": {
     "type": "resubmission",
     "submitted_date": "2026-05-28",
     "fixed": "thin_note",
-    "outcome": "denied"
+    "changes": {
+      "clinical_notes": "#21 large class IV composite, incisal edge intact. RCT completed 9 months ago, asymptomatic. Tooth fractured, unrestorable with direct restoration."
+    },
+    "outcome": "denied",
+    "reason_code": "CLIN_NEED_NOT_MET",
+    "reason_category": "clinical_necessity",
+    "explanation_of_benefits_text": "The service does not meet the CDCP criteria for this benefit.",
+    "missing_documents": []
   },
   "_generator_truth": {
     "clinical": {
@@ -153,6 +162,8 @@
     ],
     "fired": [
       "thin_note"
-    ]
+    ],
+    "denial_reason": "DOC_INSUFFICIENT_NOTES",
+    "resubmission_denial_reason": "CLIN_NEED_NOT_MET"
   }
 }

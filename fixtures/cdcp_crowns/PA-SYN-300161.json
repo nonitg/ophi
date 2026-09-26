@@ -162,6 +162,8 @@
       "duplicate",
       "pending_basic",
       "retired_lab_code"
-    ]
+    ],
+    "denial_reason": "DUPLICATE_REQUEST",
+    "resubmission_denial_reason": null
   }
 }

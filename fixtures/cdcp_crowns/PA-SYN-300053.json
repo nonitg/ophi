@@ -82,13 +82,46 @@
     "reason_code": "DOC_MISSING_PERIO_CHART",
     "reason_category": "incomplete_submission",
     "explanation_of_benefits_text": "A complete periodontal charting within 12 months is required for crowns.",
-    "missing_documents": [],
+    "missing_documents": [
+      "periodontal_charting"
+    ],
     "reviewer_type": "automated"
   },
   "followup": {
     "type": "resubmission",
     "submitted_date": "2026-06-16",
     "fixed": "no_perio",
+    "changes": {
+      "added_attachments": [
+        {
+          "type": "periodontal_charting",
+          "count": 1,
+          "captured_date": "2026-06-06"
+        }
+      ],
+      "perio_summary": {
+        "chart_type": "complete",
+        "captured_date": "2026-06-06",
+        "psr": {
+          "S1": 3,
+          "S2": 4,
+          "S3": 3,
+          "S4": 1,
+          "S5": 3,
+          "S6": 2
+        },
+        "tooth_sites_mm": [
+          3,
+          3,
+          3,
+          2,
+          2,
+          3
+        ],
+        "bop_at_tooth": false,
+        "furcation_class": 1
+      }
+    },
     "outcome": "approved"
   },
   "_generator_truth": {
@@ -125,6 +158,8 @@
     ],
     "fired": [
       "no_perio"
-    ]
+    ],
+    "denial_reason": "DOC_MISSING_PERIO_CHART",
+    "resubmission_denial_reason": null
   }
 }

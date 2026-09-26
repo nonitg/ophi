@@ -126,6 +126,8 @@
       "active_perio",
       "no_perio"
     ],
-    "fired": []
+    "fired": [],
+    "denial_reason": null,
+    "resubmission_denial_reason": null
   }
 }

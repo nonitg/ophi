@@ -150,6 +150,8 @@
     ],
     "fired": [
       "pending_basic"
-    ]
+    ],
+    "denial_reason": "CLIN_ACTIVE_DISEASE",
+    "resubmission_denial_reason": null
   }
 }

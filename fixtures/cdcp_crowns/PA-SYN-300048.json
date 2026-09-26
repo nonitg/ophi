@@ -132,6 +132,8 @@
       "no_perio",
       "thin_note"
     ],
-    "fired": []
+    "fired": [],
+    "denial_reason": null,
+    "resubmission_denial_reason": null
   }
 }

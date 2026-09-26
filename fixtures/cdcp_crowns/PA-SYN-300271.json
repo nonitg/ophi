@@ -150,6 +150,8 @@
     "fired": [
       "poor_support",
       "retired_lab_code"
-    ]
+    ],
+    "denial_reason": "CLIN_PERIO_PROGNOSIS",
+    "resubmission_denial_reason": null
   }
 }

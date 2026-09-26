@@ -163,6 +163,8 @@
       "pending_basic",
       "retired_lab_code",
       "thin_note"
-    ]
+    ],
+    "denial_reason": "CLIN_ACTIVE_DISEASE",
+    "resubmission_denial_reason": null
   }
 }

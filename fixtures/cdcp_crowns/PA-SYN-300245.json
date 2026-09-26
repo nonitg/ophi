@@ -131,6 +131,8 @@
     "fired": [
       "poor_support",
       "ferrule"
-    ]
+    ],
+    "denial_reason": "CLIN_PERIO_PROGNOSIS",
+    "resubmission_denial_reason": null
   }
 }

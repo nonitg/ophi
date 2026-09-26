@@ -120,6 +120,8 @@
       "duplicate",
       "no_pa",
       "no_perio"
-    ]
+    ],
+    "denial_reason": "DUPLICATE_REQUEST",
+    "resubmission_denial_reason": null
   }
 }

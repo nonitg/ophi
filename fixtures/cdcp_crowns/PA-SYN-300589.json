@@ -103,7 +103,9 @@
     "reason_code": "DOC_MISSING_RADIOGRAPH",
     "reason_category": "incomplete_submission",
     "explanation_of_benefits_text": "Bitewing radiographs (right and left) within 12 months are required.",
-    "missing_documents": [],
+    "missing_documents": [
+      "bitewing_radiographs"
+    ],
     "reviewer_type": "dental_consultant"
   },
   "followup": null,
@@ -138,6 +140,8 @@
     ],
     "fired": [
       "no_bw"
-    ]
+    ],
+    "denial_reason": "DOC_MISSING_RADIOGRAPH",
+    "resubmission_denial_reason": null
   }
 }

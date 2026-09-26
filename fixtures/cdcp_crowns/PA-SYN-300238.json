@@ -81,14 +81,29 @@
     "reason_code": "DOC_MISSING_RADIOGRAPH",
     "reason_category": "incomplete_submission",
     "explanation_of_benefits_text": "A current periapical radiograph of the requested tooth is required.",
-    "missing_documents": [],
+    "missing_documents": [
+      "periapical_radiograph"
+    ],
     "reviewer_type": "automated"
   },
   "followup": {
     "type": "resubmission",
     "submitted_date": "2026-05-26",
     "fixed": "no_pa",
-    "outcome": "denied"
+    "changes": {
+      "added_attachments": [
+        {
+          "type": "periapical_radiograph",
+          "count": 1,
+          "captured_date": "2026-05-20"
+        }
+      ]
+    },
+    "outcome": "denied",
+    "reason_code": "CLIN_NOT_EXT_RESTORED",
+    "reason_category": "clinical_necessity",
+    "explanation_of_benefits_text": "The tooth does not meet the CDCP definition of extensively restored; a less costly restoration is indicated.",
+    "missing_documents": []
   },
   "_generator_truth": {
     "clinical": {
@@ -135,6 +150,8 @@
       "no_perio",
       "pending_basic",
       "not_ext_restored"
-    ]
+    ],
+    "denial_reason": "DOC_MISSING_RADIOGRAPH",
+    "resubmission_denial_reason": "CLIN_NOT_EXT_RESTORED"
   }
 }

@@ -141,6 +141,8 @@
       "no_bw",
       "retired_lab_code"
     ],
-    "fired": []
+    "fired": [],
+    "denial_reason": null,
+    "resubmission_denial_reason": null
   }
 }

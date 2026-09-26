@@ -115,6 +115,11 @@
     "type": "resubmission",
     "submitted_date": "2026-11-04",
     "fixed": "retired_lab_code",
+    "changes": {
+      "lab_codes": [
+        "99112"
+      ]
+    },
     "outcome": "approved"
   },
   "_generator_truth": {
@@ -151,6 +156,8 @@
     ],
     "fired": [
       "retired_lab_code"
-    ]
+    ],
+    "denial_reason": "ADMIN_INVALID_CODE",
+    "resubmission_denial_reason": null
   }
 }

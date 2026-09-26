@@ -116,6 +116,8 @@
       "stale_pa",
       "third_molar"
     ],
-    "fired": []
+    "fired": [],
+    "denial_reason": null,
+    "resubmission_denial_reason": null
   }
 }

@@ -130,6 +130,8 @@
     ],
     "fired": [
       "crack_or_cosmetic"
-    ]
+    ],
+    "denial_reason": "CLIN_NOT_COVERED_INDICATION",
+    "resubmission_denial_reason": null
   }
 }

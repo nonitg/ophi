@@ -141,6 +141,8 @@
     ],
     "fired": [
       "endo_not_healed"
-    ]
+    ],
+    "denial_reason": "CLIN_ENDO_NOT_HEALED",
+    "resubmission_denial_reason": null
   }
 }

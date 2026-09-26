@@ -108,7 +108,20 @@
     "type": "resubmission",
     "submitted_date": "2026-10-11",
     "fixed": "pending_basic",
-    "outcome": "denied"
+    "changes": {
+      "completed_treatment": [
+        {
+          "code": "21212",
+          "tooth": 16,
+          "date": "2026-09-17"
+        }
+      ]
+    },
+    "outcome": "denied",
+    "reason_code": "UNSPECIFIED",
+    "reason_category": null,
+    "explanation_of_benefits_text": "The service does not meet the CDCP criteria for this benefit.",
+    "missing_documents": []
   },
   "_generator_truth": {
     "clinical": {
@@ -151,6 +164,8 @@
     "fired": [
       "pending_basic",
       "not_ext_restored"
-    ]
+    ],
+    "denial_reason": "CLIN_ACTIVE_DISEASE",
+    "resubmission_denial_reason": "CLIN_NOT_EXT_RESTORED"
   }
 }

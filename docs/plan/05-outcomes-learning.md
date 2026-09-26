@@ -64,7 +64,7 @@ is whether the letter names the reason.
    - Acts on problems it can *see*. For example, active perio is hidden if no complete chart was sent.
    - Acts on 80% of what it sees, and denies 4% of clean requests anyway.
    - Clinical denials get a vague letter half the time.
-   - Fixable denials are resubmitted 45% of the time, with the outcome recorded.
+   - Fixable denials are resubmitted 45% of the time, with what was re-sent and the outcome recorded.
 
 ### 2.3 One record (schema `cdcp-preauth-export/2`)
 | Section | Contents |
@@ -77,9 +77,9 @@ is whether the letter names the reason.
 | `treatment_plan` | Pending and completed codes, with the root canal date |
 | `clinical_notes`, `narrative` | Free text |
 | `prior_history` | Prior crown on the tooth, earlier request IDs |
-| `decision` | Status, `reason_code` (`UNSPECIFIED` when the letter is vague), letter text, amount |
-| `followup` | Resubmission, which problem it fixed, and its outcome |
-| `_generator_truth` | The answer key: true violations, what the consultant could see, what it acted on. **No model or feature may read it**, except as labels for the note-question training in §4.2. |
+| `decision` | Status, `reason_code` (`UNSPECIFIED` when the letter is vague), letter text, the documents a gap letter asks for (`missing_documents`), amount |
+| `followup` | Resubmission: which problem it fixed, what was sent differently (`changes`: added attachments, completed treatment, corrected lab code or rewritten note), its outcome, and the second letter's reason when denied again |
+| `_generator_truth` | The answer key: true violations, what the consultant could see, what it acted on, and the reason each denial letter would have named had it not been vague (`denial_reason`, `resubmission_denial_reason`). **No model or feature may read it**, except as labels for the note-question training in §4.2. |
 
 Worked example, `PA-SYN-300010`:
 - Crown on #25. The note reads *"#25 MODB composite. Tooth fractured, unrestorable with direct restoration."*

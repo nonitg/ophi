@@ -93,6 +93,15 @@
     "type": "resubmission",
     "submitted_date": "2026-08-16",
     "fixed": "pending_basic",
+    "changes": {
+      "completed_treatment": [
+        {
+          "code": "23112",
+          "tooth": 44,
+          "date": "2026-07-09"
+        }
+      ]
+    },
     "outcome": "approved"
   },
   "_generator_truth": {
@@ -135,6 +144,8 @@
     ],
     "fired": [
       "pending_basic"
-    ]
+    ],
+    "denial_reason": "CLIN_ACTIVE_DISEASE",
+    "resubmission_denial_reason": null
   }
 }

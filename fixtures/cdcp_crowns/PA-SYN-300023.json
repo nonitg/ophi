@@ -144,6 +144,8 @@
     "fired": [
       "third_molar",
       "stale_pa"
-    ]
+    ],
+    "denial_reason": "TOOTH_INELIGIBLE",
+    "resubmission_denial_reason": null
   }
 }

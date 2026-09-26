@@ -155,6 +155,8 @@
     "fired": [
       "active_perio",
       "poor_support"
-    ]
+    ],
+    "denial_reason": "CLIN_PERIO_PROGNOSIS",
+    "resubmission_denial_reason": null
   }
 }

@@ -90,13 +90,18 @@
     "reason_code": "DOC_INSUFFICIENT_NOTES",
     "reason_category": "incomplete_submission",
     "explanation_of_benefits_text": "Clinical notes do not describe the condition supporting the proposed service.",
-    "missing_documents": [],
+    "missing_documents": [
+      "clinical_notes"
+    ],
     "reviewer_type": "automated"
   },
   "followup": {
     "type": "resubmission",
     "submitted_date": "2026-11-17",
     "fixed": "thin_note",
+    "changes": {
+      "clinical_notes": "#17 MODBL composite, MB cusp fractured. RCT completed 6 months ago, asymptomatic. Crown indicated to protect endo-treated tooth."
+    },
     "outcome": "approved"
   },
   "_generator_truth": {
@@ -134,6 +139,8 @@
     ],
     "fired": [
       "thin_note"
-    ]
+    ],
+    "denial_reason": "DOC_INSUFFICIENT_NOTES",
+    "resubmission_denial_reason": null
   }
 }

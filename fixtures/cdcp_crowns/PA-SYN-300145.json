@@ -108,7 +108,25 @@
     "type": "resubmission",
     "submitted_date": "2026-07-08",
     "fixed": "pending_basic",
-    "outcome": "denied"
+    "changes": {
+      "completed_treatment": [
+        {
+          "code": "21211",
+          "tooth": 36,
+          "date": "2026-05-29"
+        },
+        {
+          "code": "23112",
+          "tooth": 37,
+          "date": "2026-05-30"
+        }
+      ]
+    },
+    "outcome": "denied",
+    "reason_code": "CLIN_NOT_COVERED_INDICATION",
+    "reason_category": "clinical_necessity",
+    "explanation_of_benefits_text": "Crowns for cracked tooth syndrome, sensitivity or aesthetics are not covered.",
+    "missing_documents": []
   },
   "_generator_truth": {
     "clinical": {
@@ -158,6 +176,8 @@
       "pending_basic",
       "crack_or_cosmetic",
       "furcation"
-    ]
+    ],
+    "denial_reason": "CLIN_ACTIVE_DISEASE",
+    "resubmission_denial_reason": "CLIN_NOT_COVERED_INDICATION"
   }
 }

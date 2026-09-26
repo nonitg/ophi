@@ -169,6 +169,8 @@
       "no_bw",
       "pending_basic"
     ],
-    "fired": []
+    "fired": [],
+    "denial_reason": null,
+    "resubmission_denial_reason": null
   }
 }

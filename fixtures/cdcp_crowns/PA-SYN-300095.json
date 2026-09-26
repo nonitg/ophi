@@ -150,6 +150,8 @@
     ],
     "fired": [
       "retired_lab_code"
-    ]
+    ],
+    "denial_reason": "ADMIN_INVALID_CODE",
+    "resubmission_denial_reason": null
   }
 }

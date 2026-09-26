@@ -135,6 +135,8 @@
       "frequency",
       "no_perio",
       "endo_not_healed"
-    ]
+    ],
+    "denial_reason": "FREQ_LIMIT",
+    "resubmission_denial_reason": null
   }
 }

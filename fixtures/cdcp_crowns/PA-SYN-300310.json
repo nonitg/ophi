@@ -139,6 +139,8 @@
     "fired": [
       "frequency",
       "retired_lab_code"
-    ]
+    ],
+    "denial_reason": "FREQ_LIMIT",
+    "resubmission_denial_reason": null
   }
 }

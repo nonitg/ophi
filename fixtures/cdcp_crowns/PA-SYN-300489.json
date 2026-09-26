@@ -84,6 +84,37 @@
     "type": "resubmission",
     "submitted_date": "2026-10-08",
     "fixed": "no_perio",
+    "changes": {
+      "added_attachments": [
+        {
+          "type": "periodontal_charting",
+          "count": 1,
+          "captured_date": "2026-09-23"
+        }
+      ],
+      "perio_summary": {
+        "chart_type": "complete",
+        "captured_date": "2026-09-23",
+        "psr": {
+          "S1": 1,
+          "S2": 2,
+          "S3": 2,
+          "S4": 3,
+          "S5": 2,
+          "S6": 2
+        },
+        "tooth_sites_mm": [
+          2,
+          3,
+          3,
+          3,
+          2,
+          3
+        ],
+        "bop_at_tooth": false,
+        "furcation_class": null
+      }
+    },
     "outcome": "approved"
   },
   "_generator_truth": {
@@ -118,6 +149,8 @@
     ],
     "fired": [
       "no_perio"
-    ]
+    ],
+    "denial_reason": "DOC_MISSING_PERIO_CHART",
+    "resubmission_denial_reason": null
   }
 }

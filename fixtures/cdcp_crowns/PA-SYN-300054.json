@@ -175,6 +175,8 @@
     "fired": [
       "third_molar",
       "pending_basic"
-    ]
+    ],
+    "denial_reason": "TOOTH_INELIGIBLE",
+    "resubmission_denial_reason": null
   }
 }

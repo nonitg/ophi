@@ -163,6 +163,8 @@
       "no_perio",
       "pending_basic",
       "not_ext_restored"
-    ]
+    ],
+    "denial_reason": "FREQ_LIMIT",
+    "resubmission_denial_reason": null
   }
 }

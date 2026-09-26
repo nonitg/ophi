@@ -145,6 +145,8 @@
     "fired": [
       "stale_pa",
       "thin_note"
-    ]
+    ],
+    "denial_reason": "DOC_RADIOGRAPH_STALE",
+    "resubmission_denial_reason": null
   }
 }

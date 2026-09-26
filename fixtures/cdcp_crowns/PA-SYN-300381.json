@@ -85,14 +85,29 @@
     "reason_code": "DOC_MISSING_RADIOGRAPH",
     "reason_category": "incomplete_submission",
     "explanation_of_benefits_text": "Bitewing radiographs (right and left) within 12 months are required.",
-    "missing_documents": [],
+    "missing_documents": [
+      "bitewing_radiographs"
+    ],
     "reviewer_type": "automated"
   },
   "followup": {
     "type": "resubmission",
     "submitted_date": "2026-10-13",
     "fixed": "no_bw",
-    "outcome": "denied"
+    "changes": {
+      "added_attachments": [
+        {
+          "type": "bitewing_radiographs",
+          "count": 2,
+          "captured_date": "2026-10-12"
+        }
+      ]
+    },
+    "outcome": "denied",
+    "reason_code": "CLIN_PERIO_PROGNOSIS",
+    "reason_category": "clinical_necessity",
+    "explanation_of_benefits_text": "Crown-to-root ratio or bone support does not meet CDCP criteria.",
+    "missing_documents": []
   },
   "_generator_truth": {
     "clinical": {
@@ -131,6 +146,8 @@
     "fired": [
       "no_bw",
       "poor_support"
-    ]
+    ],
+    "denial_reason": "DOC_MISSING_RADIOGRAPH",
+    "resubmission_denial_reason": "CLIN_PERIO_PROGNOSIS"
   }
 }

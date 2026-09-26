@@ -149,6 +149,8 @@
     "fired": [
       "not_ext_restored",
       "thin_note"
-    ]
+    ],
+    "denial_reason": "CLIN_NOT_EXT_RESTORED",
+    "resubmission_denial_reason": null
   }
 }

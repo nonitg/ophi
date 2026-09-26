@@ -167,6 +167,8 @@
     "fired": [
       "age_under_18",
       "pending_basic"
-    ]
+    ],
+    "denial_reason": "ELIGIBILITY",
+    "resubmission_denial_reason": null
   }
 }

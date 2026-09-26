@@ -97,6 +97,22 @@
     "type": "resubmission",
     "submitted_date": "2026-06-19",
     "fixed": "active_perio",
+    "changes": {
+      "completed_treatment": [
+        {
+          "code": "43421",
+          "tooth": null,
+          "date": "2026-06-06"
+        }
+      ],
+      "added_attachments": [
+        {
+          "type": "periodontal_charting",
+          "count": 1,
+          "captured_date": "2026-06-19"
+        }
+      ]
+    },
     "outcome": "approved"
   },
   "_generator_truth": {
@@ -132,6 +148,8 @@
     ],
     "fired": [
       "active_perio"
-    ]
+    ],
+    "denial_reason": "CLIN_PERIO_PROGNOSIS",
+    "resubmission_denial_reason": null
   }
 }

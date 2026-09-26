@@ -101,14 +101,51 @@
     "reason_code": "DOC_MISSING_PERIO_CHART",
     "reason_category": "incomplete_submission",
     "explanation_of_benefits_text": "A complete periodontal charting within 12 months is required for crowns.",
-    "missing_documents": [],
+    "missing_documents": [
+      "periodontal_charting"
+    ],
     "reviewer_type": "dental_consultant"
   },
   "followup": {
     "type": "resubmission",
     "submitted_date": "2026-06-25",
     "fixed": "no_perio",
-    "outcome": "denied"
+    "changes": {
+      "added_attachments": [
+        {
+          "type": "periodontal_charting",
+          "count": 1,
+          "captured_date": "2026-05-26"
+        }
+      ],
+      "perio_summary": {
+        "chart_type": "complete",
+        "captured_date": "2026-05-26",
+        "psr": {
+          "S1": 2,
+          "S2": 4,
+          "S3": 2,
+          "S4": 4,
+          "S5": 2,
+          "S6": 1
+        },
+        "tooth_sites_mm": [
+          2,
+          3,
+          3,
+          4,
+          3,
+          3
+        ],
+        "bop_at_tooth": false,
+        "furcation_class": 0
+      }
+    },
+    "outcome": "denied",
+    "reason_code": "UNSPECIFIED",
+    "reason_category": null,
+    "explanation_of_benefits_text": "The service does not meet the CDCP criteria for this benefit.",
+    "missing_documents": []
   },
   "_generator_truth": {
     "clinical": {
@@ -145,6 +182,8 @@
     "fired": [
       "no_perio",
       "not_ext_restored"
-    ]
+    ],
+    "denial_reason": "DOC_MISSING_PERIO_CHART",
+    "resubmission_denial_reason": "CLIN_NOT_EXT_RESTORED"
   }
 }

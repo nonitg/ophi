@@ -119,7 +119,20 @@
     "type": "resubmission",
     "submitted_date": "2026-09-13",
     "fixed": "pending_basic",
-    "outcome": "denied"
+    "changes": {
+      "completed_treatment": [
+        {
+          "code": "43421",
+          "tooth": null,
+          "date": "2026-08-29"
+        }
+      ]
+    },
+    "outcome": "denied",
+    "reason_code": "CLIN_PERIO_PROGNOSIS",
+    "reason_category": "clinical_necessity",
+    "explanation_of_benefits_text": "Crown-to-root ratio or bone support does not meet CDCP criteria.",
+    "missing_documents": []
   },
   "_generator_truth": {
     "clinical": {
@@ -165,6 +178,8 @@
       "pending_basic",
       "active_perio",
       "poor_support"
-    ]
+    ],
+    "denial_reason": "CLIN_ACTIVE_DISEASE",
+    "resubmission_denial_reason": "CLIN_PERIO_PROGNOSIS"
   }
 }

@@ -136,6 +136,8 @@
     },
     "violations": [],
     "visible_to_consultant": [],
-    "fired": []
+    "fired": [],
+    "denial_reason": null,
+    "resubmission_denial_reason": null
   }
 }

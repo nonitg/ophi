@@ -112,6 +112,8 @@
       "no_bw",
       "no_perio"
     ],
-    "fired": []
+    "fired": [],
+    "denial_reason": "CLIN_NEED_NOT_MET",
+    "resubmission_denial_reason": null
   }
 }

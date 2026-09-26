@@ -150,6 +150,8 @@
     ],
     "fired": [
       "ferrule"
-    ]
+    ],
+    "denial_reason": "CLIN_FERRULE",
+    "resubmission_denial_reason": null
   }
 }

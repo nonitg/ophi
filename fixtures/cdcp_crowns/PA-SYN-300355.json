@@ -107,7 +107,20 @@
     "type": "resubmission",
     "submitted_date": "2026-08-18",
     "fixed": "pending_basic",
-    "outcome": "denied"
+    "changes": {
+      "completed_treatment": [
+        {
+          "code": "23112",
+          "tooth": 37,
+          "date": "2026-08-08"
+        }
+      ]
+    },
+    "outcome": "denied",
+    "reason_code": "CLIN_FERRULE",
+    "reason_category": "clinical_necessity",
+    "explanation_of_benefits_text": "Insufficient ferrule or margin within 3 mm of the crest; crown lengthening is not a CDCP benefit.",
+    "missing_documents": []
   },
   "_generator_truth": {
     "clinical": {
@@ -151,6 +164,8 @@
     "fired": [
       "pending_basic",
       "ferrule"
-    ]
+    ],
+    "denial_reason": "CLIN_ACTIVE_DISEASE",
+    "resubmission_denial_reason": "CLIN_FERRULE"
   }
 }

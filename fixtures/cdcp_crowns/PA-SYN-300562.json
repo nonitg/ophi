@@ -145,6 +145,8 @@
       "not_ext_restored",
       "retired_lab_code"
     ],
-    "fired": []
+    "fired": [],
+    "denial_reason": "CLIN_NEED_NOT_MET",
+    "resubmission_denial_reason": null
   }
 }

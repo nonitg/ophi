@@ -103,13 +103,18 @@
     "reason_code": "DOC_INSUFFICIENT_NOTES",
     "reason_category": "incomplete_submission",
     "explanation_of_benefits_text": "Clinical notes do not describe the condition supporting the proposed service.",
-    "missing_documents": [],
+    "missing_documents": [
+      "clinical_notes"
+    ],
     "reviewer_type": "automated"
   },
   "followup": {
     "type": "resubmission",
     "submitted_date": "2026-08-27",
     "fixed": "thin_note",
+    "changes": {
+      "clinical_notes": "#25 MODBL composite, DL cusp fractured. Tooth fractured, unrestorable with direct restoration."
+    },
     "outcome": "approved"
   },
   "_generator_truth": {
@@ -143,6 +148,8 @@
     ],
     "fired": [
       "thin_note"
-    ]
+    ],
+    "denial_reason": "DOC_INSUFFICIENT_NOTES",
+    "resubmission_denial_reason": null
   }
 }

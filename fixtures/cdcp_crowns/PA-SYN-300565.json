@@ -154,6 +154,8 @@
     "fired": [
       "ferrule",
       "retired_lab_code"
-    ]
+    ],
+    "denial_reason": "CLIN_FERRULE",
+    "resubmission_denial_reason": null
   }
 }

@@ -132,6 +132,8 @@
     "visible_to_consultant": [
       "crack_or_cosmetic"
     ],
-    "fired": []
+    "fired": [],
+    "denial_reason": null,
+    "resubmission_denial_reason": null
   }
 }

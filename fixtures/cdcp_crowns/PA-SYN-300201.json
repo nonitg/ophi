@@ -140,6 +140,8 @@
     "visible_to_consultant": [
       "retired_lab_code"
     ],
-    "fired": []
+    "fired": [],
+    "denial_reason": null,
+    "resubmission_denial_reason": null
   }
 }
