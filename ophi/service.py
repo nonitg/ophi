@@ -22,6 +22,7 @@ from typing import Literal
 
 from pydantic import BaseModel, Field, model_validator
 
+from ophi import fixes
 from ophi.casegen.dsl import load_case
 from ophi.cdm.models import (
     ArtifactType, AssertionPayload, Case, ChartArtifact, ExtractedDetailPayload, Provenance,
@@ -120,6 +121,7 @@ class CaseState(BaseModel):
     assertions: dict[str, dict] = Field(default_factory=dict)  # criterion_id -> {value, by, licence, at, note}
     confirmations: dict[str, dict] = Field(default_factory=dict)  # proposal artifact id -> {decision, by, at}
     narrative_edits: str | None = None
+    fixes: dict[str, dict] = Field(default_factory=dict)  # requirement id -> {by, at, title}: Ophi's safe fixes staff applied
     sign_off: SignOff | None = None
     submitted_at: datetime | None = None  # when staff recorded the submission
     submitted_on: date | None = None  # the day it went to Sun Life
@@ -322,7 +324,7 @@ class CaseService:
         st = self.store.load(case_id)
         proposals = [self._apply_confirmation(p, st) for p in propose_for_case(base)]
         user_assertions = [self._assertion_artifact(base, cid, a) for cid, a in st.assertions.items()]
-        case = base.with_artifacts(proposals + user_assertions)
+        case = fixes.apply(base, st.fixes, self.pack).with_artifacts(proposals + user_assertions)
         a = assess(case, self.pack, self.weights, frozenset(st.test_skips))
         if st.first_check is None:
             st.first_check = FirstCheck(at=self.now(), gaps=[r.requirement_id for r in documentation_gaps(a)])
@@ -392,6 +394,23 @@ class CaseService:
         st.sign_off = None
         self.store.save(case_id, st)
         self.audit(case_id, by, "confirm_proposal", f"{artifact_id}: {decision}")
+
+    def apply_fixes(self, case_id: str, requirement_ids: list[str], by: str) -> list[str]:
+        """Close chart gaps Ophi can fix itself (ophi.fixes). Only gaps open on the case now; returns what was applied."""
+        v = self.view(case_id)
+        _not_sent(v.state)
+        unknown = [rid for rid in requirement_ids if rid not in fixes.open_on(v.assessment)]
+        if unknown or not requirement_ids:
+            raise ValueError(f"no fix Ophi can apply for {', '.join(unknown) or 'this case'}")
+        st, now = v.state, self.now().isoformat()
+        titles = [fixes.title(v.case, rid, self.pack) for rid in requirement_ids]
+        for rid, t in zip(requirement_ids, titles):
+            st.fixes[rid] = {"by": by, "at": now, "title": t}
+        st.sign_off = None
+        self.store.save(case_id, st)
+        for t in titles:
+            self.audit(case_id, by, "apply_fix", t)
+        return requirement_ids
 
     def save_narrative(self, case_id: str, text: str, by: str) -> None:
         text = _lf(text)

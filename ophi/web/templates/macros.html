@@ -95,3 +95,19 @@ Crown on #{{ c.requested_tooth }} <span class="num">({{ c.treatment.code }})</sp
 {% macro fold_summary(title, sub=None) -%}
 <summary><span class="fold-label"><span class="fold-title">{{ title }}</span>{% if sub %}<span class="fold-sub">{{ sub }}</span>{% endif %}</span></summary>
 {%- endmacro %}
+
+{# Denial risk from past decisions: levels only, never a number (docs/plan/05-outcomes-learning.md §5.1). #}
+{% macro risk_block(r, stale_since=None, after_label='After these fixes') -%}
+{%- if r %}
+<div class="risk">
+  <p class="risk-levels"><span class="risk-k">Denial risk</span>
+    <span class="risk-at">Now <b class="lvl lvl-{{ r.now.level }}">{{ r.now.label }}</b></span>
+    {%- if r.after %}<span class="risk-at"><span class="risk-arrow" aria-hidden="true">→</span> {{ after_label }} <b class="lvl lvl-{{ r.after.level }}">{{ r.after.label }}</b></span>{% endif %}
+  </p>
+  {% if r.remaining %}<p class="risk-line">{{ r.remaining }}</p>{% endif %}
+  <p class="risk-src">A guide from past decisions in synthetic training data, not Sun Life's answer. Models: {{ r.model.values()|join('; ') }}.</p>
+</div>
+{%- elif stale_since %}
+<p class="risk-src">The chart changed after Ophi last compared it with past decisions on {{ full_date(stale_since) }}, so no denial risk is shown.</p>
+{%- endif %}
+{%- endmacro %}

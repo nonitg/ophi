@@ -23,8 +23,9 @@ from fastapi.responses import FileResponse, HTMLResponse, RedirectResponse, Resp
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
-from ophi import demo, workflow
+from ophi import demo, fixes, workflow
 from ophi.engine.models import Status
+from ophi.outcomes import readout
 from ophi.outcomes.weights import load as load_weights
 from ophi.packet.build import build_packet
 from ophi.packet.documents import narrative_ascii
@@ -46,7 +47,7 @@ templates.env.globals.update(
     STATUS_LABEL=present.STATUS_LABEL, STATUS_CLASS=present.STATUS_CLASS, STATUS_NA=Status.NOT_APPLICABLE,
     STAGE_LABEL=present.STAGE_LABEL, FOLLOWUP_LABEL=present.FOLLOWUP_LABEL, ACTORS=ACTORS,
     TURNAROUND_DAYS=workflow.SUN_LIFE_TURNAROUND_DAYS, TURNAROUND_SOURCE=workflow.TURNAROUND_SOURCE,
-    RECONSIDERATION_DAYS=workflow.RECONSIDERATION_DAYS,
+    RECONSIDERATION_DAYS=workflow.RECONSIDERATION_DAYS, RISK_LABEL=present.RISK_LABEL,
 )
 
 # Confirmation after a write, named with the same verb as the button that caused it.
@@ -56,6 +57,7 @@ DONE_MESSAGES = {
     "decision": "Sun Life's decision recorded.", "resubmit": "Resubmission started. The dentist reviews and signs the new request.",
     "booked": "Marked as booked.", "followup": "Follow-up saved.", "undone": "Step taken back.",
     "skipped": "Gaps skipped for this test run.", "restored": "Gaps are back.",
+    "fixed": "Fix applied.",
 }
 _RESET_LOCK = threading.Lock()  # a double-submitted reset must not reseed twice at once
 
@@ -191,7 +193,10 @@ def _existing_manifest(out: Path, view: CaseView, narrative: str, sign_off) -> d
 @router.get("/", response_class=HTMLResponse)
 def worklist(request: Request):
     svc = _svc(request)
-    return _render(request, "board.html", b=present.board(svc.queue(), _actor(request), svc.today()))
+    views = svc.queue()
+    risks = {v.case.case_id: r for v in views if v.stage == workflow.Stage.PREPARE
+             and (r := present.risk_levels(present.plan_for(v, readout.load(v.case.case_id))))}
+    return _render(request, "board.html", b=present.board(views, _actor(request), svc.today(), risks))
 
 
 # --- case -------------------------------------------------------------------------------------------
@@ -207,11 +212,15 @@ def case_page(request: Request, case_id: str):
     steps = present.case_steps(view)
     now = present.now_step(steps, actor)
     timing = present.timing(view, today)
+    rd, gaps = readout.load(case_id), present.gap_rows(view)
+    fx = present.fix_panel(view, rd, svc.pack, gaps) if view.stage == workflow.Stage.PREPARE else None
     return _render(request, "case.html", view=view, case=view.case, a=view.assessment, stage=view.stage,
                    steps=steps, now=now, waiting=present.waiting_on(now, actor, view.case.treatment.provider.name, timing),
                    next_case=present.next_up(svc.queue(), view, actor, today),
-                   stepper=present.stepper(view, actor), gaps=present.gap_rows(view), advisory=present.advisory(view),
+                   stepper=present.stepper(view, actor), gaps=gaps, advisory=present.advisory(view),
                    timing=timing, advice=present.advice(view, timing, today), evidence=present.evidence_panel(view),
+                   fx=fx,
+                   plan=present.dentist_panel(view, rd) if view.stage in (workflow.Stage.PREPARE, workflow.Stage.DENTIST) else None,
                    criteria=relevant, criteria_other=other, activity=present.activity(svc.store.audit_log(case_id)),
                    applicable=[r for r in view.assessment.requirements if r.applicable],
                    not_applicable=[r for r in view.assessment.requirements if not r.applicable])
@@ -273,6 +282,25 @@ def decide_proposal(request: Request, case_id: str, artifact_id: str, decision: 
     except PermissionError as e:
         return _error(request, 409, "Already sent", str(e).capitalize() + ".")
     return _done(request, f"/cases/{case_id}", decision)
+
+
+@router.post("/cases/{case_id}/fixes")
+async def apply_fixes(request: Request, case_id: str):
+    """Apply the fixes Ophi can make itself: the ones ticked, or with `all`, every one open on the case."""
+    view = _view(request, case_id)
+    if view is None:
+        return _error(request, 404, "Case not found", f"No case '{case_id}' in the demo set.")
+    form = await request.form()
+    ids = [str(x) for x in form.getlist("fix")]
+    if form.get("all"):
+        ids = fixes.open_on(view.assessment)
+    try:
+        _svc(request).apply_fixes(case_id, ids, _actor(request).name)
+    except ValueError as e:
+        return _error(request, 400, "Nothing to apply", str(e).capitalize() + ".")
+    except PermissionError as e:
+        return _error(request, 409, "Already sent", str(e).capitalize() + ".")
+    return _done(request, f"/cases/{case_id}#now", "fixed")
 
 
 @router.post("/cases/{case_id}/submitted")

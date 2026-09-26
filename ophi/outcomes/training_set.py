@@ -16,8 +16,10 @@ from pathlib import Path
 
 from pydantic import BaseModel
 
+from ophi.cdm.models import Case
 from ophi.dental.notation import tooth_class
 from ophi.engine.assess import assess
+from ophi.engine.models import Assessment
 from ophi.outcomes.adapter import to_case, to_submission
 from ophi.rules.schema import RulePack
 
@@ -49,7 +51,7 @@ class Example(BaseModel):
     submitted_on: date
     decided_on: date | None  # not exported for resubmissions
     sent: dict  # the request as the clinic sent it; never the decision or the truth
-    decision: str  # "approved", the letter's reason code, or UNSPECIFIED for a vague letter
+    decision: str | None = None  # "approved", the letter's reason code, UNSPECIFIED for a vague letter; None if not decided yet
     truth: dict | None = None  # first requests only: after a fix the recorded truth no longer describes the tooth
     true_reason: str | None = None  # answer key: what a denial letter would name if it weren't vague; grading only
 
@@ -82,8 +84,9 @@ def resubmitted(sent: dict, followup: dict) -> dict:
         s["perio_summary"] = ch["perio_summary"]
     if "lab_codes" in ch:
         s["services"][0]["lab_codes"] = ch["lab_codes"]
-    if "clinical_notes" in ch:
-        s["clinical_notes"] = ch["clinical_notes"]
+    for key in ("clinical_notes", "narrative", "treatment_plan"):
+        if key in ch:
+            s[key] = ch[key]
     if done := ch.get("completed_treatment"):
         svc = s["services"][0]
         plan = s["treatment_plan"] or {"pending": [{"code": svc["procedure_code"], "tooth": int(svc["tooth"])}], "completed": []}
@@ -127,7 +130,8 @@ def request_text(e: Example) -> str:
         sites = f"depths at tooth {'/'.join(map(str, p['tooth_sites_mm']))} mm, bleeding {'yes' if p['bop_at_tooth'] else 'no'}" \
             if p["tooth_sites_mm"] else "no site depths"
         furc = f", furcation class {p['furcation_class']}" if p.get("furcation_class") else ""
-        lines.append(f"Perio: {p['chart_type'].replace('_', ' ')} chart {_age(p, as_of)}, highest PSR {max(p['psr'].values())}, {sites}{furc}.")
+        psr = f", highest PSR {max(p['psr'].values())}" if p.get("psr") else ""
+        lines.append(f"Perio: {p['chart_type'].replace('_', ' ')} chart {_age(p, as_of)}{psr}, {sites}{furc}.")
     else:
         lines.append("Perio: none sent.")
     plan = s["treatment_plan"]
@@ -145,8 +149,7 @@ def features(e: Example, pack: RulePack, clinic_denial_rate: float | None) -> di
     """Structured inputs for the tree model: the engine's reading of each requirement plus the raw values it
     can't weigh (film ages, depths). Numbers stay None when not sent, so the model learns absence."""
     s, as_of = e.sent, e.submitted_on
-    record = {**s, "preauth_id": e.preauth_id, "decision": {"status": "unknown"}}  # to_case reads only what was sent
-    a = assess(to_case(record, to_submission(record)), pack)
+    a = assess_sent(e, pack)
     att = {x["type"]: x for x in s["attachments"]}
     p, plan, svc = s["perio_summary"] or {}, s["treatment_plan"], s["services"][0]
     f: dict[str, float | str | None] = {f"req_{r.requirement_id}": r.status.value for r in a.requirements}
@@ -159,7 +162,7 @@ def features(e: Example, pack: RulePack, clinic_denial_rate: float | None) -> di
         "bw_sides": att["bitewing_radiographs"]["count"] if "bitewing_radiographs" in att else 0,
         "perio_age_days": _days(p or None, as_of),
         "perio_complete": float(p.get("chart_type") == "complete") if p else None,
-        "max_psr": max(p["psr"].values()) if p else None,
+        "max_psr": max(p["psr"].values()) if p.get("psr") else None,
         "max_depth_at_tooth": max(p["tooth_sites_mm"]) if p.get("tooth_sites_mm") else None,
         "bleeding_at_tooth": float(p["bop_at_tooth"]) if p.get("bop_at_tooth") is not None else None,
         "furcation_class": p.get("furcation_class"),
@@ -171,6 +174,16 @@ def features(e: Example, pack: RulePack, clinic_denial_rate: float | None) -> di
         "clinic_denial_rate": clinic_denial_rate,
     }
     return f
+
+
+def case_for(e: Example) -> Case:
+    """The engine's Case for the request as sent, dated the day it was (or will be) sent."""
+    record = {**e.sent, "preauth_id": e.preauth_id, "decision": {"status": "unknown"}}  # to_case reads only what was sent
+    return to_case(record, to_submission(record))
+
+
+def assess_sent(e: Example, pack: RulePack) -> Assessment:
+    return assess(case_for(e), pack)
 
 
 def clinic_denial_rates(examples: list[Example], min_n: int = 3) -> dict[str, float | None]:
