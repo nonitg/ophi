@@ -5,10 +5,13 @@ the clinic's track record). Trained on the train clinics, early-stopped on the c
 on the test clinics. Given Laya's predictions (scripts/laya-eval.py), a second model adds the note answers
 as features, and both are scored on the same test requests beside Laya's own decision answer.
 
-Run: .venv/bin/python scripts/risk-tree.py [--laya var/models/laya-cdcp/predictions.jsonl]
+With --save, the combined model is written to var/models/risk-tree/ for ophi.outcomes.risk.RiskModel.
+
+Run: .venv/bin/python scripts/risk-tree.py [--laya var/models/laya-cdcp/predictions.jsonl [--save]]
 """
 import argparse
 import json
+from datetime import date
 from pathlib import Path
 
 import lightgbm as lgb
@@ -16,20 +19,13 @@ import numpy as np
 from sklearn.metrics import brier_score_loss, roc_auc_score
 
 from ophi.outcomes.laya_questions import APPROVED, DECISION, YES
+from ophi.outcomes.risk import TREE_DIR, build_vocab, categorical, encode, with_note_answers
 from ophi.outcomes.training_set import NOTE_QUESTIONS, clinic_denial_rates, features, load_examples, split_by_clinic
 from ophi.rules.loader import default_pack
 
 # Small, shallow trees: a few hundred training rows.
 PARAMS = dict(n_estimators=1000, learning_rate=0.03, num_leaves=15, min_child_samples=10, subsample=0.8, subsample_freq=1,
               colsample_bytree=0.8, random_state=0, verbose=-1)
-
-
-def encode(rows: list[dict]) -> tuple[np.ndarray, list[str], list[int]]:
-    """Feature dicts -> matrix. Text values become category indices; a value not sent stays NaN."""
-    cols = list(rows[0])
-    vocab = {c: sorted({r[c] for r in rows if isinstance(r[c], str)}) for c in cols}
-    X = np.array([[np.nan if r[c] is None else vocab[c].index(r[c]) if vocab[c] else r[c] for c in cols] for r in rows], float)
-    return X, cols, [i for i, c in enumerate(cols) if vocab[c]]
 
 
 def fit(X, y, split, cat) -> lgb.LGBMClassifier:
@@ -52,6 +48,7 @@ def line(name: str, y: np.ndarray, p: np.ndarray) -> str:
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--laya", type=Path, help="predictions.jsonl from scripts/laya-eval.py")
+    ap.add_argument("--save", action="store_true", help=f"with --laya, write the combined model to {TREE_DIR}")
     args = ap.parse_args()
     parts = split_by_clinic(load_examples())
     ordered = [e for rows in parts.values() for e in rows]
@@ -63,18 +60,27 @@ def main():
 
     print(f"test: {te.sum()} requests from {len({e.clinic for e in parts['test']})} clinics, {y[te].mean():.0%} denied")
     print(line("base rate from train clinics", y[te], np.full(te.sum(), y[split == 'train'].mean())))
-    X, cols, cat = encode(rows)
-    m = fit(X, y, split, cat)
+    cols, vocab = list(rows[0]), build_vocab(rows)
+    X = encode(rows, cols, vocab)
+    m = fit(X, y, split, categorical(cols, vocab))
     print(line(f"LightGBM, structured fields ({m.best_iteration_} trees)", y[te], m.predict_proba(X[te])[:, 1]))
 
     if args.laya:
         pred = {r["preauth_id"]: r["answers"] for r in map(json.loads, args.laya.read_text().splitlines())}
         # Laya's answers on train clinics are in-sample, so this model may over-trust them; the test score stays honest.
-        rows = [r | {f"laya_{q}": pred[e.preauth_id][q][YES] for q in NOTE_QUESTIONS} for r, e in zip(rows, ordered)]
-        X, cols, cat = encode(rows)
-        m = fit(X, y, split, cat)
+        rows = [with_note_answers(r, {q: pred[e.preauth_id][q][YES] for q in NOTE_QUESTIONS}) for r, e in zip(rows, ordered)]
+        cols, vocab = list(rows[0]), build_vocab(rows)
+        X = encode(rows, cols, vocab)
+        m = fit(X, y, split, categorical(cols, vocab))
         print(line(f"LightGBM, structured + Laya notes ({m.best_iteration_} trees)", y[te], m.predict_proba(X[te])[:, 1]))
         print(line("Laya decision question alone", y[te], np.array([1 - pred[e.preauth_id][DECISION][APPROVED] for e in parts["test"]])))
+
+    if args.save and args.laya:
+        TREE_DIR.mkdir(parents=True, exist_ok=True)
+        m.booster_.save_model(str(TREE_DIR / "model.txt"), num_iteration=m.best_iteration_)
+        (TREE_DIR / "features.json").write_text(json.dumps({"cols": cols, "vocab": vocab, "trained_on": str(date.today()),
+                                                            "laya_predictions": str(args.laya)}, indent=1))
+        print(f"saved {TREE_DIR}")
 
     print("\nwhat drives the risk (mean |push| on test requests):")
     for c, v in drivers(m, X[te], cols, 8):
