@@ -182,6 +182,9 @@ There is no percentage on screen. It shows *"Now: High · After fixes: Low"* plu
 | `/outcomes` page for the rules editor | `ophi/web/templates/outcomes.html`, `ophi/outcomes/report.py` |
 | Realistic crown dataset | `scripts/gen-cdcp-crowns.py`, `fixtures/cdcp_crowns/` |
 | One-command local run: Postgres in Docker, ingest, stats, screenshots | `scripts/outcomes-local.sh [--shot]` |
+| Laya pinned download + provenance check (HF revision, signed PyPI wheel) | `make setup-ml`, `scripts/laya-download.sh`, `scripts/laya-provenance.sh` |
+| Training set: what was sent → text and features, resubmissions as their own examples, split by clinic | `ophi/outcomes/training_set.py`, `ophi/outcomes/laya_questions.py` |
+| Fine-tune, score against base checkpoint and base rates, LightGBM with and without Laya | `make laya-train` (`scripts/laya-finetune.py`, `laya-eval.py`, `risk-tree.py`) |
 
 ## 7. Build plan (about 1 day)
 

@@ -2,11 +2,21 @@
 PY := .venv/bin/python
 PIP := .venv/bin/pip
 
-.PHONY: setup test eval demo demo-real demo-mock assess packet verify reset
+.PHONY: setup setup-ml laya-train test eval demo demo-real demo-mock assess packet verify reset
 
 setup:            ## create venv, install package + dev deps
 	python3 -m venv .venv
 	$(PIP) install -q -e ".[dev]"
+
+setup-ml:         ## add CUDA torch, laya, LightGBM and fetch the pinned Laya weights (8 GB GPU is enough)
+	uv pip install -q --python $(PY) torch --index-url https://download.pytorch.org/whl/cu130
+	uv pip install -q --python $(PY) -e ".[ml]"
+	PATH=.venv/bin:$$PATH scripts/laya-download.sh
+
+laya-train:       ## fine-tune Laya on fixtures/cdcp_crowns, score it on held-out clinics, then the LightGBM comparison
+	$(PY) scripts/laya-finetune.py
+	$(PY) scripts/laya-eval.py
+	$(PY) scripts/risk-tree.py --laya var/models/laya-cdcp/predictions.jsonl
 
 test:             ## unit + property tests
 	$(PY) -m pytest
