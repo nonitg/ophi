@@ -26,17 +26,19 @@ unset USE_MOCK_PMS_API; make demo # real (default)
 # scripts/demo-real.sh / scripts/demo-mock.sh do the same
 ```
 
-Screens: **Queue** (one sentence on what needs attention this week, the five stages with counts and
-dollars, what the person acting owes, and one row per case with its next step, who it waits on and the
-rule check as a strip) → **Case Review** (the verdict in a sentence and the strip, then next steps split
-by who acts, with the first chart action as the hero and its clause, the hand-off to sign-off and
-submission, every documented requirement with its evidence, and a chart timeline against the
-12-month window) → **Packet and sign-off** (Ophi assembles, the verifier checks, the dentist signs,
-the clinic sends; PDF preview, attestation, files, narrative) → **Look-back** (last 12 months of
-requests, one square each, and the missing documents re-derived from the chart) → **Settings**
-(connection, who can act, rule pack, audit log). Every screen is built to be read in a 15-second
-glance first and in depth second. Design record: `docs/reviews/2026-09-24-app-redesign.md`. The demo script is
-`docs/demo-script.md`; `scripts/demo-screens.py` serves the demo with throwaway state for screenshots.
+Screens: **Worklist** (every open preauthorization grouped by the step it is on: fix chart gaps → dentist
+review → send to Sun Life → waiting on Sun Life → book the crown / resubmit; each row has one next step, a
+send-by date and a four-week timeline to the appointment with Sun Life's usual 7-day turnaround hatched; the
+dentist sees only their own pile) → **Case** (the steps from chart to chair, each tagged with who does it; the
+current step opens with its action: chart gaps with their clause, the dentist's criteria form, send, record
+Sun Life's decision, book, or resubmit / reconsider) → **Packet** (PDF preview, narrative, the dentist's
+signature, then send instructions and "next case" for the dentist) → **Recover** (past denials never
+resubmitted, as a call list) → **Results** (treatment in progress, gaps caught before sending, Sun Life's
+recorded decisions, past denials won back, estimated staff time, the 12-month look-back) → **Settings & audit**.
+`make demo` seeds five cases past sign-off so every stage has an example; `scripts/app-serve.sh` serves the
+app with fresh throwaway state, `scripts/app-flow.py` drives the whole lifecycle in a browser, and
+`scripts/app-qa.py` checks phone overflow, focus and contrast. Design record: `docs/plan/06-clinic-worklist.md`
+(it supersedes the screens in `docs/reviews/2026-09-24-app-redesign.md`).
 
 Other entry points:
 
@@ -54,7 +56,7 @@ make demo-mock                               # demo with dummy fixtures (USE_MOC
 
 ```
 packs/cdcp/2026-01-26/pack.yaml   the rule pack: which codes need preauth, 14 crown requirements, each citing its CDCP clause
-cases/demo/                        six casegen cases used by the demo (Friday Five + one "source can't see imaging" case)
+cases/demo/                        eleven casegen cases: six to prepare (incl. one "source can't see imaging") and five the demo seeds past sign-off
 cases/adversarial/                 boundary and trap cases with reviewed golden expectations
 cases/lookback/                    fictional 12-month submission history for the Look-Back screen
 evals/expected/<pack version>/     golden verdicts; `make eval` fails on any change
@@ -62,11 +64,13 @@ ophi/cdm                       canonical data model (FDI teeth, Provenance, Sour
 ophi/rules                     rule pack schema (closed predicate vocabulary), linter, loader
 ophi/engine                    deterministic evaluator: leaves, facts, solver, escalations, recency, verdict, ranked actions
 ophi/extract                   note proposer (verbatim-quote filter); proposes, never judges
-ophi/service                   human inputs (assertions, confirmations, sign-off) + audit log; re-runs the engine
+ophi/service                   human inputs (assertions, confirmations, sign-off, sent, Sun Life's decision, booking) + audit log; re-runs the engine
+ophi/workflow                  each case's stage, who acts next, and the send-by / validity / reconsideration dates
+ophi/demo                      seeds the demo timeline through the real service calls
 ophi/packet                    packet assembler: index, treatment form, plates, perio render, narrative, manifest
 ophi/verify                    independent verifier — shares no code with the assembler
 ophi/lookback                  re-derives documentation gaps for past submissions
-ophi/web                       FastAPI + Jinja2 app, five screens
+ophi/web                       FastAPI + Jinja2 app: worklist, case, packet, recover, results, settings
 ```
 
 `docs/architecture.md` explains the decisions. `PLAN.md` is the master plan; `docs/research/` is the

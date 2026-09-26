@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% block title %}Results — Ophi{% endblock %}
+{% block content %}
+{% set rep = res.report %}{% set top = (res.in_progress|map(attribute='dollars')|max) if res.in_progress else 0 %}
+<header class="head">
+  <div class="head-row"><h1>What Ophi has done for the clinic</h1><button class="btn btn-sm print-hide" type="button" data-print>Print</button></div>
+  <p class="lede">Every figure comes from this clinic's own cases and the decisions staff recorded from Sun Life. Ophi checks documentation; it doesn't predict Sun Life's decisions.</p>
+</header>
+
+<div class="report">
+  <section class="fact">
+    <h2 class="fact-k">In progress</h2>
+    <div>
+      <p class="fact-v"><b class="num">{{ money(res.in_progress_dollars) }}</b> of crown treatment is moving through {{ plural(res.in_progress_count, 'open preauthorization') }}.</p>
+      <ul class="bars">
+        {% for s in res.in_progress %}
+        <li class="bar-row"><span>{{ s.label }}</span><span class="bar-track"><span class="bar-fill" style="--w: {{ (s.dollars / top * 100)|round(1) if top else 0 }}%"></span></span><span class="bar-val num">{{ money(s.dollars) }}</span></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </section>
+
+  <section class="fact">
+    <h2 class="fact-k">Caught before sending</h2>
+    <div>
+      <p class="fact-v">Ophi found <b class="num">{{ plural(res.caught_total, 'missing or out-of-date document') }}</b> on {{ plural(res.caught_cases, 'case') }} before they reached Sun Life.</p>
+      <p class="fact-more">Radiographs, periodontal charting and treatment plan details are the documents Health Canada names most often as missing from incomplete requests.</p>
+      {% if res.caught %}
+      <ul class="counts">{% for label, n in res.caught %}<li><span>{{ label }}</span><span class="num">{{ n }}</span></li>{% endfor %}</ul>
+      {% endif %}
+    </div>
+  </section>
+
+  <section class="fact">
+    <h2 class="fact-k">Sun Life's decisions</h2>
+    <div>
+      <p class="fact-v"><b class="num">{{ res.sent }}</b> sent with a complete, signed packet, {{ money(res.sent_dollars) }} of treatment. <span data-voice="payer">Sun Life approved {{ res.approved }} ({{ money(res.approved_dollars) }}) and denied {{ res.denied }} ({{ money(res.denied_dollars) }}).</span> {{ res.waiting }} {{ 'is' if res.waiting == 1 else 'are' }} waiting.</p>
+      <p class="fact-more">Recorded by staff from Sun Life's decisions. A denial can be resubmitted from its case.</p>
+    </div>
+  </section>
+
+  <section class="fact">
+    <h2 class="fact-k">Past denials</h2>
+    <div>
+      {% if res.recover.rebooking %}
+      <p class="fact-v"><b class="num">{{ plural(res.recover.rebooking, 'patient') }}</b> of {{ res.recover.count }} denied and never resubmitted {{ 'wants' if res.recover.rebooking == 1 else 'want' }} to go ahead, {{ money(res.recover.rebooking_dollars) }} of treatment. Each needs a new preauthorization. {{ res.recover.to_call }} still to call, {{ money(res.recover.to_call_dollars) }}.</p>
+      {% else %}
+      <p class="fact-v"><b class="num">{{ res.recover.count }}</b> past denials were never resubmitted, {{ money(res.recover.dollars) }} of treatment. None are rebooking yet; {{ res.recover.to_call }} are on the call list.</p>
+      {% endif %}
+      <p class="fact-more"><a href="{{ BASE }}/recover">Open the call list</a></p>
+    </div>
+  </section>
+
+  <section class="fact">
+    <h2 class="fact-k">Staff time</h2>
+    <div>
+      <p class="fact-v">About <b class="num">{{ res.hours }} hours</b> of checking charts against the CDCP rules, across {{ plural(res.checked, 'case') }}.</p>
+      <p class="fact-more">An estimate, at about 25 minutes per preauthorization for a coordinator working by hand (Ophi's market research).</p>
+    </div>
+  </section>
+
+  {% if rep %}
+  <section class="fact" id="before">
+    <h2 class="fact-k">Last 12 months</h2>
+    <div>
+      <p class="fact-v">The clinic sent <b class="num">{{ rep.submitted }}</b> crown preauthorizations. <span data-voice="payer">Sun Life denied {{ rep.denied }}</span>, {{ money(rep.denied_dollars) }} of treatment; {{ rep.denied_with_doc_gap }} of those were missing a document CDCP requires, and {{ rep.never_resubmitted }} were never resubmitted.</p>
+      <details class="fold">
+        <summary><span class="fold-title">Every request, with what was missing</span><span class="fold-sub">found again from the chart as it stood on the day each was sent, rule pack {{ rep.ruleset_version }}</span></summary>
+        <div class="fold-body tbl-wrap">
+          <table class="tbl">
+            <thead><tr><th>Patient</th><th>Crown</th><th>Sent</th><th>Decision</th><th>Fee</th><th>Missing when sent</th><th>Resubmitted</th></tr></thead>
+            <tbody>
+            {% for row in rep.rows %}
+            <tr>
+              <td class="nowrap">{{ row.patient_name }}</td>
+              <td class="num nowrap">#{{ row.tooth_fdi }} ({{ row.code }})</td>
+              <td class="num nowrap">{{ full_date(row.submitted_on) }}</td>
+              <td class="{{ 't-bad' if row.decision == 'denied' else '' }}" data-voice="payer">{{ row.decision|capitalize }}</td>
+              <td class="num">{{ money(row.fee_dollars) }}</td>
+              <td>{% if row.gaps %}{{ row.gaps|join('; ') }}{% elif row.unverifiable %}<span class="muted">Couldn't check: {{ row.unverifiable|join('; ') }}</span>{% else %}<span class="muted">None found</span>{% endif %}{% if row.denial_text %}<div class="small payer" data-voice="payer">Sun Life: <q class="payer-quote">{{ row.denial_text }}</q></div>{% endif %}</td>
+              <td>{% if row.decision == 'denied' %}{{ 'Yes' if row.resubmitted else 'No' }}{% if row.resubmitted and row.resubmitted_decision %} <span class="muted" data-voice="payer">({{ row.resubmitted_decision }})</span>{% endif %}{% else %}<span class="muted">—</span>{% endif %}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </details>
+    </div>
+  </section>
+  {% endif %}
+</div>
+{% endblock %}

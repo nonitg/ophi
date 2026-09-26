@@ -1,0 +1,48 @@
+# Fully documented and asserted. Upper premolar whose palatal cusp sheared off under a large old amalgam.
+id: fontaine
+as_of: 2026-09-16
+patient: { id: "6152", name: "Claire Fontaine", dob: 1984-05-11, sex: F, cdcp_client_id: "CDCP-5274-1839" }
+provider: { name: "Dr. Priya Lau", licence: "ON-48213" }
+treatment:
+  code: "27211"
+  description: "Crown, porcelain fused to metal"
+  tooth: 25
+  planned: 4d
+  appointment: 2026-10-08
+  fee_cents: 128500
+  lab_codes: ["99112"]
+dentition:
+  missing: [18, 28, 38, 48]
+  restored_surfaces: { 25: [M, O, D, B, L] }
+history:
+  - { code: "21215", tooth: 25, surfaces: [M, O, D, B, L], date: 2015-10-19, description: "Amalgam, 5 surfaces" }
+  - { code: "01202", date: 2026-07-29 }
+  - { code: "11111", date: 2026-07-29, description: "Polishing" }
+radiographs:
+  - { id: pa_25, view: PA, tooth: 25, date: 2026-07-29 }
+  - { id: bw_r, view: BW, side: right, teeth: [14, 15, 16, 17, 44, 45, 46, 47], date: 2026-07-29 }
+  - { id: bw_l, view: BW, side: left, teeth: [24, 25, 26, 27, 34, 35, 36, 37], date: 2026-07-29 }
+perio_charts:
+  - { id: perio_full, date: 2026-07-29, sites: 6, depth: 2, teeth: { 25: [3, 2, 2, 3, 2, 3] }, examiner: "K. Osei RDH" }
+notes:
+  - id: note_0729
+    date: 2026-07-29
+    author: "Dr. Priya Lau"
+    type: "Exam"
+    teeth: [25]
+    text: >-
+      25 palatal cusp sheared off at the level of the old MODBL amalgam; fracture line supragingival, no
+      pulp exposure. Vital to cold, no percussion tenderness, no mobility. Too little sound structure left
+      for another direct restoration. Plan: PFM crown 25. No other treatment outstanding; hygiene completed today.
+tx_plans:
+  - { id: plan_25, date: 2026-07-29, pending: ["27211"], completed: ["21215", "01202", "11111"] }
+assertions:
+  - { criterion: no_active_perio, date: 2026-09-14 }
+  - { criterion: crown_root_ratio, date: 2026-09-14 }
+  - { criterion: no_furcation, date: 2026-09-14 }
+  - { criterion: margin_3mm, date: 2026-09-14 }
+  - { criterion: ferrule_1_5mm, date: 2026-09-14 }
+  - { criterion: mesiodistal_space, date: 2026-09-14 }
+  - { criterion: no_adjunctive_needed, date: 2026-09-14 }
+  - { criterion: extensively_restored, date: 2026-09-14, note: "Five continuous surfaces MODBL with the palatal cusp lost, non-endodontically treated" }
+  - { criterion: active_disease_addressed, date: 2026-09-14 }

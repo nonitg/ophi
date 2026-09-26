@@ -2,19 +2,25 @@
 
 Human inputs (clinician assertions, confirmations of proposed evidence, sign-off) are stored per case
 in a small JSON state store and re-applied on every load, then the deterministic engine re-runs.
-The engine never sees the store; it only sees artifacts.
+The engine never sees the store; it only sees artifacts. What happens after sign-off (sent, Sun Life's
+decision, booked) is recorded here too; `ophi.workflow` derives the case's stage from it.
 """
 
 from __future__ import annotations
 
 import hashlib
+import json
 import os
 import shutil
 import threading
-from datetime import UTC, date, datetime
+from collections.abc import Callable, Iterator
+from contextlib import contextmanager
+from contextvars import ContextVar
+from datetime import UTC, date, datetime, time
 from pathlib import Path
+from typing import Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
 from ophi.casegen.dsl import load_case
 from ophi.cdm.models import (
@@ -26,8 +32,10 @@ from ophi.extract.proposer import propose_for_case
 from ophi.packet.documents import narrative_ascii
 from ophi.packet.narrative import validate_narrative
 from ophi.outcomes.weights import Weights
+from ophi.lookback import LookBackReport, run_lookback
 from ophi.rules.loader import default_pack
 from ophi.rules.schema import RulePack
+from ophi.workflow import Stage, documentation_gaps, stage_of, valid_until
 
 ROOT = Path(__file__).resolve().parents[1]
 CASES_DIR = ROOT / "cases" / "demo"
@@ -45,8 +53,18 @@ def _dentist_only(role: str, what: str) -> None:
         raise PermissionError(f"{what} may only be recorded by the treating dentist (actor role: {role})")
 
 
+def _not_sent(st: CaseState) -> None:
+    if st.sent:
+        raise PermissionError("this request is already with Sun Life; start a resubmission to change it")
+
+
 def _lf(text: str) -> str:
     return text.replace("\r\n", "\n").replace("\r", "\n")
+
+
+# Demo seeding replays past steps "as of" their day. The override is per call context, not a swap of the
+# shared service's clock, so requests served while a reset reseeds still see the real day.
+_STAMP: ContextVar[datetime | None] = ContextVar("ophi_stamp", default=None)
 
 
 class NarrativeInvalid(ValueError):
@@ -73,12 +91,66 @@ class SignOff(BaseModel):
     ruleset_version: str
 
 
+class Decision(BaseModel):
+    """Sun Life's answer as staff recorded it. `reason` is Sun Life's wording, verbatim."""
+
+    outcome: Literal["approved", "denied"]
+    decided_on: date
+    reason: str | None = None
+    recorded_by: str
+    recorded_at: datetime
+
+
+class Attempt(BaseModel):
+    """An earlier submission of this case, kept when staff start a resubmission."""
+
+    submitted_on: date
+    decision: Decision
+
+
+class FirstCheck(BaseModel):
+    """The documentation gaps Ophi found the first time it read the chart, so a gap staff later close
+    still counts as caught before sending."""
+
+    at: datetime
+    gaps: list[str]  # requirement ids
+
+
 class CaseState(BaseModel):
     assertions: dict[str, dict] = Field(default_factory=dict)  # criterion_id -> {value, by, licence, at, note}
     confirmations: dict[str, dict] = Field(default_factory=dict)  # proposal artifact id -> {decision, by, at}
     narrative_edits: str | None = None
     sign_off: SignOff | None = None
-    submitted_at: datetime | None = None
+    submitted_at: datetime | None = None  # when staff recorded the submission
+    submitted_on: date | None = None  # the day it went to Sun Life
+    decision: Decision | None = None
+    booked_on: date | None = None
+    attempts: list[Attempt] = Field(default_factory=list)
+    first_check: FirstCheck | None = None
+
+    @model_validator(mode="after")
+    def _sent_day_from_legacy_state(self) -> CaseState:
+        """State saved before the send date was recorded kept only the moment staff clicked."""
+        if self.submitted_at and self.submitted_on is None:
+            self.submitted_on = self.submitted_at.date()
+        return self
+
+    @property
+    def sent(self) -> bool:
+        """The request is with Sun Life or decided: its chart inputs and signature are part of the record."""
+        return self.submitted_on is not None
+
+
+FollowUpStatus = Literal["left_message", "rebooking", "declined"]
+
+
+class FollowUp(BaseModel):
+    """Staff's call-back on a past denial that was never resubmitted (the Recover list)."""
+
+    status: FollowUpStatus
+    note: str | None = None
+    by: str
+    at: datetime
 
 
 class AuditEvent(BaseModel):
@@ -105,8 +177,28 @@ class Store:
         with self._lock:
             (self.root / f"{case_id}.json").write_text(st.model_dump_json(indent=2))
 
-    def audit(self, case_id: str, actor: str, event: str, detail: str) -> None:
-        ev = AuditEvent(at=datetime.now(UTC), case_id=case_id, actor=actor, event=event, detail=detail)
+    def record_first_check(self, case_id: str, fc: FirstCheck) -> None:
+        """Set the first check if no one has yet, re-reading under the lock so a concurrent write survives."""
+        with self._lock:
+            st = self.load(case_id)
+            if st.first_check is None:
+                st.first_check = fc
+                (self.root / f"{case_id}.json").write_text(st.model_dump_json(indent=2))
+
+    def load_followups(self) -> dict[str, FollowUp]:
+        p = self.root / "followups.json"
+        if not p.exists():
+            return {}
+        return {k: FollowUp.model_validate(v) for k, v in json.loads(p.read_text()).items()}
+
+    def set_followup(self, row_id: str, followup: FollowUp) -> None:
+        with self._lock:
+            followups = self.load_followups()
+            followups[row_id] = followup
+            (self.root / "followups.json").write_text(json.dumps({k: v.model_dump(mode="json") for k, v in followups.items()}, indent=2))
+
+    def audit(self, case_id: str, actor: str, event: str, detail: str, at: datetime | None = None) -> None:
+        ev = AuditEvent(at=at or datetime.now(UTC), case_id=case_id, actor=actor, event=event, detail=detail)
         with self._lock:
             with (self.root / "audit.jsonl").open("a") as fh:
                 fh.write(ev.model_dump_json() + "\n")
@@ -149,6 +241,11 @@ class CaseView(BaseModel):
     def dollars_at_risk(self) -> float:
         return (self.case.treatment.fee_cents or 0) / 100
 
+    @property
+    def stage(self) -> Stage:
+        st = self.state
+        return stage_of(self.assessment, self.signed, st.submitted_on, st.decision.outcome if st.decision else None, st.booked_on)
+
 
 class CaseService:
     def __init__(
@@ -157,12 +254,15 @@ class CaseService:
         store: Store | None = None,
         pack: RulePack | None = None,
         repository=None,
+        clock: Callable[[], datetime] | None = None,
         weights: Weights | None = None,
     ) -> None:
         self.cases_dir = cases_dir
         self.store = store or Store()
         self.pack = pack or default_pack()
         self.weights = weights
+        self.clock = clock or self._chart_clock
+        self._chart_day: tuple[date, date] | None = None  # (real day it was computed, chart day)
         # Optional PMS repository abstraction; toggle-aware default.
         if repository is not None:
             self.repository = repository
@@ -186,6 +286,31 @@ class CaseService:
     def base_case(self, case_id: str) -> Case:
         return self.repository.get_case(case_id)
 
+    def now(self) -> datetime:
+        return _STAMP.get() or self.clock()
+
+    def today(self) -> date:
+        return self.now().date()
+
+    @contextmanager
+    def at(self, day: date) -> Iterator[None]:
+        """Stamp writes as if made on `day` (demo seeding replays past steps through the real calls)."""
+        token = _STAMP.set(datetime.combine(day, time(13, 30), UTC))
+        try:
+            yield
+        finally:
+            _STAMP.reset(token)
+
+    def _chart_clock(self) -> datetime:
+        """Today is the day the chart was read: the latest `as_of` across cases, at the current time of day.
+        A live PMS read makes that the real date; the demo fixtures freeze it at 2026-09-17. Re-read once a
+        real day, so a long-running server moves forward with the chart."""
+        real = datetime.now(UTC)
+        if self._chart_day is None or self._chart_day[0] != real.date():
+            days = [self.base_case(cid).as_of for cid in self.case_ids()]
+            self._chart_day = (real.date(), max(days) if days else real.date())
+        return datetime.combine(self._chart_day[1], real.time(), UTC)
+
     def view(self, case_id: str) -> CaseView:
         base = self.base_case(case_id)
         st = self.store.load(case_id)
@@ -193,6 +318,9 @@ class CaseService:
         user_assertions = [self._assertion_artifact(base, cid, a) for cid, a in st.assertions.items()]
         case = base.with_artifacts(proposals + user_assertions)
         a = assess(case, self.pack, self.weights)
+        if st.first_check is None:
+            st.first_check = FirstCheck(at=self.now(), gaps=[r.requirement_id for r in documentation_gaps(a)])
+            self.store.record_first_check(case_id, st.first_check)
         return CaseView(case=case, base_case=base, proposals=proposals, state=st, assessment=a,
                         minutes_estimate=self.minutes_estimate(case, a))
 
@@ -213,10 +341,11 @@ class CaseService:
         if value not in ("met", "not_met", "not_applicable"):
             raise ValueError(value)
         st = self.store.load(case_id)
-        st.assertions[criterion_id] = {"value": value, "by": by, "licence": licence, "at": datetime.now(UTC).isoformat(), "note": note}
+        _not_sent(st)
+        st.assertions[criterion_id] = {"value": value, "by": by, "licence": licence, "at": self.now().isoformat(), "note": note}
         st.sign_off = None  # any new clinical input invalidates a prior sign-off
         self.store.save(case_id, st)
-        self.store.audit(case_id, by, "assert", f"{criterion_id}={value}" + (f" ({note})" if note else ""))
+        self.audit(case_id, by, "assert", f"{criterion_id}={value}" + (f" ({note})" if note else ""))
 
     def assert_many(self, case_id: str, items: list[dict], by: str, licence: str | None, role: str = "dentist") -> int:
         """Record several clinician assertions in one store transaction.
@@ -237,33 +366,36 @@ class CaseService:
             if val not in ("met", "not_met", "not_applicable"):
                 raise ValueError(val)
         st = self.store.load(case_id)
-        now = datetime.now(UTC).isoformat()
+        _not_sent(st)
+        now = self.now().isoformat()
         for it in items:
             cid = it["criterion_id"]
             st.assertions[cid] = {"value": it["value"], "by": by, "licence": licence, "at": now, "note": it.get("note")}
         st.sign_off = None
         self.store.save(case_id, st)
         for it in items:
-            self.store.audit(case_id, by, "assert", f"{it['criterion_id']}={it['value']}" + (f" ({it.get('note')})" if it.get("note") else ""))
+            self.audit(case_id, by, "assert", f"{it['criterion_id']}={it['value']}" + (f" ({it.get('note')})" if it.get("note") else ""))
         return len(items)
 
     def confirm_proposal(self, case_id: str, artifact_id: str, decision: str, by: str) -> None:
         if decision not in ("confirmed", "rejected"):
             raise ValueError(decision)
         st = self.store.load(case_id)
-        st.confirmations[artifact_id] = {"decision": decision, "by": by, "at": datetime.now(UTC).isoformat()}
+        _not_sent(st)
+        st.confirmations[artifact_id] = {"decision": decision, "by": by, "at": self.now().isoformat()}
         st.sign_off = None
         self.store.save(case_id, st)
-        self.store.audit(case_id, by, "confirm_proposal", f"{artifact_id}: {decision}")
+        self.audit(case_id, by, "confirm_proposal", f"{artifact_id}: {decision}")
 
     def save_narrative(self, case_id: str, text: str, by: str) -> None:
         text = _lf(text)
         self._validate(case_id, text)
         st = self.store.load(case_id)
+        _not_sent(st)
         st.narrative_edits = text
         st.sign_off = None
         self.store.save(case_id, st)
-        self.store.audit(case_id, by, "edit_narrative", f"{len(text)} chars")
+        self.audit(case_id, by, "edit_narrative", f"{len(text)} chars")
 
     def sign_off(self, case_id: str, by: str, licence: str | None, narrative_text: str, role: str = "dentist") -> SignOff:
         """Non-skippable, one case, one human, one action. Dentist only. Blocked unless the verdict is READY
@@ -272,10 +404,11 @@ class CaseService:
         narrative_text = _lf(narrative_text)
         self._validate(case_id, narrative_text)
         v = self.view(case_id)
+        _not_sent(v.state)
         if v.assessment.verdict not in (Verdict.READY_TO_SUBMIT, Verdict.READY_WITH_RISKS):
-            raise PermissionError(f"cannot sign off: verdict is {v.assessment.verdict}")
+            raise PermissionError(f"every applicable requirement must be documented before signing (the case is {v.assessment.verdict.value.lower().replace('_', ' ')})")
         so = SignOff(
-            signed_by=by, licence=licence, signed_at=datetime.now(UTC),
+            signed_by=by, licence=licence, signed_at=self.now(),
             attestation="I have reviewed this packet and it reflects my clinical judgment and the contents of this patient's record.",
             # Hash the ASCII text exactly as the packet ships it, so the verifier can match attestation to file.
             narrative_sha256=hashlib.sha256(narrative_ascii(narrative_text).encode()).hexdigest(),
@@ -285,19 +418,104 @@ class CaseService:
         st.narrative_edits = narrative_text
         st.sign_off = so
         self.store.save(case_id, st)
-        self.store.audit(case_id, by, "sign_off", f"assessment {so.assessment_id}, narrative sha256 {so.narrative_sha256[:12]}")
+        self.audit(case_id, by, "sign_off", f"assessment {so.assessment_id}, narrative sha256 {so.narrative_sha256[:12]}")
         return so
 
-    def mark_submitted(self, case_id: str, by: str) -> None:
-        st = self.store.load(case_id)
-        st.submitted_at = datetime.now(UTC)
+    def mark_submitted(self, case_id: str, by: str, on: date | None = None) -> None:
+        """Staff sent the signed packet through their PMS. Ophi never transmits; this records that they did."""
+        v = self.view(case_id)
+        _not_sent(v.state)
+        if not v.signed:
+            raise PermissionError("the packet has not been signed for the current chart")
+        on = on or self.today()
+        self._not_future(on, "the send date")
+        if on < v.state.sign_off.signed_at.date():
+            raise ValueError("the send date is before the dentist signed")
+        st = v.state
+        st.submitted_at, st.submitted_on = self.now(), on
         self.store.save(case_id, st)
-        self.store.audit(case_id, by, "mark_submitted", "staff recorded submission via the PMS/CDAnet")
+        self.audit(case_id, by, "mark_submitted", f"sent to Sun Life on {on.isoformat()} through the PMS")
+
+    def record_decision(self, case_id: str, outcome: str, decided_on: date, reason: str | None, by: str) -> None:
+        st = self.store.load(case_id)
+        if st.submitted_on is None or st.decision is not None:
+            raise PermissionError("a decision can only be recorded for a case waiting on Sun Life")
+        if outcome not in ("approved", "denied"):
+            raise ValueError(outcome)
+        self._not_future(decided_on, "the decision date")
+        if decided_on < st.submitted_on:
+            raise ValueError("the decision date is before the day it was sent")
+        st.decision = Decision(outcome=outcome, decided_on=decided_on, reason=(reason or "").strip() or None,
+                               recorded_by=by, recorded_at=self.now())
+        self.store.save(case_id, st)
+        self.audit(case_id, by, "record_decision", f"Sun Life {outcome} on {decided_on.isoformat()}" + (f": {st.decision.reason}" if st.decision.reason else ""))
+
+    def start_resubmission(self, case_id: str, by: str) -> None:
+        """A denied case starts over as a new request. The earlier attempt is kept; the old sign-off is not,
+        because the dentist attests to each request."""
+        st = self.store.load(case_id)
+        if st.decision is None or st.decision.outcome != "denied" or st.submitted_on is None:
+            raise PermissionError("only a denied request can be resubmitted")
+        st.attempts.append(Attempt(submitted_on=st.submitted_on, decision=st.decision))
+        st.sign_off, st.submitted_at, st.submitted_on, st.decision = None, None, None, None
+        self.store.save(case_id, st)
+        self.audit(case_id, by, "start_resubmission", f"attempt {len(st.attempts) + 1}")
+
+    def mark_booked(self, case_id: str, on: date, by: str) -> None:
+        st = self.store.load(case_id)
+        if st.decision is None or st.decision.outcome != "approved":
+            raise PermissionError("book the crown once Sun Life's decision is recorded")
+        if not st.decision.decided_on <= on <= valid_until(st.decision.decided_on):
+            raise ValueError(f"the appointment must fall between the decision and {valid_until(st.decision.decided_on).isoformat()}, while it is valid")
+        st.booked_on = on
+        self.store.save(case_id, st)
+        self.audit(case_id, by, "mark_booked", f"crown appointment booked for {on.isoformat()}")
+
+    def undo(self, case_id: str, step: str, by: str) -> None:
+        """Take back the latest recorded step (a mis-tap at a busy front desk). Only the latest can go."""
+        st = self.store.load(case_id)
+        if step == "booked" and st.booked_on:
+            st.booked_on = None
+        elif step == "decision" and st.decision and not st.booked_on:
+            st.decision = None
+        elif step == "sent" and st.submitted_on and not st.decision:
+            st.submitted_at, st.submitted_on = None, None
+        else:
+            raise PermissionError(f"'{step}' is not the latest step on this case")
+        self.store.save(case_id, st)
+        self.audit(case_id, by, "undo", step)
+
+    # --- recover: past denials never resubmitted ---------------------------------------------------
+
+    def lookback(self) -> LookBackReport:
+        return run_lookback()
+
+    def recover_rows(self) -> list[dict]:
+        """Denials from the look-back that were never resubmitted, each with staff's latest follow-up."""
+        followups = self.store.load_followups()
+        rows = [r for r in self.lookback().rows if r.decision == "denied" and not r.resubmitted]
+        return [{"row": r, "followup": followups.get(r.case_id)} for r in rows]
+
+    def record_followup(self, row_id: str, status: FollowUpStatus, note: str | None, by: str) -> None:
+        if row_id not in {x["row"].case_id for x in self.recover_rows()}:
+            raise KeyError(row_id)
+        if status not in ("left_message", "rebooking", "declined"):
+            raise ValueError(status)
+        f = FollowUp(status=status, note=(note or "").strip() or None, by=by, at=self.now())
+        self.store.set_followup(row_id, f)
+        self.audit(row_id, by, "recover_followup", status + (f" ({f.note})" if f.note else ""))
 
     def reset(self) -> None:
         self.store.reset()
 
     # --- helpers ------------------------------------------------------------------------------
+
+    def audit(self, case_id: str, actor: str, event: str, detail: str) -> None:
+        self.store.audit(case_id, actor, event, detail, at=self.now())
+
+    def _not_future(self, day: date, what: str) -> None:
+        if day > self.today():
+            raise ValueError(f"{what} is in the future")
 
     def _validate(self, case_id: str, text: str) -> None:
         violations = validate_narrative(text, self.view(case_id).case)

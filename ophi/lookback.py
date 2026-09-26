@@ -26,7 +26,8 @@ DOCUMENT_REQUIREMENTS = {"radiograph_pa", "radiograph_bw", "perio_chart", "tx_pl
 
 class LookBackRow(BaseModel):
     case_id: str
-    patient_label: str  # initials only
+    patient_label: str  # initials, for the shareable report
+    patient_name: str  # for staff calling the patient back
     code: str
     tooth_fdi: int
     submitted_on: date
@@ -82,7 +83,7 @@ def load_rows(cases_dir: Path = LOOKBACK_DIR) -> list[LookBackRow]:
         other = [r.label for r in a.requirements if r.applicable and r.requirement_id not in DOCUMENT_REQUIREMENTS
                  and r.status not in (Status.SATISFIED, Status.NOT_APPLICABLE)]
         rows.append(LookBackRow(
-            case_id=case.case_id, patient_label=_initials(case.patient.display_name), code=case.treatment.code,
+            case_id=case.case_id, patient_label=_initials(case.patient.display_name), patient_name=case.patient.display_name, code=case.treatment.code,
             tooth_fdi=case.requested_tooth, submitted_on=case.as_of, decision=outcome["decision"],
             fee_dollars=(case.treatment.fee_cents or 0) / 100, gaps=gaps, unverifiable=unverifiable, other_open=other,
             resubmitted=bool(outcome.get("resubmitted", False)), resubmitted_decision=outcome.get("resubmitted_decision"),

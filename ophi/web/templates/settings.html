@@ -1,90 +1,79 @@
 {% extends "base.html" %}
-{% from "macros.html" import clause_chip, avatar %}
-{% block title %}Settings — Ophi{% endblock %}
+{% from "macros.html" import clause_chip %}
+{% block title %}Settings and audit — Ophi{% endblock %}
 {% block content %}
 <header class="head">
-  <div>
-    <h1 class="title">Settings <span class="ctx">Fictional Dental Centre</span></h1>
-    <p class="lede">Every human action Ophi recorded, the rule pack behind each check, and who can sign.</p>
-  </div>
+  <h1>Settings and audit</h1>
+  <p class="lede">The connection, the people who sign, the CDCP rules Ophi checks against, and a log of every action a person took.</p>
 </header>
 
 <div class="settings-grid">
-  <div class="stack">
-    <section class="card" aria-labelledby="conn-h">
-      <div class="card-body">
-        <h2 class="side-title" id="conn-h">Connection</h2>
-        <p class="conn"><span class="dot" aria-hidden="true"></span>Demo fixtures. No PMS connected; the ABELDent driver runs in the lab.</p>
-        <p class="tally-foot">{{ plural(case_count, 'demo case') }} from cases/demo/. Engine <span class="num">{{ engine_version }}</span>.</p>
-      </div>
-    </section>
+  <section>
+    <div class="panel">
+      <h2>Connection</h2>
+      <p><span class="dot"></span>Demo: fictional cases, no PMS connected.</p>
+      <p class="small muted" style="margin-top:6px">{{ plural(case_count, 'case') }} loaded. Times are shown in Ontario time. Engine {{ engine_version }}.</p>
+    </div>
 
-    <section class="card" aria-labelledby="roster-h">
-      <div class="card-body">
-        <h2 class="side-title" id="roster-h">Who can act</h2>
-        <ul class="roster">
-          {% for a in ACTORS.values() %}
-          <li><span class="person">{{ avatar(a.name, a.key) }}<span><span class="strong">{{ a.name }}</span><br><span class="role">{{ a.role|capitalize }}{% if a.is_dentist %}, records clinical criteria and signs{% else %}, fixes the chart and submits{% endif %}</span></span></span><span class="mono muted">{{ a.licence or '' }}</span></li>
-          {% endfor %}
-        </ul>
-      </div>
-    </section>
+    <div class="panel">
+      <h2>People</h2>
+      <table class="tbl">
+        <thead><tr><th>Name</th><th>Role</th><th>Licence</th></tr></thead>
+        <tbody>
+        {% for a in ACTORS.values() %}<tr><td>{{ a.name }}</td><td>{{ a.role|capitalize }}</td><td class="num">{{ a.licence or '—' }}</td></tr>{% endfor %}
+        </tbody>
+      </table>
+    </div>
 
-    <section class="card" aria-labelledby="pack-h">
-      <div class="card-body">
-        <h2 class="side-title" id="pack-h">Rule pack <span class="ctx">{{ pack.payer }}, {{ pack.jurisdiction.province }} {{ pack.jurisdiction.provider_type|upper }} grid {{ pack.jurisdiction.grid_year }}</span></h2>
-        <dl class="kv">
-          <dt>Id</dt><dd class="mono">{{ pack.id }}</dd>
-          <dt>Version</dt><dd class="mono">{{ pack.version }}</dd>
-          <dt>Effective from</dt><dd class="mono">{{ pack.effective_from }}</dd>
-          <dt>Verified on</dt><dd class="mono">{{ pack.verified_on }}</dd>
-          <dt>Content hash</dt><dd class="mono">{{ pack.content_hash }}</dd>
-        </dl>
-        <h3 class="sec-h">Sources</h3>
-        <ul class="sources">
-          {% for key, s in pack.sources.items() %}<li><span class="key">{{ key }}</span><a href="{{ s.url }}" target="_blank" rel="noopener">{{ s.title }}</a></li>{% endfor %}
-        </ul>
-        <h3 class="sec-h">{{ pack.requirements|length }} requirements</h3>
-        <ul class="reqs">
-          {% for r in pack.requirements %}
-          <li><span class="req-label">{{ r.label }}</span><span class="req-meta"><span class="rid">{{ r.id }}</span>{{ clause_chip(r.clause, pack) }}</span></li>
-          {% endfor %}
-        </ul>
-      </div>
-    </section>
+    <div class="panel">
+      <h2>CDCP rules</h2>
+      <dl class="kv">
+        <dt>Rule pack</dt><dd class="num">{{ pack.id }}, version {{ pack.version }}</dd>
+        <dt>Payer</dt><dd>{{ pack.payer }}, {{ pack.jurisdiction.province }} {{ pack.jurisdiction.provider_type|upper }} grid {{ pack.jurisdiction.grid_year }}</dd>
+        <dt>In effect from</dt><dd class="num">{{ full_date(pack.effective_from) }}</dd>
+        <dt>Checked against sources</dt><dd class="num">{{ full_date(pack.verified_on) }}</dd>
+        <dt>Content hash</dt><dd class="mono">{{ pack.content_hash }}</dd>
+      </dl>
+      <p class="small" style="margin-top:12px"><a href="{{ BASE }}/outcomes">Past outcomes</a><span class="muted">, the denials the rule pack can't explain</span></p>
+      <h3>Sources</h3>
+      <ul class="plain small">
+        {% for key, s in pack.sources.items() %}<li><a href="{{ s.url }}" target="_blank" rel="noopener">{{ s.title }}</a></li>{% endfor %}
+      </ul>
+      <h3>The {{ pack.requirements|length }} crown requirements</h3>
+      <ul class="reqs">
+        {% for r in pack.requirements %}
+        <li class="req" style="grid-template-columns: minmax(0, 1fr)"><div><div>{{ r.label }}</div><div class="req-meta">{{ clause_chip(r.clause, pack) }}</div></div></li>
+        {% endfor %}
+      </ul>
+    </div>
 
-    <section class="card" aria-labelledby="demo-h">
-      <div class="card-body">
-        <h2 class="side-title" id="demo-h">Demo state</h2>
-        <p class="tally-foot">Deletes every assertion, confirmation, narrative edit, sign-off and the audit log.</p>
-        <form method="post" action="{{ BASE }}/reset" data-confirm="Reset all demo state? Assertions, confirmations, narratives, sign-offs and the audit log will be deleted.">
-          <button class="btn btn-danger btn-sm" type="submit">Reset demo state</button>
-        </form>
-      </div>
-    </section>
-  </div>
+    <div class="panel">
+      <h2>Demo data</h2>
+      <p class="small muted" style="margin-bottom:12px">Puts every demo case back where it started and clears the audit log.</p>
+      <form method="post" action="{{ BASE }}/reset" data-confirm="Reset the demo? Every answer, signature, decision and follow-up is deleted, and the audit log is cleared.">
+        <button class="btn btn-danger" type="submit">Reset demo</button>
+      </form>
+    </div>
+  </section>
 
-  <section class="card" aria-labelledby="audit-h">
-    <div class="card-head">
-      <h2 class="card-title" id="audit-h">Audit log <span class="ctx">newest first</span></h2>
+  <section class="panel">
+    <div class="panel-head">
+      <h2>Audit log <span class="muted num">({{ events|length }})</span></h2>
       <a class="btn btn-sm" href="{{ BASE }}/settings/audit.csv">Export CSV</a>
     </div>
     {% if not events %}
-    <p class="empty">No events yet. Every assertion, confirmation, narrative edit, sign-off and download lands here.</p>
+    <p class="muted">No actions yet. Every answer, confirmation, narrative edit, signature, download and status change is recorded here.</p>
     {% else %}
-    <ul class="audit">
-      {% for e in events %}
-      <li>
-        {% set who = ACTORS.values()|selectattr('name', 'equalto', e.actor)|first %}
-        {{ avatar(e.actor, 'dentist' if who and who.is_dentist else 'coordinator', sm=True) }}
-        <div>
-          <div class="audit-what">{{ e.actor }} <span class="muted">{{ (EVENT_LABEL.get(e.event, e.event))|lower }}</span> <a href="{{ BASE }}/cases/{{ e.case_id }}">{{ e.case_id }}</a></div>
-          <div class="audit-detail">{{ e.detail }}</div>
-        </div>
-        <span class="audit-at">{{ e.at.strftime('%Y-%m-%d') }}<br>{{ e.at.strftime('%H:%M:%S') }} UTC</span>
-      </li>
-      {% endfor %}
-    </ul>
+    <div class="tbl-wrap">
+      <table class="tbl">
+        <thead><tr><th>When</th><th>Patient</th><th>Who</th><th>What</th></tr></thead>
+        <tbody>
+        {% for e in events %}
+        <tr><td class="num nowrap">{{ local_time(e.at) }}</td><td><a href="{{ BASE ~ ('/recover#r-' if e.event == 'recover_followup' else '/cases/') ~ e.case_id }}">{{ e.patient }}</a></td><td class="nowrap">{{ e.actor }}</td><td>{{ e.what|capitalize }}<div class="small muted"{% if e.event == 'record_decision' %} data-voice="payer"{% endif %}>{{ e.detail }}</div></td></tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
     {% endif %}
   </section>
 </div>

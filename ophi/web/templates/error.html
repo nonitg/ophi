@@ -1,13 +1,9 @@
 {% extends "base.html" %}
 {% block title %}{{ title }} — Ophi{% endblock %}
 {% block content %}
-{% set back = request.headers.get('referer') %}
-<section class="card error" aria-labelledby="error-h">
-  <h1 id="error-h">{{ title }}</h1>
+<section class="error-panel">
+  <h1>{{ title }}</h1>
   <p>{{ detail }}</p>
-  <div class="btn-row">
-    {% if back %}<a class="btn btn-primary" href="{{ back }}">Go back</a>{% endif %}
-    <a class="btn" href="{{ HOME }}">Open the queue</a>
-  </div>
+  <p><a class="btn" href="{{ request.headers.get('referer') or HOME }}">Go back</a></p>
 </section>
 {% endblock %}

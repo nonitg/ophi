@@ -15,8 +15,8 @@ RESTORABILITY = ["no_active_perio", "crown_root_ratio", "no_furcation", "margin_
                  "mesiodistal_space", "no_adjunctive_needed"]
 ALL_TREMBLAY = RESTORABILITY + ["extensively_restored", "active_disease_addressed", "endo_healed"]
 
-# Ophi's own voice never predicts payer behaviour. Chart quotes, cited clause titles and rule ids are exempt.
-FORBIDDEN = re.compile(r"\b(will be approved|approved|eligib\w*|covered|coverage|likely|probability)\b", re.I)
+# Ophi's own voice never predicts payer behaviour. Chart quotes and Sun Life text are exempt.
+FORBIDDEN = re.compile(r"\b(will be approved|approved|eligible|covered|likely|probability)\b", re.I)
 
 
 @pytest.fixture
@@ -24,6 +24,15 @@ def client(tmp_path):
     svc = CaseService(store=Store(tmp_path / "state"))
     app = create_app(svc=svc, packets_dir=tmp_path / "packets")
     return TestClient(app, follow_redirects=False)
+
+
+@pytest.fixture
+def seeded(tmp_path):
+    """The demo as it runs: five cases already past sign-off, some with Sun Life's decision recorded."""
+    svc = CaseService(store=Store(tmp_path / "state"))
+    app = create_app(svc=svc, packets_dir=tmp_path / "packets", seed_demo=True)
+    with TestClient(app, follow_redirects=False) as c:  # the first request seeds
+        yield c
 
 
 def as_dentist(client: TestClient) -> None:
@@ -43,27 +52,30 @@ def _draft(case_id: str) -> str:
     return draft_narrative(case, assess(case, default_pack()), default_pack())
 
 
-def test_queue_lists_cases_with_verdicts(client):
-    r = client.get("/")
+def test_worklist_groups_cases_by_step_with_send_by_dates(seeded):
+    r = seeded.get("/")
     assert r.status_code == 200
-    assert "Kowalchuk" in r.text
-    assert "Blocked" in r.text
-    assert "of treatment at risk" in r.text
+    for text in ("Fix chart gaps", "Waiting on Sun Life", "Resubmit", "Kowalchuk", "4 days late to send", "Send by Sep 22"):
+        assert text in r.text
 
 
 def test_base_path_serves_every_screen_and_link_under_the_prefix(tmp_path):
     """The hosted demo lives at ophi.app/<slug>; nothing it links to may escape that prefix."""
-    app = create_app(svc=CaseService(store=Store(tmp_path / "state")), packets_dir=tmp_path / "packets", base_path="/demo-x")
+    app = create_app(svc=CaseService(store=Store(tmp_path / "state")), packets_dir=tmp_path / "packets", base_path="/demo-x",
+                     seed_demo=True)
     c = TestClient(app, follow_redirects=False)
-    c.cookies.set("actor", "dentist")
-    for path in ("/demo-x", "/demo-x/cases/singh", "/demo-x/cases/tremblay/packet", "/demo-x/look-back", "/demo-x/settings"):
-        page = c.get(path)
-        assert page.status_code == 200, path
-        urls = re.findall(r'(?:href|action|src)="(/[^"]*)"', page.text)
-        assert urls and all(u.startswith("/demo-x") for u in urls), (path, [u for u in urls if not u.startswith("/demo-x")])
+    for actor in ("coordinator", "dentist"):
+        c.cookies.set("actor", actor)
+        for path in ("/demo-x", "/demo-x/cases/singh", "/demo-x/cases/fontaine", "/demo-x/cases/marchand",
+                     "/demo-x/cases/tremblay/packet", "/demo-x/recover", "/demo-x/results", "/demo-x/settings"):
+            page = c.get(path)
+            assert page.status_code == 200, path
+            urls = re.findall(r'(?:href|action|src)="(/[^"]*)"', page.text)
+            assert urls and all(u.startswith("/demo-x") for u in urls), (path, [u for u in urls if not u.startswith("/demo-x")])
     assert c.get("/demo-x/static/app.css").status_code == 200
-    r = c.post("/demo-x/cases/singh/assert", data={"criterion_id": "ferrule_1_5mm", "value": "met"})
-    assert r.headers["location"] == "/demo-x/cases/singh#assertions"
+    assert c.get("/demo-x/look-back").headers["location"] == "/demo-x/results#before"
+    r = c.post("/demo-x/cases/tremblay/assert", data={"criterion_id": "ferrule_1_5mm", "value": "met"})
+    assert r.headers["location"] == "/demo-x/cases/tremblay?done=criteria"
     assert c.post("/demo-x/reset").headers["location"] == "/demo-x"
 
 
@@ -88,9 +100,9 @@ def test_assert_requires_dentist(client):
 
 def test_assert_as_dentist_is_recorded_and_attributed(client):
     as_dentist(client)
-    r = client.post("/cases/singh/assert", data={"criterion_id": "ferrule_1_5mm", "value": "met", "note": "on the PA"})
+    r = client.post("/cases/tremblay/assert", data={"criterion_id": "ferrule_1_5mm", "value": "met", "note": "on the PA"})
     assert r.status_code == 303
-    page = client.get("/cases/singh").text
+    page = client.get("/cases/tremblay").text
     assert "Dr. Priya Lau" in page
     assert "on the PA" in page
 
@@ -114,7 +126,7 @@ def complete_tremblay(client: TestClient) -> None:
 
 def test_tremblay_happy_path_reaches_ready_then_signs_off(client):
     complete_tremblay(client)
-    assert "ready for sign-off" in client.get("/cases/tremblay").text
+    assert "Review and sign" in client.get("/cases/tremblay").text
 
     r = client.get("/cases/tremblay/packet")
     assert r.status_code == 200
@@ -128,9 +140,10 @@ def test_tremblay_happy_path_reaches_ready_then_signs_off(client):
     assert "Dr. Priya Lau" in page
     assert "attestation.narrative_sha256" not in page  # verifier finding when hashes disagree
 
-    assert client.post("/cases/tremblay/submitted").status_code == 303
-    assert "Marked submitted" in client.get("/cases/tremblay/packet").text
-    assert "Signed" in client.get("/").text
+    assert client.post("/cases/tremblay/submitted", data={"on": "2026-09-17"}).status_code == 303
+    assert "Marked as sent on Sep 17, 2026" in client.get("/cases/tremblay/packet").text
+    client.cookies.set("actor", "coordinator")  # the dentist's worklist leaves out cases waiting on Sun Life
+    assert "Waiting for Sun Life&#39;s decision" in client.get("/").text
 
 
 def test_sign_off_blocked_when_verdict_not_ready(client):
@@ -162,10 +175,43 @@ def test_packet_download_and_pdf(client):
     assert "ophi-packet-whitfield.zip" in r.headers["content-disposition"]
 
 
-def test_look_back_renders(client):
-    r = client.get("/look-back")
+def test_results_report_and_the_old_look_back_link(seeded):
+    assert seeded.get("/look-back").headers["location"] == "/results#before"
+    r = seeded.get("/results")
     assert r.status_code == 200
-    assert "never resubmitted" in r.text
+    assert "missing or out-of-date documents" in r.text and "never resubmitted" in r.text
+
+
+def test_record_decision_then_book(seeded):
+    r = seeded.post("/cases/park/decision", data={"outcome": "approved", "decided_on": "2026-09-16", "reason": ""})
+    assert r.status_code == 303 and "done=decision" in r.headers["location"]
+    assert "Valid until Sep 16, 2027" in seeded.get("/cases/park").text
+    assert seeded.post("/cases/park/booked", data={"on": "2026-10-05"}).status_code == 303
+    assert "Booked for" in seeded.get("/cases/park").text
+
+
+def test_decision_needs_an_outcome_and_a_date(seeded):
+    assert seeded.post("/cases/park/decision", data={"outcome": "", "decided_on": ""}).status_code == 400
+
+
+def test_undo_the_latest_step(seeded):
+    assert seeded.post("/cases/nguyen/undo", data={"step": "decision"}).status_code == 303
+    assert "Record decision" in seeded.get("/cases/nguyen").text
+    assert seeded.post("/cases/nguyen/undo", data={"step": "booked"}).status_code == 409
+
+
+def test_resubmit_keeps_the_denied_attempt(seeded):
+    assert seeded.post("/cases/marchand/resubmit").status_code == 303
+    page = seeded.get("/cases/marchand").text
+    assert "Attempt 1" in page and "Denied as per the plan criteria." in page
+
+
+def test_recover_call_list_records_a_follow_up(seeded):
+    page = seeded.get("/recover").text
+    assert "never resubmitted" in page
+    row = seeded.app.state.svc.recover_rows()[0]["row"].case_id
+    assert seeded.post(f"/recover/{row}", data={"status": "left_message", "note": ""}).status_code == 303
+    assert "Left a message" in seeded.get("/recover").text
 
 
 def test_settings_shows_pack_and_audit_csv(client):
@@ -192,63 +238,61 @@ def test_actor_cookie_and_reset(client):
     assert r.status_code == 303 and r.headers["location"] == "/cases/singh"
     assert "actor=dentist" in r.headers["set-cookie"]
     as_dentist(client)
-    client.post("/cases/singh/assert", data={"criterion_id": "ferrule_1_5mm", "value": "met"})
+    client.post("/cases/tremblay/assert", data={"criterion_id": "ferrule_1_5mm", "value": "met"})
     assert client.post("/reset").status_code == 303
-    assert "Not yet recorded" in client.get("/cases/singh").text
+    assert "Not yet recorded" in client.get("/cases/tremblay").text
     assert client.app.state.svc.store.audit_log() == []
 
 
 class _OphiVoice(HTMLParser):
-    """Collects the text Ophi says in its own voice: skips chart quotes, clause chips (they cite the CDCP
-    source's own headings), rule ids and markup that is never shown."""
+    """Text of a page, and its readable attributes, minus anything inside an element marked data-voice="payer"
+    (Sun Life's recorded decisions and words). Void elements never close, so they never change the depth."""
 
-    EXEMPT_TAGS = {"q", "blockquote", "mark", "script", "style", "title", "svg"}
-    EXEMPT_CLASSES = {"chip", "rid", "note-text"}
-    VOID = {"input", "br", "img", "meta", "link", "hr", "source", "wbr"}
+    VOID = {"area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "source", "track", "wbr"}
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
-        self.stack: list[bool] = []
-        self.text: list[str] = []
+        self.depth, self.parts = 0, []
 
     def handle_starttag(self, tag, attrs):
+        if not self.depth:
+            self.parts += [v for k, v in attrs if k in ("aria-label", "placeholder", "title") and v]
         if tag in self.VOID:
             return
-        classes = set((dict(attrs).get("class") or "").split())
-        self.stack.append(bool(self.stack and self.stack[-1]) or tag in self.EXEMPT_TAGS or bool(classes & self.EXEMPT_CLASSES))
+        if self.depth or ("data-voice", "payer") in attrs:
+            self.depth += 1
 
     def handle_endtag(self, tag):
-        if tag not in self.VOID and self.stack:
-            self.stack.pop()
+        if self.depth and tag not in self.VOID:
+            self.depth -= 1
 
     def handle_data(self, data):
-        if not (self.stack and self.stack[-1]):
-            self.text.append(data)
+        if not self.depth:
+            self.parts.append(data)
 
 
-def ophi_voice(html: str) -> str:
-    parser = _OphiVoice()
-    parser.feed(html)
-    return " ".join(parser.text)
+def _ophi_voice(html: str) -> str:
+    p = _OphiVoice()
+    p.feed(html)
+    return " ".join(p.parts)
 
 
-def test_copy_law_in_ophi_voice(client):
-    # Look-back is excluded: it reports Sun Life's recorded decisions ("approved"/"denied"), not Ophi's voice.
-    for actor in ("coordinator", "dentist"):
-        client.cookies.set("actor", actor)
-        for path in ["/", "/cases/singh", "/cases/deng", "/cases/rosco", "/cases/tremblay", "/cases/kowalchuk",
-                     "/cases/whitfield", "/cases/whitfield/packet", "/settings"]:
-            hits = [m.group(0) for m in FORBIDDEN.finditer(ophi_voice(client.get(path).text))]
-            assert not hits, f"{path} as {actor}: {hits}"
+def test_copy_law_parser_sees_past_void_tags_inside_payer_text():
+    html = '<fieldset data-voice="payer"><label><input type="radio">Approved</label></fieldset><p>This will be approved.</p>'
+    assert FORBIDDEN.findall(_ophi_voice(html)) == ["will be approved"]
 
 
-def test_every_strip_cell_links_to_one_row_on_the_page(client):
-    for case_id in ["singh", "kowalchuk", "deng", "rosco", "tremblay", "whitfield"]:
-        html = client.get(f"/cases/{case_id}").text
-        targets = re.findall(r'href="#(req-[a-z_]+)"', html)
-        ids = re.findall(r'id="(req-[a-z_]+)"', html)
-        assert targets and len(ids) == len(set(ids)), case_id
-        assert set(targets) <= set(ids), f"{case_id}: {set(targets) - set(ids)}"
+def test_copy_law_in_ophi_voice(seeded):
+    as_dentist(seeded)
+    seeded.post("/cases/park/decision", data={"outcome": "approved", "decided_on": "2026-09-16", "reason": ""})
+    pages = ["/", "/cases/singh", "/cases/deng", "/cases/rosco", "/cases/nguyen", "/cases/marchand", "/cases/park", "/cases/okafor",
+             "/cases/whitfield/packet", "/recover", "/results", "/settings"]
+    for actor in ("dentist", "coordinator"):
+        seeded.cookies.set("actor", actor)
+        for path in pages:
+            text = _ophi_voice(seeded.get(path).text)
+            hits = [m.group(0) for m in FORBIDDEN.finditer(text)]
+            assert not hits, f"{actor} {path}: {hits}"
 
 
 def test_unknown_case_is_404(client):

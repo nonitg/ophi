@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Recover — Ophi{% endblock %}
+{% block content %}
+<header class="head">
+  <h1>{{ plural(r.count, 'past denial was', 'past denials were') }} never resubmitted</h1>
+  <p class="lede">That is {{ money(r.dollars) }} of crown treatment that hasn't happened. {{ r.with_gap }} of them were missing a document CDCP requires, which a new request can include. Call each patient, and if they still want the crown, start a new preauthorization.</p>
+</header>
+
+<div class="tally" aria-label="Call list progress">
+  <span><b class="num">{{ r.to_call }}</b>to call, {{ money(r.to_call_dollars) }}</span>
+  <span><b class="num">{{ r.rebooking }}</b>rebooking, {{ money(r.rebooking_dollars) }}</span>
+  <span><b class="num">{{ r.declined }}</b>not proceeding</span>
+</div>
+
+<ul class="calls">
+  {% for x in r.calls %}{% set row = x.row %}{% set f = x.followup %}
+  <li class="call{% if f and f.status == 'declined' %} is-closed{% endif %}" id="r-{{ row.case_id }}">
+    <div>
+      <div class="call-name">{{ row.patient_name }}</div>
+      <div class="call-sub">Crown on #{{ row.tooth_fdi }} <span class="num">({{ row.code }})</span>, sent {{ full_date(row.submitted_on) }}</div>
+      <div class="call-fee num">{{ money(row.fee_dollars) }}</div>
+    </div>
+    <div>
+      <p class="call-why"><span class="payer" data-voice="payer">Sun Life denied it{% if row.denial_text %}: <q class="payer-quote">{{ row.denial_text }}</q>{% else %}.{% endif %}</span></p>
+      {% if row.gaps %}
+      <p class="call-why">Missing when it was sent: {{ row.gaps|join('; ') }}. A new request needs {{ 'it' if row.gaps|length == 1 else 'them' }}.</p>
+      {% elif row.unverifiable %}
+      <p class="call-why">The PMS couldn't show: {{ row.unverifiable|join('; ') }}. Check it before a new request.</p>
+      {% else %}
+      <p class="call-why">No missing document found.{% if row.other_open %} Still open when it was sent: {{ row.other_open|join('; ') }}.{% endif %}</p>
+      {% endif %}
+    </div>
+    <form class="call-act" method="post" action="{{ BASE }}/recover/{{ row.case_id }}">
+      {% if f %}<p class="call-status"><b>{{ FOLLOWUP_LABEL[f.status] }}</b> <span class="muted">{{ f.by }}, {{ local_time(f.at, '%b %-d') }}{% if f.note %}: “{{ f.note }}”{% endif %}</span></p>{% endif %}
+      <input class="input" type="text" name="note" placeholder="Note (optional)" aria-label="Note for {{ row.patient_name }}">
+      <div class="btn-row">
+        <button class="btn btn-sm" name="status" value="left_message">Left a message</button>
+        <button class="btn btn-sm" name="status" value="rebooking">Rebooking</button>
+        <button class="btn btn-sm" name="status" value="declined">Not proceeding</button>
+      </div>
+    </form>
+  </li>
+  {% else %}
+  <li class="empty">No past denials are waiting on a call.</li>
+  {% endfor %}
+</ul>
+<p class="source">From the look-back of the last 12 months of crown preauthorizations. Missing documents are found again from the chart as it stood on the day each request was sent.</p>
+{% endblock %}

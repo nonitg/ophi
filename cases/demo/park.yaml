@@ -1,0 +1,49 @@
+# Fully documented and asserted. Full cast crown on a cracked lower second molar; lab fee on 99113, the
+# April 2026 replacement for retired 99333.
+id: park
+as_of: 2026-09-14
+patient: { id: "7318", name: "Min-jun Park", dob: 1990-02-19, sex: M, cdcp_client_id: "CDCP-6608-4127" }
+provider: { name: "Dr. Priya Lau", licence: "ON-48213" }
+treatment:
+  code: "27301"
+  description: "Crown, cast metal"
+  tooth: 47
+  planned: 6d
+  appointment: 2026-10-05
+  fee_cents: 112000
+  lab_codes: ["99113"]
+dentition:
+  missing: [18, 28, 38, 48]
+  restored_surfaces: { 47: [M, O, D, B, L] }
+history:
+  - { code: "21225", tooth: 47, surfaces: [M, O, D, B, L], date: 2017-06-12, description: "Amalgam, 5 surfaces" }
+  - { code: "01202", date: 2026-08-11 }
+radiographs:
+  - { id: pa_47, view: PA, tooth: 47, date: 2026-08-11 }
+  - { id: bw_r, view: BW, side: right, teeth: [14, 15, 16, 17, 44, 45, 46, 47], date: 2026-08-11 }
+  - { id: bw_l, view: BW, side: left, teeth: [24, 25, 26, 27, 34, 35, 36, 37], date: 2026-08-11 }
+perio_charts:
+  - { id: perio_full, date: 2026-08-11, sites: 6, depth: 3, teeth: { 47: [3, 2, 3, 3, 3, 2] }, examiner: "M. Haddad RDH" }
+notes:
+  - id: note_0811
+    date: 2026-08-11
+    author: "Dr. Priya Lau"
+    type: "Exam"
+    teeth: [47]
+    text: >-
+      Six weeks of sharp pain on release when chewing on the lower right. 47 MODBL amalgam with a crack line
+      through the distolingual cusp; bite stick positive on that cusp only. Cold normal with no lingering pain,
+      PA unremarkable, no isolated deep probing around 47. Plan: full cast gold crown 47 to hold the cracked
+      cusp; gold chosen given his heavy bruxism. Nothing else outstanding in the treatment plan.
+tx_plans:
+  - { id: plan_47, date: 2026-08-11, pending: ["27301"], completed: ["21225", "01202"] }
+assertions:
+  - { criterion: no_active_perio, date: 2026-09-11 }
+  - { criterion: crown_root_ratio, date: 2026-09-11 }
+  - { criterion: no_furcation, date: 2026-09-11 }
+  - { criterion: margin_3mm, date: 2026-09-11 }
+  - { criterion: ferrule_1_5mm, date: 2026-09-11 }
+  - { criterion: mesiodistal_space, date: 2026-09-11 }
+  - { criterion: no_adjunctive_needed, date: 2026-09-11 }
+  - { criterion: extensively_restored, date: 2026-09-11, note: "MODBL amalgam across all five surfaces, non-endodontically treated" }
+  - { criterion: active_disease_addressed, date: 2026-09-11 }

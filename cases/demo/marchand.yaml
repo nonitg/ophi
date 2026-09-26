@@ -1,0 +1,49 @@
+# Fully documented and asserted. Failing large composite on an upper first molar. It will be resubmitted,
+# so every dated item is also current as of 2026-09-17.
+id: marchand
+as_of: 2026-08-26
+patient: { id: "8463", name: "Luc Marchand", dob: 1962-03-27, sex: M, cdcp_client_id: "CDCP-4730-2618" }
+provider: { name: "Dr. Priya Lau", licence: "ON-48213" }
+treatment:
+  code: "27211"
+  description: "Crown, porcelain fused to metal"
+  tooth: 16
+  planned: 14d
+  appointment: 2026-10-13
+  fee_cents: 128500
+  lab_codes: ["99112"]
+dentition:
+  missing: [18, 28, 38, 48]
+  restored_surfaces: { 16: [M, O, D, B, L] }
+history:
+  - { code: "23325", tooth: 16, surfaces: [M, O, D, B, L], date: 2014-01-22, description: "Bonded composite, 5 surfaces" }
+  - { code: "01202", date: 2026-07-14 }
+radiographs:
+  - { id: pa_16, view: PA, tooth: 16, date: 2026-07-14 }
+  - { id: bw_r, view: BW, side: right, teeth: [14, 15, 16, 17, 44, 45, 46, 47], date: 2026-07-14 }
+  - { id: bw_l, view: BW, side: left, teeth: [24, 25, 26, 27, 34, 35, 36, 37], date: 2026-07-14 }
+perio_charts:
+  - { id: perio_full, date: 2026-07-14, sites: 6, depth: 2, teeth: { 16: [3, 3, 3, 2, 3, 3] }, examiner: "K. Osei RDH" }
+notes:
+  - id: note_0714
+    date: 2026-07-14
+    author: "Dr. Priya Lau"
+    type: "Exam"
+    teeth: [16]
+    text: >-
+      16 large MODBL composite from 2014 is failing: open mesial contact with food packing, marginal gaps
+      and staining along the buccal and palatal walls, distal marginal ridge chipped. Stained margins
+      probed, no caries detected. Vital, not tender to percussion. Another repair would not hold.
+      Plan: PFM crown 16. No other treatment outstanding; perio maintenance current.
+tx_plans:
+  - { id: plan_16, date: 2026-07-14, pending: ["27211"], completed: ["23325", "01202"] }
+assertions:
+  - { criterion: no_active_perio, date: 2026-08-24 }
+  - { criterion: crown_root_ratio, date: 2026-08-24 }
+  - { criterion: no_furcation, date: 2026-08-24 }
+  - { criterion: margin_3mm, date: 2026-08-24 }
+  - { criterion: ferrule_1_5mm, date: 2026-08-24 }
+  - { criterion: mesiodistal_space, date: 2026-08-24 }
+  - { criterion: no_adjunctive_needed, date: 2026-08-24 }
+  - { criterion: extensively_restored, date: 2026-08-24, note: "Five continuous surfaces MODBL composite, non-endodontically treated" }
+  - { criterion: active_disease_addressed, date: 2026-08-24 }

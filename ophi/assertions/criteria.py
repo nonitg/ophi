@@ -44,7 +44,8 @@ def criterion_context(case: Case, pack: RulePack, criterion_id: str) -> Criterio
         surfaces = case.dentition.restored_surfaces.get(t)
         if surfaces:
             ctx.hint = f"Odontogram records {''.join(surfaces)} ({len(surfaces)} surfaces) restored on #{t}"
-    elif criterion_id == "no_furcation" and notation.tooth_class(t) not in ("molar", "third_molar"):
+    # Upper first premolars (14, 24) usually have two roots, so furcation can apply; only single-rooted teeth get the hint.
+    elif criterion_id == "no_furcation" and notation.tooth_class(t) not in ("molar", "third_molar") and t not in (14, 24):
         ctx.hint = f"#{t} is the {notation.describe(t)}; furcation applies to multi-rooted teeth — 'not applicable' may be the accurate answer"
     elif criterion_id == "endo_healed":
         rct = [h for h in case.procedure_history if h.status == "completed" and h.tooth_fdi == t and h.code.startswith("33")]

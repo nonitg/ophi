@@ -1,0 +1,52 @@
+# Fully documented and asserted, root-filled upper molar. The dentist has confirmed healing, so the endo
+# requirement is met; ceramic crown with no lab code, as in tremblay.
+id: okafor
+as_of: 2026-09-08
+patient: { id: "5824", name: "Chidi Okafor", dob: 1972-08-03, sex: M, cdcp_client_id: "CDCP-2945-7061" }
+provider: { name: "Dr. Priya Lau", licence: "ON-48213" }
+treatment:
+  code: "27201"
+  description: "Crown, porcelain/ceramic"
+  tooth: 26
+  planned: 7d
+  appointment: 2026-09-22
+  fee_cents: 98500
+dentition:
+  missing: [18, 28, 38, 48]
+  restored_surfaces: { 26: [M, O, D, B] }
+  endo_treated: [26]
+history:
+  - { code: "21224", tooth: 26, surfaces: [M, O, D, B], date: 2019-10-02, description: "Amalgam, 4 surfaces" }
+  - { code: "33131", tooth: 26, date: 2026-03-17, description: "RCT, three canals" }
+  - { code: "01202", date: 2026-07-21 }
+radiographs:
+  - { id: pa_26, view: PA, tooth: 26, date: 2026-07-21 }
+  - { id: bw_r, view: BW, side: right, teeth: [14, 15, 16, 17, 44, 45, 46, 47], date: 2026-07-21 }
+  - { id: bw_l, view: BW, side: left, teeth: [24, 25, 26, 27, 34, 35, 36, 37], date: 2026-07-21 }
+perio_charts:
+  - { id: perio_full, date: 2026-07-21, sites: 6, depth: 2, examiner: "K. Osei RDH" }
+notes:
+  - id: note_0721
+    date: 2026-07-21
+    author: "Dr. Priya Lau"
+    type: "Exam"
+    teeth: [26]
+    text: >-
+      Four-month review of 26 after RCT in March. Asymptomatic, no sinus tract, not tender to percussion; PA
+      shows the periapical area on the mesiobuccal root healed with a continuous lamina dura. Existing MODB
+      amalgam with the mesiobuccal cusp undermined and a craze line across the distal marginal ridge.
+      Plan: ceramic crown 26 to protect the root-filled tooth. All other treatment complete; perio stable,
+      no pockets over 3 mm.
+tx_plans:
+  - { id: plan_26, date: 2026-07-21, pending: ["27201"], completed: ["21224", "33131", "01202"] }
+assertions:
+  - { criterion: no_active_perio, date: 2026-09-04 }
+  - { criterion: crown_root_ratio, date: 2026-09-04 }
+  - { criterion: no_furcation, date: 2026-09-04 }
+  - { criterion: margin_3mm, date: 2026-09-04 }
+  - { criterion: ferrule_1_5mm, date: 2026-09-04 }
+  - { criterion: mesiodistal_space, date: 2026-09-04 }
+  - { criterion: no_adjunctive_needed, date: 2026-09-04 }
+  - { criterion: extensively_restored, date: 2026-09-04, note: "Endodontically treated; four continuous surfaces MODB involving both marginal ridges" }
+  - { criterion: active_disease_addressed, date: 2026-09-04 }
+  - { criterion: endo_healed, date: 2026-09-04, note: "Periapical area healed on the July review film" }
