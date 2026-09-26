@@ -47,6 +47,10 @@ CONCERN = {"extensively_restored": "doesn't show the tooth is extensively restor
 CONCERN_WHEN_NO = {"extensively_restored", "structure_lost"}
 # Exports never carry the CDCP client ID (hashed on ingest), so the claim form is checked on the real Case.
 NOT_IN_EXPORTS = {"claim_form"}
+# Engine actions that report a real finding, as opposed to something it couldn't check.
+FINDING = {"review", "excluded_code"}
+# Inputs nobody can change before sending: never offered as "what's left".
+NOT_ACTIONABLE = {"clinic_denial_rate", "age_band", "tooth_class", "channel", "verdict"}
 NO_PAPERWORK_FIX = {"client_age", "frequency_tooth", "frequency_client", "tooth_eligibility", "schedule"}
 DRIVER_LABELS = {
     "verdict": "the rule check's overall result", "tooth_class": "tooth type", "age_band": "patient age", "channel": "how it is sent",
@@ -187,8 +191,8 @@ def _from_action(act: Action, e: Example, pack: RulePack, note: dict[str, float]
                     if p["code"] != s["services"][0]["procedure_code"]]
             if done or worst >= FLAG:
                 why = act.why + (f" The note {CONCERN[q]}." if worst >= FLAG else "")
-                return Fix(**base | {"why": why}, kind="task", who="moa", patch={"completed_treatment": done} if done else None,
-                           concern="timing")
+                return Fix(**base | {"title": "Finish the pending fillings or scaling first", "why": why}, kind="task", who="moa",
+                           patch={"completed_treatment": done} if done else None, concern="timing")
         if worst < FLAG:
             return Fix(**base | {"why": f"Laya's reading of the note raises no concern here. {act.why}"}, kind="dentist", who="dentist")
         if rid == "endo_healed":
@@ -200,7 +204,7 @@ def _from_action(act: Action, e: Example, pack: RulePack, note: dict[str, float]
                                     + (" If it isn't met, discuss a large filling with the patient instead." if rid == "extensively_restored" else "")},
                    kind="dentist", who="dentist", concern="clinical")
     if rid in NO_PAPERWORK_FIX or act.effort == "clinical":
-        return Fix(**base, kind="dentist", who="dentist", concern="clinical" if act.action_type != "assert" else None)
+        return Fix(**base, kind="dentist", who="dentist", concern="clinical" if act.action_type in FINDING else None)
     return Fix(**base, kind="task", who="moa")
 
 
@@ -232,11 +236,11 @@ def _remaining(after: Risk, score: Score, fixes: list[Fix], pack: RulePack) -> s
     if after.because == "clinical":
         return f"{next(f.title for f in fixes if f.concern == 'clinical')}. Paperwork won't change this; the dentist decides."
     if after.because == "timing":
-        return f"Timing: {next(f.title for f in fixes if f.wait)}, then send."
+        return f"Timing: {next(f.title for f in fixes if f.wait)}. Send after that."
     if after.level == "low":
         return "Nothing major left once these are done."
-    up = [f for f, v in score.drivers if v > 0 and not _misleading(f, v, score.note)]
-    return f"Most of what's left: {_label(up[0], pack)}." if up else "No single input stands out."
+    up = [f for f, v in score.drivers if v > 0 and f not in NOT_ACTIONABLE and not _misleading(f, v, score.note)]
+    return f"Most of what's left: {_label(up[0], pack)}." if up else "Nothing on the request itself stands out."
 
 
 def _misleading(feature: str, push: float, note: dict[str, float]) -> bool:
