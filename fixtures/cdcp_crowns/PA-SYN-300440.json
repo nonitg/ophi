@@ -1,0 +1,127 @@
+{
+  "_synthetic": true,
+  "schema": "cdcp-preauth-export/2",
+  "preauth_id": "PA-SYN-300440",
+  "program": "CDCP",
+  "administrator": "Sun Life (CDCP administrator)",
+  "submission_channel": "cdanet_eclaim",
+  "submitted_date": "2026-07-23",
+  "decision_date": "2026-07-27",
+  "member": {
+    "member_id": "SYN-M-83850752",
+    "age_band": "65-69",
+    "province": "ON",
+    "income_band": "<70k",
+    "copay_pct": 0
+  },
+  "provider": {
+    "provider_id": "SYN-P-4023",
+    "specialty": "general_dentist",
+    "province": "ON",
+    "cdcp_participating": true
+  },
+  "services": [
+    {
+      "procedure_code": "27201",
+      "description": "Crown, porcelain/ceramic",
+      "category": "major_restorative",
+      "tooth": "37",
+      "fee_submitted": 1210.0,
+      "fee_grid_amount": 956.15,
+      "lab_codes": [
+        "99112"
+      ]
+    }
+  ],
+  "attachments": [
+    {
+      "type": "periapical_radiograph",
+      "count": 1,
+      "captured_date": "2026-06-30"
+    },
+    {
+      "type": "bitewing_radiographs",
+      "count": 2,
+      "captured_date": "2026-02-20"
+    },
+    {
+      "type": "clinical_notes",
+      "count": 1,
+      "captured_date": "2026-06-29"
+    }
+  ],
+  "perio_summary": null,
+  "treatment_plan": {
+    "pending": [
+      {
+        "code": "27201",
+        "tooth": 37
+      }
+    ],
+    "completed": [
+      {
+        "code": "01202",
+        "tooth": null
+      }
+    ]
+  },
+  "clinical_notes": "#37 MODBL amalgam. Tooth fractured, unrestorable with direct restoration.",
+  "narrative": null,
+  "prior_history": {
+    "same_code_last_5y": false,
+    "same_tooth_crown_months_ago": null,
+    "previous_preauth_ids": [
+      "PA-SYN-300293"
+    ]
+  },
+  "decision": {
+    "status": "denied",
+    "reason_code": "DOC_MISSING_PERIO_CHART",
+    "reason_category": "incomplete_submission",
+    "explanation_of_benefits_text": "A complete periodontal charting within 12 months is required for crowns.",
+    "missing_documents": [],
+    "reviewer_type": "dental_consultant"
+  },
+  "followup": {
+    "type": "resubmission",
+    "submitted_date": "2026-09-07",
+    "fixed": "no_perio",
+    "outcome": "approved"
+  },
+  "_generator_truth": {
+    "clinical": {
+      "tooth": 37,
+      "class": "molar",
+      "endo": false,
+      "endo_weeks_ago": null,
+      "periapical_lesion": false,
+      "surfaces": 5,
+      "cusp_fractured": false,
+      "indication": "fracture",
+      "pd_mm": [
+        2,
+        2,
+        2,
+        3,
+        4,
+        3
+      ],
+      "bop": false,
+      "bone_loss_pct": 15,
+      "furcation": 1,
+      "subgingival_margin": false,
+      "pending_basic": [],
+      "prior_crown_months": null
+    },
+    "violations": [
+      "duplicate"
+    ],
+    "visible_to_consultant": [
+      "duplicate",
+      "no_perio"
+    ],
+    "fired": [
+      "no_perio"
+    ]
+  }
+}

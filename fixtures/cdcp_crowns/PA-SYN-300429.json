@@ -1,0 +1,152 @@
+{
+  "_synthetic": true,
+  "schema": "cdcp-preauth-export/2",
+  "preauth_id": "PA-SYN-300429",
+  "program": "CDCP",
+  "administrator": "Sun Life (CDCP administrator)",
+  "submission_channel": "cdanet_eclaim",
+  "submitted_date": "2026-07-23",
+  "decision_date": "2026-07-25",
+  "member": {
+    "member_id": "SYN-M-38436756",
+    "age_band": "87+",
+    "province": "ON",
+    "income_band": "<70k",
+    "copay_pct": 0
+  },
+  "provider": {
+    "provider_id": "SYN-P-4023",
+    "specialty": "general_dentist",
+    "province": "ON",
+    "cdcp_participating": true
+  },
+  "services": [
+    {
+      "procedure_code": "27211",
+      "description": "Crown, porcelain/ceramic fused to metal",
+      "category": "major_restorative",
+      "tooth": "22",
+      "fee_submitted": 1150.0,
+      "fee_grid_amount": 889.66,
+      "lab_codes": [
+        "99112"
+      ]
+    }
+  ],
+  "attachments": [
+    {
+      "type": "bitewing_radiographs",
+      "count": 2,
+      "captured_date": "2026-04-15"
+    },
+    {
+      "type": "periodontal_charting",
+      "count": 1,
+      "captured_date": "2026-05-29"
+    },
+    {
+      "type": "clinical_notes",
+      "count": 1,
+      "captured_date": "2026-07-05"
+    }
+  ],
+  "perio_summary": {
+    "chart_type": "complete",
+    "captured_date": "2026-05-29",
+    "psr": {
+      "S1": 4,
+      "S2": 1,
+      "S3": 1,
+      "S4": 3,
+      "S5": 2,
+      "S6": 3
+    },
+    "tooth_sites_mm": [
+      3,
+      2,
+      2,
+      3,
+      2,
+      2
+    ],
+    "bop_at_tooth": false,
+    "furcation_class": null
+  },
+  "treatment_plan": {
+    "pending": [
+      {
+        "code": "27211",
+        "tooth": 22
+      }
+    ],
+    "completed": [
+      {
+        "code": "01202",
+        "tooth": null
+      },
+      {
+        "code": "33111",
+        "tooth": 22,
+        "date": "2024-03-28"
+      }
+    ]
+  },
+  "clinical_notes": "#22 large class IV composite, incisal edge intact. RCT completed in 2024, asymptomatic. Tooth fractured, unrestorable with direct restoration.",
+  "narrative": null,
+  "prior_history": {
+    "same_code_last_5y": false,
+    "same_tooth_crown_months_ago": null,
+    "previous_preauth_ids": []
+  },
+  "decision": {
+    "status": "denied",
+    "reason_code": "DOC_MISSING_RADIOGRAPH",
+    "reason_category": "incomplete_submission",
+    "explanation_of_benefits_text": "A current periapical radiograph of the requested tooth is required.",
+    "missing_documents": [],
+    "reviewer_type": "automated"
+  },
+  "followup": {
+    "type": "resubmission",
+    "submitted_date": "2026-08-28",
+    "fixed": "no_pa",
+    "outcome": "denied"
+  },
+  "_generator_truth": {
+    "clinical": {
+      "tooth": 22,
+      "class": "anterior",
+      "endo": true,
+      "endo_weeks_ago": 121,
+      "periapical_lesion": false,
+      "incisal_edge_lost": false,
+      "surfaces": 2,
+      "indication": "fracture",
+      "pd_mm": [
+        3,
+        2,
+        2,
+        3,
+        2,
+        2
+      ],
+      "bop": false,
+      "bone_loss_pct": 15,
+      "furcation": 0,
+      "subgingival_margin": false,
+      "pending_basic": [],
+      "prior_crown_months": null
+    },
+    "violations": [
+      "not_ext_restored"
+    ],
+    "visible_to_consultant": [
+      "no_pa",
+      "not_ext_restored"
+    ],
+    "fired": [
+      "no_pa",
+      "not_ext_restored"
+    ]
+  }
+}

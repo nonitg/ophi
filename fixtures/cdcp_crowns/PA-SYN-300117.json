@@ -1,0 +1,151 @@
+{
+  "_synthetic": true,
+  "schema": "cdcp-preauth-export/2",
+  "preauth_id": "PA-SYN-300117",
+  "program": "CDCP",
+  "administrator": "Sun Life (CDCP administrator)",
+  "submission_channel": "paper",
+  "submitted_date": "2026-06-02",
+  "decision_date": "2026-06-15",
+  "member": {
+    "member_id": "SYN-M-97895312",
+    "age_band": "18-64",
+    "province": "ON",
+    "income_band": "<70k",
+    "copay_pct": 0
+  },
+  "provider": {
+    "provider_id": "SYN-P-4025",
+    "specialty": "general_dentist",
+    "province": "ON",
+    "cdcp_participating": true
+  },
+  "services": [
+    {
+      "procedure_code": "27211",
+      "description": "Crown, porcelain/ceramic fused to metal",
+      "category": "major_restorative",
+      "tooth": "32",
+      "fee_submitted": 1150.0,
+      "fee_grid_amount": 976.6,
+      "lab_codes": [
+        "99112"
+      ]
+    }
+  ],
+  "attachments": [
+    {
+      "type": "periapical_radiograph",
+      "count": 1,
+      "captured_date": "2026-05-25"
+    },
+    {
+      "type": "bitewing_radiographs",
+      "count": 1,
+      "captured_date": "2025-11-24"
+    },
+    {
+      "type": "periodontal_charting",
+      "count": 1,
+      "captured_date": "2026-03-03"
+    },
+    {
+      "type": "clinical_notes",
+      "count": 1,
+      "captured_date": "2026-05-17"
+    }
+  ],
+  "perio_summary": {
+    "chart_type": "complete",
+    "captured_date": "2026-03-03",
+    "psr": {
+      "S1": 2,
+      "S2": 3,
+      "S3": 3,
+      "S4": 1,
+      "S5": 3,
+      "S6": 3
+    },
+    "tooth_sites_mm": [
+      3,
+      3,
+      2,
+      2,
+      3,
+      3
+    ],
+    "bop_at_tooth": false,
+    "furcation_class": null
+  },
+  "treatment_plan": {
+    "pending": [
+      {
+        "code": "27211",
+        "tooth": 32
+      }
+    ],
+    "completed": [
+      {
+        "code": "01202",
+        "tooth": null
+      },
+      {
+        "code": "33111",
+        "tooth": 32,
+        "date": "2025-06-24"
+      }
+    ]
+  },
+  "clinical_notes": "#32 large class IV composite, incisal edge intact. RCT completed 12 months ago, asymptomatic. Recurrent caries under existing restoration.",
+  "narrative": null,
+  "prior_history": {
+    "same_code_last_5y": false,
+    "same_tooth_crown_months_ago": null,
+    "previous_preauth_ids": []
+  },
+  "decision": {
+    "status": "denied",
+    "reason_code": "CLIN_NOT_EXT_RESTORED",
+    "reason_category": "clinical_necessity",
+    "explanation_of_benefits_text": "The tooth does not meet the CDCP definition of extensively restored; a less costly restoration is indicated.",
+    "missing_documents": [],
+    "reviewer_type": "dental_consultant"
+  },
+  "followup": null,
+  "_generator_truth": {
+    "clinical": {
+      "tooth": 32,
+      "class": "anterior",
+      "endo": true,
+      "endo_weeks_ago": 49,
+      "periapical_lesion": false,
+      "incisal_edge_lost": false,
+      "surfaces": 3,
+      "indication": "recurrent_caries",
+      "pd_mm": [
+        3,
+        3,
+        2,
+        2,
+        3,
+        3
+      ],
+      "bop": false,
+      "bone_loss_pct": 40,
+      "furcation": 0,
+      "subgingival_margin": false,
+      "pending_basic": [],
+      "prior_crown_months": null
+    },
+    "violations": [
+      "not_ext_restored"
+    ],
+    "visible_to_consultant": [
+      "no_bw",
+      "not_ext_restored"
+    ],
+    "fired": [
+      "not_ext_restored"
+    ]
+  }
+}

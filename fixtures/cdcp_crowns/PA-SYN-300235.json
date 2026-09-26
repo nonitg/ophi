@@ -1,0 +1,147 @@
+{
+  "_synthetic": true,
+  "schema": "cdcp-preauth-export/2",
+  "preauth_id": "PA-SYN-300235",
+  "program": "CDCP",
+  "administrator": "Sun Life (CDCP administrator)",
+  "submission_channel": "paper",
+  "submitted_date": "2026-08-30",
+  "decision_date": "2026-09-17",
+  "member": {
+    "member_id": "SYN-M-35095093",
+    "age_band": "18-64",
+    "province": "ON",
+    "income_band": "<70k",
+    "copay_pct": 0
+  },
+  "provider": {
+    "provider_id": "SYN-P-4025",
+    "specialty": "general_dentist",
+    "province": "ON",
+    "cdcp_participating": true
+  },
+  "services": [
+    {
+      "procedure_code": "27301",
+      "description": "Crown, cast metal",
+      "category": "major_restorative",
+      "tooth": "23",
+      "fee_submitted": 1120.0,
+      "fee_grid_amount": 959.16,
+      "lab_codes": []
+    }
+  ],
+  "attachments": [
+    {
+      "type": "periapical_radiograph",
+      "count": 1,
+      "captured_date": "2026-05-25"
+    },
+    {
+      "type": "bitewing_radiographs",
+      "count": 1,
+      "captured_date": "2026-06-24"
+    },
+    {
+      "type": "periodontal_charting",
+      "count": 1,
+      "captured_date": "2026-05-24"
+    },
+    {
+      "type": "clinical_notes",
+      "count": 1,
+      "captured_date": "2026-08-18"
+    }
+  ],
+  "perio_summary": {
+    "chart_type": "psr_only",
+    "captured_date": "2026-05-24",
+    "psr": {
+      "S1": 2,
+      "S2": 3,
+      "S3": 3,
+      "S4": 3,
+      "S5": 1,
+      "S6": 4
+    },
+    "tooth_sites_mm": null,
+    "bop_at_tooth": null,
+    "furcation_class": null
+  },
+  "treatment_plan": {
+    "pending": [
+      {
+        "code": "27301",
+        "tooth": 23
+      }
+    ],
+    "completed": [
+      {
+        "code": "01202",
+        "tooth": null
+      },
+      {
+        "code": "33111",
+        "tooth": 23,
+        "date": "2024-12-22"
+      }
+    ]
+  },
+  "clinical_notes": "23 broken, crown.",
+  "narrative": null,
+  "prior_history": {
+    "same_code_last_5y": false,
+    "same_tooth_crown_months_ago": null,
+    "previous_preauth_ids": []
+  },
+  "decision": {
+    "status": "denied",
+    "reason_code": "DOC_MISSING_PERIO_CHART",
+    "reason_category": "incomplete_submission",
+    "explanation_of_benefits_text": "A complete periodontal charting within 12 months is required for crowns.",
+    "missing_documents": [],
+    "reviewer_type": "automated"
+  },
+  "followup": {
+    "type": "resubmission",
+    "submitted_date": "2026-11-14",
+    "fixed": "no_perio",
+    "outcome": "approved"
+  },
+  "_generator_truth": {
+    "clinical": {
+      "tooth": 23,
+      "class": "anterior",
+      "endo": true,
+      "endo_weeks_ago": 88,
+      "periapical_lesion": false,
+      "incisal_edge_lost": true,
+      "surfaces": 3,
+      "indication": "fracture",
+      "pd_mm": [
+        3,
+        4,
+        4,
+        4,
+        4,
+        3
+      ],
+      "bop": false,
+      "bone_loss_pct": 20,
+      "furcation": 0,
+      "subgingival_margin": false,
+      "pending_basic": [],
+      "prior_crown_months": null
+    },
+    "violations": [],
+    "visible_to_consultant": [
+      "no_bw",
+      "no_perio",
+      "thin_note"
+    ],
+    "fired": [
+      "no_perio",
+      "thin_note"
+    ]
+  }
+}

@@ -1,0 +1,147 @@
+{
+  "_synthetic": true,
+  "schema": "cdcp-preauth-export/2",
+  "preauth_id": "PA-SYN-300586",
+  "program": "CDCP",
+  "administrator": "Sun Life (CDCP administrator)",
+  "submission_channel": "paper",
+  "submitted_date": "2026-07-19",
+  "decision_date": "2026-07-31",
+  "member": {
+    "member_id": "SYN-M-36584372",
+    "age_band": "70-74",
+    "province": "ON",
+    "income_band": "80k-90k",
+    "copay_pct": 60
+  },
+  "provider": {
+    "provider_id": "SYN-P-4009",
+    "specialty": "general_dentist",
+    "province": "ON",
+    "cdcp_participating": true
+  },
+  "services": [
+    {
+      "procedure_code": "27201",
+      "description": "Crown, porcelain/ceramic",
+      "category": "major_restorative",
+      "tooth": "13",
+      "fee_submitted": 1210.0,
+      "fee_grid_amount": 900.68,
+      "lab_codes": [
+        "99112"
+      ]
+    }
+  ],
+  "attachments": [
+    {
+      "type": "bitewing_radiographs",
+      "count": 2,
+      "captured_date": "2026-04-03"
+    },
+    {
+      "type": "periodontal_charting",
+      "count": 1,
+      "captured_date": "2025-12-27"
+    },
+    {
+      "type": "clinical_notes",
+      "count": 1,
+      "captured_date": "2026-07-03"
+    },
+    {
+      "type": "narrative_letter",
+      "count": 1,
+      "captured_date": "2026-07-19"
+    }
+  ],
+  "perio_summary": {
+    "chart_type": "psr_only",
+    "captured_date": "2025-12-27",
+    "psr": {
+      "S1": 2,
+      "S2": 2,
+      "S3": 3,
+      "S4": 2,
+      "S5": 3,
+      "S6": 2
+    },
+    "tooth_sites_mm": null,
+    "bop_at_tooth": null,
+    "furcation_class": null
+  },
+  "treatment_plan": {
+    "pending": [
+      {
+        "code": "27201",
+        "tooth": 13
+      }
+    ],
+    "completed": [
+      {
+        "code": "01202",
+        "tooth": null
+      },
+      {
+        "code": "33111",
+        "tooth": 13,
+        "date": "2025-07-20"
+      }
+    ]
+  },
+  "clinical_notes": "#13 fractured incisal edge, loss extends to both contacts. RCT completed 13 months ago, asymptomatic. Tooth fractured, unrestorable with direct restoration. Occlusion stable.",
+  "narrative": "Request for crown on #13. The tooth meets the CDCP definition of extensively restored following endodontic treatment. All other basic treatment is complete. Periodontal status is stable at the requested tooth.",
+  "prior_history": {
+    "same_code_last_5y": false,
+    "same_tooth_crown_months_ago": null,
+    "previous_preauth_ids": []
+  },
+  "decision": {
+    "status": "denied",
+    "reason_code": "DOC_MISSING_RADIOGRAPH",
+    "reason_category": "incomplete_submission",
+    "explanation_of_benefits_text": "A current periapical radiograph of the requested tooth is required.",
+    "missing_documents": [],
+    "reviewer_type": "dental_consultant"
+  },
+  "followup": {
+    "type": "resubmission",
+    "submitted_date": "2026-09-27",
+    "fixed": "no_pa",
+    "outcome": "approved"
+  },
+  "_generator_truth": {
+    "clinical": {
+      "tooth": 13,
+      "class": "anterior",
+      "endo": true,
+      "endo_weeks_ago": 52,
+      "periapical_lesion": false,
+      "incisal_edge_lost": true,
+      "surfaces": 2,
+      "indication": "fracture",
+      "pd_mm": [
+        3,
+        3,
+        2,
+        4,
+        3,
+        3
+      ],
+      "bop": false,
+      "bone_loss_pct": 15,
+      "furcation": 0,
+      "subgingival_margin": false,
+      "pending_basic": [],
+      "prior_crown_months": null
+    },
+    "violations": [],
+    "visible_to_consultant": [
+      "no_pa",
+      "no_perio"
+    ],
+    "fired": [
+      "no_pa"
+    ]
+  }
+}

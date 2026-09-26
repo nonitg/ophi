@@ -1,0 +1,123 @@
+{
+  "_synthetic": true,
+  "schema": "cdcp-preauth-export/2",
+  "preauth_id": "PA-SYN-300315",
+  "program": "CDCP",
+  "administrator": "Sun Life (CDCP administrator)",
+  "submission_channel": "cdanet_eclaim",
+  "submitted_date": "2026-07-12",
+  "decision_date": "2026-07-27",
+  "member": {
+    "member_id": "SYN-M-50281608",
+    "age_band": "70-74",
+    "province": "ON",
+    "income_band": "70k-80k",
+    "copay_pct": 40
+  },
+  "provider": {
+    "provider_id": "SYN-P-4023",
+    "specialty": "general_dentist",
+    "province": "ON",
+    "cdcp_participating": true
+  },
+  "services": [
+    {
+      "procedure_code": "27301",
+      "description": "Crown, cast metal",
+      "category": "major_restorative",
+      "tooth": "38",
+      "fee_submitted": 1120.0,
+      "fee_grid_amount": 935.93,
+      "lab_codes": []
+    }
+  ],
+  "attachments": [
+    {
+      "type": "periapical_radiograph",
+      "count": 1,
+      "captured_date": "2026-03-16"
+    },
+    {
+      "type": "bitewing_radiographs",
+      "count": 2,
+      "captured_date": "2026-02-08"
+    },
+    {
+      "type": "clinical_notes",
+      "count": 1,
+      "captured_date": "2026-06-27"
+    }
+  ],
+  "perio_summary": null,
+  "treatment_plan": {
+    "pending": [
+      {
+        "code": "27301",
+        "tooth": 38
+      }
+    ],
+    "completed": [
+      {
+        "code": "01202",
+        "tooth": null
+      },
+      {
+        "code": "33111",
+        "tooth": 38,
+        "date": "2026-01-11"
+      }
+    ]
+  },
+  "clinical_notes": "#38 MODB amalgam. RCT completed 6 months ago, asymptomatic. Tooth fractured, unrestorable with direct restoration.",
+  "narrative": null,
+  "prior_history": {
+    "same_code_last_5y": false,
+    "same_tooth_crown_months_ago": null,
+    "previous_preauth_ids": []
+  },
+  "decision": {
+    "status": "denied",
+    "reason_code": "TOOTH_INELIGIBLE",
+    "reason_category": "coverage",
+    "explanation_of_benefits_text": "Third molars are eligible only where the first and second molars are missing and the third molar is in occlusion.",
+    "missing_documents": [],
+    "reviewer_type": "automated"
+  },
+  "followup": null,
+  "_generator_truth": {
+    "clinical": {
+      "tooth": 38,
+      "class": "third_molar",
+      "endo": true,
+      "endo_weeks_ago": 26,
+      "periapical_lesion": false,
+      "surfaces": 4,
+      "cusp_fractured": false,
+      "indication": "fracture",
+      "pd_mm": [
+        3,
+        3,
+        3,
+        3,
+        3,
+        3
+      ],
+      "bop": false,
+      "bone_loss_pct": 40,
+      "furcation": 0,
+      "subgingival_margin": false,
+      "pending_basic": [],
+      "prior_crown_months": null
+    },
+    "violations": [
+      "third_molar"
+    ],
+    "visible_to_consultant": [
+      "no_perio",
+      "third_molar"
+    ],
+    "fired": [
+      "third_molar"
+    ]
+  }
+}

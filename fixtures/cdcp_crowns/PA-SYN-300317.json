@@ -1,0 +1,152 @@
+{
+  "_synthetic": true,
+  "schema": "cdcp-preauth-export/2",
+  "preauth_id": "PA-SYN-300317",
+  "program": "CDCP",
+  "administrator": "Sun Life (CDCP administrator)",
+  "submission_channel": "provider_portal",
+  "submitted_date": "2026-05-10",
+  "decision_date": "2026-05-22",
+  "member": {
+    "member_id": "SYN-M-77456768",
+    "age_band": "70-74",
+    "province": "ON",
+    "income_band": "80k-90k",
+    "copay_pct": 60
+  },
+  "provider": {
+    "provider_id": "SYN-P-4027",
+    "specialty": "general_dentist",
+    "province": "ON",
+    "cdcp_participating": true
+  },
+  "services": [
+    {
+      "procedure_code": "27211",
+      "description": "Crown, porcelain/ceramic fused to metal",
+      "category": "major_restorative",
+      "tooth": "46",
+      "fee_submitted": 1150.0,
+      "fee_grid_amount": 946.6,
+      "lab_codes": [
+        "99112"
+      ]
+    }
+  ],
+  "attachments": [
+    {
+      "type": "periapical_radiograph",
+      "count": 1,
+      "captured_date": "2026-02-10"
+    },
+    {
+      "type": "bitewing_radiographs",
+      "count": 1,
+      "captured_date": "2026-03-18"
+    },
+    {
+      "type": "periodontal_charting",
+      "count": 1,
+      "captured_date": "2025-11-04"
+    },
+    {
+      "type": "clinical_notes",
+      "count": 1,
+      "captured_date": "2026-04-30"
+    },
+    {
+      "type": "narrative_letter",
+      "count": 1,
+      "captured_date": "2026-05-10"
+    },
+    {
+      "type": "tooth_structure_loss_pct",
+      "count": 1,
+      "captured_date": "2026-05-10"
+    }
+  ],
+  "perio_summary": {
+    "chart_type": "complete",
+    "captured_date": "2025-11-04",
+    "psr": {
+      "S1": 4,
+      "S2": 3,
+      "S3": 1,
+      "S4": 3,
+      "S5": 2,
+      "S6": 4
+    },
+    "tooth_sites_mm": [
+      6,
+      5,
+      5,
+      5,
+      7,
+      4
+    ],
+    "bop_at_tooth": false,
+    "furcation_class": 1
+  },
+  "treatment_plan": null,
+  "clinical_notes": "#46 MOD composite. Existing restoration failing, marginal breakdown. Also restore #34, restore #45 planned. Pt informed of options.",
+  "narrative": "Request for crown on #46. The tooth meets the CDCP definition of extensively restored. All other basic treatment is complete. Periodontal status is stable at the requested tooth.",
+  "prior_history": {
+    "same_code_last_5y": false,
+    "same_tooth_crown_months_ago": null,
+    "previous_preauth_ids": []
+  },
+  "decision": {
+    "status": "denied",
+    "reason_code": "DOC_MISSING_RADIOGRAPH",
+    "reason_category": "incomplete_submission",
+    "explanation_of_benefits_text": "Bitewing radiographs (right and left) within 12 months are required.",
+    "missing_documents": [],
+    "reviewer_type": "dental_consultant"
+  },
+  "followup": null,
+  "_generator_truth": {
+    "clinical": {
+      "tooth": 46,
+      "class": "molar",
+      "endo": false,
+      "endo_weeks_ago": null,
+      "periapical_lesion": false,
+      "surfaces": 3,
+      "cusp_fractured": false,
+      "indication": "large_restoration",
+      "pd_mm": [
+        6,
+        5,
+        5,
+        5,
+        7,
+        4
+      ],
+      "bop": false,
+      "bone_loss_pct": 33,
+      "furcation": 1,
+      "subgingival_margin": false,
+      "pending_basic": [
+        [
+          "21211",
+          34
+        ],
+        [
+          "21211",
+          45
+        ]
+      ],
+      "prior_crown_months": null
+    },
+    "violations": [
+      "not_ext_restored",
+      "pending_basic"
+    ],
+    "visible_to_consultant": [
+      "no_bw"
+    ],
+    "fired": [
+      "no_bw"
+    ]
+  }
+}

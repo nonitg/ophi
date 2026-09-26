@@ -1,0 +1,125 @@
+{
+  "_synthetic": true,
+  "schema": "cdcp-preauth-export/2",
+  "preauth_id": "PA-SYN-300436",
+  "program": "CDCP",
+  "administrator": "Sun Life (CDCP administrator)",
+  "submission_channel": "provider_portal",
+  "submitted_date": "2026-05-14",
+  "decision_date": "2026-05-18",
+  "member": {
+    "member_id": "SYN-M-32470653",
+    "age_band": "87+",
+    "province": "ON",
+    "income_band": "70k-80k",
+    "copay_pct": 40
+  },
+  "provider": {
+    "provider_id": "SYN-P-4001",
+    "specialty": "general_dentist",
+    "province": "ON",
+    "cdcp_participating": true
+  },
+  "services": [
+    {
+      "procedure_code": "27301",
+      "description": "Crown, cast metal",
+      "category": "major_restorative",
+      "tooth": "26",
+      "fee_submitted": 1120.0,
+      "fee_grid_amount": 950.1,
+      "lab_codes": []
+    }
+  ],
+  "attachments": [
+    {
+      "type": "periapical_radiograph",
+      "count": 1,
+      "captured_date": "2026-01-30"
+    },
+    {
+      "type": "clinical_notes",
+      "count": 1,
+      "captured_date": "2026-05-07"
+    },
+    {
+      "type": "tooth_structure_loss_pct",
+      "count": 1,
+      "captured_date": "2026-05-14"
+    }
+  ],
+  "perio_summary": null,
+  "treatment_plan": {
+    "pending": [
+      {
+        "code": "27301",
+        "tooth": 26
+      }
+    ],
+    "completed": [
+      {
+        "code": "01202",
+        "tooth": null
+      },
+      {
+        "code": "33111",
+        "tooth": 26,
+        "date": "2024-04-11"
+      }
+    ]
+  },
+  "clinical_notes": "#26 MODB composite. RCT completed in 2024, asymptomatic. Existing restoration failing, marginal breakdown.",
+  "narrative": null,
+  "prior_history": {
+    "same_code_last_5y": false,
+    "same_tooth_crown_months_ago": null,
+    "previous_preauth_ids": []
+  },
+  "decision": {
+    "status": "denied",
+    "reason_code": "DOC_MISSING_PERIO_CHART",
+    "reason_category": "incomplete_submission",
+    "explanation_of_benefits_text": "A complete periodontal charting within 12 months is required for crowns.",
+    "missing_documents": [],
+    "reviewer_type": "dental_consultant"
+  },
+  "followup": null,
+  "_generator_truth": {
+    "clinical": {
+      "tooth": 26,
+      "class": "molar",
+      "endo": true,
+      "endo_weeks_ago": 109,
+      "periapical_lesion": false,
+      "surfaces": 4,
+      "cusp_fractured": false,
+      "indication": "large_restoration",
+      "pd_mm": [
+        2,
+        3,
+        3,
+        3,
+        2,
+        2
+      ],
+      "bop": false,
+      "bone_loss_pct": 30,
+      "furcation": 0,
+      "subgingival_margin": true,
+      "pending_basic": [],
+      "prior_crown_months": null
+    },
+    "violations": [
+      "ferrule"
+    ],
+    "visible_to_consultant": [
+      "ferrule",
+      "no_bw",
+      "no_perio"
+    ],
+    "fired": [
+      "no_perio",
+      "ferrule"
+    ]
+  }
+}

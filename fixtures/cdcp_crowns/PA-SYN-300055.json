@@ -1,0 +1,143 @@
+{
+  "_synthetic": true,
+  "schema": "cdcp-preauth-export/2",
+  "preauth_id": "PA-SYN-300055",
+  "program": "CDCP",
+  "administrator": "Sun Life (CDCP administrator)",
+  "submission_channel": "provider_portal",
+  "submitted_date": "2026-05-21",
+  "decision_date": "2026-05-29",
+  "member": {
+    "member_id": "SYN-M-50330278",
+    "age_band": "70-74",
+    "province": "ON",
+    "income_band": "80k-90k",
+    "copay_pct": 60
+  },
+  "provider": {
+    "provider_id": "SYN-P-4017",
+    "specialty": "general_dentist",
+    "province": "ON",
+    "cdcp_participating": true
+  },
+  "services": [
+    {
+      "procedure_code": "27201",
+      "description": "Crown, porcelain/ceramic",
+      "category": "major_restorative",
+      "tooth": "27",
+      "fee_submitted": 1210.0,
+      "fee_grid_amount": 963.76,
+      "lab_codes": [
+        "99112"
+      ]
+    }
+  ],
+  "attachments": [
+    {
+      "type": "periapical_radiograph",
+      "count": 1,
+      "captured_date": "2026-02-12"
+    },
+    {
+      "type": "bitewing_radiographs",
+      "count": 2,
+      "captured_date": "2025-11-10"
+    },
+    {
+      "type": "periodontal_charting",
+      "count": 1,
+      "captured_date": "2026-04-01"
+    },
+    {
+      "type": "clinical_notes",
+      "count": 1,
+      "captured_date": "2026-05-05"
+    }
+  ],
+  "perio_summary": {
+    "chart_type": "complete",
+    "captured_date": "2026-04-01",
+    "psr": {
+      "S1": 2,
+      "S2": 3,
+      "S3": 4,
+      "S4": 3,
+      "S5": 3,
+      "S6": 1
+    },
+    "tooth_sites_mm": [
+      4,
+      3,
+      5,
+      5,
+      3,
+      5
+    ],
+    "bop_at_tooth": false,
+    "furcation_class": 0
+  },
+  "treatment_plan": {
+    "pending": [
+      {
+        "code": "27201",
+        "tooth": 27
+      }
+    ],
+    "completed": [
+      {
+        "code": "01202",
+        "tooth": null
+      }
+    ]
+  },
+  "clinical_notes": "#27 needs crown.",
+  "narrative": null,
+  "prior_history": {
+    "same_code_last_5y": false,
+    "same_tooth_crown_months_ago": null,
+    "previous_preauth_ids": []
+  },
+  "decision": {
+    "status": "approved",
+    "reason_code": null,
+    "reason_category": null,
+    "explanation_of_benefits_text": "Service approved as submitted; payable at CDCP fee grid less applicable co-pay.",
+    "missing_documents": [],
+    "reviewer_type": "dental_consultant",
+    "approved_amount": 385.5,
+    "approval_valid_until": "2027-05-29"
+  },
+  "followup": null,
+  "_generator_truth": {
+    "clinical": {
+      "tooth": 27,
+      "class": "molar",
+      "endo": false,
+      "endo_weeks_ago": null,
+      "periapical_lesion": false,
+      "surfaces": 4,
+      "cusp_fractured": true,
+      "indication": "recurrent_caries",
+      "pd_mm": [
+        4,
+        3,
+        5,
+        5,
+        3,
+        5
+      ],
+      "bop": false,
+      "bone_loss_pct": 37,
+      "furcation": 0,
+      "subgingival_margin": false,
+      "pending_basic": [],
+      "prior_crown_months": null
+    },
+    "violations": [],
+    "visible_to_consultant": [
+      "thin_note"
+    ],
+    "fired": []
+  }
+}

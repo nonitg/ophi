@@ -1,0 +1,162 @@
+{
+  "_synthetic": true,
+  "schema": "cdcp-preauth-export/2",
+  "preauth_id": "PA-SYN-300300",
+  "program": "CDCP",
+  "administrator": "Sun Life (CDCP administrator)",
+  "submission_channel": "cdanet_eclaim",
+  "submitted_date": "2026-06-02",
+  "decision_date": "2026-06-16",
+  "member": {
+    "member_id": "SYN-M-55587891",
+    "age_band": "18-64",
+    "province": "ON",
+    "income_band": "80k-90k",
+    "copay_pct": 60
+  },
+  "provider": {
+    "provider_id": "SYN-P-4013",
+    "specialty": "general_dentist",
+    "province": "ON",
+    "cdcp_participating": true
+  },
+  "services": [
+    {
+      "procedure_code": "27201",
+      "description": "Crown, porcelain/ceramic",
+      "category": "major_restorative",
+      "tooth": "26",
+      "fee_submitted": 1210.0,
+      "fee_grid_amount": 921.5,
+      "lab_codes": [
+        "99112"
+      ]
+    }
+  ],
+  "attachments": [
+    {
+      "type": "periapical_radiograph",
+      "count": 1,
+      "captured_date": "2026-04-24"
+    },
+    {
+      "type": "bitewing_radiographs",
+      "count": 2,
+      "captured_date": "2026-03-29"
+    },
+    {
+      "type": "periodontal_charting",
+      "count": 1,
+      "captured_date": "2026-02-01"
+    },
+    {
+      "type": "clinical_notes",
+      "count": 1,
+      "captured_date": "2026-05-17"
+    }
+  ],
+  "perio_summary": {
+    "chart_type": "psr_only",
+    "captured_date": "2026-02-01",
+    "psr": {
+      "S1": 3,
+      "S2": 4,
+      "S3": 2,
+      "S4": 3,
+      "S5": 2,
+      "S6": 3
+    },
+    "tooth_sites_mm": null,
+    "bop_at_tooth": null,
+    "furcation_class": null
+  },
+  "treatment_plan": {
+    "pending": [
+      {
+        "code": "27201",
+        "tooth": 26
+      },
+      {
+        "code": "21211",
+        "tooth": 46
+      },
+      {
+        "code": "23112",
+        "tooth": 46
+      }
+    ],
+    "completed": [
+      {
+        "code": "01202",
+        "tooth": null
+      }
+    ]
+  },
+  "clinical_notes": "#26 needs crown.",
+  "narrative": null,
+  "prior_history": {
+    "same_code_last_5y": false,
+    "same_tooth_crown_months_ago": null,
+    "previous_preauth_ids": []
+  },
+  "decision": {
+    "status": "denied",
+    "reason_code": "CLIN_ACTIVE_DISEASE",
+    "reason_category": "clinical_necessity",
+    "explanation_of_benefits_text": "All basic treatment for active caries and periodontal disease must be completed before a crown is requested.",
+    "missing_documents": [],
+    "reviewer_type": "dental_consultant"
+  },
+  "followup": null,
+  "_generator_truth": {
+    "clinical": {
+      "tooth": 26,
+      "class": "molar",
+      "endo": false,
+      "endo_weeks_ago": null,
+      "periapical_lesion": false,
+      "surfaces": 5,
+      "cusp_fractured": true,
+      "indication": "cracked_tooth",
+      "pd_mm": [
+        3,
+        3,
+        3,
+        3,
+        3,
+        3
+      ],
+      "bop": false,
+      "bone_loss_pct": 10,
+      "furcation": 3,
+      "subgingival_margin": false,
+      "pending_basic": [
+        [
+          "21211",
+          46
+        ],
+        [
+          "23112",
+          46
+        ]
+      ],
+      "prior_crown_months": null
+    },
+    "violations": [
+      "crack_or_cosmetic",
+      "furcation",
+      "pending_basic"
+    ],
+    "visible_to_consultant": [
+      "crack_or_cosmetic",
+      "no_perio",
+      "pending_basic",
+      "thin_note"
+    ],
+    "fired": [
+      "pending_basic",
+      "crack_or_cosmetic",
+      "thin_note"
+    ]
+  }
+}

@@ -1,0 +1,146 @@
+{
+  "_synthetic": true,
+  "schema": "cdcp-preauth-export/2",
+  "preauth_id": "PA-SYN-300438",
+  "program": "CDCP",
+  "administrator": "Sun Life (CDCP administrator)",
+  "submission_channel": "cdanet_eclaim",
+  "submitted_date": "2026-06-25",
+  "decision_date": "2026-07-04",
+  "member": {
+    "member_id": "SYN-M-89307285",
+    "age_band": "87+",
+    "province": "ON",
+    "income_band": "<70k",
+    "copay_pct": 0
+  },
+  "provider": {
+    "provider_id": "SYN-P-4020",
+    "specialty": "general_dentist",
+    "province": "ON",
+    "cdcp_participating": true
+  },
+  "services": [
+    {
+      "procedure_code": "27211",
+      "description": "Crown, porcelain/ceramic fused to metal",
+      "category": "major_restorative",
+      "tooth": "21",
+      "fee_submitted": 1150.0,
+      "fee_grid_amount": 905.56,
+      "lab_codes": [
+        "99112"
+      ]
+    }
+  ],
+  "attachments": [
+    {
+      "type": "periapical_radiograph",
+      "count": 1,
+      "captured_date": "2025-06-03"
+    },
+    {
+      "type": "periodontal_charting",
+      "count": 1,
+      "captured_date": "2026-02-15"
+    },
+    {
+      "type": "clinical_notes",
+      "count": 1,
+      "captured_date": "2026-06-04"
+    },
+    {
+      "type": "narrative_letter",
+      "count": 1,
+      "captured_date": "2026-06-25"
+    }
+  ],
+  "perio_summary": {
+    "chart_type": "psr_only",
+    "captured_date": "2026-02-15",
+    "psr": {
+      "S1": 2,
+      "S2": 2,
+      "S3": 2,
+      "S4": 2,
+      "S5": 3,
+      "S6": 2
+    },
+    "tooth_sites_mm": null,
+    "bop_at_tooth": null,
+    "furcation_class": null
+  },
+  "treatment_plan": {
+    "pending": [
+      {
+        "code": "27211",
+        "tooth": 21
+      }
+    ],
+    "completed": [
+      {
+        "code": "01202",
+        "tooth": null
+      }
+    ]
+  },
+  "clinical_notes": "#21 large class IV composite, incisal edge intact. Recurrent caries under existing restoration. Occlusion stable.",
+  "narrative": "Request for crown on #21. The tooth meets the CDCP definition of extensively restored. All other basic treatment is complete. Periodontal status is stable at the requested tooth.",
+  "prior_history": {
+    "same_code_last_5y": false,
+    "same_tooth_crown_months_ago": null,
+    "previous_preauth_ids": []
+  },
+  "decision": {
+    "status": "denied",
+    "reason_code": "DOC_RADIOGRAPH_STALE",
+    "reason_category": "incomplete_submission",
+    "explanation_of_benefits_text": "Radiographs must be dated within 12 months of the submission.",
+    "missing_documents": [],
+    "reviewer_type": "automated"
+  },
+  "followup": {
+    "type": "resubmission",
+    "submitted_date": "2026-07-26",
+    "fixed": "stale_pa",
+    "outcome": "approved"
+  },
+  "_generator_truth": {
+    "clinical": {
+      "tooth": 21,
+      "class": "anterior",
+      "endo": false,
+      "endo_weeks_ago": null,
+      "periapical_lesion": false,
+      "incisal_edge_lost": false,
+      "surfaces": 1,
+      "indication": "recurrent_caries",
+      "pd_mm": [
+        3,
+        4,
+        3,
+        4,
+        3,
+        3
+      ],
+      "bop": false,
+      "bone_loss_pct": 20,
+      "furcation": 0,
+      "subgingival_margin": false,
+      "pending_basic": [],
+      "prior_crown_months": null
+    },
+    "violations": [
+      "not_ext_restored"
+    ],
+    "visible_to_consultant": [
+      "no_bw",
+      "no_perio",
+      "stale_pa"
+    ],
+    "fired": [
+      "stale_pa",
+      "no_perio"
+    ]
+  }
+}

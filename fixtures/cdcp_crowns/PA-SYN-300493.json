@@ -1,0 +1,139 @@
+{
+  "_synthetic": true,
+  "schema": "cdcp-preauth-export/2",
+  "preauth_id": "PA-SYN-300493",
+  "program": "CDCP",
+  "administrator": "Sun Life (CDCP administrator)",
+  "submission_channel": "provider_portal",
+  "submitted_date": "2026-04-13",
+  "decision_date": "2026-04-26",
+  "member": {
+    "member_id": "SYN-M-62310951",
+    "age_band": "18-64",
+    "province": "ON",
+    "income_band": "80k-90k",
+    "copay_pct": 60
+  },
+  "provider": {
+    "provider_id": "SYN-P-4037",
+    "specialty": "general_dentist",
+    "province": "ON",
+    "cdcp_participating": true
+  },
+  "services": [
+    {
+      "procedure_code": "27211",
+      "description": "Crown, porcelain/ceramic fused to metal",
+      "category": "major_restorative",
+      "tooth": "46",
+      "fee_submitted": 1150.0,
+      "fee_grid_amount": 854.43,
+      "lab_codes": [
+        "99112"
+      ]
+    }
+  ],
+  "attachments": [
+    {
+      "type": "periodontal_charting",
+      "count": 1,
+      "captured_date": "2026-02-13"
+    },
+    {
+      "type": "clinical_notes",
+      "count": 1,
+      "captured_date": "2026-04-05"
+    },
+    {
+      "type": "tooth_structure_loss_pct",
+      "count": 1,
+      "captured_date": "2026-04-13"
+    }
+  ],
+  "perio_summary": {
+    "chart_type": "complete",
+    "captured_date": "2026-02-13",
+    "psr": {
+      "S1": 3,
+      "S2": 3,
+      "S3": 2,
+      "S4": 2,
+      "S5": 2,
+      "S6": 2
+    },
+    "tooth_sites_mm": [
+      2,
+      4,
+      2,
+      3,
+      3,
+      3
+    ],
+    "bop_at_tooth": false,
+    "furcation_class": 0
+  },
+  "treatment_plan": null,
+  "clinical_notes": "#46 MODBL amalgam. RCT completed 22 months ago, asymptomatic. Tooth fractured, unrestorable with direct restoration.",
+  "narrative": null,
+  "prior_history": {
+    "same_code_last_5y": false,
+    "same_tooth_crown_months_ago": null,
+    "previous_preauth_ids": []
+  },
+  "decision": {
+    "status": "denied",
+    "reason_code": "DOC_MISSING_RADIOGRAPH",
+    "reason_category": "incomplete_submission",
+    "explanation_of_benefits_text": "A current periapical radiograph of the requested tooth is required.",
+    "missing_documents": [],
+    "reviewer_type": "automated"
+  },
+  "followup": {
+    "type": "resubmission",
+    "submitted_date": "2026-06-12",
+    "fixed": "no_pa",
+    "outcome": "denied"
+  },
+  "_generator_truth": {
+    "clinical": {
+      "tooth": 46,
+      "class": "molar",
+      "endo": true,
+      "endo_weeks_ago": 91,
+      "periapical_lesion": false,
+      "surfaces": 5,
+      "cusp_fractured": false,
+      "indication": "fracture",
+      "pd_mm": [
+        2,
+        4,
+        2,
+        3,
+        3,
+        3
+      ],
+      "bop": false,
+      "bone_loss_pct": 30,
+      "furcation": 0,
+      "subgingival_margin": false,
+      "pending_basic": [
+        [
+          "21211",
+          44
+        ]
+      ],
+      "prior_crown_months": null
+    },
+    "violations": [
+      "pending_basic"
+    ],
+    "visible_to_consultant": [
+      "no_bw",
+      "no_pa"
+    ],
+    "fired": [
+      "no_pa",
+      "no_bw"
+    ]
+  }
+}

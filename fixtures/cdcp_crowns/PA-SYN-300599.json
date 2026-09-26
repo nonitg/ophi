@@ -1,0 +1,124 @@
+{
+  "_synthetic": true,
+  "schema": "cdcp-preauth-export/2",
+  "preauth_id": "PA-SYN-300599",
+  "program": "CDCP",
+  "administrator": "Sun Life (CDCP administrator)",
+  "submission_channel": "provider_portal",
+  "submitted_date": "2026-05-04",
+  "decision_date": "2026-05-14",
+  "member": {
+    "member_id": "SYN-M-79970822",
+    "age_band": "18-64",
+    "province": "ON",
+    "income_band": "70k-80k",
+    "copay_pct": 40
+  },
+  "provider": {
+    "provider_id": "SYN-P-4017",
+    "specialty": "general_dentist",
+    "province": "ON",
+    "cdcp_participating": true
+  },
+  "services": [
+    {
+      "procedure_code": "27211",
+      "description": "Crown, porcelain/ceramic fused to metal",
+      "category": "major_restorative",
+      "tooth": "26",
+      "fee_submitted": 1150.0,
+      "fee_grid_amount": 869.98,
+      "lab_codes": [
+        "99112"
+      ]
+    }
+  ],
+  "attachments": [
+    {
+      "type": "periapical_radiograph",
+      "count": 1,
+      "captured_date": "2026-02-13"
+    },
+    {
+      "type": "bitewing_radiographs",
+      "count": 2,
+      "captured_date": "2026-03-24"
+    },
+    {
+      "type": "periodontal_charting",
+      "count": 1,
+      "captured_date": "2026-04-18"
+    },
+    {
+      "type": "clinical_notes",
+      "count": 1,
+      "captured_date": "2026-04-18"
+    }
+  ],
+  "perio_summary": {
+    "chart_type": "psr_only",
+    "captured_date": "2026-04-18",
+    "psr": {
+      "S1": 3,
+      "S2": 3,
+      "S3": 3,
+      "S4": 2,
+      "S5": 1,
+      "S6": 1
+    },
+    "tooth_sites_mm": null,
+    "bop_at_tooth": null,
+    "furcation_class": null
+  },
+  "treatment_plan": null,
+  "clinical_notes": "#26 needs crown.",
+  "narrative": null,
+  "prior_history": {
+    "same_code_last_5y": false,
+    "same_tooth_crown_months_ago": null,
+    "previous_preauth_ids": []
+  },
+  "decision": {
+    "status": "approved",
+    "reason_code": null,
+    "reason_category": null,
+    "explanation_of_benefits_text": "Service approved as submitted; payable at CDCP fee grid less applicable co-pay.",
+    "missing_documents": [],
+    "reviewer_type": "automated",
+    "approved_amount": 521.99,
+    "approval_valid_until": "2027-05-14"
+  },
+  "followup": null,
+  "_generator_truth": {
+    "clinical": {
+      "tooth": 26,
+      "class": "molar",
+      "endo": true,
+      "endo_weeks_ago": 59,
+      "periapical_lesion": false,
+      "surfaces": 2,
+      "cusp_fractured": true,
+      "indication": "fracture",
+      "pd_mm": [
+        3,
+        4,
+        3,
+        3,
+        2,
+        3
+      ],
+      "bop": false,
+      "bone_loss_pct": 30,
+      "furcation": 1,
+      "subgingival_margin": false,
+      "pending_basic": [],
+      "prior_crown_months": null
+    },
+    "violations": [],
+    "visible_to_consultant": [
+      "no_perio",
+      "thin_note"
+    ],
+    "fired": []
+  }
+}

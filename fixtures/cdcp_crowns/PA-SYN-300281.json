@@ -1,0 +1,125 @@
+{
+  "_synthetic": true,
+  "schema": "cdcp-preauth-export/2",
+  "preauth_id": "PA-SYN-300281",
+  "program": "CDCP",
+  "administrator": "Sun Life (CDCP administrator)",
+  "submission_channel": "paper",
+  "submitted_date": "2026-04-15",
+  "decision_date": "2026-04-18",
+  "member": {
+    "member_id": "SYN-M-29896311",
+    "age_band": "65-69",
+    "province": "ON",
+    "income_band": "70k-80k",
+    "copay_pct": 40
+  },
+  "provider": {
+    "provider_id": "SYN-P-4000",
+    "specialty": "general_dentist",
+    "province": "ON",
+    "cdcp_participating": true
+  },
+  "services": [
+    {
+      "procedure_code": "27211",
+      "description": "Crown, porcelain/ceramic fused to metal",
+      "category": "major_restorative",
+      "tooth": "47",
+      "fee_submitted": 1150.0,
+      "fee_grid_amount": 881.21,
+      "lab_codes": [
+        "99112"
+      ]
+    }
+  ],
+  "attachments": [
+    {
+      "type": "bitewing_radiographs",
+      "count": 2,
+      "captured_date": "2026-03-04"
+    },
+    {
+      "type": "clinical_notes",
+      "count": 1,
+      "captured_date": "2026-03-30"
+    }
+  ],
+  "perio_summary": null,
+  "treatment_plan": {
+    "pending": [
+      {
+        "code": "27211",
+        "tooth": 47
+      }
+    ],
+    "completed": [
+      {
+        "code": "01202",
+        "tooth": null
+      },
+      {
+        "code": "33111",
+        "tooth": 47,
+        "date": "2024-10-23"
+      }
+    ]
+  },
+  "clinical_notes": "#47 MODB composite, DL cusp fractured. RCT completed 19 months ago, asymptomatic. Crown indicated to protect endo-treated tooth.",
+  "narrative": null,
+  "prior_history": {
+    "same_code_last_5y": false,
+    "same_tooth_crown_months_ago": null,
+    "previous_preauth_ids": [
+      "PA-SYN-300120"
+    ]
+  },
+  "decision": {
+    "status": "denied",
+    "reason_code": "DUPLICATE_REQUEST",
+    "reason_category": "administrative",
+    "explanation_of_benefits_text": "Duplicate of a preauthorization already on file.",
+    "missing_documents": [],
+    "reviewer_type": "automated"
+  },
+  "followup": null,
+  "_generator_truth": {
+    "clinical": {
+      "tooth": 47,
+      "class": "molar",
+      "endo": true,
+      "endo_weeks_ago": 77,
+      "periapical_lesion": false,
+      "surfaces": 4,
+      "cusp_fractured": true,
+      "indication": "post_endo",
+      "pd_mm": [
+        3,
+        3,
+        3,
+        3,
+        3,
+        4
+      ],
+      "bop": false,
+      "bone_loss_pct": 30,
+      "furcation": 0,
+      "subgingival_margin": false,
+      "pending_basic": [],
+      "prior_crown_months": null
+    },
+    "violations": [
+      "duplicate"
+    ],
+    "visible_to_consultant": [
+      "duplicate",
+      "no_pa",
+      "no_perio"
+    ],
+    "fired": [
+      "duplicate",
+      "no_pa",
+      "no_perio"
+    ]
+  }
+}

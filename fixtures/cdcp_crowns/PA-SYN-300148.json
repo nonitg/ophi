@@ -1,0 +1,133 @@
+{
+  "_synthetic": true,
+  "schema": "cdcp-preauth-export/2",
+  "preauth_id": "PA-SYN-300148",
+  "program": "CDCP",
+  "administrator": "Sun Life (CDCP administrator)",
+  "submission_channel": "cdanet_eclaim",
+  "submitted_date": "2026-04-08",
+  "decision_date": "2026-04-11",
+  "member": {
+    "member_id": "SYN-M-93465291",
+    "age_band": "70-74",
+    "province": "ON",
+    "income_band": "70k-80k",
+    "copay_pct": 40
+  },
+  "provider": {
+    "provider_id": "SYN-P-4016",
+    "specialty": "general_dentist",
+    "province": "ON",
+    "cdcp_participating": true
+  },
+  "services": [
+    {
+      "procedure_code": "27301",
+      "description": "Crown, cast metal",
+      "category": "major_restorative",
+      "tooth": "26",
+      "fee_submitted": 1120.0,
+      "fee_grid_amount": 894.53,
+      "lab_codes": []
+    }
+  ],
+  "attachments": [
+    {
+      "type": "periapical_radiograph",
+      "count": 1,
+      "captured_date": "2024-08-21"
+    },
+    {
+      "type": "bitewing_radiographs",
+      "count": 2,
+      "captured_date": "2025-10-19"
+    },
+    {
+      "type": "periodontal_charting",
+      "count": 1,
+      "captured_date": "2025-09-23"
+    },
+    {
+      "type": "clinical_notes",
+      "count": 1,
+      "captured_date": "2026-03-12"
+    },
+    {
+      "type": "tooth_structure_loss_pct",
+      "count": 1,
+      "captured_date": "2026-04-08"
+    }
+  ],
+  "perio_summary": {
+    "chart_type": "complete",
+    "captured_date": "2025-09-23",
+    "psr": {
+      "S1": 2,
+      "S2": 2,
+      "S3": 3,
+      "S4": 2,
+      "S5": 2,
+      "S6": 3
+    },
+    "tooth_sites_mm": [
+      3,
+      3,
+      3,
+      3,
+      4,
+      3
+    ],
+    "bop_at_tooth": false,
+    "furcation_class": 0
+  },
+  "treatment_plan": null,
+  "clinical_notes": "#26 MODBL amalgam, ML cusp fractured. Recurrent caries under existing restoration.",
+  "narrative": null,
+  "prior_history": {
+    "same_code_last_5y": false,
+    "same_tooth_crown_months_ago": null,
+    "previous_preauth_ids": []
+  },
+  "decision": {
+    "status": "approved",
+    "reason_code": null,
+    "reason_category": null,
+    "explanation_of_benefits_text": "Service approved as submitted; payable at CDCP fee grid less applicable co-pay.",
+    "missing_documents": [],
+    "reviewer_type": "automated",
+    "approved_amount": 536.72,
+    "approval_valid_until": "2027-04-11"
+  },
+  "followup": null,
+  "_generator_truth": {
+    "clinical": {
+      "tooth": 26,
+      "class": "molar",
+      "endo": false,
+      "endo_weeks_ago": null,
+      "periapical_lesion": false,
+      "surfaces": 5,
+      "cusp_fractured": true,
+      "indication": "recurrent_caries",
+      "pd_mm": [
+        3,
+        3,
+        3,
+        3,
+        4,
+        3
+      ],
+      "bop": false,
+      "bone_loss_pct": 10,
+      "furcation": 0,
+      "subgingival_margin": false,
+      "pending_basic": [],
+      "prior_crown_months": null
+    },
+    "violations": [],
+    "visible_to_consultant": [
+      "stale_pa"
+    ],
+    "fired": []
+  }
+}

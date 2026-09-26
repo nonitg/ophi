@@ -1,0 +1,156 @@
+{
+  "_synthetic": true,
+  "schema": "cdcp-preauth-export/2",
+  "preauth_id": "PA-SYN-300373",
+  "program": "CDCP",
+  "administrator": "Sun Life (CDCP administrator)",
+  "submission_channel": "provider_portal",
+  "submitted_date": "2026-05-08",
+  "decision_date": "2026-05-25",
+  "member": {
+    "member_id": "SYN-M-57474620",
+    "age_band": "65-69",
+    "province": "ON",
+    "income_band": "<70k",
+    "copay_pct": 0
+  },
+  "provider": {
+    "provider_id": "SYN-P-4005",
+    "specialty": "general_dentist",
+    "province": "ON",
+    "cdcp_participating": true
+  },
+  "services": [
+    {
+      "procedure_code": "27201",
+      "description": "Crown, porcelain/ceramic",
+      "category": "major_restorative",
+      "tooth": "37",
+      "fee_submitted": 1210.0,
+      "fee_grid_amount": 922.91,
+      "lab_codes": [
+        "99112"
+      ]
+    }
+  ],
+  "attachments": [
+    {
+      "type": "periapical_radiograph",
+      "count": 1,
+      "captured_date": "2026-04-23"
+    },
+    {
+      "type": "bitewing_radiographs",
+      "count": 1,
+      "captured_date": "2026-02-20"
+    },
+    {
+      "type": "periodontal_charting",
+      "count": 1,
+      "captured_date": "2025-09-19"
+    },
+    {
+      "type": "clinical_notes",
+      "count": 1,
+      "captured_date": "2026-04-10"
+    },
+    {
+      "type": "narrative_letter",
+      "count": 1,
+      "captured_date": "2026-05-08"
+    }
+  ],
+  "perio_summary": {
+    "chart_type": "complete",
+    "captured_date": "2025-09-19",
+    "psr": {
+      "S1": 3,
+      "S2": 2,
+      "S3": 1,
+      "S4": 3,
+      "S5": 2,
+      "S6": 2
+    },
+    "tooth_sites_mm": [
+      3,
+      2,
+      3,
+      3,
+      3,
+      3
+    ],
+    "bop_at_tooth": false,
+    "furcation_class": 1
+  },
+  "treatment_plan": {
+    "pending": [
+      {
+        "code": "27201",
+        "tooth": 37
+      }
+    ],
+    "completed": [
+      {
+        "code": "01202",
+        "tooth": null
+      },
+      {
+        "code": "33111",
+        "tooth": 37,
+        "date": "2023-06-23"
+      }
+    ]
+  },
+  "clinical_notes": "#37 MODBL amalgam. RCT completed in 2024, asymptomatic. Recurrent caries under existing restoration. Margin at bone level distally. Pt informed of options.",
+  "narrative": "Request for crown on #37. The tooth meets the CDCP definition of extensively restored following endodontic treatment. All other basic treatment is complete. Periodontal status is stable at the requested tooth.",
+  "prior_history": {
+    "same_code_last_5y": false,
+    "same_tooth_crown_months_ago": null,
+    "previous_preauth_ids": []
+  },
+  "decision": {
+    "status": "approved",
+    "reason_code": null,
+    "reason_category": null,
+    "explanation_of_benefits_text": "Service approved as submitted; payable at CDCP fee grid less applicable co-pay.",
+    "missing_documents": [],
+    "reviewer_type": "automated",
+    "approved_amount": 922.91,
+    "approval_valid_until": "2027-05-25"
+  },
+  "followup": null,
+  "_generator_truth": {
+    "clinical": {
+      "tooth": 37,
+      "class": "molar",
+      "endo": true,
+      "endo_weeks_ago": 150,
+      "periapical_lesion": false,
+      "surfaces": 5,
+      "cusp_fractured": false,
+      "indication": "recurrent_caries",
+      "pd_mm": [
+        3,
+        2,
+        3,
+        3,
+        3,
+        3
+      ],
+      "bop": false,
+      "bone_loss_pct": 10,
+      "furcation": 1,
+      "subgingival_margin": true,
+      "pending_basic": [],
+      "prior_crown_months": null
+    },
+    "violations": [
+      "ferrule"
+    ],
+    "visible_to_consultant": [
+      "ferrule",
+      "no_bw"
+    ],
+    "fired": []
+  }
+}

@@ -1,0 +1,130 @@
+{
+  "_synthetic": true,
+  "schema": "cdcp-preauth-export/2",
+  "preauth_id": "PA-SYN-300057",
+  "program": "CDCP",
+  "administrator": "Sun Life (CDCP administrator)",
+  "submission_channel": "paper",
+  "submitted_date": "2026-05-08",
+  "decision_date": "2026-05-21",
+  "member": {
+    "member_id": "SYN-M-14601482",
+    "age_band": "75-86",
+    "province": "ON",
+    "income_band": "80k-90k",
+    "copay_pct": 60
+  },
+  "provider": {
+    "provider_id": "SYN-P-4019",
+    "specialty": "general_dentist",
+    "province": "ON",
+    "cdcp_participating": true
+  },
+  "services": [
+    {
+      "procedure_code": "27211",
+      "description": "Crown, porcelain/ceramic fused to metal",
+      "category": "major_restorative",
+      "tooth": "27",
+      "fee_submitted": 1150.0,
+      "fee_grid_amount": 855.98,
+      "lab_codes": [
+        "99112"
+      ]
+    }
+  ],
+  "attachments": [
+    {
+      "type": "periapical_radiograph",
+      "count": 1,
+      "captured_date": "2026-02-01"
+    },
+    {
+      "type": "bitewing_radiographs",
+      "count": 1,
+      "captured_date": "2026-03-20"
+    },
+    {
+      "type": "periodontal_charting",
+      "count": 1,
+      "captured_date": "2025-09-16"
+    },
+    {
+      "type": "clinical_notes",
+      "count": 1,
+      "captured_date": "2026-04-25"
+    }
+  ],
+  "perio_summary": {
+    "chart_type": "psr_only",
+    "captured_date": "2025-09-16",
+    "psr": {
+      "S1": 2,
+      "S2": 2,
+      "S3": 4,
+      "S4": 2,
+      "S5": 2,
+      "S6": 3
+    },
+    "tooth_sites_mm": null,
+    "bop_at_tooth": null,
+    "furcation_class": null
+  },
+  "treatment_plan": null,
+  "clinical_notes": "#27 MODB composite, ML cusp fractured. Recurrent caries under existing restoration.",
+  "narrative": null,
+  "prior_history": {
+    "same_code_last_5y": false,
+    "same_tooth_crown_months_ago": null,
+    "previous_preauth_ids": []
+  },
+  "decision": {
+    "status": "denied",
+    "reason_code": "DOC_MISSING_PERIO_CHART",
+    "reason_category": "incomplete_submission",
+    "explanation_of_benefits_text": "A complete periodontal charting within 12 months is required for crowns.",
+    "missing_documents": [],
+    "reviewer_type": "dental_consultant"
+  },
+  "followup": null,
+  "_generator_truth": {
+    "clinical": {
+      "tooth": 27,
+      "class": "molar",
+      "endo": false,
+      "endo_weeks_ago": null,
+      "periapical_lesion": false,
+      "surfaces": 4,
+      "cusp_fractured": true,
+      "indication": "recurrent_caries",
+      "pd_mm": [
+        5,
+        3,
+        5,
+        5,
+        5,
+        6
+      ],
+      "bop": true,
+      "bone_loss_pct": 60,
+      "furcation": 0,
+      "subgingival_margin": false,
+      "pending_basic": [],
+      "prior_crown_months": null
+    },
+    "violations": [
+      "active_perio",
+      "poor_support"
+    ],
+    "visible_to_consultant": [
+      "active_perio",
+      "no_bw",
+      "no_perio",
+      "poor_support"
+    ],
+    "fired": [
+      "no_perio",
+      "no_bw"
+    ]
+  }
+}

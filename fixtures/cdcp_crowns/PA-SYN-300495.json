@@ -1,0 +1,140 @@
+{
+  "_synthetic": true,
+  "schema": "cdcp-preauth-export/2",
+  "preauth_id": "PA-SYN-300495",
+  "program": "CDCP",
+  "administrator": "Sun Life (CDCP administrator)",
+  "submission_channel": "cdanet_eclaim",
+  "submitted_date": "2026-06-20",
+  "decision_date": "2026-06-26",
+  "member": {
+    "member_id": "SYN-M-76102057",
+    "age_band": "18-64",
+    "province": "ON",
+    "income_band": "<70k",
+    "copay_pct": 0
+  },
+  "provider": {
+    "provider_id": "SYN-P-4026",
+    "specialty": "general_dentist",
+    "province": "ON",
+    "cdcp_participating": true
+  },
+  "services": [
+    {
+      "procedure_code": "27201",
+      "description": "Crown, porcelain/ceramic",
+      "category": "major_restorative",
+      "tooth": "26",
+      "fee_submitted": 1210.0,
+      "fee_grid_amount": 936.58,
+      "lab_codes": [
+        "99112"
+      ]
+    }
+  ],
+  "attachments": [
+    {
+      "type": "periapical_radiograph",
+      "count": 1,
+      "captured_date": "2026-04-01"
+    },
+    {
+      "type": "bitewing_radiographs",
+      "count": 2,
+      "captured_date": "2026-04-16"
+    },
+    {
+      "type": "periodontal_charting",
+      "count": 1,
+      "captured_date": "2026-03-03"
+    },
+    {
+      "type": "clinical_notes",
+      "count": 1,
+      "captured_date": "2026-05-23"
+    },
+    {
+      "type": "tooth_structure_loss_pct",
+      "count": 1,
+      "captured_date": "2026-06-20"
+    }
+  ],
+  "perio_summary": {
+    "chart_type": "complete",
+    "captured_date": "2026-03-03",
+    "psr": {
+      "S1": 4,
+      "S2": 1,
+      "S3": 3,
+      "S4": 3,
+      "S5": 4,
+      "S6": 3
+    },
+    "tooth_sites_mm": [
+      3,
+      3,
+      3,
+      3,
+      4,
+      3
+    ],
+    "bop_at_tooth": false,
+    "furcation_class": 0
+  },
+  "treatment_plan": null,
+  "clinical_notes": "#26 MO amalgam, DL cusp fractured. RCT completed in 2024, asymptomatic. Craze lines, sensitive to cold.",
+  "narrative": null,
+  "prior_history": {
+    "same_code_last_5y": false,
+    "same_tooth_crown_months_ago": null,
+    "previous_preauth_ids": []
+  },
+  "decision": {
+    "status": "denied",
+    "reason_code": "CLIN_NOT_COVERED_INDICATION",
+    "reason_category": "clinical_necessity",
+    "explanation_of_benefits_text": "Crowns for cracked tooth syndrome, sensitivity or aesthetics are not covered.",
+    "missing_documents": [],
+    "reviewer_type": "dental_consultant"
+  },
+  "followup": null,
+  "_generator_truth": {
+    "clinical": {
+      "tooth": 26,
+      "class": "molar",
+      "endo": true,
+      "endo_weeks_ago": 120,
+      "periapical_lesion": false,
+      "surfaces": 2,
+      "cusp_fractured": true,
+      "indication": "cracked_tooth",
+      "pd_mm": [
+        3,
+        3,
+        3,
+        3,
+        4,
+        3
+      ],
+      "bop": false,
+      "bone_loss_pct": 25,
+      "furcation": 0,
+      "subgingival_margin": true,
+      "pending_basic": [],
+      "prior_crown_months": null
+    },
+    "violations": [
+      "crack_or_cosmetic",
+      "ferrule"
+    ],
+    "visible_to_consultant": [
+      "crack_or_cosmetic",
+      "ferrule"
+    ],
+    "fired": [
+      "crack_or_cosmetic",
+      "ferrule"
+    ]
+  }
+}

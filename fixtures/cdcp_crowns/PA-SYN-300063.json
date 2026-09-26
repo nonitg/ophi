@@ -1,0 +1,157 @@
+{
+  "_synthetic": true,
+  "schema": "cdcp-preauth-export/2",
+  "preauth_id": "PA-SYN-300063",
+  "program": "CDCP",
+  "administrator": "Sun Life (CDCP administrator)",
+  "submission_channel": "cdanet_eclaim",
+  "submitted_date": "2026-09-12",
+  "decision_date": "2026-09-26",
+  "member": {
+    "member_id": "SYN-M-43751271",
+    "age_band": "18-64",
+    "province": "ON",
+    "income_band": "70k-80k",
+    "copay_pct": 40
+  },
+  "provider": {
+    "provider_id": "SYN-P-4023",
+    "specialty": "general_dentist",
+    "province": "ON",
+    "cdcp_participating": true
+  },
+  "services": [
+    {
+      "procedure_code": "27201",
+      "description": "Crown, porcelain/ceramic",
+      "category": "major_restorative",
+      "tooth": "46",
+      "fee_submitted": 1210.0,
+      "fee_grid_amount": 911.63,
+      "lab_codes": [
+        "99112"
+      ]
+    }
+  ],
+  "attachments": [
+    {
+      "type": "periapical_radiograph",
+      "count": 1,
+      "captured_date": "2025-05-21"
+    },
+    {
+      "type": "bitewing_radiographs",
+      "count": 2,
+      "captured_date": "2026-06-10"
+    },
+    {
+      "type": "periodontal_charting",
+      "count": 1,
+      "captured_date": "2026-04-30"
+    },
+    {
+      "type": "clinical_notes",
+      "count": 1,
+      "captured_date": "2026-09-11"
+    }
+  ],
+  "perio_summary": {
+    "chart_type": "complete",
+    "captured_date": "2026-04-30",
+    "psr": {
+      "S1": 1,
+      "S2": 1,
+      "S3": 1,
+      "S4": 3,
+      "S5": 1,
+      "S6": 4
+    },
+    "tooth_sites_mm": [
+      5,
+      4,
+      4,
+      6,
+      4,
+      5
+    ],
+    "bop_at_tooth": false,
+    "furcation_class": 1
+  },
+  "treatment_plan": {
+    "pending": [
+      {
+        "code": "27201",
+        "tooth": 46
+      }
+    ],
+    "completed": [
+      {
+        "code": "01202",
+        "tooth": null
+      },
+      {
+        "code": "33111",
+        "tooth": 46,
+        "date": "2025-07-26"
+      }
+    ]
+  },
+  "clinical_notes": "#46 MODBL composite. RCT completed 14 months ago, asymptomatic. Tooth fractured, unrestorable with direct restoration.",
+  "narrative": null,
+  "prior_history": {
+    "same_code_last_5y": false,
+    "same_tooth_crown_months_ago": null,
+    "previous_preauth_ids": []
+  },
+  "decision": {
+    "status": "denied",
+    "reason_code": "UNSPECIFIED",
+    "reason_category": null,
+    "explanation_of_benefits_text": "The service does not meet the CDCP criteria for this benefit.",
+    "missing_documents": [],
+    "reviewer_type": "automated"
+  },
+  "followup": {
+    "type": "resubmission",
+    "submitted_date": "2026-11-13",
+    "fixed": "stale_pa",
+    "outcome": "denied"
+  },
+  "_generator_truth": {
+    "clinical": {
+      "tooth": 46,
+      "class": "molar",
+      "endo": true,
+      "endo_weeks_ago": 59,
+      "periapical_lesion": false,
+      "surfaces": 5,
+      "cusp_fractured": false,
+      "indication": "fracture",
+      "pd_mm": [
+        5,
+        4,
+        4,
+        6,
+        4,
+        5
+      ],
+      "bop": false,
+      "bone_loss_pct": 60,
+      "furcation": 1,
+      "subgingival_margin": false,
+      "pending_basic": [],
+      "prior_crown_months": null
+    },
+    "violations": [
+      "poor_support"
+    ],
+    "visible_to_consultant": [
+      "poor_support",
+      "stale_pa"
+    ],
+    "fired": [
+      "stale_pa",
+      "poor_support"
+    ]
+  }
+}

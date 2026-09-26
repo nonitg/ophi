@@ -1,0 +1,162 @@
+{
+  "_synthetic": true,
+  "schema": "cdcp-preauth-export/2",
+  "preauth_id": "PA-SYN-300185",
+  "program": "CDCP",
+  "administrator": "Sun Life (CDCP administrator)",
+  "submission_channel": "paper",
+  "submitted_date": "2026-07-14",
+  "decision_date": "2026-07-25",
+  "member": {
+    "member_id": "SYN-M-19597583",
+    "age_band": "70-74",
+    "province": "ON",
+    "income_band": "70k-80k",
+    "copay_pct": 40
+  },
+  "provider": {
+    "provider_id": "SYN-P-4018",
+    "specialty": "prosthodontist",
+    "province": "ON",
+    "cdcp_participating": true
+  },
+  "services": [
+    {
+      "procedure_code": "27211",
+      "description": "Crown, porcelain/ceramic fused to metal",
+      "category": "major_restorative",
+      "tooth": "16",
+      "fee_submitted": 1150.0,
+      "fee_grid_amount": 884.79,
+      "lab_codes": [
+        "99222"
+      ]
+    }
+  ],
+  "attachments": [
+    {
+      "type": "periapical_radiograph",
+      "count": 1,
+      "captured_date": "2026-03-21"
+    },
+    {
+      "type": "bitewing_radiographs",
+      "count": 1,
+      "captured_date": "2026-05-09"
+    },
+    {
+      "type": "periodontal_charting",
+      "count": 1,
+      "captured_date": "2025-12-22"
+    },
+    {
+      "type": "clinical_notes",
+      "count": 1,
+      "captured_date": "2026-07-05"
+    }
+  ],
+  "perio_summary": {
+    "chart_type": "complete",
+    "captured_date": "2025-12-22",
+    "psr": {
+      "S1": 2,
+      "S2": 3,
+      "S3": 3,
+      "S4": 3,
+      "S5": 3,
+      "S6": 4
+    },
+    "tooth_sites_mm": [
+      4,
+      3,
+      3,
+      3,
+      3,
+      2
+    ],
+    "bop_at_tooth": false,
+    "furcation_class": 0
+  },
+  "treatment_plan": {
+    "pending": [
+      {
+        "code": "27211",
+        "tooth": 16
+      },
+      {
+        "code": "43421",
+        "tooth": null
+      }
+    ],
+    "completed": [
+      {
+        "code": "01202",
+        "tooth": null
+      },
+      {
+        "code": "33111",
+        "tooth": 16,
+        "date": "2025-04-29"
+      }
+    ]
+  },
+  "clinical_notes": "#16 MODBL composite. RCT completed 15 months ago, asymptomatic. Recurrent caries under existing restoration.",
+  "narrative": null,
+  "prior_history": {
+    "same_code_last_5y": false,
+    "same_tooth_crown_months_ago": null,
+    "previous_preauth_ids": []
+  },
+  "decision": {
+    "status": "denied",
+    "reason_code": "UNSPECIFIED",
+    "reason_category": null,
+    "explanation_of_benefits_text": "The service does not meet the CDCP criteria for this benefit.",
+    "missing_documents": [],
+    "reviewer_type": "dental_consultant"
+  },
+  "followup": null,
+  "_generator_truth": {
+    "clinical": {
+      "tooth": 16,
+      "class": "molar",
+      "endo": true,
+      "endo_weeks_ago": 63,
+      "periapical_lesion": false,
+      "surfaces": 5,
+      "cusp_fractured": false,
+      "indication": "recurrent_caries",
+      "pd_mm": [
+        4,
+        3,
+        3,
+        3,
+        3,
+        2
+      ],
+      "bop": false,
+      "bone_loss_pct": 30,
+      "furcation": 0,
+      "subgingival_margin": false,
+      "pending_basic": [
+        [
+          "43421",
+          null
+        ]
+      ],
+      "prior_crown_months": null
+    },
+    "violations": [
+      "pending_basic",
+      "retired_lab_code"
+    ],
+    "visible_to_consultant": [
+      "no_bw",
+      "pending_basic",
+      "retired_lab_code"
+    ],
+    "fired": [
+      "pending_basic"
+    ]
+  }
+}

@@ -1,0 +1,137 @@
+{
+  "_synthetic": true,
+  "schema": "cdcp-preauth-export/2",
+  "preauth_id": "PA-SYN-300104",
+  "program": "CDCP",
+  "administrator": "Sun Life (CDCP administrator)",
+  "submission_channel": "cdanet_eclaim",
+  "submitted_date": "2026-04-26",
+  "decision_date": "2026-05-02",
+  "member": {
+    "member_id": "SYN-M-48375410",
+    "age_band": "75-86",
+    "province": "ON",
+    "income_band": "<70k",
+    "copay_pct": 0
+  },
+  "provider": {
+    "provider_id": "SYN-P-4012",
+    "specialty": "prosthodontist",
+    "province": "ON",
+    "cdcp_participating": true
+  },
+  "services": [
+    {
+      "procedure_code": "27211",
+      "description": "Crown, porcelain/ceramic fused to metal",
+      "category": "major_restorative",
+      "tooth": "46",
+      "fee_submitted": 1150.0,
+      "fee_grid_amount": 971.38,
+      "lab_codes": [
+        "99112"
+      ]
+    }
+  ],
+  "attachments": [
+    {
+      "type": "periapical_radiograph",
+      "count": 1,
+      "captured_date": "2026-02-24"
+    },
+    {
+      "type": "bitewing_radiographs",
+      "count": 2,
+      "captured_date": "2026-02-09"
+    },
+    {
+      "type": "periodontal_charting",
+      "count": 1,
+      "captured_date": "2026-03-22"
+    },
+    {
+      "type": "clinical_notes",
+      "count": 1,
+      "captured_date": "2026-03-31"
+    },
+    {
+      "type": "narrative_letter",
+      "count": 1,
+      "captured_date": "2026-04-26"
+    }
+  ],
+  "perio_summary": {
+    "chart_type": "complete",
+    "captured_date": "2026-03-22",
+    "psr": {
+      "S1": 3,
+      "S2": 2,
+      "S3": 2,
+      "S4": 3,
+      "S5": 1,
+      "S6": 4
+    },
+    "tooth_sites_mm": [
+      6,
+      6,
+      7,
+      4,
+      4,
+      5
+    ],
+    "bop_at_tooth": true,
+    "furcation_class": 0
+  },
+  "treatment_plan": null,
+  "clinical_notes": "#46 MODBL composite. Existing restoration failing, marginal breakdown. Occlusion stable.",
+  "narrative": "Request for crown on #46. The tooth meets the CDCP definition of extensively restored. All other basic treatment is complete. Periodontal status is stable at the requested tooth.",
+  "prior_history": {
+    "same_code_last_5y": false,
+    "same_tooth_crown_months_ago": null,
+    "previous_preauth_ids": []
+  },
+  "decision": {
+    "status": "denied",
+    "reason_code": "UNSPECIFIED",
+    "reason_category": null,
+    "explanation_of_benefits_text": "The service does not meet the CDCP criteria for this benefit.",
+    "missing_documents": [],
+    "reviewer_type": "dental_consultant"
+  },
+  "followup": null,
+  "_generator_truth": {
+    "clinical": {
+      "tooth": 46,
+      "class": "molar",
+      "endo": false,
+      "endo_weeks_ago": null,
+      "periapical_lesion": false,
+      "surfaces": 5,
+      "cusp_fractured": false,
+      "indication": "large_restoration",
+      "pd_mm": [
+        6,
+        6,
+        7,
+        4,
+        4,
+        5
+      ],
+      "bop": true,
+      "bone_loss_pct": 25,
+      "furcation": 0,
+      "subgingival_margin": false,
+      "pending_basic": [],
+      "prior_crown_months": null
+    },
+    "violations": [
+      "active_perio"
+    ],
+    "visible_to_consultant": [
+      "active_perio"
+    ],
+    "fired": [
+      "active_perio"
+    ]
+  }
+}

@@ -1,0 +1,141 @@
+{
+  "_synthetic": true,
+  "schema": "cdcp-preauth-export/2",
+  "preauth_id": "PA-SYN-300370",
+  "program": "CDCP",
+  "administrator": "Sun Life (CDCP administrator)",
+  "submission_channel": "cdanet_eclaim",
+  "submitted_date": "2026-05-24",
+  "decision_date": "2026-06-09",
+  "member": {
+    "member_id": "SYN-M-47385901",
+    "age_band": "75-86",
+    "province": "ON",
+    "income_band": "70k-80k",
+    "copay_pct": 40
+  },
+  "provider": {
+    "provider_id": "SYN-P-4016",
+    "specialty": "general_dentist",
+    "province": "ON",
+    "cdcp_participating": true
+  },
+  "services": [
+    {
+      "procedure_code": "27201",
+      "description": "Crown, porcelain/ceramic",
+      "category": "major_restorative",
+      "tooth": "14",
+      "fee_submitted": 1210.0,
+      "fee_grid_amount": 977.22,
+      "lab_codes": [
+        "99112"
+      ]
+    }
+  ],
+  "attachments": [
+    {
+      "type": "periodontal_charting",
+      "count": 1,
+      "captured_date": "2025-11-07"
+    },
+    {
+      "type": "clinical_notes",
+      "count": 1,
+      "captured_date": "2026-05-20"
+    },
+    {
+      "type": "tooth_structure_loss_pct",
+      "count": 1,
+      "captured_date": "2026-05-24"
+    }
+  ],
+  "perio_summary": {
+    "chart_type": "complete",
+    "captured_date": "2025-11-07",
+    "psr": {
+      "S1": 4,
+      "S2": 4,
+      "S3": 2,
+      "S4": 3,
+      "S5": 3,
+      "S6": 2
+    },
+    "tooth_sites_mm": [
+      6,
+      7,
+      5,
+      4,
+      5,
+      4
+    ],
+    "bop_at_tooth": true,
+    "furcation_class": null
+  },
+  "treatment_plan": null,
+  "clinical_notes": "#14 MODBL amalgam, MB cusp fractured. RCT completed 11 months ago, asymptomatic. Recurrent caries under existing restoration.",
+  "narrative": null,
+  "prior_history": {
+    "same_code_last_5y": false,
+    "same_tooth_crown_months_ago": null,
+    "previous_preauth_ids": [
+      "PA-SYN-300145"
+    ]
+  },
+  "decision": {
+    "status": "denied",
+    "reason_code": "DUPLICATE_REQUEST",
+    "reason_category": "administrative",
+    "explanation_of_benefits_text": "Duplicate of a preauthorization already on file.",
+    "missing_documents": [],
+    "reviewer_type": "dental_consultant"
+  },
+  "followup": null,
+  "_generator_truth": {
+    "clinical": {
+      "tooth": 14,
+      "class": "premolar",
+      "endo": true,
+      "endo_weeks_ago": 44,
+      "periapical_lesion": false,
+      "surfaces": 5,
+      "cusp_fractured": true,
+      "indication": "recurrent_caries",
+      "pd_mm": [
+        6,
+        7,
+        5,
+        4,
+        5,
+        4
+      ],
+      "bop": true,
+      "bone_loss_pct": 43,
+      "furcation": 0,
+      "subgingival_margin": false,
+      "pending_basic": [
+        [
+          "43421",
+          null
+        ]
+      ],
+      "prior_crown_months": null
+    },
+    "violations": [
+      "active_perio",
+      "duplicate",
+      "pending_basic"
+    ],
+    "visible_to_consultant": [
+      "active_perio",
+      "duplicate",
+      "no_bw",
+      "no_pa"
+    ],
+    "fired": [
+      "duplicate",
+      "no_pa",
+      "no_bw"
+    ]
+  }
+}

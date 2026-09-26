@@ -1,0 +1,146 @@
+{
+  "_synthetic": true,
+  "schema": "cdcp-preauth-export/2",
+  "preauth_id": "PA-SYN-300425",
+  "program": "CDCP",
+  "administrator": "Sun Life (CDCP administrator)",
+  "submission_channel": "provider_portal",
+  "submitted_date": "2026-08-17",
+  "decision_date": "2026-09-01",
+  "member": {
+    "member_id": "SYN-M-22748891",
+    "age_band": "18-64",
+    "province": "ON",
+    "income_band": "80k-90k",
+    "copay_pct": 60
+  },
+  "provider": {
+    "provider_id": "SYN-P-4004",
+    "specialty": "general_dentist",
+    "province": "ON",
+    "cdcp_participating": true
+  },
+  "services": [
+    {
+      "procedure_code": "27211",
+      "description": "Crown, porcelain/ceramic fused to metal",
+      "category": "major_restorative",
+      "tooth": "17",
+      "fee_submitted": 1150.0,
+      "fee_grid_amount": 987.07,
+      "lab_codes": [
+        "99112"
+      ]
+    }
+  ],
+  "attachments": [
+    {
+      "type": "periapical_radiograph",
+      "count": 1,
+      "captured_date": "2026-04-25"
+    },
+    {
+      "type": "bitewing_radiographs",
+      "count": 2,
+      "captured_date": "2026-08-09"
+    },
+    {
+      "type": "periodontal_charting",
+      "count": 1,
+      "captured_date": "2026-01-29"
+    },
+    {
+      "type": "clinical_notes",
+      "count": 1,
+      "captured_date": "2026-08-17"
+    }
+  ],
+  "perio_summary": {
+    "chart_type": "complete",
+    "captured_date": "2026-01-29",
+    "psr": {
+      "S1": 3,
+      "S2": 4,
+      "S3": 3,
+      "S4": 4,
+      "S5": 1,
+      "S6": 2
+    },
+    "tooth_sites_mm": [
+      4,
+      3,
+      2,
+      4,
+      3,
+      2
+    ],
+    "bop_at_tooth": false,
+    "furcation_class": 1
+  },
+  "treatment_plan": {
+    "pending": [
+      {
+        "code": "27211",
+        "tooth": 17
+      }
+    ],
+    "completed": [
+      {
+        "code": "01202",
+        "tooth": null
+      },
+      {
+        "code": "33111",
+        "tooth": 17,
+        "date": "2024-04-01"
+      }
+    ]
+  },
+  "clinical_notes": "#17 MOD amalgam, ML cusp fractured. RCT completed in 2024, asymptomatic. Existing restoration failing, marginal breakdown. Occlusion stable.",
+  "narrative": null,
+  "prior_history": {
+    "same_code_last_5y": false,
+    "same_tooth_crown_months_ago": null,
+    "previous_preauth_ids": []
+  },
+  "decision": {
+    "status": "approved",
+    "reason_code": null,
+    "reason_category": null,
+    "explanation_of_benefits_text": "Service approved as submitted; payable at CDCP fee grid less applicable co-pay.",
+    "missing_documents": [],
+    "reviewer_type": "dental_consultant",
+    "approved_amount": 394.83,
+    "approval_valid_until": "2027-09-01"
+  },
+  "followup": null,
+  "_generator_truth": {
+    "clinical": {
+      "tooth": 17,
+      "class": "molar",
+      "endo": true,
+      "endo_weeks_ago": 124,
+      "periapical_lesion": false,
+      "surfaces": 3,
+      "cusp_fractured": true,
+      "indication": "large_restoration",
+      "pd_mm": [
+        4,
+        3,
+        2,
+        4,
+        3,
+        2
+      ],
+      "bop": false,
+      "bone_loss_pct": 40,
+      "furcation": 1,
+      "subgingival_margin": false,
+      "pending_basic": [],
+      "prior_crown_months": null
+    },
+    "violations": [],
+    "visible_to_consultant": [],
+    "fired": []
+  }
+}

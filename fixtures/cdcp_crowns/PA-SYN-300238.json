@@ -1,0 +1,140 @@
+{
+  "_synthetic": true,
+  "schema": "cdcp-preauth-export/2",
+  "preauth_id": "PA-SYN-300238",
+  "program": "CDCP",
+  "administrator": "Sun Life (CDCP administrator)",
+  "submission_channel": "paper",
+  "submitted_date": "2026-04-15",
+  "decision_date": "2026-04-23",
+  "member": {
+    "member_id": "SYN-M-32165581",
+    "age_band": "18-64",
+    "province": "ON",
+    "income_band": "<70k",
+    "copay_pct": 0
+  },
+  "provider": {
+    "provider_id": "SYN-P-4007",
+    "specialty": "general_dentist",
+    "province": "ON",
+    "cdcp_participating": true
+  },
+  "services": [
+    {
+      "procedure_code": "27201",
+      "description": "Crown, porcelain/ceramic",
+      "category": "major_restorative",
+      "tooth": "22",
+      "fee_submitted": 1210.0,
+      "fee_grid_amount": 1013.05,
+      "lab_codes": [
+        "99112"
+      ]
+    }
+  ],
+  "attachments": [
+    {
+      "type": "bitewing_radiographs",
+      "count": 2,
+      "captured_date": "2025-10-10"
+    },
+    {
+      "type": "clinical_notes",
+      "count": 1,
+      "captured_date": "2026-03-28"
+    },
+    {
+      "type": "tooth_structure_loss_pct",
+      "count": 1,
+      "captured_date": "2026-04-15"
+    }
+  ],
+  "perio_summary": null,
+  "treatment_plan": {
+    "pending": [
+      {
+        "code": "27201",
+        "tooth": 22
+      },
+      {
+        "code": "23112",
+        "tooth": 46
+      }
+    ],
+    "completed": [
+      {
+        "code": "01202",
+        "tooth": null
+      }
+    ]
+  },
+  "clinical_notes": "#22 large class IV composite, incisal edge intact. Existing restoration failing, marginal breakdown.",
+  "narrative": null,
+  "prior_history": {
+    "same_code_last_5y": false,
+    "same_tooth_crown_months_ago": null,
+    "previous_preauth_ids": []
+  },
+  "decision": {
+    "status": "denied",
+    "reason_code": "DOC_MISSING_RADIOGRAPH",
+    "reason_category": "incomplete_submission",
+    "explanation_of_benefits_text": "A current periapical radiograph of the requested tooth is required.",
+    "missing_documents": [],
+    "reviewer_type": "automated"
+  },
+  "followup": {
+    "type": "resubmission",
+    "submitted_date": "2026-05-26",
+    "fixed": "no_pa",
+    "outcome": "denied"
+  },
+  "_generator_truth": {
+    "clinical": {
+      "tooth": 22,
+      "class": "anterior",
+      "endo": false,
+      "endo_weeks_ago": null,
+      "periapical_lesion": false,
+      "incisal_edge_lost": false,
+      "surfaces": 1,
+      "indication": "large_restoration",
+      "pd_mm": [
+        4,
+        4,
+        4,
+        2,
+        2,
+        3
+      ],
+      "bop": false,
+      "bone_loss_pct": 30,
+      "furcation": 0,
+      "subgingival_margin": false,
+      "pending_basic": [
+        [
+          "23112",
+          46
+        ]
+      ],
+      "prior_crown_months": null
+    },
+    "violations": [
+      "not_ext_restored",
+      "pending_basic"
+    ],
+    "visible_to_consultant": [
+      "no_pa",
+      "no_perio",
+      "not_ext_restored",
+      "pending_basic"
+    ],
+    "fired": [
+      "no_pa",
+      "no_perio",
+      "pending_basic",
+      "not_ext_restored"
+    ]
+  }
+}

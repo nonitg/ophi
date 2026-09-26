@@ -1,0 +1,160 @@
+{
+  "_synthetic": true,
+  "schema": "cdcp-preauth-export/2",
+  "preauth_id": "PA-SYN-300477",
+  "program": "CDCP",
+  "administrator": "Sun Life (CDCP administrator)",
+  "submission_channel": "provider_portal",
+  "submitted_date": "2026-09-09",
+  "decision_date": "2026-09-26",
+  "member": {
+    "member_id": "SYN-M-13458902",
+    "age_band": "65-69",
+    "province": "ON",
+    "income_band": "80k-90k",
+    "copay_pct": 60
+  },
+  "provider": {
+    "provider_id": "SYN-P-4001",
+    "specialty": "general_dentist",
+    "province": "ON",
+    "cdcp_participating": true
+  },
+  "services": [
+    {
+      "procedure_code": "27211",
+      "description": "Crown, porcelain/ceramic fused to metal",
+      "category": "major_restorative",
+      "tooth": "27",
+      "fee_submitted": 1150.0,
+      "fee_grid_amount": 974.33,
+      "lab_codes": [
+        "99112"
+      ]
+    }
+  ],
+  "attachments": [
+    {
+      "type": "bitewing_radiographs",
+      "count": 2,
+      "captured_date": "2026-06-09"
+    },
+    {
+      "type": "periodontal_charting",
+      "count": 1,
+      "captured_date": "2026-03-23"
+    },
+    {
+      "type": "clinical_notes",
+      "count": 1,
+      "captured_date": "2026-09-05"
+    },
+    {
+      "type": "tooth_structure_loss_pct",
+      "count": 1,
+      "captured_date": "2026-09-09"
+    }
+  ],
+  "perio_summary": {
+    "chart_type": "complete",
+    "captured_date": "2026-03-23",
+    "psr": {
+      "S1": 3,
+      "S2": 2,
+      "S3": 4,
+      "S4": 3,
+      "S5": 1,
+      "S6": 3
+    },
+    "tooth_sites_mm": [
+      4,
+      4,
+      6,
+      6,
+      3,
+      6
+    ],
+    "bop_at_tooth": false,
+    "furcation_class": 0
+  },
+  "treatment_plan": {
+    "pending": [
+      {
+        "code": "27211",
+        "tooth": 27
+      }
+    ],
+    "completed": [
+      {
+        "code": "01202",
+        "tooth": null
+      }
+    ]
+  },
+  "clinical_notes": "#27 MO amalgam. Existing restoration failing, marginal breakdown.",
+  "narrative": null,
+  "prior_history": {
+    "same_code_last_5y": false,
+    "same_tooth_crown_months_ago": null,
+    "previous_preauth_ids": []
+  },
+  "decision": {
+    "status": "denied",
+    "reason_code": "DOC_MISSING_RADIOGRAPH",
+    "reason_category": "incomplete_submission",
+    "explanation_of_benefits_text": "A current periapical radiograph of the requested tooth is required.",
+    "missing_documents": [],
+    "reviewer_type": "dental_consultant"
+  },
+  "followup": {
+    "type": "resubmission",
+    "submitted_date": "2026-11-15",
+    "fixed": "no_pa",
+    "outcome": "approved"
+  },
+  "_generator_truth": {
+    "clinical": {
+      "tooth": 27,
+      "class": "molar",
+      "endo": false,
+      "endo_weeks_ago": null,
+      "periapical_lesion": false,
+      "surfaces": 2,
+      "cusp_fractured": false,
+      "indication": "large_restoration",
+      "pd_mm": [
+        4,
+        4,
+        6,
+        6,
+        3,
+        6
+      ],
+      "bop": false,
+      "bone_loss_pct": 55,
+      "furcation": 0,
+      "subgingival_margin": false,
+      "pending_basic": [
+        [
+          "43421",
+          null
+        ]
+      ],
+      "prior_crown_months": null
+    },
+    "violations": [
+      "not_ext_restored",
+      "pending_basic",
+      "poor_support"
+    ],
+    "visible_to_consultant": [
+      "no_pa",
+      "not_ext_restored",
+      "pending_basic",
+      "poor_support"
+    ],
+    "fired": [
+      "no_pa"
+    ]
+  }
+}

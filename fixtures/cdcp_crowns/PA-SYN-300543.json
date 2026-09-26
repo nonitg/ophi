@@ -1,0 +1,145 @@
+{
+  "_synthetic": true,
+  "schema": "cdcp-preauth-export/2",
+  "preauth_id": "PA-SYN-300543",
+  "program": "CDCP",
+  "administrator": "Sun Life (CDCP administrator)",
+  "submission_channel": "cdanet_eclaim",
+  "submitted_date": "2026-05-23",
+  "decision_date": "2026-06-03",
+  "member": {
+    "member_id": "SYN-M-19721048",
+    "age_band": "65-69",
+    "province": "ON",
+    "income_band": "80k-90k",
+    "copay_pct": 60
+  },
+  "provider": {
+    "provider_id": "SYN-P-4016",
+    "specialty": "general_dentist",
+    "province": "ON",
+    "cdcp_participating": true
+  },
+  "services": [
+    {
+      "procedure_code": "27211",
+      "description": "Crown, porcelain/ceramic fused to metal",
+      "category": "major_restorative",
+      "tooth": "33",
+      "fee_submitted": 1150.0,
+      "fee_grid_amount": 942.75,
+      "lab_codes": [
+        "99112"
+      ]
+    }
+  ],
+  "attachments": [
+    {
+      "type": "periapical_radiograph",
+      "count": 1,
+      "captured_date": "2026-01-25"
+    },
+    {
+      "type": "bitewing_radiographs",
+      "count": 2,
+      "captured_date": "2026-04-15"
+    },
+    {
+      "type": "periodontal_charting",
+      "count": 1,
+      "captured_date": "2026-03-02"
+    },
+    {
+      "type": "clinical_notes",
+      "count": 1,
+      "captured_date": "2026-05-20"
+    }
+  ],
+  "perio_summary": {
+    "chart_type": "complete",
+    "captured_date": "2026-03-02",
+    "psr": {
+      "S1": 2,
+      "S2": 4,
+      "S3": 1,
+      "S4": 2,
+      "S5": 4,
+      "S6": 1
+    },
+    "tooth_sites_mm": [
+      5,
+      6,
+      4,
+      5,
+      5,
+      7
+    ],
+    "bop_at_tooth": false,
+    "furcation_class": null
+  },
+  "treatment_plan": {
+    "pending": [
+      {
+        "code": "27211",
+        "tooth": 33
+      }
+    ],
+    "completed": [
+      {
+        "code": "01202",
+        "tooth": null
+      }
+    ]
+  },
+  "clinical_notes": "#33 fractured incisal edge, loss extends to both contacts. Existing restoration failing, marginal breakdown.",
+  "narrative": null,
+  "prior_history": {
+    "same_code_last_5y": false,
+    "same_tooth_crown_months_ago": null,
+    "previous_preauth_ids": []
+  },
+  "decision": {
+    "status": "denied",
+    "reason_code": "UNSPECIFIED",
+    "reason_category": null,
+    "explanation_of_benefits_text": "The service does not meet the CDCP criteria for this benefit.",
+    "missing_documents": [],
+    "reviewer_type": "dental_consultant"
+  },
+  "followup": null,
+  "_generator_truth": {
+    "clinical": {
+      "tooth": 33,
+      "class": "anterior",
+      "endo": false,
+      "endo_weeks_ago": null,
+      "periapical_lesion": false,
+      "incisal_edge_lost": true,
+      "surfaces": 2,
+      "indication": "large_restoration",
+      "pd_mm": [
+        5,
+        6,
+        4,
+        5,
+        5,
+        7
+      ],
+      "bop": false,
+      "bone_loss_pct": 53,
+      "furcation": 0,
+      "subgingival_margin": false,
+      "pending_basic": [],
+      "prior_crown_months": null
+    },
+    "violations": [
+      "poor_support"
+    ],
+    "visible_to_consultant": [
+      "poor_support"
+    ],
+    "fired": [
+      "poor_support"
+    ]
+  }
+}

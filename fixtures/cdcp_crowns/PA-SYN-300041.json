@@ -1,0 +1,128 @@
+{
+  "_synthetic": true,
+  "schema": "cdcp-preauth-export/2",
+  "preauth_id": "PA-SYN-300041",
+  "program": "CDCP",
+  "administrator": "Sun Life (CDCP administrator)",
+  "submission_channel": "provider_portal",
+  "submitted_date": "2026-09-06",
+  "decision_date": "2026-09-15",
+  "member": {
+    "member_id": "SYN-M-54223980",
+    "age_band": "75-86",
+    "province": "ON",
+    "income_band": "70k-80k",
+    "copay_pct": 40
+  },
+  "provider": {
+    "provider_id": "SYN-P-4001",
+    "specialty": "general_dentist",
+    "province": "ON",
+    "cdcp_participating": true
+  },
+  "services": [
+    {
+      "procedure_code": "27301",
+      "description": "Crown, cast metal",
+      "category": "major_restorative",
+      "tooth": "41",
+      "fee_submitted": 1120.0,
+      "fee_grid_amount": 879.61,
+      "lab_codes": []
+    }
+  ],
+  "attachments": [
+    {
+      "type": "periapical_radiograph",
+      "count": 1,
+      "captured_date": "2025-03-25"
+    },
+    {
+      "type": "bitewing_radiographs",
+      "count": 2,
+      "captured_date": "2026-09-03"
+    },
+    {
+      "type": "clinical_notes",
+      "count": 1,
+      "captured_date": "2026-08-13"
+    }
+  ],
+  "perio_summary": null,
+  "treatment_plan": {
+    "pending": [
+      {
+        "code": "27301",
+        "tooth": 41
+      }
+    ],
+    "completed": [
+      {
+        "code": "01202",
+        "tooth": null
+      }
+    ]
+  },
+  "clinical_notes": "#41 large class IV composite, incisal edge intact. Tooth fractured, unrestorable with direct restoration.",
+  "narrative": null,
+  "prior_history": {
+    "same_code_last_5y": false,
+    "same_tooth_crown_months_ago": null,
+    "previous_preauth_ids": []
+  },
+  "decision": {
+    "status": "denied",
+    "reason_code": "DOC_RADIOGRAPH_STALE",
+    "reason_category": "incomplete_submission",
+    "explanation_of_benefits_text": "Radiographs must be dated within 12 months of the submission.",
+    "missing_documents": [],
+    "reviewer_type": "automated"
+  },
+  "followup": {
+    "type": "resubmission",
+    "submitted_date": "2026-10-01",
+    "fixed": "stale_pa",
+    "outcome": "denied"
+  },
+  "_generator_truth": {
+    "clinical": {
+      "tooth": 41,
+      "class": "anterior",
+      "endo": false,
+      "endo_weeks_ago": null,
+      "periapical_lesion": false,
+      "incisal_edge_lost": false,
+      "surfaces": 4,
+      "indication": "fracture",
+      "pd_mm": [
+        3,
+        3,
+        4,
+        4,
+        3,
+        3
+      ],
+      "bop": false,
+      "bone_loss_pct": 35,
+      "furcation": 0,
+      "subgingival_margin": true,
+      "pending_basic": [],
+      "prior_crown_months": null
+    },
+    "violations": [
+      "ferrule",
+      "not_ext_restored"
+    ],
+    "visible_to_consultant": [
+      "ferrule",
+      "no_perio",
+      "not_ext_restored",
+      "stale_pa"
+    ],
+    "fired": [
+      "stale_pa",
+      "not_ext_restored",
+      "ferrule"
+    ]
+  }
+}

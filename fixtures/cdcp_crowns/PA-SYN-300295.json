@@ -1,0 +1,149 @@
+{
+  "_synthetic": true,
+  "schema": "cdcp-preauth-export/2",
+  "preauth_id": "PA-SYN-300295",
+  "program": "CDCP",
+  "administrator": "Sun Life (CDCP administrator)",
+  "submission_channel": "paper",
+  "submitted_date": "2026-04-18",
+  "decision_date": "2026-04-28",
+  "member": {
+    "member_id": "SYN-M-57723321",
+    "age_band": "70-74",
+    "province": "ON",
+    "income_band": "70k-80k",
+    "copay_pct": 40
+  },
+  "provider": {
+    "provider_id": "SYN-P-4007",
+    "specialty": "general_dentist",
+    "province": "ON",
+    "cdcp_participating": true
+  },
+  "services": [
+    {
+      "procedure_code": "27201",
+      "description": "Crown, porcelain/ceramic",
+      "category": "major_restorative",
+      "tooth": "14",
+      "fee_submitted": 1210.0,
+      "fee_grid_amount": 975.33,
+      "lab_codes": [
+        "99112"
+      ]
+    }
+  ],
+  "attachments": [
+    {
+      "type": "periapical_radiograph",
+      "count": 1,
+      "captured_date": "2026-01-05"
+    },
+    {
+      "type": "bitewing_radiographs",
+      "count": 2,
+      "captured_date": "2026-01-28"
+    },
+    {
+      "type": "periodontal_charting",
+      "count": 1,
+      "captured_date": "2025-11-08"
+    },
+    {
+      "type": "clinical_notes",
+      "count": 1,
+      "captured_date": "2026-04-15"
+    }
+  ],
+  "perio_summary": {
+    "chart_type": "complete",
+    "captured_date": "2025-11-08",
+    "psr": {
+      "S1": 3,
+      "S2": 2,
+      "S3": 2,
+      "S4": 2,
+      "S5": 4,
+      "S6": 2
+    },
+    "tooth_sites_mm": [
+      3,
+      2,
+      3,
+      3,
+      2,
+      4
+    ],
+    "bop_at_tooth": false,
+    "furcation_class": null
+  },
+  "treatment_plan": {
+    "pending": [
+      {
+        "code": "27201",
+        "tooth": 14
+      }
+    ],
+    "completed": [
+      {
+        "code": "01202",
+        "tooth": null
+      }
+    ]
+  },
+  "clinical_notes": "14 crown recommended, see chart.",
+  "narrative": null,
+  "prior_history": {
+    "same_code_last_5y": false,
+    "same_tooth_crown_months_ago": null,
+    "previous_preauth_ids": []
+  },
+  "decision": {
+    "status": "denied",
+    "reason_code": "UNSPECIFIED",
+    "reason_category": null,
+    "explanation_of_benefits_text": "The service does not meet the CDCP criteria for this benefit.",
+    "missing_documents": [],
+    "reviewer_type": "dental_consultant"
+  },
+  "followup": null,
+  "_generator_truth": {
+    "clinical": {
+      "tooth": 14,
+      "class": "premolar",
+      "endo": false,
+      "endo_weeks_ago": null,
+      "periapical_lesion": false,
+      "surfaces": 3,
+      "cusp_fractured": false,
+      "indication": "fracture",
+      "pd_mm": [
+        3,
+        2,
+        3,
+        3,
+        2,
+        4
+      ],
+      "bop": false,
+      "bone_loss_pct": 15,
+      "furcation": 0,
+      "subgingival_margin": true,
+      "pending_basic": [],
+      "prior_crown_months": null
+    },
+    "violations": [
+      "ferrule",
+      "not_ext_restored"
+    ],
+    "visible_to_consultant": [
+      "ferrule",
+      "not_ext_restored",
+      "thin_note"
+    ],
+    "fired": [
+      "not_ext_restored",
+      "ferrule"
+    ]
+  }
+}

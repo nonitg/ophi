@@ -1,0 +1,172 @@
+{
+  "_synthetic": true,
+  "schema": "cdcp-preauth-export/2",
+  "preauth_id": "PA-SYN-300497",
+  "program": "CDCP",
+  "administrator": "Sun Life (CDCP administrator)",
+  "submission_channel": "paper",
+  "submitted_date": "2026-09-02",
+  "decision_date": "2026-09-12",
+  "member": {
+    "member_id": "SYN-M-38952728",
+    "age_band": "0-17",
+    "province": "ON",
+    "income_band": "<70k",
+    "copay_pct": 0
+  },
+  "provider": {
+    "provider_id": "SYN-P-4009",
+    "specialty": "general_dentist",
+    "province": "ON",
+    "cdcp_participating": true
+  },
+  "services": [
+    {
+      "procedure_code": "27211",
+      "description": "Crown, porcelain/ceramic fused to metal",
+      "category": "major_restorative",
+      "tooth": "34",
+      "fee_submitted": 1150.0,
+      "fee_grid_amount": 873.99,
+      "lab_codes": [
+        "99112"
+      ]
+    }
+  ],
+  "attachments": [
+    {
+      "type": "periapical_radiograph",
+      "count": 1,
+      "captured_date": "2026-07-12"
+    },
+    {
+      "type": "bitewing_radiographs",
+      "count": 2,
+      "captured_date": "2026-05-05"
+    },
+    {
+      "type": "periodontal_charting",
+      "count": 1,
+      "captured_date": "2026-02-10"
+    },
+    {
+      "type": "clinical_notes",
+      "count": 1,
+      "captured_date": "2026-08-16"
+    },
+    {
+      "type": "narrative_letter",
+      "count": 1,
+      "captured_date": "2026-09-02"
+    }
+  ],
+  "perio_summary": {
+    "chart_type": "complete",
+    "captured_date": "2026-02-10",
+    "psr": {
+      "S1": 4,
+      "S2": 2,
+      "S3": 3,
+      "S4": 1,
+      "S5": 2,
+      "S6": 2
+    },
+    "tooth_sites_mm": [
+      4,
+      3,
+      4,
+      3,
+      2,
+      3
+    ],
+    "bop_at_tooth": false,
+    "furcation_class": null
+  },
+  "treatment_plan": {
+    "pending": [
+      {
+        "code": "27211",
+        "tooth": 34
+      },
+      {
+        "code": "23112",
+        "tooth": 27
+      },
+      {
+        "code": "23112",
+        "tooth": 24
+      }
+    ],
+    "completed": [
+      {
+        "code": "01202",
+        "tooth": null
+      }
+    ]
+  },
+  "clinical_notes": "#34 MODB amalgam. Tooth fractured, unrestorable with direct restoration. Also restore #27, restore #24 planned. Tooth vital.",
+  "narrative": "Request for crown on #34. The tooth meets the CDCP definition of extensively restored. All other basic treatment is complete. Periodontal status is stable at the requested tooth.",
+  "prior_history": {
+    "same_code_last_5y": false,
+    "same_tooth_crown_months_ago": null,
+    "previous_preauth_ids": []
+  },
+  "decision": {
+    "status": "denied",
+    "reason_code": "ELIGIBILITY",
+    "reason_category": "eligibility",
+    "explanation_of_benefits_text": "Crowns are a benefit for clients 18 and older.",
+    "missing_documents": [],
+    "reviewer_type": "dental_consultant"
+  },
+  "followup": null,
+  "_generator_truth": {
+    "clinical": {
+      "tooth": 34,
+      "class": "premolar",
+      "endo": false,
+      "endo_weeks_ago": null,
+      "periapical_lesion": false,
+      "surfaces": 4,
+      "cusp_fractured": false,
+      "indication": "fracture",
+      "pd_mm": [
+        4,
+        3,
+        4,
+        3,
+        2,
+        3
+      ],
+      "bop": false,
+      "bone_loss_pct": 35,
+      "furcation": 0,
+      "subgingival_margin": false,
+      "pending_basic": [
+        [
+          "23112",
+          27
+        ],
+        [
+          "23112",
+          24
+        ]
+      ],
+      "prior_crown_months": null
+    },
+    "violations": [
+      "age_under_18",
+      "not_ext_restored",
+      "pending_basic"
+    ],
+    "visible_to_consultant": [
+      "age_under_18",
+      "not_ext_restored",
+      "pending_basic"
+    ],
+    "fired": [
+      "age_under_18",
+      "pending_basic"
+    ]
+  }
+}

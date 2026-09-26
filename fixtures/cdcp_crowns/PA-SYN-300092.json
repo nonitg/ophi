@@ -1,0 +1,160 @@
+{
+  "_synthetic": true,
+  "schema": "cdcp-preauth-export/2",
+  "preauth_id": "PA-SYN-300092",
+  "program": "CDCP",
+  "administrator": "Sun Life (CDCP administrator)",
+  "submission_channel": "provider_portal",
+  "submitted_date": "2026-05-11",
+  "decision_date": "2026-05-15",
+  "member": {
+    "member_id": "SYN-M-55029758",
+    "age_band": "70-74",
+    "province": "ON",
+    "income_band": "70k-80k",
+    "copay_pct": 40
+  },
+  "provider": {
+    "provider_id": "SYN-P-4035",
+    "specialty": "general_dentist",
+    "province": "ON",
+    "cdcp_participating": true
+  },
+  "services": [
+    {
+      "procedure_code": "27211",
+      "description": "Crown, porcelain/ceramic fused to metal",
+      "category": "major_restorative",
+      "tooth": "17",
+      "fee_submitted": 1150.0,
+      "fee_grid_amount": 936.94,
+      "lab_codes": [
+        "99222"
+      ]
+    }
+  ],
+  "attachments": [
+    {
+      "type": "periapical_radiograph",
+      "count": 1,
+      "captured_date": "2026-03-02"
+    },
+    {
+      "type": "bitewing_radiographs",
+      "count": 2,
+      "captured_date": "2026-04-16"
+    },
+    {
+      "type": "periodontal_charting",
+      "count": 1,
+      "captured_date": "2026-01-06"
+    },
+    {
+      "type": "clinical_notes",
+      "count": 1,
+      "captured_date": "2026-05-08"
+    },
+    {
+      "type": "tooth_structure_loss_pct",
+      "count": 1,
+      "captured_date": "2026-05-11"
+    }
+  ],
+  "perio_summary": {
+    "chart_type": "complete",
+    "captured_date": "2026-01-06",
+    "psr": {
+      "S1": 2,
+      "S2": 1,
+      "S3": 2,
+      "S4": 2,
+      "S5": 2,
+      "S6": 2
+    },
+    "tooth_sites_mm": [
+      3,
+      2,
+      3,
+      3,
+      3,
+      3
+    ],
+    "bop_at_tooth": false,
+    "furcation_class": 0
+  },
+  "treatment_plan": {
+    "pending": [
+      {
+        "code": "27211",
+        "tooth": 17
+      }
+    ],
+    "completed": [
+      {
+        "code": "01202",
+        "tooth": null
+      },
+      {
+        "code": "33111",
+        "tooth": 17,
+        "date": "2025-07-21"
+      }
+    ]
+  },
+  "clinical_notes": "#17 MOD amalgam, MB cusp fractured. RCT completed 10 months ago, asymptomatic. Crown indicated to protect endo-treated tooth. Pt informed of options.",
+  "narrative": null,
+  "prior_history": {
+    "same_code_last_5y": false,
+    "same_tooth_crown_months_ago": null,
+    "previous_preauth_ids": []
+  },
+  "decision": {
+    "status": "denied",
+    "reason_code": "ADMIN_INVALID_CODE",
+    "reason_category": "administrative",
+    "explanation_of_benefits_text": "Laboratory fee code is not valid for the date of service.",
+    "missing_documents": [],
+    "reviewer_type": "automated"
+  },
+  "followup": {
+    "type": "resubmission",
+    "submitted_date": "2026-06-16",
+    "fixed": "retired_lab_code",
+    "outcome": "denied"
+  },
+  "_generator_truth": {
+    "clinical": {
+      "tooth": 17,
+      "class": "molar",
+      "endo": true,
+      "endo_weeks_ago": 42,
+      "periapical_lesion": false,
+      "surfaces": 3,
+      "cusp_fractured": true,
+      "indication": "post_endo",
+      "pd_mm": [
+        3,
+        2,
+        3,
+        3,
+        3,
+        3
+      ],
+      "bop": false,
+      "bone_loss_pct": 10,
+      "furcation": 0,
+      "subgingival_margin": false,
+      "pending_basic": [],
+      "prior_crown_months": null
+    },
+    "violations": [
+      "retired_lab_code"
+    ],
+    "visible_to_consultant": [
+      "retired_lab_code"
+    ],
+    "fired": [
+      "retired_lab_code"
+    ]
+  }
+}

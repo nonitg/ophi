@@ -1,0 +1,153 @@
+{
+  "_synthetic": true,
+  "schema": "cdcp-preauth-export/2",
+  "preauth_id": "PA-SYN-300266",
+  "program": "CDCP",
+  "administrator": "Sun Life (CDCP administrator)",
+  "submission_channel": "cdanet_eclaim",
+  "submitted_date": "2026-07-25",
+  "decision_date": "2026-08-09",
+  "member": {
+    "member_id": "SYN-M-84558780",
+    "age_band": "18-64",
+    "province": "ON",
+    "income_band": "<70k",
+    "copay_pct": 0
+  },
+  "provider": {
+    "provider_id": "SYN-P-4034",
+    "specialty": "general_dentist",
+    "province": "ON",
+    "cdcp_participating": true
+  },
+  "services": [
+    {
+      "procedure_code": "27201",
+      "description": "Crown, porcelain/ceramic",
+      "category": "major_restorative",
+      "tooth": "46",
+      "fee_submitted": 1210.0,
+      "fee_grid_amount": 990.24,
+      "lab_codes": [
+        "99112"
+      ]
+    }
+  ],
+  "attachments": [
+    {
+      "type": "periapical_radiograph",
+      "count": 1,
+      "captured_date": "2025-05-22"
+    },
+    {
+      "type": "bitewing_radiographs",
+      "count": 2,
+      "captured_date": "2026-06-09"
+    },
+    {
+      "type": "periodontal_charting",
+      "count": 1,
+      "captured_date": "2026-05-02"
+    },
+    {
+      "type": "clinical_notes",
+      "count": 1,
+      "captured_date": "2026-07-04"
+    }
+  ],
+  "perio_summary": {
+    "chart_type": "complete",
+    "captured_date": "2026-05-02",
+    "psr": {
+      "S1": 2,
+      "S2": 2,
+      "S3": 4,
+      "S4": 2,
+      "S5": 1,
+      "S6": 3
+    },
+    "tooth_sites_mm": [
+      3,
+      2,
+      3,
+      4,
+      4,
+      3
+    ],
+    "bop_at_tooth": false,
+    "furcation_class": 2
+  },
+  "treatment_plan": {
+    "pending": [
+      {
+        "code": "27201",
+        "tooth": 46
+      }
+    ],
+    "completed": [
+      {
+        "code": "01202",
+        "tooth": null
+      }
+    ]
+  },
+  "clinical_notes": "#46 MODBL composite, DB cusp fractured. Recurrent caries under existing restoration.",
+  "narrative": null,
+  "prior_history": {
+    "same_code_last_5y": false,
+    "same_tooth_crown_months_ago": null,
+    "previous_preauth_ids": [
+      "PA-SYN-300235"
+    ]
+  },
+  "decision": {
+    "status": "denied",
+    "reason_code": "DUPLICATE_REQUEST",
+    "reason_category": "administrative",
+    "explanation_of_benefits_text": "Duplicate of a preauthorization already on file.",
+    "missing_documents": [],
+    "reviewer_type": "automated"
+  },
+  "followup": null,
+  "_generator_truth": {
+    "clinical": {
+      "tooth": 46,
+      "class": "molar",
+      "endo": false,
+      "endo_weeks_ago": null,
+      "periapical_lesion": false,
+      "surfaces": 5,
+      "cusp_fractured": true,
+      "indication": "recurrent_caries",
+      "pd_mm": [
+        3,
+        2,
+        3,
+        4,
+        4,
+        3
+      ],
+      "bop": false,
+      "bone_loss_pct": 40,
+      "furcation": 2,
+      "subgingival_margin": true,
+      "pending_basic": [],
+      "prior_crown_months": null
+    },
+    "violations": [
+      "duplicate",
+      "ferrule",
+      "furcation"
+    ],
+    "visible_to_consultant": [
+      "duplicate",
+      "ferrule",
+      "furcation",
+      "stale_pa"
+    ],
+    "fired": [
+      "duplicate",
+      "furcation"
+    ]
+  }
+}

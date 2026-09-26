@@ -1,0 +1,144 @@
+{
+  "_synthetic": true,
+  "schema": "cdcp-preauth-export/2",
+  "preauth_id": "PA-SYN-300186",
+  "program": "CDCP",
+  "administrator": "Sun Life (CDCP administrator)",
+  "submission_channel": "paper",
+  "submitted_date": "2026-06-18",
+  "decision_date": "2026-06-24",
+  "member": {
+    "member_id": "SYN-M-62734002",
+    "age_band": "75-86",
+    "province": "ON",
+    "income_band": "<70k",
+    "copay_pct": 0
+  },
+  "provider": {
+    "provider_id": "SYN-P-4028",
+    "specialty": "general_dentist",
+    "province": "ON",
+    "cdcp_participating": true
+  },
+  "services": [
+    {
+      "procedure_code": "27301",
+      "description": "Crown, cast metal",
+      "category": "major_restorative",
+      "tooth": "37",
+      "fee_submitted": 1120.0,
+      "fee_grid_amount": 916.49,
+      "lab_codes": []
+    }
+  ],
+  "attachments": [
+    {
+      "type": "periapical_radiograph",
+      "count": 1,
+      "captured_date": "2026-05-16"
+    },
+    {
+      "type": "bitewing_radiographs",
+      "count": 2,
+      "captured_date": "2025-12-07"
+    },
+    {
+      "type": "periodontal_charting",
+      "count": 1,
+      "captured_date": "2026-04-09"
+    },
+    {
+      "type": "clinical_notes",
+      "count": 1,
+      "captured_date": "2026-05-30"
+    }
+  ],
+  "perio_summary": {
+    "chart_type": "complete",
+    "captured_date": "2026-04-09",
+    "psr": {
+      "S1": 1,
+      "S2": 2,
+      "S3": 2,
+      "S4": 3,
+      "S5": 1,
+      "S6": 1
+    },
+    "tooth_sites_mm": [
+      3,
+      2,
+      3,
+      3,
+      3,
+      3
+    ],
+    "bop_at_tooth": false,
+    "furcation_class": 0
+  },
+  "treatment_plan": {
+    "pending": [
+      {
+        "code": "27301",
+        "tooth": 37
+      }
+    ],
+    "completed": [
+      {
+        "code": "01202",
+        "tooth": null
+      },
+      {
+        "code": "33111",
+        "tooth": 37,
+        "date": "2025-12-11"
+      }
+    ]
+  },
+  "clinical_notes": "#37 MODBL amalgam, ML cusp fractured. RCT completed 6 months ago, asymptomatic. Tooth fractured, unrestorable with direct restoration.",
+  "narrative": null,
+  "prior_history": {
+    "same_code_last_5y": false,
+    "same_tooth_crown_months_ago": null,
+    "previous_preauth_ids": []
+  },
+  "decision": {
+    "status": "approved",
+    "reason_code": null,
+    "reason_category": null,
+    "explanation_of_benefits_text": "Service approved as submitted; payable at CDCP fee grid less applicable co-pay.",
+    "missing_documents": [],
+    "reviewer_type": "automated",
+    "approved_amount": 916.49,
+    "approval_valid_until": "2027-06-24"
+  },
+  "followup": null,
+  "_generator_truth": {
+    "clinical": {
+      "tooth": 37,
+      "class": "molar",
+      "endo": true,
+      "endo_weeks_ago": 27,
+      "periapical_lesion": false,
+      "surfaces": 5,
+      "cusp_fractured": true,
+      "indication": "fracture",
+      "pd_mm": [
+        3,
+        2,
+        3,
+        3,
+        3,
+        3
+      ],
+      "bop": false,
+      "bone_loss_pct": 10,
+      "furcation": 0,
+      "subgingival_margin": false,
+      "pending_basic": [],
+      "prior_crown_months": null
+    },
+    "violations": [],
+    "visible_to_consultant": [],
+    "fired": []
+  }
+}

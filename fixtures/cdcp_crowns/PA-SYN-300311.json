@@ -1,0 +1,168 @@
+{
+  "_synthetic": true,
+  "schema": "cdcp-preauth-export/2",
+  "preauth_id": "PA-SYN-300311",
+  "program": "CDCP",
+  "administrator": "Sun Life (CDCP administrator)",
+  "submission_channel": "paper",
+  "submitted_date": "2026-06-12",
+  "decision_date": "2026-06-27",
+  "member": {
+    "member_id": "SYN-M-91037138",
+    "age_band": "18-64",
+    "province": "ON",
+    "income_band": "70k-80k",
+    "copay_pct": 40
+  },
+  "provider": {
+    "provider_id": "SYN-P-4022",
+    "specialty": "general_dentist",
+    "province": "ON",
+    "cdcp_participating": true
+  },
+  "services": [
+    {
+      "procedure_code": "27201",
+      "description": "Crown, porcelain/ceramic",
+      "category": "major_restorative",
+      "tooth": "45",
+      "fee_submitted": 1210.0,
+      "fee_grid_amount": 900.96,
+      "lab_codes": [
+        "99112"
+      ]
+    }
+  ],
+  "attachments": [
+    {
+      "type": "periapical_radiograph",
+      "count": 1,
+      "captured_date": "2026-05-25"
+    },
+    {
+      "type": "bitewing_radiographs",
+      "count": 2,
+      "captured_date": "2026-03-12"
+    },
+    {
+      "type": "periodontal_charting",
+      "count": 1,
+      "captured_date": "2026-01-12"
+    },
+    {
+      "type": "clinical_notes",
+      "count": 1,
+      "captured_date": "2026-05-23"
+    },
+    {
+      "type": "narrative_letter",
+      "count": 1,
+      "captured_date": "2026-06-12"
+    }
+  ],
+  "perio_summary": {
+    "chart_type": "psr_only",
+    "captured_date": "2026-01-12",
+    "psr": {
+      "S1": 1,
+      "S2": 2,
+      "S3": 3,
+      "S4": 3,
+      "S5": 2,
+      "S6": 2
+    },
+    "tooth_sites_mm": null,
+    "bop_at_tooth": null,
+    "furcation_class": null
+  },
+  "treatment_plan": {
+    "pending": [
+      {
+        "code": "27201",
+        "tooth": 45
+      },
+      {
+        "code": "23111",
+        "tooth": 14
+      },
+      {
+        "code": "21211",
+        "tooth": 17
+      }
+    ],
+    "completed": [
+      {
+        "code": "01202",
+        "tooth": null
+      }
+    ]
+  },
+  "clinical_notes": "#45 MODB composite. Recurrent caries under existing restoration. Also restore #14, restore #17 planned. Occlusion stable.",
+  "narrative": "Request for crown on #45. The tooth meets the CDCP definition of extensively restored. All other basic treatment is complete. Periodontal status is stable at the requested tooth.",
+  "prior_history": {
+    "same_code_last_5y": true,
+    "same_tooth_crown_months_ago": 54,
+    "previous_preauth_ids": []
+  },
+  "decision": {
+    "status": "denied",
+    "reason_code": "FREQ_LIMIT",
+    "reason_category": "frequency",
+    "explanation_of_benefits_text": "Exceeds frequency: 1 crown per tooth per 96 months.",
+    "missing_documents": [],
+    "reviewer_type": "automated"
+  },
+  "followup": null,
+  "_generator_truth": {
+    "clinical": {
+      "tooth": 45,
+      "class": "premolar",
+      "endo": false,
+      "endo_weeks_ago": null,
+      "periapical_lesion": false,
+      "surfaces": 4,
+      "cusp_fractured": false,
+      "indication": "recurrent_caries",
+      "pd_mm": [
+        4,
+        3,
+        2,
+        2,
+        3,
+        3
+      ],
+      "bop": false,
+      "bone_loss_pct": 10,
+      "furcation": 0,
+      "subgingival_margin": false,
+      "pending_basic": [
+        [
+          "23111",
+          14
+        ],
+        [
+          "21211",
+          17
+        ]
+      ],
+      "prior_crown_months": 54
+    },
+    "violations": [
+      "frequency",
+      "not_ext_restored",
+      "pending_basic"
+    ],
+    "visible_to_consultant": [
+      "frequency",
+      "no_perio",
+      "not_ext_restored",
+      "pending_basic"
+    ],
+    "fired": [
+      "frequency",
+      "no_perio",
+      "pending_basic",
+      "not_ext_restored"
+    ]
+  }
+}
