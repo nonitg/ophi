@@ -36,7 +36,6 @@ from __future__ import annotations
 
 import json
 import os
-import subprocess
 from datetime import date, datetime
 from pathlib import Path
 from typing import Protocol, runtime_checkable
@@ -206,24 +205,12 @@ class AbelDentPmsRepository:
             self._chart_dump = mod
         return self._chart_dump
 
-    # -- low-level SQL (preserved from chart_dump.sql) ---------------------
+    # -- low-level SQL --------------------------------------------------------
 
-    def sql(self, query: str) -> list[dict]:
-        """Run one SELECT against ABELDent and return rows as dicts."""
-        r = subprocess.run([str(self.vm_path), "sql", query, "", "json"],
-                           capture_output=True, text=True)
-        body = r.stdout.strip()
-        if not body:
-            raise RuntimeError(f"empty response from vm sql (stderr: {r.stderr.strip()[:200]})")
-        if body.startswith("REFUSED") or "Exception" in body[:200]:
-            raise RuntimeError(body[:400])
-        try:
-            data = json.loads(body)
-        except json.JSONDecodeError:
-            raise RuntimeError(f"non-JSON from vm sql: {body[:300]}")
-        if isinstance(data, dict):
-            data = data["value"] if "value" in data and "Count" in data else [data]
-        return data
+    def sql(self, query: str, params: dict | None = None) -> list[dict]:
+        """Run one SELECT against ABELDent and return rows as dicts; `@name` binds from params.
+        Raises chart_dump.VmSqlError (a RuntimeError) when the VM or database rejects it."""
+        return self._load_chart_dump().sql(query, params, vm=self.vm_path)
 
     # -- PmsRepository interface --------------------------------------------
 

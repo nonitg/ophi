@@ -62,18 +62,30 @@ GRP_NOTE = ("bridge_group is Transactions.Grp: 0/null for single units; for brid
             "starting at 1 form one bridge; Grp is not a shared bridge id.")
 
 
-def sql(query):
-    """Run one SELECT against the ABELDent database and return rows as dicts."""
-    r = subprocess.run([str(VM), "sql", query, "", "json"], capture_output=True, text=True)
+class VmSqlError(RuntimeError):
+    """The VM or the database rejected a query: unreachable VM, refused write, bad SQL."""
+
+
+def _vm_error(text):
+    """The database's own message, not PowerShell's wrapper around it."""
+    text = text.strip()
+    m = re.search(r'argument\(s\): "(.+?)"\s*$', text, re.M)  # SqlException via DataAdapter.Fill
+    return m.group(1) if m else (text.splitlines()[0][:400] if text else "empty response from vm sql")
+
+
+def sql(query, params=None, vm=VM):
+    """Run one SELECT against the ABELDent database and return rows as dicts.
+    `@name` placeholders bind from `params`, so values never enter the SQL text."""
+    args = [str(vm), "sql", query, "", "json"] + ([json.dumps(params)] if params else [])
+    r = subprocess.run(args, capture_output=True, text=True)
     body = r.stdout.strip()
-    if not body:
-        raise RuntimeError(f"empty response from vm sql (stderr: {r.stderr.strip()[:200]})")
-    if body.startswith("REFUSED") or "Exception" in body[:200]:
-        raise RuntimeError(body[:400])
+    # utm transport folds guest errors into stdout with exit 0; ssh reports them on stderr + exit code
+    if r.returncode or not body or body.startswith("REFUSED") or "Exception" in body[:200]:
+        raise VmSqlError(_vm_error(r.stderr if r.returncode and r.stderr.strip() else body))
     try:
         data = json.loads(body)
     except json.JSONDecodeError:
-        raise RuntimeError(f"non-JSON from vm sql: {body[:300]}")
+        raise VmSqlError(f"non-JSON from vm sql: {body[:300]}")
     if isinstance(data, dict):  # older q.ps1 shapes: {value,Count} wrapper or a bare single row
         data = data["value"] if "value" in data and "Count" in data else [data]
     return data

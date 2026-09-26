@@ -1,21 +1,42 @@
 #!/bin/bash
 # vm — one command surface for the ABELDent lab VM.
 #
-# Transport is the QEMU guest agent via utmctl, not SSH: it needs zero configuration
-# inside the guest, survives reboots, and works before networking is set up. Commands
-# run as NT AUTHORITY\SYSTEM. Screenshots are the one exception — session 0 cannot see
-# the desktop, so `shot` bounces through a scheduled task in the interactive session.
+# Two transports. On macOS/UTM: the QEMU guest agent via utmctl — zero configuration inside
+# the guest, survives reboots, works before networking is set up; commands run as
+# NT AUTHORITY\SYSTEM. Elsewhere (e.g. a Linux-hosted VM): SSH to host alias $VM_SSH as the
+# logged-on user (setup: lab/vm/install_key.ps1). Either way, anything needing the desktop
+# (screenshots, UI automation) bounces through a scheduled task in the interactive session.
 set -uo pipefail
 
 HERE="$(cd "$(dirname "$0")" && pwd)"
 LAB="$(cd "$HERE/.." && pwd)"
 UTMCTL="${UTMCTL:-/Applications/UTM.app/Contents/MacOS/utmctl}"
 VM_UUID="${VM_UUID:-44469FC2-B636-412D-8441-9A4A9B04E537}"
+VM_SSH="${VM_SSH:-abelvm}"
+VM_TRANSPORT="${VM_TRANSPORT:-$([ -x "$UTMCTL" ] && echo utm || echo ssh)}"
+SSH_OPTS=(-o BatchMode=yes -o LogLevel=ERROR -o ConnectTimeout=5)
 GUEST_DIR='C:\ophi'
 
 CMD_EXE='C:\Windows\System32\cmd.exe'
 
 die() { echo "error: $*" >&2; exit 1; }
+
+# Guest primitives — every command below is built on these three.
+scp_path() { printf '%s:%s' "$VM_SSH" "${1//\\//}"; }
+g_push() {  # stdin -> guest file
+  if [ "$VM_TRANSPORT" = utm ]; then "$UTMCTL" file push "$VM_UUID" "$1"; return; fi
+  local t rc; t="$(mktemp)"; cat > "$t"
+  scp -q "${SSH_OPTS[@]}" "$t" "$(scp_path "$1")"; rc=$?; rm -f "$t"; return $rc
+}
+g_pull() {  # guest file -> stdout
+  if [ "$VM_TRANSPORT" = utm ]; then "$UTMCTL" file pull "$VM_UUID" "$1"; return; fi
+  local t rc; t="$(mktemp)"
+  scp -q "${SSH_OPTS[@]}" "$(scp_path "$1")" "$t" && cat "$t"; rc=$?; rm -f "$t"; return $rc
+}
+g_cmd() {   # cmd.exe command line in the guest
+  if [ "$VM_TRANSPORT" = utm ]; then "$UTMCTL" exec "$VM_UUID" --cmd "$CMD_EXE" /c "$1"; return; fi
+  ssh "${SSH_OPTS[@]}" "$VM_SSH" "$1"
+}
 
 # The guest side is a single shared mailbox (_cmd.ps1/_last.txt, _ucmd.ps1/_ulast.txt), so two
 # host processes talking at once corrupt each other's results. Serialise every guest round trip
@@ -38,9 +59,8 @@ unlock() { rmdir "$LOCK" 2>/dev/null; trap - EXIT; }
 wait_task_idle() {
   local i state
   for i in $(seq 1 60); do
-    "$UTMCTL" exec "$VM_UUID" --cmd "$CMD_EXE" /c \
-      "schtasks /query /tn $1 /fo csv /nh > $GUEST_DIR\\out\\_task.txt 2>&1" >/dev/null 2>&1
-    state="$("$UTMCTL" file pull "$VM_UUID" "$GUEST_DIR\\out\\_task.txt" 2>/dev/null)"
+    g_cmd "schtasks /query /tn $1 /fo csv /nh > $GUEST_DIR\\out\\_task.txt 2>&1" >/dev/null 2>&1
+    state="$(g_pull "$GUEST_DIR\\out\\_task.txt" 2>/dev/null)"
     case "$state" in *Running*) sleep 0.2 ;; "") sleep 0.2 ;; *) return 0 ;; esac
   done
   echo "task $1 still Running after 12s — a child process (ABELDent?) is holding it; see ophi-lab-vm memory" >&2
@@ -52,7 +72,7 @@ wait_task_idle() {
 pull_retry() {
   local path="$1" i out
   for i in $(seq 1 "${2:-40}"); do
-    out="$("$UTMCTL" file pull "$VM_UUID" "$path" 2>/dev/null)"
+    out="$(g_pull "$path" 2>/dev/null)"
     if [ -n "$out" ]; then printf '%s\n' "$out"; return 0; fi
   done
   return 1
@@ -64,14 +84,13 @@ ps_exec() {
   local marker='___OPHI_DONE___' out
   lock
   printf '%s\n%s\n' "$1" "Write-Output '$marker'" \
-    | "$UTMCTL" file push "$VM_UUID" "$GUEST_DIR\\_cmd.ps1" >/dev/null 2>&1 \
+    | g_push "$GUEST_DIR\\_cmd.ps1" >/dev/null 2>&1 \
     || die "guest agent not responding — is the VM running?"
-  "$UTMCTL" exec "$VM_UUID" --cmd "$CMD_EXE" /c \
-    "del $GUEST_DIR\\out\\_last.txt 2>nul & powershell -NoProfile -ExecutionPolicy Bypass -File $GUEST_DIR\\_cmd.ps1 > $GUEST_DIR\\out\\_last.txt 2>&1" \
+  g_cmd "del $GUEST_DIR\\out\\_last.txt 2>nul & powershell -NoProfile -ExecutionPolicy Bypass -File $GUEST_DIR\\_cmd.ps1 > $GUEST_DIR\\out\\_last.txt 2>&1" \
     >/dev/null 2>&1
   local i
   for i in $(seq 1 120); do
-    out="$("$UTMCTL" file pull "$VM_UUID" "$GUEST_DIR\\out\\_last.txt" 2>/dev/null)"
+    out="$(g_pull "$GUEST_DIR\\out\\_last.txt" 2>/dev/null)"
     case "$out" in *"$marker"*) printf '%s\n' "${out%$marker*}"; unlock; return 0 ;; esac
   done
   echo "timed out waiting for guest command" >&2
@@ -84,15 +103,14 @@ ps_exec() {
 user_exec() {
   local marker='___OPHI_UDONE___' out i
   lock
-  printf '%s\n' "$1" | "$UTMCTL" file push "$VM_UUID" "$GUEST_DIR\\_ucmd.ps1" >/dev/null 2>&1 \
+  printf '%s\n' "$1" | g_push "$GUEST_DIR\\_ucmd.ps1" >/dev/null 2>&1 \
     || die "guest agent not responding"
   # schtasks /run is a silent no-op while the previous run is still exiting, so back-to-back
   # calls used to hang until the pull loop timed out. Wait for the task to go idle first.
   wait_task_idle OphiRun || { unlock; return 1; }
-  "$UTMCTL" exec "$VM_UUID" --cmd "$CMD_EXE" /c \
-    "del $GUEST_DIR\\out\\_ulast.txt 2>nul & schtasks /run /tn OphiRun" >/dev/null 2>&1
+  g_cmd "del $GUEST_DIR\\out\\_ulast.txt 2>nul & schtasks /run /tn OphiRun" >/dev/null 2>&1
   for i in $(seq 1 300); do
-    out="$("$UTMCTL" file pull "$VM_UUID" "$GUEST_DIR\\out\\_ulast.txt" 2>/dev/null)"
+    out="$(g_pull "$GUEST_DIR\\out\\_ulast.txt" 2>/dev/null)"
     case "$out" in *"$marker"*) printf '%s\n' "${out%$marker*}"; unlock; return 0 ;; esac
   done
   echo "timed out — is OphiRun registered? run: $0 setup-user" >&2
@@ -119,26 +137,33 @@ schtasks /create /tn OphiShot /ru \$u /it /f /sc once /st 00:00 /tr \$shot
 'registered for ' + \$u"
   ;;
 
-# Read-only SQL against the ABELDent database. Usage: vm sql "<query>" [db] [json|csv|table]
+# Read-only SQL against the ABELDent database.
+# Usage: vm sql "<query with @name>" [db] [json|csv|table] ['{"name": value}']
 sql)
-  q="${1:?usage: vm sql \"<query>\" [database] [json|csv|table]}"
+  q="${1:?usage: vm sql \"<query>\" [database] [json|csv|table] [params-json]}"
   db="${2:-master}"; as="${3:-table}"
-  q_b64="$(printf '%s' "$q" | base64)"
-  # Must run as the logged-on user — LocalDB instances are per-user.
-  user_exec "\$q=[Text.Encoding]::UTF8.GetString([Convert]::FromBase64String('$q_b64'))
-& $GUEST_DIR\\q.ps1 -Query \$q -Database '$db' -As '$as'"
+  q_b64="$(printf '%s' "$q" | base64 | tr -d '\n')"
+  args="-Database $db -As $as"
+  [ -n "${4:-}" ] && args+=" -ParamsB64 $(printf '%s' "$4" | base64 | tr -d '\n')"
+  # Must run as the logged-on user — LocalDB instances are per-user. Over ssh we already are.
+  if [ "$VM_TRANSPORT" = ssh ]; then
+    printf '%s' "$q_b64" | g_cmd "powershell -NoProfile -ExecutionPolicy Bypass -File $GUEST_DIR\\q.ps1 -QueryB64 stdin $args"
+  else
+    user_exec "& $GUEST_DIR\\q.ps1 -QueryB64 $q_b64 $args"
+  fi
   ;;
 
 # Copy the guest-side scripts in.
 sync)
-  ps_exec "New-Item -ItemType Directory -Force -Path $GUEST_DIR\\out | Out-Null; 'ok'" >/dev/null
+  # Plain cmd, not ps_exec: ps_exec's mailbox lives in the directory being created
+  g_cmd "if not exist $GUEST_DIR\\out mkdir $GUEST_DIR\\out" >/dev/null
   for f in "$HERE"/guest/*.ps1; do
-    "$UTMCTL" file push "$VM_UUID" "$GUEST_DIR\\$(basename "$f")" < "$f" >/dev/null \
+    g_push "$GUEST_DIR\\$(basename "$f")" < "$f" >/dev/null \
       && echo "pushed $(basename "$f")"
   done
   ;;
 
-push)   "$UTMCTL" file push "$VM_UUID" "${2:?usage: vm push <local> <guestpath>}" < "${1:?}" && echo "pushed -> $2" ;;
+push)   g_push "${2:?usage: vm push <local> <guestpath>}" < "${1:?}" && echo "pushed -> $2" ;;
 get)    pull_retry "${1:?usage: vm get <guestpath>}" ;;
 
 # Pull a named artifact out of C:\ophi\out into lab/out.
@@ -163,7 +188,7 @@ shot)
 schtasks /run /tn OphiShot | Out-Null
 for (\$i=0; \$i -lt 30; \$i++) { if (Test-Path $GUEST_DIR\\out\\shot.png) { break }; Start-Sleep -Milliseconds 300 }
 if (Test-Path $GUEST_DIR\\out\\shot.png) { 'ok' } else { 'FAILED - run: vm setup-shot' }" >/dev/null
-  "$UTMCTL" file pull "$VM_UUID" "$GUEST_DIR\\out\\shot.png" > "$LAB/out/shot-$ts.png" 2>/dev/null
+  g_pull "$GUEST_DIR\\out\\shot.png" > "$LAB/out/shot-$ts.png" 2>/dev/null
   if [ -s "$LAB/out/shot-$ts.png" ]; then echo "$LAB/out/shot-$ts.png"
   else rm -f "$LAB/out/shot-$ts.png"; die "no screenshot — run: $0 setup-shot"; fi
   ;;
@@ -171,8 +196,13 @@ if (Test-Path $GUEST_DIR\\out\\shot.png) { 'ok' } else { 'FAILED - run: vm setup
 inspect) ps_exec "& $GUEST_DIR\\inspect.ps1" ;;
 
 status)
-  "$UTMCTL" status "$VM_UUID"
-  "$UTMCTL" ip-address "$VM_UUID" 2>/dev/null | head -1
+  echo "transport: $VM_TRANSPORT"
+  if [ "$VM_TRANSPORT" = utm ]; then
+    "$UTMCTL" status "$VM_UUID"
+    "$UTMCTL" ip-address "$VM_UUID" 2>/dev/null | head -1
+  else
+    g_cmd "hostname" && echo "reachable as $VM_SSH"
+  fi
   ;;
 
 help|*)
@@ -180,8 +210,8 @@ help|*)
 vm <command>
 
   exec '<powershell>'   run PowerShell in the guest (as SYSTEM), print output
-  sql '<query>' [db] [json|csv|table]
-                        read-only query against the ABELDent database
+  sql '<query>' [db] [json|csv|table] ['{"name": value}']
+                        read-only query against the ABELDent database; @name params bind
   sync                  push lab/vm/guest/*.ps1 into C:\ophi
   push <local> <guest>  copy a file in
   get <guestpath>       print a guest file to stdout
@@ -189,7 +219,9 @@ vm <command>
   setup-shot            one-time: register the screenshot task
   shot                  capture the guest desktop -> lab/out/
   inspect               run the Step-0 recon script
-  status                VM power state + IP
+  status                transport + VM power state/reachability
+
+  env: VM_TRANSPORT=utm|ssh (default: utm if utmctl exists), VM_SSH=<ssh host alias> (abelvm)
 EOF
   ;;
 esac

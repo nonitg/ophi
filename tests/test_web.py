@@ -67,6 +67,12 @@ def test_base_path_serves_every_screen_and_link_under_the_prefix(tmp_path):
     assert c.post("/demo-x/reset").headers["location"] == "/demo-x"
 
 
+def test_public_demo_does_not_expose_the_live_pms_api(tmp_path):
+    """Patient search is lab-only; the proxied demo must not route it under any path."""
+    app = create_app(svc=CaseService(store=Store(tmp_path / "state")), packets_dir=tmp_path / "packets", base_path="/demo-x")
+    assert not [r.path for r in app.routes if "abeldent" in getattr(r, "path", "")]
+
+
 def test_case_review_shows_the_bitewing_explanation(client):
     r = client.get("/cases/singh")
     assert r.status_code == 200

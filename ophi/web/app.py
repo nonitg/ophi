@@ -28,7 +28,7 @@ from ophi.packet.narrative import draft_narrative
 from ophi.verify.verifier import verify_packet
 from ophi.engine.models import Status
 from ophi.service import CaseService, CaseView, NarrativeInvalid, identity_tokens
-from ophi.web import present
+from ophi.web import abeldent_api, present
 from ophi.web.present import ACTORS, DEFAULT_ACTOR, READY_VERDICTS, Actor
 
 HERE = Path(__file__).resolve().parent
@@ -373,6 +373,8 @@ def create_app(svc: CaseService | None = None, packets_dir: Path | None = None, 
     app.include_router(router, prefix=base)
     if base:  # the proxy strips trailing slashes, so the queue must answer at the bare prefix too
         app.add_api_route(base, queue, response_class=HTMLResponse, include_in_schema=False)
+    else:  # live-PMS API is lab-only: a base path means the public demo, which must not expose patient search
+        app.include_router(abeldent_api.router)
     return app
 
 

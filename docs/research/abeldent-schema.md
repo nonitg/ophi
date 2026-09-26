@@ -289,6 +289,40 @@ and blocks all later calls); launch via `explorer.exe <exe>`. WinForms dialogs (
 Selection) expose HWND-based AutomationIds that change per open; `scripts/ui setfield -Name
 '<label>'` locates the edit by its label instead. Perio data entry by automation remains open.
 
+A second lab VM, Linux-hosted (database `Abel_FictionalCA_20260925_173324`), is reached over SSH
+rather than utmctl: `lab/vm/vm` picks `VM_TRANSPORT=ssh` when utmctl is absent and talks to the
+`abelvm` host alias as the logged-on user (key setup: `lab/vm/install_key.ps1`). That user owns
+LocalDB, so `vm sql` calls `q.ps1` directly with no scheduled-task hop; the query travels over
+stdin because cmd.exe caps a command line at 8191 chars. A live `chart_dump.py` run over SSH
+reproduces the committed fixtures byte-for-byte for 23 of 24 patients; pid 60 differs only by the
+probe notes and crown written on the first VM on 2026-09-17. That VM also holds a test patient
+from the AF-Hacks prototype, **pid 168 `ZZTEST, CLAUDE`** — not Fictional Data; it has no planned
+work, so `chart_dump` skips it.
+
+### Scheduling and patient tables `[M]`
+
+Surfaced by the AF-Hacks prototype, re-measured here. Read by `ophi/sources/abeldent.py`
+(`/api/abeldent/*`).
+
+| Table | Meaning | Key | Notes |
+|---|---|---|---|
+| `pat` | patients | `pid` int, not identity | Names upper-case. Deleted patients leave child rows (`apt`, `apn`, `aptdel`, `AppointmentLog`, `cnt`, `rcl`). |
+| `inf` | contact prefs (mobile, email) | `infpid` = `pat.pid` | Always 1:1 with `pat` (167/167, none missing). |
+| `apt` | appointments | (`adate`, `achair`, `atime`) | `apid` = pid (≤ 0 = blocks such as lunch), `adid` = `dnt.did`, `achair` `'1 '..'4 '`, `atime` = time of day on 1899-12-30, `atimereq` in scheduler units, `aidentifier` GUID. |
+| `sys` | practice settings | — | `sunitmins` = 10: the scheduler grid and the unit of `atimereq`. |
+| `aps` | appointment statuses | `apsid` | `' '` Unconfirmed, P Preconfirmed, Y Confirmed, A Arrived, S Seated, W Waiting, B Billed, D Departed. |
+| `apn` | appointment notes | pid, date, col, time, type, line | |
+| `dnt` | providers | `did` | `''`, `$`, `?` are placeholder rows. Scheduler columns carry a default provider (1 T, 2 M, 3 K, 4 D). |
+| `AppointmentLog` | appointment audit | | Written by the app, not a trigger. |
+
+None of these tables declares a foreign key (the database's 147 FKs sit elsewhere; the only one
+touching them is `RuleProvider → dnt`), and there are no sequences. Integrity lives in ABELDent's
+.NET DAL (`AddPatientCommand`, `SchedulingMgr.AddAppointmentAsync`). Each of `pat`, `inf`, `apt`,
+`apn`, `dnt` has a `<table>_ThrowErrorIfPrimaryKeyUpdated` trigger. **Consequence for write-back:**
+a raw INSERT bypasses every rule the DAL enforces and leaves `AppointmentLog` empty — AF-Hacks's
+direct `apt` insert rendered in the Scheduler with an unexplained red edge marker. More evidence
+for the read-only posture: any future write must go through ABELDent itself.
+
 ## M0 artifact — `lab/tools/chart_dump.py` `[M]`
 
 One command, zero manual steps, ~25 s: every patient with planned work → `fixtures/abeldent/fictional/<pid>.json`

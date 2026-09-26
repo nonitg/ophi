@@ -1,16 +1,24 @@
 # Read-only SQL query runner for the lab VM. Lives in C:\ophi on the guest.
 # Deliberately mirrors the plan's ReadOnlySqlExecutor rule: the lab tooling refuses to write
 # to the vendor database, so the safety rail gets exercised before the real agent exists.
+# Query and named params (JSON object) arrive base64 UTF-8 so they survive ssh/cmd quoting.
 param(
-    [Parameter(Mandatory = $true)][string]$Query,
+    [Parameter(Mandatory = $true)][string]$QueryB64,
     [string]$Server = '',
     [string]$Database = 'master',
     [int]$Timeout = 120,
     [ValidateSet('json', 'csv', 'table')][string]$As = 'json',
+    [string]$ParamsB64 = '',
     [switch]$AllowWrite
 )
 
 $ErrorActionPreference = 'Stop'
+$ProgressPreference = 'SilentlyContinue'
+# Patient names carry accents (French-Canadian); the console's default code page would mangle them
+[Console]::OutputEncoding = [Text.Encoding]::UTF8
+# 'stdin' reads the base64 from stdin: the ssh transport's cmd.exe caps a command line at 8191 chars
+if ($QueryB64 -eq 'stdin') { $QueryB64 = [Console]::In.ReadToEnd().Trim() }
+$Query = [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String($QueryB64))
 
 if (-not $AllowWrite) {
     # Rail 1: no write/DDL/proc keyword anywhere in the text once string literals and comments are
@@ -69,12 +77,30 @@ try {
     $cmd.Transaction = $tx
     $cmd.CommandText = $Query
     $cmd.CommandTimeout = $Timeout
+    # Values bind as @name parameters, never spliced into SQL text
+    if ($ParamsB64) {
+        $params = [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String($ParamsB64)) | ConvertFrom-Json
+        foreach ($p in $params.PSObject.Properties) {
+            $v = if ($null -eq $p.Value) { [DBNull]::Value } else { $p.Value }
+            [void]$cmd.Parameters.AddWithValue("@$($p.Name)", $v)
+        }
+    }
     $da = New-Object System.Data.SqlClient.SqlDataAdapter $cmd
     $ds = New-Object System.Data.DataSet
     [void]$da.Fill($ds)
 
     foreach ($dt in $ds.Tables) {
-        $rows = $dt | Select-Object -Property $dt.Columns.ColumnName
+        # Dates as zone-less ISO: ABELDent stores wall-clock times, and ConvertTo-Json would emit
+        # /Date(ms)/ shifted by the VM's zone
+        $cols = $dt.Columns.ColumnName
+        $rows = foreach ($r in $dt.Rows) {
+            $o = [ordered]@{}
+            foreach ($c in $cols) {
+                $v = $r[$c]
+                $o[$c] = if ($v -is [DBNull]) { $null } elseif ($v -is [datetime]) { $v.ToString('yyyy-MM-ddTHH:mm:ss') } else { $v }
+            }
+            [pscustomobject]$o
+        }
         switch ($As) {
             # -InputObject @() keeps the result an array even for 0 or 1 rows; piping would
             # unroll it into a bare object (1 row) or a {value,Count} wrapper (N rows).
@@ -84,4 +110,5 @@ try {
         }
     }
 }
-finally { if ($tx) { $tx.Rollback() }; $cn.Close() }
+# A failed batch can already have rolled the transaction back server-side (Connection goes null)
+finally { if ($tx -and $tx.Connection) { $tx.Rollback() }; $cn.Close() }
