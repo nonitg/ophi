@@ -42,7 +42,7 @@ templates.env.globals.update(
     STATIC_V=STATIC_V, money=present.money, short_date=present.short_date, long_date=present.long_date,
     full_date=present.full_date, day_heading=present.day_heading, sentence=present.sentence, local_time=present.local_time, days_until=present.days_until, in_days=present.in_days, plural=present.plural,
     tooth_name=present.tooth_name, source_title=present.source_title, kb=present.kb, requirement_detail=present.requirement_detail,
-    who_tag=present.who_tag, VERDICT_LABEL=present.VERDICT_LABEL, VERDICT_CLASS=present.VERDICT_CLASS,
+    who_tag=present.who_tag, initials=present.initials, VERDICT_LABEL=present.VERDICT_LABEL, VERDICT_CLASS=present.VERDICT_CLASS,
     STATUS_LABEL=present.STATUS_LABEL, STATUS_CLASS=present.STATUS_CLASS, STATUS_NA=Status.NOT_APPLICABLE,
     STAGE_LABEL=present.STAGE_LABEL, FOLLOWUP_LABEL=present.FOLLOWUP_LABEL, ACTORS=ACTORS,
     TURNAROUND_DAYS=workflow.SUN_LIFE_TURNAROUND_DAYS, TURNAROUND_SOURCE=workflow.TURNAROUND_SOURCE,
@@ -51,7 +51,7 @@ templates.env.globals.update(
 
 # Confirmation after a write, named with the same verb as the button that caused it.
 DONE_MESSAGES = {
-    "confirmed": "Chart quote confirmed.", "rejected": "Chart quote rejected.", "criteria": "Criteria recorded.",
+    "confirmed": "Chart note confirmed.", "rejected": "Chart note rejected.", "criteria": "Criteria recorded.",
     "saved": "Narrative saved.", "signed": "Packet signed.", "sent": "Marked as sent.",
     "decision": "Sun Life's decision recorded.", "resubmit": "Resubmission started. The dentist reviews and signs the new request.",
     "booked": "Marked as booked.", "followup": "Follow-up saved.", "undone": "Step taken back.",
@@ -190,7 +190,7 @@ def _existing_manifest(out: Path, view: CaseView, narrative: str, sign_off) -> d
 @router.get("/", response_class=HTMLResponse)
 def worklist(request: Request):
     svc = _svc(request)
-    return _render(request, "worklist.html", w=present.worklist(svc.queue(), _actor(request), svc.today()))
+    return _render(request, "board.html", b=present.board(svc.queue(), _actor(request), svc.today()))
 
 
 # --- case -------------------------------------------------------------------------------------------
@@ -205,10 +205,13 @@ def case_page(request: Request, case_id: str):
     relevant, other = present.assertion_rows(view, svc.pack)
     dentist_done = actor.is_dentist and present.primary_action(view, actor) is None
     nxt = present.next_for_dentist(svc.queue(), case_id, svc.today()) if dentist_done else None
+    steps, today = present.case_steps(view), svc.today()
+    now = present.now_step(steps, actor)
+    timing = present.timing(view, today)
     return _render(request, "case.html", view=view, case=view.case, a=view.assessment, stage=view.stage,
-                   steps=present.case_steps(view), gaps=present.gap_rows(view), advisory=present.advisory(view),
-                   timing=present.timing(view, svc.today()), next=present.next_step(view, svc.today()),
-                   primary=present.primary_action(view, actor), evidence=present.evidence_panel(view),
+                   steps=steps, now=now, then=next((s for s in steps if s["state"] == "upcoming"), None),
+                   stepper=present.stepper(view, actor), gaps=present.gap_rows(view), advisory=present.advisory(view),
+                   timing=timing, advice=present.advice(view, timing, today), evidence=present.evidence_panel(view),
                    criteria=relevant, criteria_other=other, activity=present.activity(svc.store.audit_log(case_id)), next_case=nxt,
                    applicable=[r for r in view.assessment.requirements if r.applicable],
                    not_applicable=[r for r in view.assessment.requirements if not r.applicable])
@@ -262,7 +265,7 @@ async def bulk_assert(request: Request, case_id: str):
 def decide_proposal(request: Request, case_id: str, artifact_id: str, decision: str = Form(...)):
     view = _view(request, case_id)
     if view is None or not any(p.artifact_id == artifact_id for p in view.proposals):
-        return _error(request, 404, "Chart quote not found", f"No proposed evidence '{artifact_id}' on this case.")
+        return _error(request, 404, "Chart note not found", f"No proposed evidence '{artifact_id}' on this case.")
     try:
         _svc(request).confirm_proposal(case_id, artifact_id, decision, _actor(request).name)
     except ValueError as e:

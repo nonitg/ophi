@@ -20,8 +20,12 @@ def shot(page, name):
 
 
 def act_as(page, who):
-    page.select_option("#actor-select", who)
+    page.locator(f'.me button[value="{who}"]').click()
     page.wait_for_load_state("networkidle")
+
+
+def on_step(page, label):
+    expect(page.locator('.stp[aria-current="step"] .stp-label')).to_have_text(label)
 
 
 with sync_playwright() as p:
@@ -29,18 +33,18 @@ with sync_playwright() as p:
     page = b.new_page(viewport={"width": 1440, "height": 900})
     page.on("pageerror", lambda e: print("JS error:", e))
 
-    # Coordinator confirms the note quote on Tremblay: chart work done, case moves to the dentist.
+    # Coordinator confirms the chart note on Tremblay: chart work done, case moves to the dentist.
     page.goto(base + "/cases/tremblay")
-    page.get_by_role("button", name="Confirm quote").click()
-    expect(page.locator(".done-note")).to_have_text("Chart quote confirmed.")
-    expect(page.locator(".stage-tag")).to_have_text("Dentist review")
+    page.get_by_role("button", name="Yes, it says this").click()
+    expect(page.locator(".done-note")).to_have_text("Chart note confirmed.")
+    on_step(page, "Dentist review")
     shot(page, "tremblay-quote-confirmed")
 
-    # Dentist's worklist, then criteria in one pass.
+    # Dentist's board, then criteria in one pass.
     act_as(page, "dentist")
     page.goto(base + "/")
     expect(page.locator("h1")).to_contain_text("waiting on you")
-    shot(page, "dentist-worklist")
+    shot(page, "dentist-board")
     page.goto(base + "/cases/tremblay")
     page.get_by_role("button", name="Set the rest to Met").click()
     flagged = page.locator(".crit[data-needs-look]")
@@ -62,38 +66,40 @@ with sync_playwright() as p:
     act_as(page, "coordinator")
     page.goto(base + "/cases/fontaine")
     page.get_by_role("button", name="Mark as sent").click()
-    expect(page.locator(".stage-tag")).to_have_text("Waiting on Sun Life")
+    on_step(page, "With Sun Life")
     shot(page, "fontaine-sent")
 
     page.goto(base + "/cases/park")
     page.locator('.choice-cards label:has-text("Approved")').click()
     page.fill('textarea[name="reason"]', "")
     page.get_by_role("button", name="Record decision").click()
-    expect(page.locator(".stage-tag")).to_have_text("Book the crown")
+    on_step(page, "Decision back")
+    expect(page.locator(".now-head h2")).to_have_text("Book the crown")
     shot(page, "park-approved")
 
     page.goto(base + "/cases/nguyen")
     page.fill('input[name="on"]', "2026-09-29")
     page.get_by_role("button", name="Mark as booked").click()
-    expect(page.locator(".stage-tag")).to_have_text("Booked")
+    expect(page.locator(".now-head h2")).to_contain_text("Crown booked for")
     shot(page, "nguyen-booked")
 
     page.goto(base + "/cases/marchand")
     page.get_by_role("button", name="Start resubmission").click()
-    expect(page.locator(".stage-tag")).to_have_text("Dentist review")
+    on_step(page, "Dentist review")
     expect(page.locator(".attempts")).to_contain_text("Attempt 1")
     shot(page, "marchand-resubmitted")
 
     # Recover: log a call.
     page.goto(base + "/recover")
     first = page.locator(".call").first
+    first.get_by_text("Add a note").click()
     first.locator('input[name="note"]').fill("Wants it done before year end")
     first.get_by_role("button", name="Rebooking").click()
     expect(page.locator(".done-note")).to_have_text("Follow-up saved.")
     shot(page, "recover-followup")
 
     page.goto(base + "/")
-    shot(page, "worklist-after")
+    shot(page, "board-after")
     page.goto(base + "/results")
     shot(page, "results-after")
     b.close()

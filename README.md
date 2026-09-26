@@ -26,19 +26,18 @@ unset USE_MOCK_PMS_API; make demo # real (default)
 # scripts/demo-real.sh / scripts/demo-mock.sh do the same
 ```
 
-Screens: **Worklist** (every open preauthorization grouped by the step it is on: fix chart gaps → dentist
-review → send to Sun Life → waiting on Sun Life → book the crown / resubmit; each row has one next step, a
-send-by date and a four-week timeline to the appointment with Sun Life's usual 7-day turnaround hatched; the
-dentist sees only their own pile) → **Case** (the steps from chart to chair, each tagged with who does it; the
-current step opens with its action: chart gaps with their clause, the dentist's criteria form, send, record
-Sun Life's decision, book, or resubmit / reconsider) → **Packet** (PDF preview, narrative, the dentist's
-signature, then send instructions and "next case" for the dentist) → **Recover** (past denials never
-resubmitted, as a call list) → **Results** (treatment in progress, gaps caught before sending, Sun Life's
-recorded decisions, past denials won back, estimated staff time, the 12-month look-back) → **Settings & audit**.
-`make demo` seeds five cases past sign-off so every stage has an example; `scripts/app-serve.sh` serves the
-app with fresh throwaway state, `scripts/app-flow.py` drives the whole lifecycle in a browser, and
-`scripts/app-qa.py` checks phone overflow, focus and contrast. Design record: `docs/plan/06-clinic-worklist.md`
-(it supersedes the screens in `docs/reviews/2026-09-24-app-redesign.md`).
+Screens: **Board** (a kanban board, one column per step: fix chart → dentist review → ready to send → with Sun
+Life → decision back → booked; each card shows the patient, one next action and a deadline chip; the viewer's
+own cards are solid, everyone else's are outlined; "Start here" names the single most urgent action) → **Case**
+(a stepper that mirrors the board's columns, one "Now" panel with the current step's action, then the
+requirements, chart evidence and patient details folded away) → **Packet** (the dentist signs at the top, PDF
+preview, narrative editing folded away) → **Past denials** (denials never resubmitted, as a call list) →
+**Results** → **Settings & audit**. "View as" in the header switches between the coordinator and the dentist.
+`make demo` seeds five cases past sign-off so every column has an example; `scripts/app-serve.sh` serves the
+app with fresh throwaway state, `scripts/app-reshoot.sh` restarts it and screenshots screens,
+`scripts/app-flow.py` drives the whole lifecycle in a browser, and `scripts/app-qa.py` checks phone overflow,
+focus and contrast. Design record: `docs/plan/07-kanban-board.md` (it supersedes the screens in
+`docs/plan/06-clinic-worklist.md`).
 
 Other entry points:
 
@@ -70,7 +69,7 @@ ophi/demo                      seeds the demo timeline through the real service 
 ophi/packet                    packet assembler: index, treatment form, plates, perio render, narrative, manifest
 ophi/verify                    independent verifier — shares no code with the assembler
 ophi/lookback                  re-derives documentation gaps for past submissions
-ophi/web                       FastAPI + Jinja2 app: worklist, case, packet, recover, results, settings
+ophi/web                       FastAPI + Jinja2 app: board, case, packet, past denials, results, settings
 ```
 
 `docs/architecture.md` explains the decisions. `PLAN.md` is the master plan; `docs/research/` is the

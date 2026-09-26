@@ -19,26 +19,32 @@ def svc(tmp_path):
     return s
 
 
-def test_worklist_groups_by_step_in_lifecycle_order_and_flags_late_appointments(svc):
-    w = present.worklist(svc.queue(), ACTORS["coordinator"], svc.today())
-    assert [g["label"] for g in w["groups"]] == ["Fix chart gaps", "Dentist review", "Send to Sun Life", "Waiting on Sun Life", "Book the crown", "Resubmit"]
-    assert w["headline"] == "8 preauthorizations need you"
-    assert [r["case"].case_id for r in w["late"]] == ["kowalchuk", "deng"]  # appointments inside Sun Life's 7 days
-    assert [r["case"].case_id for r in w["overdue"]] == ["okafor"]  # at Sun Life longer than 7 days
+def test_board_puts_each_case_in_its_step_and_starts_with_the_late_appointment(svc):
+    b = present.board(svc.queue(), ACTORS["coordinator"], svc.today())
+    cols = {c["key"]: [x["case"].case_id for x in c["cards"]] for c in b["columns"]}
+    assert list(cols) == ["prepare", "dentist", "send", "sun_life", "decision", "done"]
+    assert cols["prepare"][:2] == ["kowalchuk", "deng"]  # appointments inside Sun Life's 7 days come first
+    assert cols["sun_life"] == ["okafor", "park"]  # the longest wait first
+    assert b["start"]["case"].case_id == "kowalchuk" and "Move it, or tell the patient" in b["start"]["advice"]
+    assert b["headline"] == "9 cases need you"  # okafor counts: past 7 days, the mailbox needs checking
+    mine = {x["case"].case_id: x["mine"] for c in b["columns"] for x in c["cards"]}
+    assert not mine["whitfield"] and not mine["park"] and mine["okafor"]
 
 
-def test_dentist_sees_only_their_pile(svc):
-    w = present.worklist(svc.queue(), ACTORS["dentist"], svc.today())
-    assert [g["label"] for g in w["groups"]] == ["Waiting on you", "You can confirm criteria now"]
-    assert [r["case"].case_id for r in w["groups"][0]["rows"]] == ["whitfield"]
-    assert [r["case"].case_id for r in w["groups"][1]["rows"]] == ["tremblay"]  # films and perio current; paperwork left
-    assert w["groups"][1]["rows"][0]["next"]["title"] == "Confirm 10 clinical criteria"
+def test_dentist_board_marks_only_their_cases(svc):
+    b = present.board(svc.queue(), ACTORS["dentist"], svc.today())
+    mine = [x for c in b["columns"] for x in c["cards"] if x["mine"]]
+    assert [x["case"].case_id for x in mine] == ["tremblay", "whitfield"]  # films and perio current: criteria can start
+    assert b["start"]["case"].case_id == "tremblay" and b["start"]["action"]["title"] == "Confirm 10 clinical criteria"
+    assert b["headline"] == "2 cases are waiting on you"
 
 
-def test_runway_shares_one_four_week_scale():
-    assert present.runway(14) == {"appt": 50.0, "win": 25.0, "win_w": 25.0, "beyond": False, "late": False, "days": 14}
-    assert present.runway(3)["late"] and present.runway(3)["win"] == 0
-    assert present.runway(40)["beyond"] and present.runway(-1) is None
+def test_timing_chips_name_the_deadline_for_the_step(svc):
+    chips = {v.case.case_id: present.timing(v, svc.today()) for v in svc.queue()}
+    assert (chips["kowalchuk"]["text"], chips["kowalchuk"]["tone"]) == ("Late for Sep 20 crown", "bad")
+    assert (chips["singh"]["text"], chips["singh"]["tone"]) == ("Send today", "warn")
+    assert chips["whitfield"]["text"] == "Sign by Sep 24"
+    assert (chips["okafor"]["text"], chips["okafor"]["tone"]) == ("Sent 8 days ago", "warn")
 
 
 def test_case_steps_open_the_current_step_and_hold_criteria_until_the_films_are_current(svc):
