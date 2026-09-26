@@ -86,6 +86,7 @@
         {% if it.auto %}<p class="gap-effect">Ophi does this when you press {{ 'Apply it' if fx.apply.open|length == 1 else 'Apply all' }}.</p>{% endif %}
         {% if it.effect %}<p class="gap-effect effect-{{ it.effect }}">{{ {'most': 'Lowers denial risk the most', 'some': 'Lowers denial risk a little', 'none': 'No clear effect on denial risk in past decisions. Still required by CDCP.'}[it.effect] }}</p>
         {% elif fx.risk and not it.auto %}<p class="gap-effect effect-none">Not scored against past decisions. Still required by CDCP.</p>{% endif %}
+        {% if it.concern == 'timing' %}<p class="gap-effect">Do this first, then send.</p>{% endif %}
         {% if g and g.hint %}<p class="gap-hint">{{ g.hint }}</p>{% endif %}
         {% if g and g.action.action_type == 'check_source' %}<p class="note">Your PMS couldn't show Ophi this part of the chart. Check the imaging software before treating it as missing.</p>{% endif %}
         {% if g and g.proposal %}{% set pl = g.proposal.payload %}

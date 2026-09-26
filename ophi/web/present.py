@@ -295,7 +295,7 @@ def fix_panel(view: CaseView, readout: Readout | None, pack: RulePack, gaps: lis
         live = _still_open(plan, view)
         staff = [f for f in live if f["kind"] in ("auto", "task") and f["who"] != "dentist"]
         top = max((f.get("risk_drop") or 0 for f in staff), default=0)
-        out["dentist"] = [f for f in live if f.get("concern") or f["kind"] == "draft" or (f["kind"] == "task" and f["who"] == "dentist")]
+        out["dentist"] = [f for f in live if f["kind"] == "draft" or (f["who"] == "dentist" and (f.get("concern") or f["kind"] == "task"))]
         for f in staff:
             g = gap_of.get(f.get("requirement_id"))
             if g is not None and id(g) in shown:
@@ -315,7 +315,8 @@ def _item(view: CaseView, pack: RulePack, gap: dict | None, fix: dict | None, ef
     auto = rid in fixes.open_on(view.assessment)
     title = fixes.title(view.case, rid, pack) if auto else gap["title"] if gap else fix["title"]
     req = view.assessment.requirement(rid) if rid else None
-    return {"title": title, "auto": auto, "effect": effect, "gap": gap, "why": (fix or {}).get("why") or (act.why if act else ""),
+    return {"title": title, "auto": auto, "effect": effect, "gap": gap, "concern": (fix or {}).get("concern"),
+            "why": (fix or {}).get("why") or (act.why if act else ""),
             "clause": (fix or {}).get("clause") or (req.clause if req else None)}
 
 
