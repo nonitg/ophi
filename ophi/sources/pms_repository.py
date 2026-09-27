@@ -274,11 +274,14 @@ class AbelDentPmsRepository:
         return list(self._cases())
 
     def get_case(self, case_id: str) -> Case:
-        return self._cases()[case_id]
+        try:
+            return self._cases()[case_id]
+        except KeyError:
+            raise FileNotFoundError(f"No case '{case_id}' among the VM's planned crowns") from None
 
     def get_cases(self, case_ids: list[str] | None = None) -> list[Case]:
         cases = self._cases()
-        return [cases[cid] for cid in (case_ids if case_ids is not None else cases)]
+        return [self.get_case(cid) for cid in (case_ids if case_ids is not None else cases)]
 
     def planned_patient_ids(self) -> list[int]:
         mod = self._load_chart_dump()

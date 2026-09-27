@@ -89,6 +89,10 @@ def test_abeldent_cases_are_the_planned_crowns_from_its_charts(monkeypatch):
     assert (case.patient.patient_id, case.treatment.code, case.requested_tooth) == ("158", "27211", 24)
     assert case.treatment.appointment_date.isoformat() == "2026-10-06"  # the booked crown visit
 
+    # An unknown id must read as a missing case, not a KeyError: the web app turns FileNotFoundError into a 404 page.
+    with pytest.raises(FileNotFoundError):
+        repo.get_case("nope")
+
 
 def test_service_uses_repository():
     try:
