@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import logging
 import os
 import shutil
 import threading
@@ -84,6 +85,9 @@ def identity_tokens(case: Case) -> list[str]:
     return [t for t in raw if len(t) >= 3]
 
 
+log = logging.getLogger("uvicorn.error")
+
+
 class SignOff(BaseModel):
     signed_by: str
     licence: str | None
@@ -105,11 +109,30 @@ class Decision(BaseModel):
     recorded_at: datetime
 
 
+class Sent(BaseModel):
+    """The request as it actually went out: the chart in export shape and Ophi's reading of it, frozen on the
+    send date. A case can go to Sun Life any number of times, and each attempt changes the chart, so a training
+    row labelled with one attempt's decision has to carry that attempt's chart and not today's."""
+
+    export: dict
+    assessment: dict
+    # The signature this request went out under, kept here because `start_resubmission` clears the case's
+    # sign-off (the dentist attests to each request), so an archived attempt could not otherwise say whether
+    # a dentist ever attested to it. An ABELDent-synced send and a signed packet send read the same otherwise.
+    sign_off: SignOff | None = None
+
+    @property
+    def signed(self) -> bool:
+        """Signed for the chart in this snapshot, not merely at some point on this case."""
+        return self.sign_off is not None and self.sign_off.assessment_id == self.assessment.get("assessment_id")
+
+
 class Attempt(BaseModel):
     """An earlier submission of this case, kept when staff start a resubmission."""
 
     submitted_on: date
     decision: Decision
+    sent: Sent | None = None  # absent only on attempts made before snapshots were kept
 
 
 class Ask(BaseModel):
@@ -141,6 +164,7 @@ class CaseState(BaseModel):
     decision: Decision | None = None
     booked_on: date | None = None
     attempts: list[Attempt] = Field(default_factory=list)
+    snapshot: Sent | None = None  # the request now with Sun Life, frozen as it was sent
     ask: Ask | None = None
     pms_synced: list[str] = Field(default_factory=list)  # "<claim id>:sent" / ":decision" steps already taken from the PMS
     first_check: FirstCheck | None = None
@@ -299,6 +323,7 @@ class CaseService:
         pms_claims: Callable[[], list[Predetermination]] | None = None,
         note_reader: Callable[[str], str | None] | None = None,
         lookback_report: Callable[[], LookBackReport] | None = None,
+        record_outcome: Callable[[str, int, date, str, str | None], None] | None = None,
     ) -> None:
         """`pms_claims` reads the predeterminations the PMS sent; `note_reader` names the REASONS key in Sun Life's
         note text. Both are optional: without them staff record every step by hand. `lookback_report` reads the
@@ -310,6 +335,8 @@ class CaseService:
         self.weights = weights
         self.pms_claims, self.note_reader = pms_claims, note_reader
         self.lookback_report = lookback_report
+        # Sun Life's answer to a request Ophi ran, kept for training; without it nothing is learned from it.
+        self.record_outcome = record_outcome
         self._pms: dict[str, Predetermination] = {}  # case id -> its predetermination at the last sync
         self.clock = clock or self._chart_clock
         self._chart_day: tuple[date, date] | None = None  # (real day it was computed, chart day)
@@ -417,8 +444,7 @@ class CaseService:
             st = self.store.load(cid)
             sent, decided = f"{claim.claim_id}:sent", f"{claim.claim_id}:decision"
             if sent not in st.pms_synced and st.submitted_on is None and claim.answer_at != "rejected":
-                st.submitted_at, st.submitted_on = self.now(), claim.sent_on
-                self.store.save(cid, st)
+                self._record_sent(cid, st, claim.sent_on)
                 signed = st.sign_off is not None and st.sign_off.signed_at.date() <= claim.sent_on
                 self.audit(cid, "ABELDent", "mark_submitted", f"sent to Sun Life on {claim.sent_on.isoformat()} from ABELDent"
                            + ("" if signed else ", without a sign-off in Ophi"))
@@ -551,6 +577,24 @@ class CaseService:
         self.audit(case_id, by, "sign_off", f"assessment {so.assessment_id}, narrative sha256 {so.narrative_sha256[:12]}")
         return so
 
+    def _snapshot(self, case_id: str, st: CaseState) -> Sent | None:
+        """The chart, Ophi's reading of it and the signature it went out under, as the request goes out.
+        Best effort: a chart Ophi cannot read is not a reason to refuse to record that the clinic sent it."""
+        from ophi.outcomes.case_export import to_export
+        try:
+            v = self.view(case_id)
+            return Sent(export=to_export(v.case), assessment=v.assessment.model_dump(mode="json"), sign_off=st.sign_off)
+        except Exception:  # noqa: BLE001 — any unreadable chart
+            log.warning("no send snapshot for %s: this attempt cannot become a training row", case_id, exc_info=True)
+            return None
+
+    def _record_sent(self, case_id: str, st: CaseState, on: date) -> None:
+        """Both ways a request reaches Sun Life: staff sending a signed packet, and the PMS reporting one it
+        already sent. The snapshot is taken here so neither path can leave an attempt without its chart."""
+        st.snapshot = self._snapshot(case_id, st)  # while the sign-off is still on the case
+        st.submitted_at, st.submitted_on = self.now(), on
+        self.store.save(case_id, st)
+
     def mark_submitted(self, case_id: str, by: str, on: date | None = None) -> None:
         """Staff sent the signed packet through their PMS. Ophi never transmits; this records that they did."""
         v = self.view(case_id)
@@ -561,9 +605,7 @@ class CaseService:
         self._not_future(on, "the send date")
         if on < v.state.sign_off.signed_at.date():
             raise ValueError("the send date is before the dentist signed")
-        st = v.state
-        st.submitted_at, st.submitted_on = self.now(), on
-        self.store.save(case_id, st)
+        self._record_sent(case_id, v.state, on)
         self.audit(case_id, by, "mark_submitted", f"sent to Sun Life on {on.isoformat()} through the PMS")
 
     def record_decision(self, case_id: str, outcome: str, decided_on: date, reason: str | None, by: str,
@@ -588,6 +630,8 @@ class CaseService:
                                reason_key=reason_key, recorded_by=by, recorded_at=self.now())
         self.store.save(case_id, st)
         self.audit(case_id, by, "record_decision", f"Sun Life {outcome} on {decided_on.isoformat()}" + (f": {st.decision.reason}" if st.decision.reason else ""))
+        if self.record_outcome:  # the chart still describes what was sent; a resubmission's fixes come after this
+            self.record_outcome(case_id, len(st.attempts) + 1, st.submitted_on, outcome, reason_key)
 
     def start_resubmission(self, case_id: str, by: str, reason_key: str | None = None) -> None:
         """A denied case starts over as a new request. The earlier attempt is kept; the old sign-off is not,
@@ -599,8 +643,10 @@ class CaseService:
         if reason_key is not None and reason_key not in REASONS:
             raise ValueError(f"no denial reason '{reason_key}'")
         _, title, stage = REASONS.get(reason_key, (None, None, None))
-        st.attempts.append(Attempt(submitted_on=st.submitted_on, decision=st.decision.model_copy(update={"reason_key": reason_key})))
+        st.attempts.append(Attempt(submitted_on=st.submitted_on, decision=st.decision.model_copy(update={"reason_key": reason_key}),
+                                   sent=st.snapshot))
         st.sign_off, st.submitted_at, st.submitted_on, st.decision = None, None, None, None
+        st.snapshot = None  # the next attempt takes its own when it is sent
         st.ask = Ask(reason_key=reason_key, title=title, stage=stage, since=self.today()) if title else None
         self.store.save(case_id, st)
         self.audit(case_id, by, "start_resubmission", f"attempt {len(st.attempts) + 1}" + (f": {title}" if title else ""))
@@ -671,7 +717,7 @@ class CaseService:
         elif step == "decision" and st.decision and not st.booked_on:
             st.decision = None
         elif step == "sent" and st.submitted_on and not st.decision:
-            st.submitted_at, st.submitted_on = None, None
+            st.submitted_at, st.submitted_on, st.snapshot = None, None, None
         else:
             raise PermissionError(f"'{step}' is not the latest step on this case")
         self.store.save(case_id, st)

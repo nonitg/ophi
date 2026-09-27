@@ -220,6 +220,15 @@
         <form method="post" action="{{ BASE }}/cases/{{ cid }}/resubmit" class="stack">
           {% if key %}
           <p class="note">Ophi read Sun Life's reason as <b>{{ reasons[key][0]|lower }}</b>.{% if reasons[key][2] %} The case goes to {{ STAGE_LABEL[reasons[key][2]] }} to {{ reasons[key][1]|lower }}.{% endif %}</p>
+          {% set d = denial_for(key) %}
+          {% if d.criteria %}
+          <div class="note"><b>What that reason points to in the rule pack</b>
+            <ul class="plain">
+              {% for c in d.criteria %}<li>{{ c.label }} — Ophi read this as {% if c.short %}not documented{% else %}documented{% endif %} when the request went out.</li>{% endfor %}
+            </ul>
+            {% if d.blind_spot %}<p class="mt-6">Ophi read every one of these as documented, so the rule pack is what missed here, not the chart.</p>{% endif %}
+          </div>
+          {% endif %}
           {% endif %}
           <details class="reveal"><summary class="btn btn-sm">{% if key %}Not what the letter says?{% else %}Pick the reason yourself{% endif %}</summary>
             <label class="field"><span>What Sun Life's reason points to</span>

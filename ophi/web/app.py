@@ -29,7 +29,7 @@ from fastapi.templating import Jinja2Templates
 from ophi import db_store, demo, fixes, letters, workflow
 from ophi.callscript import draft_call_script
 from ophi.engine.models import Status
-from ophi.outcomes import past_store, past_view, readout, similar, store
+from ophi.outcomes import from_live, past_store, past_view, readout, similar, store, why_denied
 from ophi.outcomes.live import LiveScorer
 from ophi.outcomes.weights import load as load_weights
 from ophi.packet.build import build_packet
@@ -336,7 +336,10 @@ def _case_ctx(request: Request, view: CaseView, rd) -> dict:
                 criteria=relevant, crit=present.criteria_groups(view, relevant), criteria_other=other, activity=present.activity(svc.store.audit_log(case_id)),
                 applicable=[r for r in view.assessment.requirements if r.applicable],
                 not_applicable=[r for r in view.assessment.requirements if not r.applicable],
-                reasons=workflow.REASONS)
+                reasons=workflow.REASONS,
+                # A callable, not a value: the reason can come from the letter just read (`proposed`) or
+                # from the recorded decision, and only the template knows which it is showing.
+                denial_for=lambda key: why_denied.explain_denial(view.assessment, key, view.pack))
 
 
 @router.post("/cases/{case_id}/assert")
@@ -882,6 +885,8 @@ def create_app(svc: CaseService | None = None, packets_dir: Path | None = None, 
                    and os.environ.get("OPHI_LIVE_ML", "1").strip().lower() not in ("0", "false", "off", "no"))
     live = LiveScorer(svc.pack_for) if live_ml else None
     past = past_store.Cached(store.connect)  # lazy: no database is touched until a page reads past requests
+    if own and svc.record_outcome is None:  # a test's own service stays off the outcomes database
+        svc.record_outcome = from_live.sink(svc)
     if live:
         live.clinic_rate = lambda case: similar.clinic_denial_rate(past, store.connect, case)
 
