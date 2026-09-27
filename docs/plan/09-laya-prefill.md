@@ -30,7 +30,7 @@ with a "Set the rest to Met" button that ticked rows without weighing the chart.
    pocket is over 4 mm and no 4 mm site bleeds), the RCT date against the latest PA, and the odontogram for third
    molars. Laya's 7 calibrated note answers add support at 0.7 and contradict above 0.5 (the fixer's own flag).
 4. **Films are named, not read.** Crown-to-root ratio, margin, ferrule, adjunctive work, mesio-distal space and
-   endo healing are judged on the radiograph. Ophi can't see images, so those rows sit under "Check these on the PA
+   endo healing are judged on the radiograph. Ophi can't see images, so those rows sit under "Look at the PA
    of #N" and are pre-filled from the note only. Mesio-distal space has no chart or note signal and is always the
    dentist's call.
 5. **Laya's note answers outlive a new film.** The fix plan is keyed to the whole request text, so a new PA voids it.

@@ -338,15 +338,15 @@ def test_skip_gaps_to_test_moves_the_case_on_and_restore_brings_them_back(client
 def test_dentist_confirms_ophis_pre_fills_in_one_submit(client):
     as_dentist(client)
     page = client.get("/cases/tremblay").text
-    assert "Ophi pre-filled 9 of 10" in page and "1 needs your call" in page
+    assert "1 needs your call." in page and "Laya pre-filled the other 9" in page
     assert page.count('checked') == 9  # the suggestions are selected, not recorded
     form = dict(re.findall(r'name="(value_\w+)" value="(\w+)" checked', page))
     form["value_mesiodistal_space"] = "met"  # the one Ophi left to the dentist
     form["value_ferrule_1_5mm"] = "not_met"  # and one they change
     assert client.post("/cases/tremblay/assert/bulk", data=form).status_code == 303
     log = [e.detail for e in client.app.state.svc.store.audit_log("tremblay")]
-    assert "margin_3mm=met, as Ophi pre-filled" in log
-    assert "ferrule_1_5mm=not_met, Ophi pre-filled met" in log
+    assert "margin_3mm=met, as Laya pre-filled" in log
+    assert "ferrule_1_5mm=not_met, Laya pre-filled met" in log
     assert "mesiodistal_space=met" in log
     assert "kept <b class=\"num\">8</b> of 9 pre-fills" in client.get("/model").text
 
