@@ -22,3 +22,12 @@ def test_scores_every_open_and_board_reuses_it_until_the_chart_changes():
     assert live.latest(case) is rd and Counting.calls == calls  # board: same chart, no new run
     live.score(case)
     assert Counting.calls > calls  # case page: always runs
+
+
+def test_warm_cases_scores_in_the_background_so_the_case_page_never_waits():
+    svc = CaseService()
+    cases = [svc.base_case(cid) for cid in ("kowalchuk", "deng")]
+    live = LiveScorer(lambda _case: default_pack(DEMO_DAY), model=Counting())
+    live.warm_cases(cases)
+    live._warming.acquire()  # the sweep releases it when every case is scored
+    assert all(live.cached(c) is not None for c in cases)
