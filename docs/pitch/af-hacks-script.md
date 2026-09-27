@@ -172,14 +172,15 @@ the payers. Hold for 3 s.]
 
 ## 4:24–4:59 · Team, traction, plan (FOUNDER CAM, black screen)
 
-> **Nonit:** I'm Nonit Gupta. I've spent two years building health tech.
-> **Jinay:** I'm Jinay Patel, our lead integration engineer. I build the low-level systems that read practice software directly, and I led software for a world-championship robotics team.
-> **Nonit:** Two clinics have already booked demos. On Monday we start a ten-week field plan: free reviews of Ontario clinics' recent denials. By December, forty cases reviewed and two design partners signed.
-> **Jinay:** And a clear test. If more than twenty percent of those denials could have been turned around, we build. Under eight percent, we rethink.
+> **Nonit:** I'm Nonit Gupta. I've spent two years building software for Canadian clinics.
+> **Jinay:** I'm Jinay Patel. I build the part of Ophi that reads the practice software directly, and I led software for a world-championship robotics team.
+> **Nonit:** Two clinics have already booked demos. Now we're reviewing Ontario clinics' recent denials for free: forty cases and two design partners by December.
+> **Jinay:** Our bar: if Ophi could have prevented one in five of those denials, we take it national.
 
 ## 4:59–5:09 · Close (FOUNDER CAM, black screen)
 
-> Canada already paid for the coverage. Ophi makes sure that money buys treatment, not paperwork, one clinic at a time.
+> **Jinay:** Canada already covers Teresa's crown.
+> **Nonit:** Ophi makes sure the money buys treatment, not paperwork.
 
 ## 4:52–5:00 · End card (no voice)
 
@@ -232,3 +233,14 @@ AF Hacks: Growing Canada 2026. Sources in small type.]
 - New in the demo: follow-up monitoring after send, and the letter read into a named reason and next step.
 - New value pillar: past denials never resubmitted, with a drafted call to each patient.
 - Pass-2 fixes from docs/reviews/2026-09-27-pitch-video-v1.md go in with the rebuild.
+
+## Changes in v5 (founder cam)
+
+- Team lines cut from ~95 to 76 words (~30 s at 150 wpm), so non-actors land them in 35 s with handoffs to spare.
+- Each founder line says what they do for Ophi: Nonit builds clinic software; Jinay builds the chart reader
+  from the vision's first layer.
+- "On Monday" is now "Now", so the line stays true whenever a judge watches.
+- The test keeps only the go bar, as "one in five", which is easier to hear than a percentage. The internal
+  stop bar (under 8% preventable, rethink) stays in the plan, not the pitch, so the section ends on momentum.
+- The close calls back to Teresa, right before the end card stamps her crown booked, and drops "one clinic at
+  a time", which undersold the national vision. Split across both founders.

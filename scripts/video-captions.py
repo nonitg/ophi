@@ -81,10 +81,12 @@ def main():
     for sec, title, lines in (("team", "Team, traction, plan", team), ("close", "Close", close)):
         a, b = starts[sec], starts[nxt[sec]]
         md += [f"## {title}: {mmss(a)} → {mmss(b)} ({b - a:.0f} s)", ""] + [f"> {l}" for l in lines] + [""]
+    team_words = sum(len(re.sub(r"\*\*\w+:\*\*", "", l).split()) for l in team)
     md += [
-        "Timing tips: the team window fits about 95 words at a relaxed pace, so the four lines above land at about",
-        "34 s. Leave half a second of silence at each end, so the cut from the vision scene and into the end card",
-        "breathes.",
+        f"Timing tips: the team lines are {team_words} words, about {team_words / 150 * 60:.0f} s at a to-camera pace of 150 wpm,",
+        "which leaves room for the speaker handoffs. Leave half a second of silence at each end, so the cut from the",
+        "vision scene and into the end card breathes. Shoot both windows as one side-by-side two-shot take, then",
+        "cut it in two: no cutaways to line up.",
         "",
         f"Section map: " + " · ".join(f"{s} {mmss(starts[s])}" for s in ORDER),
         "",
