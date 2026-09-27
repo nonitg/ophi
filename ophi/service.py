@@ -302,7 +302,7 @@ class CaseService:
             from ophi.sources.pms_repository import (
                 AbelDentPmsRepository,
                 FileSystemPmsRepository,
-                MockPmsRepository,
+                create_auto_repository,
                 should_use_abeldent,
                 should_use_mocks,
             )
@@ -310,7 +310,7 @@ class CaseService:
             if should_use_abeldent():
                 self.repository = AbelDentPmsRepository()
             elif should_use_mocks():
-                self.repository = MockPmsRepository()
+                self.repository = create_auto_repository()
             else:
                 self.repository = FileSystemPmsRepository(cases_dir)
 

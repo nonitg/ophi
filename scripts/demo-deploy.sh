@@ -11,7 +11,7 @@ origin="https://ophi-demo-nonitgs-projects.vercel.app"  # DEMO_ORIGIN in site/ne
 
 mkdir -p "$stage"
 rsync -a --delete --exclude .vercel --exclude __pycache__ --exclude "*.pyc" \
-  --include "/ophi/***" --include "/packs/***" --include "/cases/***" \
+  --include "/ophi/***" --include "/packs/***" --include "/cases/***" --include "/mocks/***" \
   --include "/pyproject.toml" --include "/uv.lock" --exclude "*" ./ "$stage/"
 
 echo "3.13" > "$stage/.python-version"  # the version the test suite runs on
@@ -20,6 +20,7 @@ import os
 
 os.environ.setdefault("OPHI_BASE_PATH", "/$SLUG")
 os.environ.setdefault("OPHI_VAR_DIR", "/tmp/ophi")
+os.environ.setdefault("USE_MOCK_PMS_API", "true")  # the clinic's own PMS, recorded: the same board without the VM
 
 from ophi.web.app import app  # noqa: E402,F401
 PY

@@ -316,6 +316,52 @@ def _in_list(pids: list[int]) -> str:
 
 
 # ---------------------------------------------------------------------------
+# Recorded implementation — replays a snapshot of the live PMS
+# ---------------------------------------------------------------------------
+
+DEFAULT_SNAPSHOT = DEFAULT_MOCKS_DIR / "pms" / "snapshot.json"
+
+
+def sql_key(query: str, params: dict | None) -> str:
+    """One key per distinct query+binding, so a recording can be looked up on replay."""
+    return json.dumps([" ".join(query.split()), params], sort_keys=True, default=str)
+
+
+class RecordedPmsRepository(AbelDentPmsRepository):
+    """The live repository with the VM replaced by a recording (scripts/record-pms-snapshot.py).
+
+    Everything above the wire is the real code: cases, crown choice and the Look-Back are rebuilt from the
+    recorded charts on each run, so the board is judged as of today, not as of the recording. Only queries the
+    recording holds can be answered; anything else comes back empty, as a page whose data was never recorded.
+    """
+
+    def __init__(self, snapshot: Path | None = None, **kwargs) -> None:
+        super().__init__(**kwargs)
+        self.snapshot_path = Path(snapshot) if snapshot else DEFAULT_SNAPSHOT
+        data = json.loads(self.snapshot_path.read_text())
+        self.recorded_at = data.get("recorded_at")
+        self._planned = [int(p) for p in data.get("planned_pids", [])]
+        self._charts = {int(pid): chart for pid, chart in data.get("charts", {}).items()}
+        self._sql = {sql_key(e["query"], e.get("params")): e["rows"] for e in data.get("sql", [])}
+
+    def sql(self, query: str, params: dict | None = None) -> list[dict]:
+        key = sql_key(query, params)
+        if key not in self._sql:
+            log.warning(f"Recorded PMS has no answer for this query; returning no rows: {' '.join(query.split())[:120]}")
+            return []
+        return self._sql[key]
+
+    def planned_patient_ids(self) -> list[int]:
+        return list(self._planned)
+
+    def fetch_patient_charts(self, pids: list[int]) -> dict[int, dict]:
+        return {pid: self._charts[pid] for pid in pids if pid in self._charts}
+
+    def fetch_raw(self, pids: list[int]) -> dict:
+        raise NotImplementedError("The recording holds built charts, not raw PMS rows")
+
+
+# ---------------------------------------------------------------------------
 # Mock implementation — reads from mocks/*.json
 # ---------------------------------------------------------------------------
 
@@ -483,7 +529,7 @@ def create_repository(kind: str = "filesystem", **kwargs) -> PmsRepository:
     """Create a repository by kind.
 
     Args:
-        kind: "filesystem" (default), "abeldent", "mock", or "auto".
+        kind: "filesystem" (default), "abeldent", "mock", "recorded", or "auto".
               "auto" inspects env vars via should_use_mocks() and returns
               MockPmsRepository when mock toggle is ON, else FileSystem.
         **kwargs: forwarded to the concrete constructor (e.g. cases_dir, vm_path, mocks_dir)
@@ -494,13 +540,17 @@ def create_repository(kind: str = "filesystem", **kwargs) -> PmsRepository:
         return AbelDentPmsRepository(**kwargs)  # type: ignore[arg-type]
     if kind == "mock":
         return MockPmsRepository(**kwargs)  # type: ignore[arg-type]
+    if kind == "recorded":
+        return RecordedPmsRepository(**kwargs)  # type: ignore[arg-type]
     if kind == "auto":
         if should_use_abeldent():
             return AbelDentPmsRepository(**kwargs)  # type: ignore[arg-type]
         if should_use_mocks():
+            if DEFAULT_SNAPSHOT.exists():  # the clinic's own PMS, recorded: the demo board without the VM
+                return RecordedPmsRepository(**kwargs)  # type: ignore[arg-type]
             return MockPmsRepository(**kwargs)  # type: ignore[arg-type]
         return FileSystemPmsRepository(**kwargs)  # type: ignore[arg-type]
-    raise ValueError(f"Unknown repository kind: {kind!r} (expected 'filesystem', 'abeldent', 'mock', or 'auto')")
+    raise ValueError(f"Unknown repository kind: {kind!r} (expected 'filesystem', 'abeldent', 'mock', 'recorded', or 'auto')")
 
 
 def create_auto_repository(**kwargs) -> PmsRepository:

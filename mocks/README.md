@@ -78,6 +78,22 @@ svc = CaseService()                        # auto: Mock when USE_MOCK_PMS_API=tr
 svc = CaseService(repository=MockPmsRepository(mocks_dir="mocks"))
 ```
 
+## Recorded PMS snapshot (`pms/snapshot.json`)
+
+The demo's mock data is a recording of the lab ABELDent, not hand-written fixtures: every chart, provider,
+appointment and predetermination the board asks for, kept verbatim. It is what the hackathon deployment reads.
+
+```bash
+python scripts/record-pms-snapshot.py          # re-record from the VM (needs lab/vm/vm)
+python scripts/recorded-pms-check.py           # recorded output == live output
+python scripts/recorded-pages-check.py         # every page renders with no VM in reach
+```
+
+`USE_MOCK_PMS_API=true` selects `RecordedPmsRepository` whenever the snapshot exists (else the JSON fixtures
+below). It subclasses `AbelDentPmsRepository` and replaces only the wire, so cases, crown choice and the
+Look-Back are rebuilt by the real code on every run — the board is judged as of today, not as of the recording.
+Queries the recording does not hold answer with no rows (the lab-only patient search, other days' schedules).
+
 ## Full chart fixtures
 
 `pms/chart_dump_101.json` — single crown (16, 27211) with bitewing history, perio full-mouth, one PA.

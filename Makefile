@@ -42,7 +42,7 @@ demo:             ## run the web app on http://127.0.0.1:8765 (real cases, defau
 demo-real:        ## run the web app with real filesystem cases (USE_MOCK_PMS_API off)
 	USE_MOCK_PMS_API=0 USE_MOCK_DATA=0 PMS_USE_MOCKS=0 $(PY) -m ophi.cli serve
 
-demo-mock:        ## run the web app with dummy mock fixtures (USE_MOCK_PMS_API=true)
+demo-mock:        ## run the web app on the recorded PMS, no VM (USE_MOCK_PMS_API=true)
 	USE_MOCK_PMS_API=true $(PY) -m ophi.cli serve
 
 demo-abeldent:    ## run the web app on live ABELDent VM data (USE_ABELDENT_PMS=true)
