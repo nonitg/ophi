@@ -20,7 +20,7 @@ from ophi.packet import documents, plates
 from ophi.packet.files import PacketFile, packet_filename
 from ophi.packet.labels import artifact_label, fmt_date, radiograph_descriptor
 from ophi.packet.narrative import draft_narrative
-from ophi.rules.loader import default_pack
+from ophi.rules.loader import pack_for
 from ophi.rules.schema import RulePack
 
 if TYPE_CHECKING:
@@ -40,7 +40,7 @@ class PacketBudgetError(RuntimeError):
 
 def build_packet(case: Case, assessment: Assessment, out_dir: Path, narrative_text: str | None = None,
                  sign_off: SignOff | None = None, pack: RulePack | None = None) -> dict:
-    pack = pack or default_pack()
+    pack = pack or pack_for(case)
     out_dir = Path(out_dir)
     _reset_dir(out_dir)
     text = narrative_text if narrative_text is not None else draft_narrative(case, assessment, pack)

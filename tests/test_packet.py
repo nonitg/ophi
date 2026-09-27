@@ -16,7 +16,7 @@ from ophi.extract.proposer import propose_for_case
 from ophi.packet.build import MAX_BYTES, MAX_FILES, build_packet
 from ophi.packet.narrative import draft_narrative, validate_narrative
 from ophi.packet.plates import render_radiograph_plate
-from ophi.rules.loader import default_pack
+from ophi.rules.loader import pack_for
 
 ROOT = Path(__file__).resolve().parents[1]
 CASES = sorted((ROOT / "cases" / "demo").glob("*.yaml"))
@@ -30,7 +30,7 @@ SPEC_KEYS = {"dpi", "bit_depth", "format", "colour", "pass"}
 def _assessed(path: Path):
     case = load_case(path)
     case = case.with_artifacts(propose_for_case(case))
-    return case, assess(case, default_pack())
+    return case, assess(case, pack_for(case))
 
 
 @pytest.fixture(params=CASES, ids=[p.stem for p in CASES])
@@ -83,7 +83,7 @@ def test_filenames_carry_no_patient_identity(built):
 
 def test_narrative_is_grounded_and_shipped_as_ascii(built):
     case, assessment, out, manifest = built
-    draft = draft_narrative(case, assessment, default_pack())
+    draft = draft_narrative(case, assessment, pack_for(case))
     assert validate_narrative(draft, case) == []
     txt = next(f for f in manifest["files"] if f["kind"] == "narrative_txt")
     body = (out / txt["filename"]).read_bytes()
@@ -110,7 +110,7 @@ def test_plates_are_8bit_greyscale_at_300_dpi(built):
 
 def test_narrative_variant_and_assertions_for_whitfield():
     case, assessment = _assessed(ROOT / "cases" / "demo" / "whitfield.yaml")
-    text = draft_narrative(case, assessment, default_pack())
+    text = draft_narrative(case, assessment, pack_for(case))
     assert "Dr. Priya Lau (ON-48213) confirmed on 2026-09-15: Adequate ferrule (1.5 mm)." in text
     assert "Non-endodontically treated: 5 continuous surfaces" in text
     assert "“36 five-surface amalgam" in text

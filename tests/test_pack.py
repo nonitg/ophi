@@ -10,6 +10,7 @@ import yaml
 from ophi.cdm.models import ArtifactType
 from ophi.rules.loader import PACKS_DIR, default_pack, load_pack
 from ophi.rules.schema import Clause, Find, FindP, OneOf, Predicate, RequireAll, RulePack
+from tests._cases import DEMO_DAY
 
 PACK_PATH = PACKS_DIR / "cdcp" / "2026-01-26" / "pack.yaml"
 
@@ -46,7 +47,7 @@ def test_loads_and_is_content_hashed(pack: RulePack):
     assert pack.id == "cdcp-preauth-crowns" and pack.version == "2026.01.26"
     assert pack.content_hash is not None and pack.content_hash.startswith("sha256:")
     assert len(pack.content_hash) == len("sha256:") + 64
-    assert default_pack().content_hash == pack.content_hash  # the default pack is this file
+    assert default_pack(DEMO_DAY).content_hash == pack.content_hash  # the default pack is this file
 
 
 def test_every_clause_cites_a_declared_source(pack: RulePack):

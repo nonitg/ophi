@@ -111,12 +111,19 @@ def _no_pending_codes_with_prefix(f: Fact, case: Case, pack: RulePack) -> LeafRe
 
 
 def _no_retired_codes(f: Fact, case: Case, pack: RulePack) -> LeafResult:
-    retired = {r.code: r for r in pack.schedule.retired_codes}
-    hits = [retired[c] for c in case.treatment.lab_codes if c in retired]
+    hits = [(c, chain) for c in case.treatment.lab_codes if (chain := pack.replacement_chain(c))]
     if not hits:
         return LeafResult(status=Status.SATISFIED, detail=f"lab codes {', '.join(case.treatment.lab_codes)} are current")
-    txt = "; ".join(f"{r.code} was replaced by {r.replaced_by} on 2026-04-01" for r in hits)
-    return LeafResult(status=Status.UNSATISFIED, shortfall=Shortfall(missing=[f"replace {', '.join(r.code for r in hits)}"], detail=txt), detail=txt)
+    txt = "; ".join(_retired_text(chain) for _, chain in hits)
+    return LeafResult(status=Status.UNSATISFIED, shortfall=Shortfall(missing=[f"replace {', '.join(c for c, _ in hits)}"], detail=txt), detail=txt)
+
+
+def _retired_text(chain) -> str:
+    """Each step with its own date: "99222 was replaced by 99112 on 2026-04-01, and 99112 by 99122 on 2027-04-01"."""
+    # the April 2026 swaps predate effective_on
+    steps = [f"{r.code} {'was replaced ' if i == 0 else ''}by {r.replaced_by} on {r.effective_on or '2026-04-01'}"
+             for i, r in enumerate(chain)]
+    return ", and ".join(steps)
 
 
 _HANDLERS = {

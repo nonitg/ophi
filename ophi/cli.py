@@ -11,13 +11,14 @@ from ophi.casegen.dsl import load_case
 from ophi.engine.assess import assess
 from ophi.extract.proposer import propose_for_case
 from ophi.outcomes.weights import load as load_weights
-from ophi.rules.loader import default_pack
+from ophi.rules.auto import PackEnv
+from ophi.rules.loader import default_pack, pack_for
 
 
 def cmd_assess(args: argparse.Namespace) -> int:
     case = load_case(Path(args.case))
     case = case.with_artifacts(propose_for_case(case))
-    a = assess(case, default_pack(), load_weights())
+    a = assess(case, pack_for(case), load_weights())
     if args.json:
         print(a.model_dump_json(indent=2))
         return 0
@@ -46,7 +47,7 @@ def cmd_packet(args: argparse.Namespace) -> int:
 
     case = load_case(Path(args.case))
     case = case.with_artifacts(propose_for_case(case))
-    a = assess(case, default_pack())
+    a = assess(case, pack_for(case))
     out = Path(args.out) / case.case_id
     manifest = build_packet(case, a, out)
     tokens = [t for t in [*case.patient.display_name.split(), case.patient.patient_id, case.patient.cdcp_client_id or ""] if len(t) >= 3]
@@ -93,7 +94,110 @@ def cmd_outcomes(args: argparse.Namespace) -> int:
     return 0
 
 
-def main(argv: list[str] | None = None) -> int:
+def _pack_env(args: argparse.Namespace) -> PackEnv:
+    return args.env.resolved()
+
+
+def _files(pairs: list[str]) -> dict[str, Path]:
+    out = {}
+    for pair in pairs:
+        key, sep, path = pair.partition("=")
+        if not sep or not key or not path:
+            raise SystemExit(f"--file takes source=path, e.g. grid=~/Downloads/grid.pdf (got {pair!r})")
+        out[key] = Path(path).expanduser()
+    return out
+
+
+def _print_check(r) -> None:
+    print(f"check: pack {r.pack_version} against {len(r.sources)} sources — {len(r.changed)} changed, "
+          f"{len(r.shrank)} shrank, {len(r.new_links)} new documents, {len(r.unreachable)} unreachable")
+    for s in r.sources:
+        note = {"unreachable": s.error, "shrank": f"{s.error}; needs a person",
+                "manual": f"checked by hand; last read {s.last_read or 'never'} (pass --file {s.key}=<path>)"}.get(s.state, "")
+        print(f"  {s.state:<11} {s.key:<10} {'by hand ' if s.by_hand else ''}{note}".rstrip())
+    for n in r.new_links:
+        print(f"  new         {n.title or '(untitled)'}  {n.url}")
+    for page in r.unreachable_pages:
+        print(f"  unreachable watch page {page}")
+
+
+def _check(args: argparse.Namespace, e: PackEnv):
+    from ophi.rules import watch
+
+    try:
+        r = watch.check(watch.latest_pack_dir(e.cdcp_dir), e.today, e.fetcher, e.config, _files(args.file))
+    except KeyError as err:
+        raise SystemExit(f"--file: {err.args[0]}") from None
+    watch.save_status(r, e.status)
+    _print_check(r)
+    return r
+
+
+def cmd_pack_check(args: argparse.Namespace) -> int:
+    r = _check(args, _pack_env(args))
+    for s in r.changed + r.shrank:
+        print(f"\n{s.diff}")
+    return 0
+
+
+def cmd_pack_draft(args: argparse.Namespace) -> int:
+    from ophi.rules import watch
+    from ophi.rules.draft import DraftBlocked, draft
+
+    e = _pack_env(args)
+    r = _check(args, e)
+    try:
+        d = draft(r, e.today, e.fetcher, cases_dir=e.cases_dir, drafts_dir=e.cdcp_dir / "drafts")
+    except DraftBlocked as err:
+        print(f"draft blocked: {err}", file=sys.stderr)
+        return 1
+    if d.dir is None:
+        watch.mark_reviewed(e.status)  # what was new has nothing for this pack and is now recorded as seen
+        print(d.report_md.strip())
+        return 0
+    print(f"draft: {d.dir}  {len(d.changes)} changes, {len(d.needs_person)} need a person, "
+          f"{len(d.out_of_scope)} out of scope, {len(d.impact)} cases change")
+    print(f"  read {d.dir / 'report.md'}")
+    return 0
+
+
+def cmd_pack_approve(args: argparse.Namespace) -> int:
+    from ophi.rules.approve import approve
+    from ophi.rules.draft import DraftBlocked
+
+    e = _pack_env(args)
+    try:
+        target = approve(Path(args.draft_dir), args.by, e.today, cdcp_dir=e.cdcp_dir, ack=args.ack, status=e.status)
+    except (DraftBlocked, ValueError) as err:
+        print(f"not approved: {err}", file=sys.stderr)
+        return 1
+    print(f"approved: {target}")
+    return 0
+
+
+def cmd_pack_baseline(args: argparse.Namespace) -> int:
+    from ophi.rules import watch
+
+    e = _pack_env(args)
+    pack_dir = watch.latest_pack_dir(e.cdcp_dir)
+    try:
+        r = watch.baseline(pack_dir, e.today, e.fetcher, e.config, _files(args.file), note=args.note, force=args.force)
+    except watch.BaselineRefused as err:
+        print(f"baseline refused: {err}. Draft and review them, or pass --force.", file=sys.stderr)
+        return 1
+    except KeyError as err:
+        raise SystemExit(f"--file: {err.args[0]}") from None
+    replaced = [s.key for s in r.changed + r.shrank]
+    print(f"baseline: {pack_dir}  {len(r.unreachable)} unreachable"
+          + (f"; replaced the snapshots of {', '.join(replaced)}" if replaced else ""))
+    for s in r.unreachable:
+        print(f"  unreachable {s.key}: {s.error} (kept its previous snapshot)")
+    if not r.unreachable:
+        watch.mark_reviewed(e.status)
+    return 0
+
+
+def main(argv: list[str] | None = None, env: PackEnv | None = None) -> int:
     p = argparse.ArgumentParser(prog="ophi")
     sub = p.add_subparsers(dest="cmd", required=True)
 
@@ -119,6 +223,27 @@ def main(argv: list[str] | None = None) -> int:
     oc.add_argument("dirs", nargs="*", default=["fixtures/cdcp_approvals", "fixtures/cdcp_denials", "fixtures/cdcp_crowns"])
     oc.set_defaults(fn=cmd_outcomes)
 
+    pc = sub.add_parser("pack", help="check the pack's CDCP sources; draft and approve rule updates")
+    pcs = pc.add_subparsers(dest="action", required=True)
+    files = {"action": "append", "default": [], "metavar": "SOURCE=PATH",
+             "help": "read this source from a local copy, e.g. grid=grid.pdf downloaded by hand"}
+    x = pcs.add_parser("check", help="compare the sources with the baseline; list new documents")
+    x.add_argument("--file", **files)
+    x.set_defaults(fn=cmd_pack_check)
+    x = pcs.add_parser("draft", help="check, then draft a pack update from what changed")
+    x.add_argument("--file", **files)
+    x.set_defaults(fn=cmd_pack_draft)
+    x = pcs.add_parser("approve", help="turn a reviewed draft into a new pack version")
+    x.add_argument("draft_dir")
+    x.add_argument("--by", required=True, help="the person who reviewed the draft")
+    x.add_argument("--ack", action="store_true", help="approve with needs-a-person items still open (logged)")
+    x.set_defaults(fn=cmd_pack_approve)
+    x = pcs.add_parser("baseline", help="record the sources as they read now as the newest pack's baseline")
+    x.add_argument("--note", help="a note recorded in the lock")
+    x.add_argument("--force", action="store_true", help="even while a change is pending review")
+    x.add_argument("--file", **files)
+    x.set_defaults(fn=cmd_pack_baseline)
+
     sv = sub.add_parser("serve", help="run the web app")
     sv.add_argument("--host", default="127.0.0.1")
     sv.add_argument("--port", type=int, default=8765)
@@ -126,6 +251,7 @@ def main(argv: list[str] | None = None) -> int:
     sv.set_defaults(fn=cmd_serve)
 
     args = p.parse_args(argv)
+    args.env = env or PackEnv()
     return args.fn(args)
 
 

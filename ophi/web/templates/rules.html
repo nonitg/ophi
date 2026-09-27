@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% block title %}CDCP rule updates — Ophi{% endblock %}
+{% block content %}
+<header class="head">
+  <h1>CDCP rule updates</h1>
+  <p class="muted">Ophi re-reads the CDCP documents its rules come from every week. When CDCP publishes a change, Ophi drafts the matching rule update here for a person to review. Nothing changes how a request is checked until someone uses it.</p>
+</header>
+
+{% if error %}<p class="rules-error" role="alert">{{ error }}</p>{% endif %}
+
+<div class="settings-grid">
+  <section>
+    {% set d = r.draft %}
+    <div class="panel">
+      <h2>Waiting for review</h2>
+      {% if not d %}
+      <p class="muted">No rule update is waiting.</p>
+      {% else %}
+      <dl class="kv">
+        <dt>Rule pack</dt><dd class="num">{{ d.version }}, drafted from {{ d.supersedes }} on {{ d.drafted }}</dd>
+        <dt>Applies from</dt><dd class="num">{{ d.effective }}</dd>
+        <dt>Your requests</dt><dd class="num">{{ plural(d.requests|length, 'changes', 'change') if d.requests else 'No change' }}</dd>
+      </dl>
+
+      <h3>Changes</h3>
+      {% if d.changes %}
+      <ul class="plain">
+        {% for c in d.changes %}
+        <li><span class="num">Lab code {{ c.old }} is replaced by {{ c.new }}</span>, from {{ c.effective }}
+          <blockquote class="rules-quote">“{{ c.quote }}” <span class="muted">({{ c.source }})</span></blockquote></li>
+        {% endfor %}
+      </ul>
+      {% for x in d.chains %}<p class="small muted rules-chain">{{ x[:1]|upper ~ x[1:] }}.</p>{% endfor %}
+      {% else %}<p class="muted">No code changes. Read the items below.</p>{% endif %}
+
+      {% if d.out_of_scope %}
+      <h3>Not for crowns (left out)</h3>
+      <ul class="plain small">{% for c in d.out_of_scope %}<li class="num">{{ c.old }} → {{ c.new }}</li>{% endfor %}</ul>
+      {% endif %}
+
+      <form method="post" action="{{ BASE }}/rules/use" class="rules-use" data-ack-all>
+        <input type="hidden" name="draft" value="{{ d.name }}">
+        <input type="hidden" name="draft_sha" value="{{ d.sha }}">
+        {% if d.needs_person %}
+        <h3>Needs a person</h3>
+        <p class="small muted">Tick each one once you have dealt with it.</p>
+        <ul class="plain">
+          {% for x in d.needs_person %}
+          <li><label class="rules-ack"><input type="checkbox" name="ack-{{ loop.index0 }}" required> <span>{{ x }}</span></label></li>
+          {% endfor %}
+        </ul>
+        {% endif %}
+        {% if read_only %}
+        <p class="small muted" style="margin-top:14px">In this demo, rule updates can be read but not used.</p>
+        {% elif actor.is_dentist %}
+        <p class="small muted" style="margin:14px 0 10px">Saved as reviewed by {{ actor.name }}. It applies to requests dated from {{ d.effective }}.</p>
+        <button class="btn btn-primary" type="submit"{% if d.needs_person %} disabled{% endif %}>Use this rule update</button>
+        {% else %}
+        <p class="small muted" style="margin-top:14px">{{ DENTIST.name }} puts rule updates into use.</p>
+        {% endif %}
+      </form>
+      {% endif %}
+    </div>
+
+    {% if d %}
+    <div class="panel">
+      <h2>Your open requests</h2>
+      {% if not d.requests %}
+      <p class="muted">None of your open requests change.</p>
+      {% else %}
+      {% macro request_row(x) %}<li><a href="{{ BASE }}/cases/{{ x.case_id }}">{{ x.patient }} · #{{ x.tooth }}</a> — {{ x.change }}</li>{% endmacro %}
+      <ul class="plain small rules-impact">{% for x in d.requests[:8] %}{{ request_row(x) }}{% endfor %}</ul>
+      {% if d.requests|length > 8 %}
+      <details class="rules-more"><summary class="small">{{ d.requests|length - 8 }} more</summary>
+        <ul class="plain small rules-impact">{% for x in d.requests[8:] %}{{ request_row(x) }}{% endfor %}</ul>
+      </details>
+      {% endif %}
+      {% endif %}
+    </div>
+    {% endif %}
+  </section>
+
+  <section class="panel">
+    <div class="panel-head">
+      <h2>Last check</h2>
+      {% if not read_only %}<form method="post" action="{{ BASE }}/rules/check"><button class="btn btn-sm" type="submit"{% if r.check.checking %} disabled{% endif %}>Check now</button></form>{% endif %}
+    </div>
+    {% if r.check.checking %}<p class="rules-checking">Checking CDCP sources…</p>{% endif %}
+    {% if r.check.lines %}{% for line in r.check.lines %}<p>{{ line }}</p>{% endfor %}{% else %}<p class="muted">Not checked yet.</p>{% endif %}
+    {% if r.check.error %}<p class="small muted" style="margin-top:8px">The last attempt, on {{ r.check.attempted }}, failed: {{ r.check.error }}. Ophi tries again in a day.</p>{% endif %}
+    {% if r.check.sources %}
+    <div class="tbl-wrap"><table class="tbl" style="margin-top:14px">
+      <thead><tr><th>Source</th><th>Last check</th></tr></thead>
+      <tbody>{% for s in r.check.sources %}<tr><td>{{ source_title(pack, s.key) }}</td><td class="nowrap">{{ s.label }}</td></tr>{% endfor %}</tbody>
+    </table></div>
+    {% endif %}
+  </section>
+</div>
+{% endblock %}

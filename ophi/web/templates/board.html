@@ -6,6 +6,7 @@
   <h1>{{ b.headline }}</h1>
   <div class="board-fresh-all">
     {% if b.scored or b.prefilled %}<p class="board-fresh">{{ laya() }}<span>{% if b.scored %}ranked the fixes on {{ plural(b.scored, 'case') }}{% endif %}{% if b.scored and b.prefilled %} and {% endif %}{% if b.prefilled %}pre-filled {{ plural(b.prefilled, 'clinical criterion', 'clinical criteria') }}{% endif %}</span></p>{% endif %}
+    {%- if b.rules %}<p class="board-rules"><a href="{{ BASE }}/rules">{{ b.rules|join(' ') }}</a></p>{% endif %}
   </div>
 </header>
 

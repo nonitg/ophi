@@ -7,6 +7,7 @@ signal that an engineer must look, not something to improvise around.
 
 from __future__ import annotations
 
+import re
 from datetime import date
 from typing import Literal
 
@@ -172,6 +173,7 @@ class RetiredCode(BaseModel):
     code: str
     replaced_by: str
     clause: Clause
+    effective_on: date | None = None  # unset on the April 2026 swaps, which predate the field
 
 
 class ExcludedFamily(BaseModel):
@@ -214,6 +216,9 @@ class RulePack(BaseModel):
     jurisdiction: Jurisdiction
     effective_from: date
     verified_on: date
+    supersedes: str | None = None  # the pack version this one was drafted from
+    reviewed_by: str | None = None  # the person who approved this version from a source-check draft
+    reviewed_on: date | None = None
     sources: dict[str, Source]
     schedule: Schedule
     assertion_criteria: dict[str, AssertionCriterion]
@@ -225,6 +230,11 @@ class RulePack(BaseModel):
         ids = [r.id for r in self.requirements]
         if len(ids) != len(set(ids)):
             raise ValueError("duplicate requirement ids")
+        for rc in self.schedule.retired_codes:  # the engine checks lab codes only; crown code changes need an engineer
+            if not (re.fullmatch(r"99\d{3}", rc.code) and re.fullmatch(r"99\d{3}", rc.replaced_by)):
+                raise ValueError(f"retired_codes holds lab fee codes (99xxx) only, not {rc.code} -> {rc.replaced_by}")
+            _check_clause_sources(rc.clause, self.sources, f"retired {rc.code}")
+        _check_no_loops(self.schedule.retired_codes)
         for r in self.requirements:
             _check_clause_sources(r.clause, self.sources, r.id)
             for f in _finds(r.satisfied_by):
@@ -238,6 +248,37 @@ class RulePack(BaseModel):
 
     def requirement(self, rid: str) -> Requirement:
         return next(r for r in self.requirements if r.id == rid)
+
+    def replacement_chain(self, code: str) -> list[RetiredCode]:
+        """Each retirement from `code` to the code in force under this pack (99222 -> 99112 -> 99122); empty when
+        `code` is current. Which pack applies is the case's date's business."""
+        steps = {r.code: r for r in self.schedule.retired_codes}
+        chain = []
+        while code in steps:
+            chain.append(steps[code])
+            code = steps[code].replaced_by
+        return chain
+
+    def current_code(self, code: str) -> str | None:
+        """The code that replaces a retired one under this pack, through any chain; None when `code` is current."""
+        chain = self.replacement_chain(code)
+        return chain[-1].replaced_by if chain else None
+
+
+def _check_no_loops(retired: list[RetiredCode]) -> None:
+    """A code retired twice, or a chain that leads back to itself, has no code in force."""
+    steps: dict[str, str] = {}
+    for r in retired:
+        if r.code in steps:
+            raise ValueError(f"retired_codes lists {r.code} twice")
+        steps[r.code] = r.replaced_by
+    for start in steps:
+        seen, code = {start}, steps[start]
+        while code in steps:
+            if code in seen:
+                raise ValueError(f"retired_codes loops through {code}")
+            seen.add(code)
+            code = steps[code]
 
 
 def _check_clause_sources(c: Clause, sources: dict[str, Source], rid: str) -> None:

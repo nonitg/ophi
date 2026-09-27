@@ -12,7 +12,8 @@ from ophi.casegen.dsl import load_case
 from ophi.engine.assess import assess
 from ophi.engine.models import Assessment, Status, Verdict
 from ophi.extract.proposer import propose_for_case
-from ophi.rules.loader import default_pack
+from ophi.rules.loader import pack_for
+from ophi.rules.schema import RulePack
 
 
 def snapshot(a: Assessment) -> dict:
@@ -26,22 +27,22 @@ def snapshot(a: Assessment) -> dict:
     }
 
 
-def assess_file(path: Path) -> Assessment:
+def assess_file(path: Path, pack: RulePack | None = None) -> Assessment:
     case = load_case(path)
     case = case.with_artifacts(propose_for_case(case))
-    return assess(case, default_pack())
+    return assess(case, pack or pack_for(case))  # each case under the rules for its own date
 
 
 def run_all(cases_dir: Path, expected_dir: Path, write: bool = False) -> tuple[bool, str]:
-    pack = default_pack()
-    exp_dir = expected_dir / pack.version
-    exp_dir.mkdir(parents=True, exist_ok=True)
-    lines, ok, false_ready = [], True, []
+    lines, ok, false_ready, packs = [], True, [], set()
     # Look-Back history is judged as of each submission date by ophi.lookback, not here.
     files = sorted(f for f in cases_dir.rglob("*.yaml") if "lookback" not in f.parts)
     for f in files:
         a = assess_file(f)
         got = snapshot(a)
+        packs.add(f"{a.ruleset.id} {a.ruleset.version}")
+        exp_dir = expected_dir / a.ruleset.version
+        exp_dir.mkdir(parents=True, exist_ok=True)
         exp_path = exp_dir / f"{f.stem}.yaml"
         if write or not exp_path.exists():
             exp_path.write_text(yaml.safe_dump(got, sort_keys=False, allow_unicode=True))
@@ -65,5 +66,5 @@ def run_all(cases_dir: Path, expected_dir: Path, write: bool = False) -> tuple[b
     if false_ready:
         ok = False
         lines.append(f"  FALSE-READY: {', '.join(false_ready)}")
-    head = f"eval: {len(files)} cases against {pack.id} {pack.version} — {'PASS' if ok else 'FAIL'}; false-ready: {len(false_ready)}"
+    head = f"eval: {len(files)} cases against {', '.join(sorted(packs))} — {'PASS' if ok else 'FAIL'}; false-ready: {len(false_ready)}"
     return ok, "\n".join([head, *lines])

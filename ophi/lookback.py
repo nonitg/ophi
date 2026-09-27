@@ -69,14 +69,13 @@ def _initials(name: str) -> str:
 
 
 def load_rows(cases_dir: Path = LOOKBACK_DIR) -> list[LookBackRow]:
-    pack = default_pack()
     rows = []
     for f in sorted(cases_dir.glob("*.yaml")):
         d = yaml.safe_load(f.read_text())
         outcome = d.pop("outcome")
         d["as_of"] = outcome["submitted"]  # judge the chart as it stood on the day it was sent
         case = build_case(d, f.stem)
-        a = assess(case, pack)
+        a = assess(case, default_pack(case.as_of))  # the rules in force on the day it was sent
         docs = [r for r in a.requirements if r.applicable and r.requirement_id in DOCUMENT_REQUIREMENTS]
         gaps = [r.label for r in docs if r.status == Status.UNSATISFIED]
         unverifiable = [r.label for r in docs if r.status == Status.INDETERMINATE]
@@ -99,7 +98,7 @@ def run_lookback(cases_dir: Path = LOOKBACK_DIR) -> LookBackReport:
     never = [r for r in denied if not r.resubmitted]
     return LookBackReport(
         window_label="last 12 months",
-        ruleset_version=default_pack().version,
+        ruleset_version=", ".join(sorted({default_pack(r.submitted_on).version for r in rows})) or default_pack().version,
         submitted=len(rows),
         denied=len(denied),
         denied_dollars=round(sum(r.fee_dollars for r in denied), 2),

@@ -10,9 +10,10 @@ from ophi.outcomes.risk import Score
 from ophi.outcomes.training_set import NOTE_QUESTIONS, assess_sent, case_for, load_examples
 from ophi.packet.narrative import validate_narrative
 from ophi.rules.loader import default_pack
+from tests._cases import DEMO_DAY
 
 EXAMPLES = {e.preauth_id: e for e in load_examples()}
-PACK = default_pack()
+PACK = default_pack(DEMO_DAY)
 
 
 class FakeScorer:

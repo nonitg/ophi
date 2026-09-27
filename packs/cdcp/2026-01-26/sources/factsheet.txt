@@ -1,0 +1,58 @@
+Overview of April 2026 updates to the Canadian Dental
+Care Plan Dental Benefits Guide and Benefit Grids
+As part of an annual update cycle, the Canadian Dental Care Plan (CDCP) Dental Benefits Guide and
+CDCP Dental Benefit Grids will be updated on April 1, 2026.
+The CDCP fees are increasing on this date and new grids for each profession and province/territory will
+be available on the Sun Life Website. CDCP fees are reassessed annually to reflect new scientific
+evidence, inflation, and cost changes over time.
+Additionally, some adjustments will be made to the CDCP basket of service, effective April 1, 2026.
+More details will be available in the updated CDCP Dental Benefits Guide. Here is an overview of those
+changes.
+Note : All codes provided in this document are to help with understanding the changes. The CDCP
+Benefit Grids remain the definitive source.
+Change Description
+Commercial laboratory fees There will be a moderate increase in the amount that can be reimbursed by
+(increase) the CDCP for commercial laboratory fees. No retroactive or grandfathering
+provisions will apply.
+This will apply to all codes through which a commercial lab fee is billed.
+Desensitization codes (schedule All desensitization services will now require preauthorization (previously 2
+change) units could be billed without preauthorization).
+For ACDQ: 41306 and 41307
+For CDA: 41301 and 41302
+For CDHA: 00641, 00642. Additionally, the code for a half unit (00647) will
+be published in the grids.
+For FDSQ: 41305 periodontists
+Complete immediate dentures Certain types of complete immediate dentures will no longer require
+(schedule and frequency changes) preauthorization. They will be grouped into the same frequency (once per
+lifetime) as provisional/transitional complete dentures which are already
+available without preauthorization.
+For situations where a client requires dentures following extractions, a
+provider can determine whether to provide a transitional/provisional denture,
+or an immediate denture (not both). These would be available within a
+combined frequency limit of one prosthesis per arch per lifetime. The client
+Change Description
+would be eligible for a standard denture or overdenture 6 months after the
+transitional/provisional denture, or 96 months after an immediate denture.
+For ACDQ: 51300, 51310, 51320
+For CDA: 51301, 51302, 51303 / 51611, 51612, 51613
+For DAC: 31311 and 31321 / 31511 and 31521
+For FDSQ: Prosthodontists: 51305, 51315, 51325
+Denture liners Additional types of denture liners will be available without preauthorization.
+(new codes available)
+For CDA: 51104 and 56601
+For DAC: 73008, 32318, 32328, 42318, 42328, 32510, 32520, 42516,
+42526
+For FDSQ: Prosthodontists 56226
+Periapical radiographs (new codes Dental hygienists will be able to claim the codes for radiographs (7 and 8
+available) images, periapicals) without preauthorization. This is an administrative
+change that will enable dental hygienists to submit claims more accurately.
+For CDHA: 00227 and 00228
+Sedation codes (alignment to 2025 The grids will be updated on April 1, 2026, to align with the changes made to
+USC&LS codes) sedation codes in the 2025 USC&LS.
+Previously implemented December The changes implemented in December 2025 were reflected in the CDCP
+2025 changes Dental Benefits Guide, but not in the CDCP Benefit Grids (for example, the
+change to remove same/different provider and provider office from
+consideration of exam frequency limits).
+On April 1, 2026, the CDCP Benefit Grids will be fully up to date with both
+the December 2025 and the April 2026 changes.
+2

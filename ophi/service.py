@@ -34,7 +34,7 @@ from ophi.packet.documents import narrative_ascii
 from ophi.packet.narrative import validate_narrative
 from ophi.outcomes.weights import Weights
 from ophi.lookback import LookBackReport, run_lookback
-from ophi.rules.loader import default_pack
+from ophi.rules.loader import default_pack, pack_for
 from ophi.rules.schema import RulePack
 from ophi.sources.abeldent import Predetermination
 from ophi.workflow import REASONS, Stage, chair_actions, chart_actions, documentation_gaps, stage_of, valid_until, with_ask
@@ -245,6 +245,7 @@ class CaseView(BaseModel):
     assessment: Assessment
     minutes_estimate: dict
     pms: Predetermination | None = None  # the request as the PMS last showed it, once sent
+    pack: RulePack  # the pack in force on this request's date
 
     @property
     def signed(self) -> bool:
@@ -288,7 +289,7 @@ class CaseService:
         note text. Both are optional: without them staff record every step by hand."""
         self.cases_dir = cases_dir
         self.store = store or Store()
-        self.pack = pack or default_pack()
+        self._pinned = pack  # tests pin one pack; otherwise each request gets the pack for its own date
         self.weights = weights
         self.pms_claims, self.note_reader = pms_claims, note_reader
         self._pms: dict[str, Predetermination] = {}  # case id -> its predetermination at the last sync
@@ -317,6 +318,14 @@ class CaseService:
     def base_case(self, case_id: str) -> Case:
         return self.repository.get_case(case_id)
 
+    @property
+    def pack(self) -> RulePack:
+        """The pack in force on the chart's day, for screens not about one request."""
+        return self._pinned or default_pack(self.today())
+
+    def pack_for(self, case: Case) -> RulePack:
+        return self._pinned or pack_for(case)
+
     def now(self) -> datetime:
         return _STAMP.get() or self.clock()
 
@@ -342,19 +351,30 @@ class CaseService:
             self._chart_day = (real.date(), max(days) if days else real.date())
         return datetime.combine(self._chart_day[1], real.time(), UTC)
 
-    def view(self, case_id: str) -> CaseView:
-        st = self.store.load(case_id)
+    def _built(self, case_id: str, st: CaseState, pack: RulePack | None = None):
+        """The chart as staff see it (captures, Ophi's proposals, answers, fixes) and its assessment under `pack`
+        (the pack for the request's date by default)."""
         base = self.base_case(case_id)
         base = base.with_artifacts(capture_artifacts(base, st.captures))  # demo captures reach the chart like any film
         proposals = [self._apply_confirmation(p, st) for p in propose_for_case(base)]
         user_assertions = [self._assertion_artifact(base, cid, a) for cid, a in st.assertions.items()]
-        case = fixes.apply(base, st.fixes, self.pack).with_artifacts(proposals + user_assertions)
-        a = assess(case, self.pack, self.weights, frozenset(st.test_skips))
+        pack = pack or self.pack_for(base)
+        case = fixes.apply(base, st.fixes, pack).with_artifacts(proposals + user_assertions)
+        return base, proposals, case, pack, assess(case, pack, self.weights, frozenset(st.test_skips))
+
+    def assess_under(self, case_id: str, pack: RulePack) -> tuple[Case, Assessment]:
+        """The request assessed under another pack (a rule update under review); nothing is recorded."""
+        _, _, case, _, a = self._built(case_id, self.store.load(case_id), pack)
+        return case, a
+
+    def view(self, case_id: str) -> CaseView:
+        st = self.store.load(case_id)
+        base, proposals, case, pack, a = self._built(case_id, st)
         if st.first_check is None:
             st.first_check = FirstCheck(at=self.now(), gaps=[r.requirement_id for r in documentation_gaps(a)])
             self.store.record_first_check(case_id, st.first_check)
         return CaseView(case=case, base_case=base, proposals=proposals, state=st, assessment=a,
-                        minutes_estimate=self.minutes_estimate(case, a), pms=self._pms.get(case_id))
+                        minutes_estimate=self.minutes_estimate(case, a), pms=self._pms.get(case_id), pack=pack)
 
     def sync_from_pms(self) -> None:
         """Take what the PMS knows about each request: that it was sent, and Sun Life's electronic answer.
@@ -402,7 +422,7 @@ class CaseService:
     def assert_criterion(self, case_id: str, criterion_id: str, value: str, by: str, licence: str | None, note: str | None = None,
                          role: str = "dentist") -> None:
         _dentist_only(role, "clinician assertions")
-        if criterion_id not in self.pack.assertion_criteria:
+        if criterion_id not in self.pack_for(self.base_case(case_id)).assertion_criteria:
             raise KeyError(criterion_id)
         if value not in ("met", "not_met", "not_applicable"):
             raise ValueError(value)
@@ -425,10 +445,11 @@ class CaseService:
         if not items:
             raise ValueError("no assertions supplied")
         # validate all before mutating
+        criteria = self.pack_for(self.base_case(case_id)).assertion_criteria
         for it in items:
             cid = it.get("criterion_id")
             val = it.get("value")
-            if cid not in self.pack.assertion_criteria:
+            if cid not in criteria:
                 raise KeyError(cid)
             if val not in ("met", "not_met", "not_applicable"):
                 raise ValueError(val)
@@ -464,7 +485,7 @@ class CaseService:
         if unknown or not requirement_ids:
             raise ValueError(f"no fix Ophi can apply for {', '.join(unknown) or 'this case'}")
         st, now = v.state, self.now().isoformat()
-        titles = [fixes.title(v.case, rid, self.pack) for rid in requirement_ids]
+        titles = [fixes.title(v.case, rid, v.pack) for rid in requirement_ids]
         for rid, t in zip(requirement_ids, titles):
             st.fixes[rid] = {"by": by, "at": now, "title": t}
         st.sign_off = None

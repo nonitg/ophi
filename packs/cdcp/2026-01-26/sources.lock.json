@@ -1,0 +1,47 @@
+{
+  "note": "Baseline fetched 2026-09-26 by ophi pack baseline, not on the pack's verified_on date (2026-09-17); it records the sources as they read on 2026-09-26.",
+  "sources": {
+    "matrix": {
+      "url": "https://www.canada.ca/content/dam/canada/employment-social-development/services/benefits/dental/dental-care-plan/providers/cdcp-supporting-documentation-requirements-for-preauthorization-submissions-en.pdf",
+      "sha256": "sha256:73687a1e63db857dde12993a01e05d7435a6abd631a2a14170695e9ff9c1ce21",
+      "fetched_on": "2026-09-26"
+    },
+    "guide": {
+      "url": "https://www.canada.ca/en/services/benefits/dental/dental-care-plan/guide.html",
+      "sha256": "sha256:319b4ee322f35edf5fd15e379fc760757ff79f429962d626ea547439e21e2ecf",
+      "fetched_on": "2026-09-26"
+    },
+    "grid": {
+      "url": "https://www.sunlife.ca/content/dam/sunlife/regional/canada/documents/cxo/cdcp/grids/cdcp-on-gpsp-benefit-grid-2026-e.pdf",
+      "sha256": "sha256:a7182f7302a3cf11c602a8e6baf826a1322e2eda1f8c1fefc33e3847c944ba89",
+      "fetched_on": "2026-09-26"
+    },
+    "factsheet": {
+      "url": "https://nsdental.org/wp-content/uploads/2026/02/Factsheet-on-CDCP-Guide-and-Grids-updates-April-2026.pdf",
+      "sha256": "sha256:fb10785700edd4d743a7f72398d8919f6aad33e2dc0cfc8485ace9ffebe7e4c5",
+      "fetched_on": "2026-09-26"
+    }
+  },
+  "seen_links": [
+    "https://www.canada.ca/content/dam/canada/employment-social-development/services/benefits/dental/dental-care-plan/providers/cdcp-supporting-documentation-requirements-for-preauthorization-submissions-en.pdf",
+    "https://www.canada.ca/en/services/benefits/dental/dental-care-plan/guide.html",
+    "https://www.canada.ca/en/services/benefits/dental/dental-care-plan/guide/previous-version.html",
+    "https://www.canada.ca/en/services/benefits/dental/dental-care-plan/providers/article.html",
+    "https://www.canada.ca/en/services/benefits/dental/dental-care-plan/providers/fact-sheet-ab.html",
+    "https://www.canada.ca/en/services/benefits/dental/dental-care-plan/providers/fact-sheet-bc.html",
+    "https://www.canada.ca/en/services/benefits/dental/dental-care-plan/providers/fact-sheet-mb.html",
+    "https://www.canada.ca/en/services/benefits/dental/dental-care-plan/providers/fact-sheet-nb.html",
+    "https://www.canada.ca/en/services/benefits/dental/dental-care-plan/providers/fact-sheet-nl.html",
+    "https://www.canada.ca/en/services/benefits/dental/dental-care-plan/providers/fact-sheet-ns.html",
+    "https://www.canada.ca/en/services/benefits/dental/dental-care-plan/providers/fact-sheet-nt.html",
+    "https://www.canada.ca/en/services/benefits/dental/dental-care-plan/providers/fact-sheet-nu.html",
+    "https://www.canada.ca/en/services/benefits/dental/dental-care-plan/providers/fact-sheet-on.html",
+    "https://www.canada.ca/en/services/benefits/dental/dental-care-plan/providers/fact-sheet-pei.html",
+    "https://www.canada.ca/en/services/benefits/dental/dental-care-plan/providers/fact-sheet-qc.html",
+    "https://www.canada.ca/en/services/benefits/dental/dental-care-plan/providers/fact-sheet-sk.html",
+    "https://www.canada.ca/en/services/benefits/dental/dental-care-plan/providers/fact-sheet-yk.html",
+    "https://www.canada.ca/en/services/benefits/dental/dental-care-plan/providers/preauthorization.html",
+    "https://www.sunlife.ca/sl/cdcp/en/provider/claims-processing-and-payment-terms/",
+    "https://www.sunlife.ca/sl/cdcp/en/provider/dental-benefit-grids/"
+  ]
+}

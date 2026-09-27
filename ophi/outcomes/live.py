@@ -9,6 +9,7 @@ from __future__ import annotations
 import logging
 import threading
 import time
+from collections.abc import Callable
 
 from ophi.cdm.models import Case
 from ophi.outcomes.case_export import to_export
@@ -20,8 +21,9 @@ log = logging.getLogger("uvicorn.error")
 
 
 class LiveScorer:
-    def __init__(self, pack: RulePack, model=None):
-        self.pack, self._model = pack, model
+    def __init__(self, pack_for: Callable[[Case], RulePack], model=None):
+        """`pack_for` gives each request the pack for its date (CaseService.pack_for)."""
+        self.pack_for, self._model = pack_for, model
         self._lock = threading.Lock()  # one GPU, one forward pass at a time
         self._latest: dict[str, Readout] = {}  # case id -> last live plan, for the board
 
@@ -48,7 +50,7 @@ class LiveScorer:
         with self._lock:
             model = self._load()
             t = time.perf_counter()
-            plan = plan_fixes(to_export(case), case.as_of, self.pack, model, request_id=case.case_id)
+            plan = plan_fixes(to_export(case), case.as_of, self.pack_for(case), model, request_id=case.case_id)
             log.info(f"ML ran Laya + LightGBM live for {case.case_id} in {1000 * (time.perf_counter() - t):.0f}ms")
         rd = Readout(case_id=case.case_id, scored_on=case.as_of,
                      plans=[ScoredPlan(state="live", text_sha256=fingerprint(text_for(case)), plan=plan.model_dump(mode="json"))])

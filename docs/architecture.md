@@ -36,6 +36,12 @@ vocabulary: `find` (artifact query), `fact` (deterministic predicate over case f
 different requirement) and `applies_when`. Every requirement and every assertion criterion cites its
 clause. The loader hashes the YAML; every assessment records the hash.
 
+**Rule-pack updates (`ophi/rules/watch.py`, `draft.py`, `approve.py`).** `ophi pack check` compares the
+pack's cited CDCP sources with a text baseline and scans CDCP pages for new documents; `ophi pack draft`
+turns found code replacements into a draft pack with an impact report; a named person runs
+`ophi pack approve`, which writes a new dated pack. Packs are never edited in place; the loader uses the
+newest pack whose `effective_from` has arrived. See `docs/rule-pack-updates.md`.
+
 **Engine (`ophi/engine`).**
 - `leaves.py` resolves `find` queries: radiograph by view/tooth/laterality, complete perio chart (6
   sites on every present tooth), PSR coverage, 6-site measurements for the requested tooth (and any

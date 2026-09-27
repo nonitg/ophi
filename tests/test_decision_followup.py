@@ -85,7 +85,7 @@ def test_uploaded_letter_prefills_the_decision_then_records_it(svc, tmp_path, mo
     reading = letters.LetterReading(outcome="denied", decided_on=date(2026, 9, 17), reason_key="insufficient_ferrule",
                                     reason="Less than 1.5 mm of sound tooth structure remains on tooth 26.")
     monkeypatch.setattr(letters, "read_letter", lambda data, media_type: reading)
-    client = TestClient(create_app(svc=svc, packets_dir=tmp_path / "packets"), follow_redirects=False)
+    client = TestClient(create_app(auto_rules_check=False, svc=svc, packets_dir=tmp_path / "packets"), follow_redirects=False)
     r = client.post("/cases/cherski/letter", files={"letter": ("letter.pdf", b"%PDF", "application/pdf")})
     assert r.status_code == 200 and "Less than 1.5 mm of sound tooth structure" in r.text
     assert 'name="reason_key" value="insufficient_ferrule"' in r.text

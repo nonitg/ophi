@@ -1,6 +1,7 @@
 from ophi.outcomes.live import LiveScorer
 from ophi.rules.loader import default_pack
 from ophi.service import CaseService
+from tests._cases import DEMO_DAY
 from tests.test_fixer import FakeScorer
 
 
@@ -14,7 +15,7 @@ class Counting(FakeScorer):
 
 def test_scores_every_open_and_board_reuses_it_until_the_chart_changes():
     case = CaseService().base_case("kowalchuk")
-    live = LiveScorer(default_pack(), model=Counting())
+    live = LiveScorer(lambda _case: default_pack(DEMO_DAY), model=Counting())
     rd = live.score(case)
     assert rd.matching(case)["model"] == {"laya": "fake", "risk": "fake"}
     calls = Counting.calls

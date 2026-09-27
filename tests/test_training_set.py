@@ -5,6 +5,7 @@ from __future__ import annotations
 from ophi.outcomes.laya_questions import DECISION, DECISION_KEYS, gold
 from ophi.outcomes.training_set import SENT, clinic_denial_rates, features, load_examples, note_labels, request_text, split_by_clinic
 from ophi.rules.loader import default_pack
+from tests._cases import DEMO_DAY
 
 EXAMPLES = {e.preauth_id: e for e in load_examples()}
 
@@ -36,7 +37,7 @@ def test_split_keeps_each_clinic_in_one_part():
 
 def test_features_carry_the_engines_reading():
     rates = clinic_denial_rates(list(EXAMPLES.values()))
-    f = features(EXAMPLES["PA-SYN-300010"], default_pack(), rates["PA-SYN-300010"])
+    f = features(EXAMPLES["PA-SYN-300010"], default_pack(DEMO_DAY), rates["PA-SYN-300010"])
     assert f["req_radiograph_bw"] == "unsatisfied" and f["req_lab_codes_current"] == "unsatisfied"
     assert f["bw_sides"] == 0 and f["pa_age_days"] is not None
     assert rates["PA-SYN-300000"] is None or 0 <= rates["PA-SYN-300000"] <= 1

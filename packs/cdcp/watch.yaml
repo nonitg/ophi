@@ -1,0 +1,16 @@
+# CDCP pages where Health Canada publishes provider documents: the Guide, benefit grids, the supporting
+# documentation requirements, factsheets and provider updates. `ophi pack check` scans each for document
+# links it has not seen before. The Sun Life grids page renders its links with JavaScript, so grids are
+# found through these pages and the pack's own grid source instead.
+# After adding a page, run `ophi pack baseline` so its existing links count as seen. See
+# docs/rule-pack-updates.md.
+pages:
+  - https://www.canada.ca/en/services/benefits/dental/dental-care-plan/providers.html
+  - https://www.canada.ca/en/services/benefits/dental/dental-care-plan/providers/article.html
+  - https://www.canada.ca/en/services/benefits/dental/dental-care-plan/providers/preauthorization.html
+  - https://www.canada.ca/en/services/benefits/dental/dental-care-plan/guide.html
+
+# Sources Ophi does not fetch: Sun Life's bot wall refuses automated clients, and Ophi does not pose as a
+# browser. Download the file by hand and pass it: `ophi pack check --file grid=<path>`.
+sources:
+  grid: { manual: true, label: Sun Life grid }

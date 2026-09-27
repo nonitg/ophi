@@ -8,16 +8,18 @@ perturbation and nothing else. Ages are relative to `as_of` so the case never go
 from __future__ import annotations
 
 import copy
+from datetime import date
 from pathlib import Path
 
 from ophi.casegen.dsl import build_case, load_case
 from ophi.engine.assess import assess
 from ophi.engine.models import Assessment
 from ophi.extract.proposer import propose_for_case
-from ophi.rules.loader import default_pack
+from ophi.rules.loader import pack_for
 
 ROOT = Path(__file__).resolve().parents[1]
 CASES_DIR = ROOT / "cases"
+DEMO_DAY = date(2026, 9, 17)  # the demo chart day; tests that need "a pack" take the one in force then
 EXPECTED_DIR = ROOT / "evals" / "expected"
 
 ALL_CRITERIA = [
@@ -58,14 +60,14 @@ def assess_dict(d: dict, case_id: str = "inline", with_proposer: bool = False) -
     case = build_case(d, case_id)
     if with_proposer:
         case = case.with_artifacts(propose_for_case(case))
-    return assess(case, default_pack())
+    return assess(case, pack_for(case))
 
 
 def assess_path(path: Path) -> Assessment:
     """Same pipeline as the CLI and the eval runner: casegen -> proposer -> engine."""
     case = load_case(path)
     case = case.with_artifacts(propose_for_case(case))
-    return assess(case, default_pack())
+    return assess(case, pack_for(case))
 
 
 def corpus_files() -> list[Path]:

@@ -35,9 +35,11 @@ from ophi.outcomes.weights import load as load_weights
 from ophi.packet.build import build_packet
 from ophi.packet.documents import narrative_ascii
 from ophi.packet.narrative import draft_narrative
+from ophi.rules import auto
+from ophi.rules.loader import load_pack
+from ophi.service import CaseService, CaseView, NarrativeInvalid, identity_tokens
 from ophi.sources import abeldent
 from ophi.sources.pms_repository import AbelDentPmsRepository
-from ophi.service import CaseService, CaseView, NarrativeInvalid, identity_tokens
 from ophi.verify.verifier import verify_packet
 from ophi.web import abeldent_api, present
 from ophi.web.present import ACTORS, DEFAULT_ACTOR, READY_VERDICTS, Actor
@@ -65,7 +67,8 @@ DONE_MESSAGES = {
     "decision": "Sun Life's decision recorded.", "resubmit": "Resubmission started. The dentist reviews and signs the new request.",
     "booked": "Marked as booked.", "asked": "Marked done. Sun Life's request is covered.", "followup": "Follow-up saved.", "undone": "Step taken back.",
     "skipped": "Gaps skipped for this test run.", "restored": "Gaps are back.",
-    "fixed": "Fix applied.",
+    "fixed": "Fix applied.", "rules_used": "Rule update saved. It applies from its effective date.",
+    "rules_checking": "Checking CDCP sources. Reload in a minute.", "rules_busy": "A check is already running. Reload in a minute.",
     "captured": "Taken. Ophi checked the chart again.", "chair_done": "Nothing left to take. The patient can go.",
 }
 _RESET_LOCK = threading.Lock()  # a double-submitted reset must not reseed twice at once
@@ -130,8 +133,11 @@ def _actor(request: Request) -> Actor:
 
 def _render(request: Request, name: str, status: int = 200, **ctx) -> HTMLResponse:
     svc = _svc(request)
+    if request.app.state.auto_rules:  # a week-old source check restarts in the background; the page never waits
+        auto.maybe_start(request.app.state.rules_env)
     base = _base(request)
-    ctx.update(actor=_actor(request), pack=svc.pack, request=request, today=svc.today(),
+    ctx.setdefault("pack", ctx["view"].pack if "view" in ctx else svc.pack)  # a case's pages cite its own pack
+    ctx.update(actor=_actor(request), request=request, today=svc.today(),
                done=DONE_MESSAGES.get(request.query_params.get("done", "")),
                BASE=base, HOME=_home(request), here=request.url.path.removeprefix(base) or "/")
     return templates.TemplateResponse(request, name, ctx, status_code=status)
@@ -204,7 +210,7 @@ def _build_packet(request: Request, view: CaseView, narrative: str) -> dict:
     sign_off = view.state.sign_off if view.signed else None  # a stale sign-off never reaches the packet
     manifest = _existing_manifest(out, view, narrative, sign_off)
     if manifest is None:
-        manifest = build_packet(view.case, view.assessment, out, narrative_text=narrative, sign_off=sign_off, pack=_svc(request).pack)
+        manifest = build_packet(view.case, view.assessment, out, narrative_text=narrative, sign_off=sign_off, pack=view.pack)
     result["manifest"] = manifest
     result["files"] = present.manifest_files(manifest, view.case)
     result["report"] = verify_packet(out, forbidden_tokens=identity_tokens(view.case))
@@ -235,10 +241,11 @@ def worklist(request: Request):
     views = svc.queue()
     live = request.app.state.live
     risks = {v.case.case_id: r for v in views if v.stage in workflow.CHART_STAGES
-             and (r := present.board_risk(v, live.latest(v.case) if live else readout.load(v.case.case_id), svc.pack))}
+             and (r := present.board_risk(v, live.latest(v.case) if live else readout.load(v.case.case_id), v.pack))}
     prefills = {v.case.case_id: n for v in views if v.stage in (*workflow.CHART_STAGES, workflow.Stage.DENTIST)
-                and (n := present.prefilled(v, present.pre_reads_for(v, svc.pack, _known_readout(request, v.case))))}
-    return _render(request, "board.html", b=present.board(views, _actor(request), svc.today(), risks, prefills))
+                and (n := present.prefilled(v, present.pre_reads_for(v, v.pack, _known_readout(request, v.case))))}
+    return _render(request, "board.html", b=present.board(views, _actor(request), svc.today(), risks, prefills,
+                                                           auto.review_status(request.app.state.rules_env)))
 
 
 # --- case -------------------------------------------------------------------------------------------
@@ -256,11 +263,11 @@ def _case_page(request: Request, case_id: str, **extra):
     svc, actor, today = _svc(request), _actor(request), _svc(request).today()
     live = request.app.state.live
     rd, gaps = live.score(view.case) if live else readout.load(case_id), present.gap_rows(view)
-    relevant, other = present.assertion_rows(view, svc.pack, present.pre_reads_for(view, svc.pack, rd))
+    relevant, other = present.assertion_rows(view, view.pack, present.pre_reads_for(view, view.pack, rd))
     steps = present.case_steps(view)
     now = present.now_step(steps, actor)
     timing = present.timing(view, today)
-    fx = present.fix_panel(view, rd, svc.pack, gaps) if view.stage in workflow.CHART_STAGES else None
+    fx = present.fix_panel(view, rd, view.pack, gaps) if view.stage in workflow.CHART_STAGES else None
     ml = present.ml_debug(view, rd)
     log.info(present.ml_report(ml))
     return _render(request, "case.html", view=view, case=view.case, a=view.assessment, stage=view.stage,
@@ -301,7 +308,7 @@ async def bulk_assert(request: Request, case_id: str):
     if view is None:
         return _error(request, 404, "Case not found", f"No case '{case_id}' in the demo set.")
     actor, svc = _actor(request), _svc(request)
-    rows = present.assertion_rows(view, svc.pack, present.pre_reads_for(view, svc.pack, _known_readout(request, view.case)))[0]
+    rows = present.assertion_rows(view, view.pack, present.pre_reads_for(view, view.pack, _known_readout(request, view.case)))[0]
     form = await request.form()
     items: list[dict] = []
     for r in rows:
@@ -490,7 +497,7 @@ def packet(request: Request, case_id: str):
     if view is None:
         return _error(request, 404, "Case not found", f"No case '{case_id}' in the demo set.")
     svc = _svc(request)
-    narrative = _narrative(view, svc.pack)
+    narrative = _narrative(view, view.pack)
     pk = _build_packet(request, view, narrative)
     nxt = present.next_up(svc.queue(), view, _actor(request), svc.today())
     return _render(request, "packet.html", view=view, case=view.case, a=view.assessment, narrative=narrative, pk=pk,
@@ -514,7 +521,7 @@ def packet_download(request: Request, case_id: str):
     if not view.signed:
         return _error(request, 409, "Not signed", "The packet can be downloaded once the treating dentist has signed it.")
     svc = _svc(request)
-    pk = _build_packet(request, view, _narrative(view, svc.pack))
+    pk = _build_packet(request, view, _narrative(view, view.pack))
     if not pk["report"].shippable:
         return _error(request, 409, "Verifier refused", "The independent verifier did not pass this packet: " + "; ".join(pk["report"].findings))
     buf = io.BytesIO()
@@ -611,6 +618,72 @@ def look_back(request: Request):
     return RedirectResponse(_base(request) + "/results#before", status_code=303)
 
 
+# --- CDCP rule updates -------------------------------------------------------------------------------
+
+
+def _rules_page(request: Request, error: str | None = None, status: int = 200) -> HTMLResponse:
+    svc, env = _svc(request), request.app.state.rules_env.resolved()
+    draft_dir = auto.current_draft(env.cdcp_dir)
+    changes = None
+    if draft_dir is not None:
+        try:
+            proposed = load_pack(draft_dir / "pack.yaml")
+        except Exception:  # noqa: BLE001 — a broken draft still shows its draft.json; using it will refuse
+            proposed = None
+        if proposed is not None:
+            changes = present.request_changes(svc.queue(), proposed, svc.assess_under)
+    return _render(request, "rules.html", status=status, error=error, read_only=bool(request.app.state.base_path),
+                   r=present.rules_page(auto.review_status(env), draft_dir, changes), DENTIST=ACTORS["dentist"])
+
+
+@router.get("/rules", response_class=HTMLResponse)
+def rules(request: Request):
+    return _rules_page(request)
+
+
+def _read_only(request: Request) -> HTMLResponse | None:
+    if request.app.state.base_path:  # the public demo shows rule updates but never checks or changes them
+        return _error(request, 403, "Read-only demo", "Checking CDCP sources and using rule updates are off in this demo.")
+    return None
+
+
+@router.post("/rules/check")
+def rules_check_now(request: Request):
+    if (denied := _read_only(request)) is not None:
+        return denied
+    started = auto.maybe_start(request.app.state.rules_env, force=True)
+    return _done(request, "/rules", "rules_checking" if started else "rules_busy")
+
+
+@router.post("/rules/use")
+async def rules_use(request: Request):
+    """The treating dentist puts the waiting draft in force from its effective date. Every needs-a-person item
+    must be ticked; that is the reviewer's acknowledgement, recorded with their name in the changelog."""
+    from ophi.rules.approve import approve
+    from ophi.rules.draft import DraftBlocked
+
+    if (denied := _read_only(request)) is not None:
+        return denied
+    if request.cookies.get("actor") not in ACTORS:
+        return _error(request, 403, "Who is this?", "Choose who you are under View as, then review the update again.")
+    if (denied := _dentist_only(request, "The treating dentist puts CDCP rule updates into use.")) is not None:
+        return denied
+    env = request.app.state.rules_env.resolved()
+    form = await request.form()
+    draft_dir = auto.current_draft(env.cdcp_dir)
+    shown = present.rules_page(None, draft_dir)["draft"] if draft_dir is not None else None
+    if shown is None or form.get("draft") != draft_dir.name or form.get("draft_sha") != shown["sha"]:
+        return _rules_page(request, "The rule update changed since you opened it. Review it again.", 409)
+    items = shown["needs_person"]
+    if any(form.get(f"ack-{i}") != "on" for i in range(len(items))):
+        return _rules_page(request, "Tick each item that needs a person before using this rule update.", 400)
+    try:
+        approve(draft_dir, _actor(request).name, env.today, cdcp_dir=env.cdcp_dir, ack=bool(items), status=env.status)
+    except (DraftBlocked, ValueError) as err:
+        return _rules_page(request, f"This rule update was not used: {err}", 409)
+    return _done(request, "/rules", "rules_used")
+
+
 # --- settings & audit --------------------------------------------------------------------------------
 
 
@@ -672,19 +745,24 @@ def set_actor(request: Request, actor: str = Form(...)):
 
 
 def create_app(svc: CaseService | None = None, packets_dir: Path | None = None, seed_demo: bool | None = None,
-               base_path: str | None = None, live_ml: bool | None = None) -> FastAPI:
+               base_path: str | None = None, live_ml: bool | None = None, auto_rules_check: bool | None = None,
+               rules_env: auto.PackEnv | None = None) -> FastAPI:
     """`seed_demo` puts the demo cases at their places in the timeline on an empty store, on the first request.
     It defaults on for the demo's own service and off when a caller (a test) brings its own. `base_path`
     serves every screen under a prefix, for the demo proxied at ophi.app/<slug>. `live_ml` runs Laya and
     LightGBM on every case page open; it defaults on locally and off for tests and the proxied demo, which
-    ship without the models and read the offline readouts instead."""
+    ship without the models and read the offline readouts instead. `auto_rules_check` re-checks the CDCP
+    sources in the background when a page is visited and the last check is a week old; it defaults from
+    OPHI_AUTO_RULES_CHECK (on unless "0", "false" or "off") for the app's own service without a base path, and off
+    otherwise (tests, the proxied demo). `rules_env` points
+    the check and the /rules review page at other packs and another web (tests)."""
     base = (os.environ.get("OPHI_BASE_PATH", "") if base_path is None else base_path).rstrip("/")
     own = svc is None
     svc = svc or CaseService(weights=load_weights())
     if own and not base and os.environ.get("OPHI_ABELDENT") == "1":  # lab: read sent requests from the ABELDent VM
         pms = AbelDentPmsRepository()
         svc.pms_claims, svc.note_reader = (lambda: abeldent.list_predeterminations(pms.sql)), _note_reason
-    live = LiveScorer(svc.pack) if (own and not base if live_ml is None else live_ml) else None
+    live = LiveScorer(svc.pack_for) if (own and not base if live_ml is None else live_ml) else None
 
     @asynccontextmanager
     async def lifespan(_: FastAPI):
@@ -694,6 +772,11 @@ def create_app(svc: CaseService | None = None, packets_dir: Path | None = None, 
 
     app = FastAPI(title="Ophi", docs_url=None, redoc_url=None, lifespan=lifespan)
     app.state.live = live
+    if auto_rules_check is None:  # like live_ml: the app's own service only, and never the proxied public demo
+        auto_rules_check = (own and not base
+                            and os.environ.get("OPHI_AUTO_RULES_CHECK", "1").strip().lower() not in ("0", "false", "off", "no"))
+    app.state.auto_rules = auto_rules_check
+    app.state.rules_env = rules_env or auto.PackEnv()
     app.state.seed_demo = own if seed_demo is None else seed_demo
     app.state.seeded = False
     app.state.pms_synced_at = float("-inf")

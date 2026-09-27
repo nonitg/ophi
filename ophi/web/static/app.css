@@ -115,6 +115,19 @@ textarea.input { width: 100%; height: auto; padding: 8px 10px; line-height: 1.5;
 .board-head h1 { font-size: 28px; font-weight: 500; letter-spacing: -.02em; line-height: 1.15; }
 .board-fresh-all { display: grid; gap: 4px; justify-items: end; }
 .board-fresh { display: flex; align-items: center; gap: 7px; font-size: 13px; color: var(--muted); }
+.board-rules { font-size: 12.5px; color: var(--muted); text-align: right; }
+.board-rules a { color: inherit; }
+.rules-error { max-width: 80ch; margin: 0 0 20px; padding: 12px 16px; border-radius: var(--r-control); border: 1px solid var(--gap-line); background: var(--gap-tint); color: var(--gap); }
+.rules-quote { margin: 6px 0 0; padding-left: 12px; border-left: 2px solid var(--rule-strong); font-size: 13.5px; color: var(--ink-soft); }
+.rules-impact li, .rules-quote { overflow-wrap: anywhere; }
+.rules-chain { margin-top: 8px; }
+.rules-more { margin-top: 10px; }
+.rules-more summary { cursor: pointer; color: var(--muted); }
+.rules-more .plain { margin-top: 8px; }
+.rules-checking { margin-bottom: 8px; color: var(--person); }
+.rules-chain + .rules-chain { margin-top: 2px; }
+.rules-ack { display: flex; gap: 10px; align-items: baseline; cursor: pointer; }
+
 
 /* the one thing to do first */
 .start { display: flex; align-items: center; gap: 14px 24px; margin: 0 0 24px; padding: 18px 22px; border-radius: var(--r-panel); background: var(--linen); }

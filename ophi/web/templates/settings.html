@@ -31,7 +31,7 @@
         <dt>In effect from</dt><dd class="num">{{ full_date(pack.effective_from) }}</dd>
         <dt>Checked against sources</dt><dd class="num">{{ full_date(pack.verified_on) }}</dd>
       </dl>
-      <p class="small" style="margin-top:12px"><a href="{{ BASE }}/outcomes">Past outcomes</a></p>
+      <p class="small" style="margin-top:12px"><a href="{{ BASE }}/rules">CDCP rule updates</a> · <a href="{{ BASE }}/outcomes">Past outcomes</a></p>
       <h3>Sources</h3>
       <ul class="plain small">
         {% for key, s in pack.sources.items() %}<li><a href="{{ s.url }}" target="_blank" rel="noopener">{{ s.title }}</a></li>{% endfor %}

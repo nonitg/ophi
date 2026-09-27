@@ -14,8 +14,9 @@ from ophi.workflow import chart_actions
 
 
 def _swaps(case: Case, pack: RulePack) -> dict[str, str]:
-    retired = {r.code: r.replaced_by for r in pack.schedule.retired_codes}
-    return {c: retired[c] for c in case.treatment.lab_codes if c in retired}
+    """Each retired lab code and the code that replaces it under `pack` (the pack for the case's date), through any
+    chain of replacements."""
+    return {c: new for c in case.treatment.lab_codes if (new := pack.current_code(c))}
 
 
 def _current_lab_codes(case: Case, pack: RulePack) -> Case:

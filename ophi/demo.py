@@ -36,7 +36,7 @@ def seed(svc: CaseService) -> None:
             continue
         with svc.at(signed):
             v = svc.view(case_id)
-            svc.sign_off(case_id, dentist.name, dentist.licence, draft_narrative(v.case, v.assessment, svc.pack), role=dentist.role)
+            svc.sign_off(case_id, dentist.name, dentist.licence, draft_narrative(v.case, v.assessment, v.pack), role=dentist.role)
         if sent:
             with svc.at(sent):
                 svc.mark_submitted(case_id, coordinator.name, on=sent)

@@ -5,6 +5,14 @@
     sel.addEventListener("change", function () { sel.form.submit(); });
   });
 
+  // A rule update is used only once every needs-a-person item is ticked.
+  document.querySelectorAll("form[data-ack-all]").forEach(function (form) {
+    var boxes = form.querySelectorAll("input[type=checkbox]"), btn = form.querySelector("button[type=submit]");
+    function sync() { btn.disabled = Array.prototype.some.call(boxes, function (b) { return !b.checked; }); }
+    boxes.forEach(function (b) { b.addEventListener("change", sync); });
+    sync();
+  });
+
   document.querySelectorAll("form[data-confirm]").forEach(function (form) {
     form.addEventListener("submit", function (e) {
       if (!window.confirm(form.getAttribute("data-confirm"))) e.preventDefault();

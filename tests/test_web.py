@@ -22,7 +22,7 @@ FORBIDDEN = re.compile(r"\b(will be approved|approved|eligible|covered|likely|pr
 @pytest.fixture
 def client(tmp_path):
     svc = CaseService(store=Store(tmp_path / "state"))
-    app = create_app(svc=svc, packets_dir=tmp_path / "packets")
+    app = create_app(auto_rules_check=False, svc=svc, packets_dir=tmp_path / "packets")
     return TestClient(app, follow_redirects=False)
 
 
@@ -30,7 +30,7 @@ def client(tmp_path):
 def seeded(tmp_path):
     """The demo as it runs: five cases already past sign-off, some with Sun Life's decision recorded."""
     svc = CaseService(store=Store(tmp_path / "state"))
-    app = create_app(svc=svc, packets_dir=tmp_path / "packets", seed_demo=True)
+    app = create_app(auto_rules_check=False, svc=svc, packets_dir=tmp_path / "packets", seed_demo=True)
     with TestClient(app, follow_redirects=False) as c:  # the first request seeds
         yield c
 
@@ -45,11 +45,11 @@ def _draft(case_id: str) -> str:
     from ophi.engine.assess import assess
     from ophi.extract.proposer import propose_for_case
     from ophi.packet.narrative import draft_narrative
-    from ophi.rules.loader import default_pack
+    from ophi.rules.loader import pack_for
     from ophi.service import CASES_DIR
     case = load_case(CASES_DIR / f"{case_id}.yaml")
     case = case.with_artifacts(propose_for_case(case))
-    return draft_narrative(case, assess(case, default_pack()), default_pack())
+    return draft_narrative(case, assess(case, pack_for(case)), pack_for(case))
 
 
 def test_board_shows_a_column_per_step_with_deadline_chips(seeded):
@@ -71,7 +71,7 @@ def test_taking_the_chair_gaps_moves_the_case_to_the_dentist(seeded):
 
 def test_base_path_serves_every_screen_and_link_under_the_prefix(tmp_path):
     """The hosted demo lives at ophi.app/<slug>; nothing it links to may escape that prefix."""
-    app = create_app(svc=CaseService(store=Store(tmp_path / "state")), packets_dir=tmp_path / "packets", base_path="/demo-x",
+    app = create_app(auto_rules_check=False, svc=CaseService(store=Store(tmp_path / "state")), packets_dir=tmp_path / "packets", base_path="/demo-x",
                      seed_demo=True)
     c = TestClient(app, follow_redirects=False)
     for actor in ("coordinator", "dentist"):
@@ -91,7 +91,7 @@ def test_base_path_serves_every_screen_and_link_under_the_prefix(tmp_path):
 
 def test_public_demo_does_not_expose_the_live_pms_api(tmp_path):
     """Patient search is lab-only; the proxied demo must not route it under any path."""
-    app = create_app(svc=CaseService(store=Store(tmp_path / "state")), packets_dir=tmp_path / "packets", base_path="/demo-x")
+    app = create_app(auto_rules_check=False, svc=CaseService(store=Store(tmp_path / "state")), packets_dir=tmp_path / "packets", base_path="/demo-x")
     assert not [r.path for r in app.routes if "abeldent" in getattr(r, "path", "")]
 
 

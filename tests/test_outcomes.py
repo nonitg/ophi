@@ -7,7 +7,7 @@ from pathlib import Path
 import pytest
 
 from tests import _pg
-from tests._cases import ROOT, ready_dict
+from tests._cases import DEMO_DAY, ROOT, ready_dict
 from ophi.casegen.dsl import build_case
 from ophi.engine.assess import assess
 from ophi.engine.models import Status, Verdict
@@ -24,7 +24,7 @@ FIXTURES = [ROOT / "fixtures" / "cdcp_approvals", ROOT / "fixtures" / "cdcp_deni
 def test_export_becomes_case_as_submitted():
     d = load_export(ROOT / "fixtures" / "cdcp_denials" / "PA-SYN-100036.json")
     sub = to_submission(d)
-    a = assess(to_case(d, sub), default_pack())
+    a = assess(to_case(d, sub), default_pack(DEMO_DAY))
     status = {r.requirement_id: r.status for r in a.requirements}
     assert sub.member_hash != d["member"]["member_id"]
     assert sub.attachment_types == ["clinical_notes"]
@@ -33,13 +33,13 @@ def test_export_becomes_case_as_submitted():
 
 
 def test_denial_map_names_only_pack_requirements():
-    m = load_denial_map(default_pack())
+    m = load_denial_map(default_pack(DEMO_DAY))
     assert m["DOC_MISSING_RADIOGRAPH"] == ["radiograph_pa", "radiograph_bw"]
     assert m["NOT_COVERED"] == []
 
 
 def test_lift_breaks_ties_only():
-    pack = default_pack()
+    pack = default_pack(DEMO_DAY)
     d = ready_dict()
     d["radiographs"] = []  # PA and BW both missing: same blocking, severity and effort
     case = build_case(d, "tie")
@@ -69,7 +69,7 @@ def conn():
 
 
 def test_ingest_fills_lift_and_blind_spots(conn):
-    pack = default_pack()
+    pack = default_pack(DEMO_DAY)
     assert ingest_dir(conn, FIXTURES, pack) == {"submissions": 120, "assessed": 30}
     assert ingest_dir(conn, FIXTURES, pack)["submissions"] == 120  # idempotent re-run
     lift = {r["requirement_id"]: r for r in store.denial_lift(conn, pack.version)}
@@ -86,5 +86,5 @@ def test_outcomes_page_without_database(tmp_path, monkeypatch):
     from ophi.web.app import create_app
 
     monkeypatch.delenv("SUPABASE_DB_URL", raising=False)
-    r = TestClient(create_app(svc=CaseService(store=Store(tmp_path / "s")))).get("/outcomes")
+    r = TestClient(create_app(auto_rules_check=False, svc=CaseService(store=Store(tmp_path / "s")))).get("/outcomes")
     assert r.status_code == 200 and "Past outcomes are unavailable." in r.text and "SUPABASE_DB_URL" not in r.text

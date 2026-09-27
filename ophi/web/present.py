@@ -7,9 +7,12 @@ completeness, never payer behaviour. Sun Life's decisions are shown as Sun Life'
 
 from __future__ import annotations
 
+import hashlib
+import json
 import re
 from dataclasses import dataclass
 from datetime import date, datetime
+from pathlib import Path
 from zoneinfo import ZoneInfo
 
 from ophi import fixes
@@ -24,11 +27,12 @@ from ophi.dental import notation, sextants
 from ophi.engine.models import Action, Status, Verdict
 from ophi.lookback import DOCUMENT_REQUIREMENTS
 from ophi.outcomes.readout import Readout, fingerprint, text_for
+from ophi.rules.loader import rules_date
 from ophi.rules.schema import RulePack
 from ophi.service import MANUAL_MINUTES_PER_PREAUTH, CaseView
 from ophi.workflow import (
     CHART_STAGES, ORDER, OWNER, SUN_LIFE_TURNAROUND_DAYS, Stage, chair_actions, chart_actions, criteria_can_start, desk_actions,
-    pending_criteria, reconsider_by, send_by, valid_until,
+    pending_criteria, reconsider_by, send_by, stage_of, valid_until,
 )
 
 # --- actors ---------------------------------------------------------------------------------------
@@ -553,11 +557,110 @@ def _mine_first(cards: list[dict]) -> list[dict]:
     return sorted((c for c in cards if c["mine"]), key=lambda c: c["sort"])
 
 
+def rules_check(status: dict | None) -> list[str]:
+    """When the pack was last checked against its CDCP sources, and whether a found change awaits review. A check
+    that could not reach every source says so instead of claiming a clean check."""
+    try:
+        return _rules_lines(status)
+    except (AttributeError, KeyError, TypeError, ValueError):  # a malformed status file shows nothing, never a 500
+        return []
+
+
+def _rules_lines(status: dict | None) -> list[str]:
+    if not status:
+        return []
+    waiting = ["A CDCP rule update is waiting for review."] if status.get("draft_waiting") else []
+    if not status.get("checked_on"):
+        return waiting
+    on = full_date(date.fromisoformat(status["checked_on"]))
+    missed = len(status.get("unreachable") or [])
+    out = [f"Could not reach {plural(missed, 'CDCP source')} on {on}." if missed
+           else f"Rules checked against CDCP sources on {on}."]
+    out += [f"{m['label']} last checked by hand on {full_date(date.fromisoformat(m['checked_on']))}."
+            for m in status.get("manual") or [] if m.get("checked_on")]
+    if waiting:
+        out += waiting
+    elif status.get("pending"):
+        found = status.get("found_on") or status["checked_on"]
+        out.append(f"CDCP published changes on {full_date(date.fromisoformat(found))}. A rule update is waiting for review.")
+    return out
+
+
+SOURCE_STATE_LABEL = {"unchanged": "No change", "changed": "Changed", "shrank": "Much shorter than before",
+                      "unreachable": "Could not reach", "manual": "Checked by hand"}
+
+
+def _day(stamp: str | None) -> str:
+    try:
+        return full_date(date.fromisoformat(stamp[:10])) if stamp else "—"
+    except ValueError:
+        return "—"
+
+
+def rules_page(status: dict | None, draft_dir: Path | None, changes: list[dict] | None = None) -> dict:
+    """The /rules review page: the last source check, the draft waiting for review (from draft.json), and how the
+    clinic's own open requests would change under it (`request_changes`)."""
+    status = status or {}
+    check = {
+        "lines": rules_check(status), "attempted": _day(status.get("attempted_at")), "error": status.get("last_error"),
+        "checking": bool(status.get("checking_since")),
+        "sources": [{"key": k, "state": v, "label": SOURCE_STATE_LABEL.get(v, v)}
+                    for k, v in (status.get("sources") or {}).items()] if isinstance(status.get("sources"), dict) else [],
+    }
+    draft = None
+    if draft_dir is not None:
+        try:
+            raw = (draft_dir / "draft.json").read_bytes()
+            d = json.loads(raw)
+        except (OSError, ValueError):
+            d = None
+        if isinstance(d, dict):
+            draft = {**d, "name": draft_dir.name, "sha": hashlib.sha256(raw).hexdigest(),
+                     "effective": _day(d.get("effective_from")), "drafted": _day(d.get("drafted_on")),
+                     "needs_person": d.get("needs_person") or [], "requests": changes or [],
+                     "changes": [{**c, "effective": _day(c.get("effective_on")) if c.get("effective_on") else "not stated"}
+                                 for c in d.get("changes") or []]}
+    return {"check": check, "draft": draft}
+
+
+OPEN_STAGES = (Stage.PATIENT, Stage.PREPARE, Stage.DENTIST, Stage.SEND, Stage.RESUBMIT)
+
+
+def request_changes(views: list[CaseView], proposed: RulePack, assess_under) -> list[dict]:
+    """The clinic's open requests whose next step would differ under a rule update, in the board's words. The
+    update counts only for requests whose date of service is on or after its effective date.
+    `assess_under(case_id, pack)` gives (case, assessment) under another pack (CaseService.assess_under)."""
+    out = []
+    for v in views:
+        if v.stage not in OPEN_STAGES or rules_date(v.case) < proposed.effective_from:
+            continue
+        case, b = assess_under(v.case.case_id, proposed)
+        before = {action_title(x) for x in v.assessment.actions if x.blocking}
+        added = [x for x in b.actions if x.blocking and action_title(x) not in before]
+        after = {action_title(x) for x in b.actions if x.blocking}
+        gone = [t for t in before if t not in after]
+        st = v.state
+        stage = stage_of(b, v.signed and not added, st.submitted_on, st.decision.outcome if st.decision else None,
+                         st.booked_on)
+        parts = [f"{STAGE_LABEL[v.stage]} → {STAGE_LABEL[stage]}"] if stage != v.stage else []
+        if added:
+            need = [next((fixes.title(case, rid, proposed) for rid in x.unblocks if rid in fixes.SAFE), action_title(x))
+                    for x in added]
+            parts.append(f"would need: {'; '.join(need)} (from {full_date(proposed.effective_from)})")
+        if gone:
+            parts.append(f"would no longer need: {'; '.join(sorted(gone))}")
+        if parts:
+            out.append({"case_id": v.case.case_id, "patient": v.case.patient.display_name,
+                        "tooth": v.case.requested_tooth, "change": "; ".join(parts)})
+    return out
+
+
 def board(views: list[CaseView], actor: Actor, today: date, risks: dict[str, dict] | None = None,
-          prefills: dict[str, int] | None = None) -> dict:
+          prefills: dict[str, int] | None = None, rules_status: dict | None = None) -> dict:
     """Every preauthorization as a card in the column for the step it is on. Cards the viewer acts on are
     marked `mine`; the most urgent of them is `start`, the one thing to do first. `risks` is the fix plan per case
-    id (`board_risk`), for the cards that still have chart gaps; `prefills` the criteria Ophi pre-filled per case id."""
+    id (`board_risk`), for the cards that still have chart gaps; `prefills` the criteria Ophi pre-filled per case id;
+    `rules_status` the latest CDCP source check (ophi.rules.watch.load_status)."""
     risks, prefills = risks or {}, prefills or {}
     cards = [card(v, actor, today, risks.get(v.case.case_id), prefills.get(v.case.case_id, 0)) for v in views if v.stage != Stage.NOT_NEEDED]
     provider = views[0].case.treatment.provider.name if views else "the dentist"
@@ -578,7 +681,8 @@ def board(views: list[CaseView], actor: Actor, today: date, risks: dict[str, dic
         headline = f"{plural(n, 'case needs', 'cases need')} you" if n else "Nothing needs you today"
     late = sum(1 for c in mine if c["timing"]["late"])
     return {"today": today, "headline": headline, "late": late, "columns": columns, "start": mine[0] if mine else None,
-            "scored": len(risks), "prefilled": sum(prefills.values())}
+            "scored": len(risks), "prefilled": sum(prefills.values()),
+            "rules": rules_check(rules_status)}
 
 
 def next_up(views: list[CaseView], current: CaseView, actor: Actor, today: date) -> dict | None:
@@ -990,9 +1094,11 @@ def results(views: list[CaseView], pack: RulePack, report, recovered: dict) -> d
     for v in views:
         gaps = v.state.first_check.gaps if v.state.first_check else []
         cases_with_gaps += bool(gaps)
+        own = {r.id: r for r in v.pack.requirements}  # each request's gaps as its own pack names them
         for rid in gaps:
-            found = caught[rid in chair]
-            found[labels.get(rid, rid)] = found.get(labels.get(rid, rid), 0) + 1
+            label = own[rid].label if rid in own else labels.get(rid, rid)
+            found = caught[own[rid].gap.needs_patient if rid in own else rid in chair]
+            found[label] = found.get(label, 0) + 1
     # Past denials missing a film or perio chart: the gaps that cost the patient another visit.
     chair_docs = {labels[rid] for rid in chair & DOCUMENT_REQUIREMENTS}
     denied_for_chair = sum(1 for row in report.rows if row.decision == "denied" and chair_docs & set(row.gaps)) if report else 0

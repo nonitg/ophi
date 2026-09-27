@@ -1,0 +1,746 @@
+Canadian Dental Care Plan - Dental Benefits Guide
+Effective date: April 1, 2026
+This guide provides information on the Canadian Dental Care Plan (CDCP) and its policies. It is a summary of CDCP's coverage for oral health care services and describes the important elements of each associated policy.
+View the previous version of the Dental Benefits Guide that was in effect prior to this version.
+On this page
+1.0 Purpose of the Dental Benefits Guide
+2.0 General principles
+3.0 Terms and conditions
+4.0 Definitions
+5.0 Preauthorization
+5.1 General documentation requirements
+5.2 Submission process
+5.3 Preauthorization validity
+5.4 Post-determination
+6.0 Services covered by the CDCP
+6.1 Diagnostic services
+6.2 Preventive services
+6.3 Restorative services
+6.4 Endodontic services
+6.5 Periodontal services
+6.6 Prosthodontic services - Removable prosthodontics
+6.7 Oral surgery services
+6.8 Orthodontic services
+6.9 Sedation and other adjunctive services
+7.0 Appendices
+Appendix A: CDCP Dental Benefit Grids
+Appendix B: Payment and reimbursement
+Appendix C: Preauthorization reconsideration process
+Appendix D: Claims verification program
+Appendix E: Exclusions
+1.0 Purpose of the Dental Benefits Guide
+The Dental Benefits Guide summarizes the terms and conditions and policies, including criteria, guidelines and limitations, under which the CDCP covers oral health care services for eligible CDCP clients.
+2.0 General principles
+The CDCP covers a range of oral health care procedures that prevent and treat oral disease and/or the consequences of oral disease
+Coverage of oral health care services is determined on an individual basis taking into consideration criteria such as the client's oral health status and medical conditions
+CDCP clients cannot submit claims for reimbursement from the CDCP, and oral health providers are encouraged to avoid charging CDCP clients for costs covered by the CDCP
+The CDCP may consider coverage beyond its frequency limitations for certain eligible oral health care services. This can be requested through preauthorization
+Not all oral health care services are covered under the CDCP. Consistent with its policies, the CDCP does not cover any procedures related to non-eligible oral health care services, nor does it cover procedures related to an oral health care procedure reviewed and declined by the CDCP through preauthorization
+An oral health provider needs to confirm a CDCP client's coverage prior to submitting claims to the CDCP for payment either by using an Electronic Data Interchange (EDI) estimate, by contacting the Sun Life CDCP Contact Centre at 1-888-888-8110, or by using the CDCP Coverage Look-up tool in Sun Life Direct
+An oral health provider may submit claims to the CDCP for payment provided that the oral health care services are rendered within the CDCP's rules, including the following outlined in this Dental Benefits Guide and the CDCP Dental Benefit Grids:
+policies
+guidelines and criteria
+frequency limitations
+preauthorization requirements
+The services outlined in this Dental Benefits Guide and the CDCP Dental Benefit Grids are based on:
+Canadian Dental Association (CDA) Uniform System of Coding & List of Services
+Association des chirurgiens dentistes du Québec (ACDQ) Fee Guide
+Fédération des dentistes spécialistes du Québec (FDSQ) Guide
+Denturist Association of Canada (DAC) Master List of Procedure Codes
+Canadian Dental Hygienists Association (CDHA) National List of Service Codes
+Persons with disabilities
+The CDCP is designed to cover a range of individual oral health care needs and circumstances, and the preauthorization process takes oral health status and medical conditions into account, including disabilities. A client may be eligible for additional services in cases where there is a demonstrated higher need for that particular kind of oral health care. For example, the CDCP may cover certain oral hygiene services above frequency limitations through preauthorization for clients with a physical disability who, as a result of the disability, require support to conduct routine care such as brushing, when specific criteria demonstrating oral health care needs are met.
+3.0 Terms and conditions
+This guide provides information on the CDCP and its policies regarding coverage for oral health care services. It explains the scope of the CDCP's coverage by describing the important elements of each associated policy. All oral health care services provided through the CDCP are subject to post-claim verification to ensure policies are met (see Appendix D: Claims verification program).
+To be eligible for payment of services rendered, oral health providers must adhere to the CDCP Claims Processing and Payment Terms. When claiming for services, it is the oral health provider's responsibility to:
+confirm the CDCP client's coverage prior to treatment,
+ensure compliance with CDCP rules, including the policies for services outlined in this Dental Benefits Guide and the CDCP Dental Benefit Grids, and
+submit claims in a manner consistent with the terms and conditions set out in the CDCP Claims Processing and Payment Terms.
+Eligible providers who can submit claims to the CDCP include:
+dentists
+denturists
+independent dental hygienists
+dental specialists
+dental schools and educational institutions for oral health professions
+4.0 Definitions
+CDCP client:
+An individual assessed by Service Canada to meet CDCP eligibility criteria and who is enrolled in the CDCP. The oral health provider needs to confirm a CDCP client's coverage prior to submitting claims to the CDCP for payment either by using an EDI estimate, by contacting the Sun Life CDCP Contact Centre at 1-888-888-8110, or by using the CDCP Coverage Look-up tool in Sun Life Direct.
+Exclusions:
+These are oral health care procedures that are always outside the scope of the CDCP and are not eligible for coverage at any time. Further detail is provided in Appendix E: Exclusions.
+Frequency limitations:
+Coverage limitations put against procedures, as specified in the current CDCP Dental Benefit Grids and in this Dental Benefits Guide. Frequency limitations are based on rolling periods. For example, if a recall exam has a frequency limitation of 12 months and is rendered on April 1, 2025, that CDCP client will be eligible for another recall exam on April 2, 2026. The oral health provider needs to confirm a CDCP client's coverage prior to submitting claims to the CDCP for payment either by using an EDI estimate, or by contacting the Sun Life CDCP Contact Centre at 1-888-888-8110, or by using the CDCP Coverage Look-up tool in Sun Life Direct.
+The CDCP may consider coverage beyond frequency limitations for certain eligible oral health care services. Requests must be submitted for preauthorization
+Preauthorization:
+Preauthorization is a process to request coverage for services prior to proceeding with treatment. Preauthorization may also be referred to as predetermination under other plans. Preauthorization enables both the oral health provider and client to understand whether a service that requires preauthorization will be covered by the CDCP and up to what limitations, if applicable. Certain services always require preauthorization, and some services can be requested above CDCP frequency limitations through preauthorization. Submissions are adjudicated using robust clinical criteria; therefore, not all submissions will be approved. Further detail is provided in section 5.0 Preauthorization.
+Preauthorization reconsideration process:
+Preauthorization reconsideration is a process to seek reconsideration of a denied preauthorization submission under the CDCP. Requests are initiated by the client or oral health provider (at the request and with the consent of the client), and submitted by the oral health provider. Further detail is provided in Appendix C: Preauthorization reconsideration process.
+Post-determination:
+Post-determination is the process through which coverage for procedures typically requiring preauthorization is administratively reviewed and adjudicated after the clinical services have been rendered. Post-determination is intended to be used rarely, and only in emergent clinical situations. Requests for post-determination must include all the documentation that would be required to request preauthorization for the same service, in addition to a rationale explaining why post-determination is being sought instead of preauthorization. Further detail is provided in section 5.4 Post-determination.
+Periodontal Screening and Recording (PSR):
+A screening examination that promotes early detection and treatment of periodontal diseases. PSR allows rapid assessment and recording of a client's periodontal status, but does not replace the need for a comprehensive periodontal examination and chart when indicated.
+5.0 Preauthorization
+Preauthorization is a process to request coverage for services prior to proceeding with treatment. Certain services require preauthorization for coverage under the CDCP, and requests must be submitted by the oral health provider with supporting documentation (see section 5.1: General documentation requirements). Preauthorization may also be referred to as predetermination under other plans. Submissions are adjudicated using robust clinical criteria.
+Services for which preauthorization is required must receive approval prior to the initiation of treatment in order to be eligible for coverage under the CDCP (except in cases where post-determination is requested due to an emergent clinical situation; see section 5.4 Post-determination).
+For preauthorization purposes, the CDCP assesses requests based on clinical criteria established by Health Canada, which also take into account basic treatment needs that may impact the service being requested. In those instances, basic treatment needs are defined as any treatment required to address any existing active biological disease (caries, periodontal and periapical).
+5.1 General documentation requirements
+Preauthorization submission requirements vary depending on the procedure(s) being requested and each client's needs and circumstances. Please refer to section 6.0 Services covered by the CDCP for the preauthorization documentation requirements for the following services:
+specialist examinations (see 6.1.1.1)
+restorative services (see 6.3.6)
+endodontic services (see 6.4.4)
+additional units of scaling and root planing (see 6.5.1.2)
+partial dentures (see 6.6.2.4)
+complete dentures (see 6.6.3.3)
+denture labelling (see 6.6.4.1)
+oral surgery services (see 6.7.1), and
+sedation services (see 6.9.5)
+For services that do not specify documentation requirements in section 6.0 Services covered by the CDCP, preauthorization submissions require the following documentation:
+Request using 1 of the following forms:
+Canadian Dental Association (CDA)/Canadian Life and Health Insurance Association (CLHIA) Standard Dental Claim Form
+Association des chirurgiens dentistes du Québec (ACDQ) Dental Claim and Treatment Plan Form
+Canadian Dental Hygienists Association (CDHA) National Dental Hygiene Claim Form
+Denturist Association of Canada (DAC) Dental Care Claim Form
+Computer generated treatment form
+Treatment plan indicating all relevant completed and pending treatment needs, or, based on the provider's scope of practice, confirmation that potential basic treatment needs are being referred and/or to be addressed. This does not need to be submitted as a stand-alone document labelled 'treatment plan' so long as the information is included in the documentation submitted.
+Dated radiographs:
+dated periapical and bitewing radiographs (within last 12 months), or
+dated panoramic radiograph
+note: if radiographs cannot be provided, dated alternative documentation will be considered
+Dated complete periodontal chart, including 6 periodontal measurements per tooth (within last 12 months)
+Any pertinent clinical findings, notes and/or rationale supporting the request
+Oral health providers are encouraged to submit all required and relevant information available to support the request. However, the CDCP may consider preauthorization submissions where only some, but not all, required documentation is provided. Coverage decisions will be based on the information provided and the CDCP's policies and eligibility criteria for the procedure(s) requested.
+Where a submission does not sufficiently demonstrate the eligibility criteria are met, additional information may be requested and/or the submission will be denied.
+5.2 Submission process
+Requests for preauthorization will be managed by Sun Life and adjudicated against CDCP rules, policies and limitations provided by Health Canada. Oral health providers can request preauthorization for services by submitting the requested procedure code(s) along with required documentation and supporting information to the CDCP through EDI or by mail to:
+Sun Life Assurance Company of Canada
+Canadian Dental Care Plan (CDCP)
+PO Box 99865 STND
+Montreal, QC, H3C 0E6
+Note: Submissions by mail will require additional time in order for Sun Life to receive submissions and provide decisions.
+Clinical information and documentation submitted by an oral health provider to support a preauthorization submission could also include information from another provider, such as the treating or the referring oral health provider.
+For example, to request preauthorization of a "specialist examination - complete", a specialist could submit required documentation including radiographs, even if those radiographs were received from the referring oral health provider.
+5.3 Preauthorization validity
+Most preauthorization decisions are valid for up to 12 months from the date of approval, as long as the client is still eligible for coverage under the CDCP on the date of service.
+Preauthorization decisions for some preventive and periodontal services are valid for up to 24 months (2 years) from the date of approval, as long as the client is still eligible for coverage under the CDCP on the date of service.
+5.4 Post-determination
+The CDCP will consider coverage for procedures that usually require preauthorization after they are rendered. Post-determination is intended to be used rarely, and only in emergent clinical situations. CDCP clients cannot submit claims for reimbursement from the CDCP, and oral health providers are encouraged to avoid charging CDCP clients for costs that could be covered by the CDCP.
+Requests for post-determination must include all the documentation that would be required to request a preauthorization for the same service in addition to a rationale explaining why post-determination is being sought instead of preauthorization. Coverage decisions will be based on the same policies and eligibility criteria as for preauthorization submissions. Please refer to section 5.1 General documentation requirements and the requirements for specific services in section 6.0 Services covered by the CDCP.
+Oral health providers can request post-determination for services by submitting required documentation and supporting information to the CDCP through EDI or by mail to:
+Sun Life Assurance Company of Canada
+Canadian Dental Care Plan (CDCP)
+PO Box 99865 STND
+Montreal, QC, H3C 0E6
+6.0 Services covered by the CDCP
+6.1 Diagnostic services
+In this section
+6.1.1 Examinations
+6.1.2 Radiographs
+6.1.3 Laboratory tests, analysis
+6.1.1 Examinations
+Clients are eligible for up to 3 examinations in any 12-month period provided these examinations respect the frequency limitations.
+These examinations can include:
+complete oral examination
+new patient limited examination
+recall examination
+specific examination
+Frequency limitations take into account overall interactions between various examination services, as well as the eligibility period for each service.
+Examinations performed by dental specialists and denturists do not count against the maximum number of eligible annual examinations.
+Emergency or specific examinations submitted with recall services will be considered as a recall examination and frequency limitations for recall examinations will be applied.
+Frequency limitations for examinations
+Oral health care procedure
+Frequency limitations
+Complete oral examination
+1 in any 60 months (5 years)
+When a complete examination is provided, it replaces the recall examination and the new patient limited examination for the respective eligibility period
+New patient limited examination
+1 in any 12 months in lieu of recall examination
+Recall examination
+1 in any 12 months
+Specific examination
+1 in any 12 months
+When performed in conjunction with recall services, a specific examination will be considered as a recall examination
+Emergency examination
+No frequency limit
+When performed in conjunction with recall services, an emergency examination will be considered as a recall examination
+First dental visit/orientation - oral assessment for patients up to the age of 3 years (inclusive)
+1 per lifetime
+Specialist examination - complete (requires preauthorization)
+1 in any 60 months (5 years) per specialty
+When a specialist examination - complete is provided by a specialist, it replaces the specialist examination - limited within the same specialty in that 12-month period
+Specialist examination - limited
+1 in any 12 months per specialty
+6.1.1.1 Preauthorization documentation requirements for specialist examinations
+Preauthorization must be requested using 1 of the following completed forms:
+Canadian Dental Association (CDA)/Canadian Life and Health Insurance Association (CLHIA) Standard Dental Claim Form
+Association des chirurgiens dentistes du Québec (ACDQ) Dental Claim and Treatment Plan Form
+Canadian Dental Hygienists Association (CDHA) National Dental Hygiene Claim Form
+Denturist Association of Canada (DAC) Dental Care Claim Form
+Computer generated treatment form
+Referral, with justification for the referral
+Requests for preauthorization can be submitted by either the specialist or the referring oral health provider.
+6.1.2 Radiographs
+All radiographs submitted with a treatment plan must be current, include the date of service, and of diagnostic quality. Film radiographs submitted by mail must be dated, mounted and the name of both the oral health provider and client must be indicated on the mount. Whenever film duplicate radiographs are submitted, in addition to the above, the oral health provider must indicate on the radiograph whether the radiograph is on the right or left side of the client's mouth.
+When submitting enlarged digital radiographs, of any type, oral health providers are requested to print a measurement scale when possible on the radiograph to facilitate the assessment.
+Intraoral radiographs are considered "current" for preauthorization purposes if dated within the last 12 months of the preauthorization submission.
+Frequency limitations for radiographs
+Oral health care procedure
+Frequency limitations
+Intraoral radiographs (1 to 8 images) (includes periapical, bitewing, and occlusal radiographs)
+8 in any 12 months
+Intraoral radiographs (12 to 16 images) - complete series
+1 in any 60 months (5 years)
+Panoramic radiographs
+1 in any 60 months (5 years); up to 3 per lifetime
+6.1.3 Laboratory tests, analysis
+Frequency limitations for laboratory tests, analysis
+Oral health care procedure
+Frequency limitations
+Microbiological test/analysis for the determination of pathologic agents
+1 in any 12 months
+Cytological smear from the oral cavity
+1 in any 12 months
+6.2 Preventive services
+In this section
+6.2.1 Preventive services
+6.2.1 Preventive services
+Frequency limitations for polishing and topical fluoride treatment
+Oral health care procedure
+Age 0 to 11 years
+Age 12 to 16 years
+Age 17+ years
+Polishing
+½ unit in any 12 months
+½ unit in any 12 months
+½ unit in any 12 months
+Topical fluoride (includes fluoride varnish and other topical fluoride eligible treatments)
+1 treatment in any 6 months
+1 treatment in any 6 months
+1 treatment in any 12 months
+6.2.1.1 Topical application to hard tissue lesion(s) of an antimicrobial or remineralization agent
+Includes silver diamine fluoride (SDF) to promote caries arrest
+Frequency limitations for topical application of an antimicrobial or remineralization agent
+Oral health care procedure
+Age 0 to 11 years
+Age 12 to 16 years
+Age 17+ years
+Topical application to hard tissue lesion(s) of an antimicrobial or remineralization agent (includes silver diamine fluoride)
+2 treatments in any 12 months
+2 treatments in any 12 months
+2 treatments in any 12 months
+6.2.1.2 Sealants and preventive resin restorations
+Clients 17 years of age and under are covered for sealants and preventive resin restorations on the occlusal surface of permanent molars, bicuspids, and on the lingual surface of permanent maxillary incisors, where surfaces are unrestored. Third molars, permanent canines and mandibular incisors are not eligible
+There is a lifetime limit of 2 sealants/preventive resin restorations per eligible tooth
+6.2.1.3 Interproximal disking of teeth
+Frequency limitations for interproximal disking of teeth
+Oral health care procedure
+Frequency limitations
+Interproximal disking of teeth (requires preauthorization)
+1 unit in any 12 months
+The CDCP may consider coverage under the following circumstances:
+creation of space for erupting permanent teeth (applicable only to mesial of 53, 63, 73, 83 and the distal of 55, 65, 75 and 85)
+6.3 Restorative services
+In this section
+6.3.1 Restorations, primary teeth
+6.3.2 Restorations, permanent teeth
+6.3.3 Caries, trauma and pain control
+6.3.4 Cores and posts
+6.3.5 Crowns
+6.3.6 Preauthorization documentation requirements for restorative services
+Restoration eligibility is once per tooth surface in any 24-month period.
+Restorations for incisal wear involving enamel and dentin are exclusions under the CDCP and therefore will not be considered for payment.
+Aligned with best practices, pediatric treatment (for clients aged 0-11 years) under sedation and general anesthesia is to include prefabricated metal restorations (stainless steel crowns), where applicable. Based on information from the American Academy of Pediatric Dentistry and the Canadian Academy of Pediatric Dentistry, prefabricated metal restorations are indicated in the following situations:
+restoration of primary and permanent teeth with extensive caries, cervical decalcification, and/or developmental defects (for example, hypoplasia, hypocalcification)
+following pulpotomy or pulpectomy
+when failure of other available restorative materials is likely (for example, interproximal caries extending beyond line angles, patients with bruxism)
+definitive restorative treatment for high caries-risk children
+intermediate restoration of fractured teeth
+6.3.1 Restorations, primary teeth
+Requirements for restoration of primary incisor teeth 51, 52, 61, 62, 71, 72, 81, 82:
+clients must be under the age of 5
+eligibility is once per tooth surface in any 24-month period
+the combination of procedure codes/surfaces/classes in one visit should not exceed the cost of either the collective number of procedure codes/surfaces/classes restored or a prefabricated plastic restoration (polycarbonate crown) (the lesser amount to be paid)
+when both composite and amalgam procedure codes are billed on the same tooth, the system will pay the lesser amount up to a maximum cost of a prefabricated plastic restoration (polycarbonate crown)
+bonded amalgams are covered at the rate of non-bonded equivalents
+Requirements for restoration of primary teeth 53, 54, 55, 63, 64, 65, 73, 74, 75, 83, 84, 85:
+eligibility is once per tooth surface in any 24-month period
+the combination of procedure codes/surfaces/classes in one visit should not exceed the cost of either the collective number of procedure codes/surfaces/classes restored or a prefabricated metal restoration (stainless steel crown) (the lesser amount to be paid)
+when both composite and amalgam procedure codes are billed on the same tooth, the system will pay the cost of the lesser amount up to a maximum cost of a prefabricated metal restoration (stainless steel crown)
+bonded amalgams are covered at the rate of non-bonded equivalents
+6.3.2 Restorations, permanent teeth
+Requirements for restoration of permanent anterior and posterior teeth:
+eligibility is once per tooth surface in any 24-month period
+the combination of procedure codes/surfaces/classes in one visit should not exceed the cost applicable to either the collective number of distinct surfaces restored, a 5 surface restoration, or complete tooth reconstruction (the lesser amount to be paid)
+when both composite and amalgam procedure codes are billed on the same tooth, the system will pay the cost of the lesser amount up to a maximum cost of an amalgam 5 surface restoration/complete tooth reconstruction
+bonded amalgams are covered at the rate of non-bonded equivalents
+6.3.3 Caries, trauma and pain control
+Caries, trauma and pain control procedures are not eligible for coverage when submitted with any of the following procedures on the same date of service and for the same tooth:
+restorations
+open and drain
+pulpectomy
+pulpotomy
+root canal treatment
+6.3.4 Cores and posts
+Cores will be considered for coverage only in conjunction with an approved crown preauthorization. Cores are eligible if the existing restoration is greater than 24 months old.
+Bonded amalgam cores are covered at the rate of non-bonded equivalents.
+A prefabricated post/pin is eligible only when inadequate coronal tooth structure is remaining to retain a restoration.
+Prefabricated posts do not require preauthorization within frequency limitations, unless in combination with a core.
+Prefabricated posts in combination with a core, including pin(s) where applicable, will be considered for coverage only in conjunction with a preauthorized crown. When prefabricated post, pin(s), and core procedure codes are requested individually for the same tooth for a crown, the CDCP will adjust the payment at the rate of the combined procedure codes.
+Cores, and prefabricated posts in combination with cores, are only covered for clients 18 years of age and older.
+Frequency limitations for cores and posts
+Oral health care procedure
+Frequency limitations
+Prefabricated posts without a core (do not require preauthorization)
+Prefabricated posts with a core (require preauthorization), and
+Cores (require preauthorization)
+4 in any 120 months (10 years) per client (combined frequency)
+Permanent teeth only
+Post removal
+1 per lifetime per permanent tooth
+6.3.5 Crowns
+6.3.5.1 General principles
+The following types of single unit crowns are eligible for coverage and require preauthorization:
+cast metal
+porcelain/ceramic-fused to metal
+porcelain/ceramic
+The CDCP will consider coverage of crowns for clients 18 years of age and older through preauthorization
+Frequency limitations are:
+4 crowns in any 120 months (10 years) per client
+1 crown in any 96 months (8 years) per eligible tooth
+The CDCP will consider coverage of a crown when both the tooth eligibility and restorability criteria (see below) have been met
+Any types of crowns supported by implants, as well as all implant-related procedures, are not covered under the CDCP. These procedures are considered exclusions and are not eligible for reconsideration
+All basic treatment addressing any existing active biological disease (caries and periodontal) must be completed before submitting requests for crowns
+An endodontically treated tooth must have healed before requesting a crown
+The CDCP will not consider coverage of a crown in the following circumstances:
+to improve aesthetics
+to treat stress fractures or chipping on teeth that have a minimal restoration or no restoration
+for individuals with a high risk of caries or those with generalized moderate to severe periodontal disease where there is evidence of long-standing, uncontrolled and/or untreated rampant biological disease (either caries or periodontal disease)
+to solely treat sensitivity due to: cracked tooth syndrome, erosion, abrasion, or attrition
+the CDCP may consider coverage of a crown on a tooth with a crack, erosion, abrasion, or attrition if the reason is not solely to treat sensitivity
+6.3.5.2 Eligibility criteria
+6.3.5.2.1 Tooth eligibility
+The CDCP will consider coverage of a single unit crown on:
+incisors, canines, bicuspids, first and second molars, and
+third molars where the first and the second molars are missing, and the third molar is in occlusion with a prosthetic or natural molar
+6.3.5.2.2 Tooth restorability
+The CDCP will consider coverage of a single unit crown on endodontically and non-endodontically treated teeth when all of the following criteria are met:
+absence of active periodontal disease
+adequate periodontal support, based on alveolar bone levels (crown to root ratio of 1:1 or less e.g. 1:1.5 or 1:2), visible on submitted radiographs with absence of furcation involvement
+adequate remaining non-diseased tooth structure to ensure that the planned restoration margin is 3 mm from the alveolar crest and adequate ferrule (1.5mm) is achieved.
+a mesio-distal space (vertically and horizontally) equivalent to that of the natural tooth with no loss of space due to caries or crowding
+extensively restored tooth where the existing tooth structure can no longer support a direct restoration. The CDCP defines an extensively restored tooth as follows:
+for all anterior teeth (endodontically and non-endodontically treated): restoration/loss of tooth structure involves the entire incisal edge, from mesial to distal, and extends cervically to both interproximal contacts
+for endodontically treated premolars and molars: restoration/loss of tooth structure involves 3 or more continuous surfaces and involves either both mesial and distal marginal ridges, or the entire destruction of a cusp, as demonstrated with radiographs. In addition, oral health providers have the choice to submit photographs, if available
+for non-endodontically treated premolars and molars: restoration/loss of tooth structure involves 5 continuous surfaces
+tooth that does not require any additional treatment, such as crown lengthening, root re-sectioning or orthodontic treatment
+6.3.5.3 Non-inserted crowns
+For non-inserted crowns, the CDCP will consider paying up to 20% of the current CDCP professional fee and a reasonable and customary laboratory fee associated with the fabrication of a crown, if applicable, under the following conditions:
+the crown has been completed, but not inserted due to circumstances beyond the control of the oral health provider
+the oral health provider has made substantial efforts to contact the client to schedule an insertion appointment
+the oral health provider has communicated the details of the situation in writing to Sun Life
+Note:
+oral health providers can contact the Sun Life CDCP Contact Centre at 1-888-888-8110 for additional information about claiming a non-inserted crown
+if a non-inserted crown has been claimed by the oral health provider without complying with the above-noted conditions, and the non-inserted crown amount has been paid in full by the CDCP, this will result in a payment recovery
+Frequency limitations for crowns
+Oral health care procedure
+Frequency limitations
+Crowns (require preauthorization)
+4 in any 120 months (10 years) per client
+1 in any 96 months (8 years) per eligible tooth
+Repair to crowns
+1 in any 36 months (3 years) per tooth
+Recementation of crowns
+1 in any 36 months (3 years) per tooth
+6.3.6 Preauthorization documentation requirements for restorative services
+Request using 1 of the following forms:
+Canadian Dental Association (CDA)/Canadian Life and Health Insurance Association (CLHIA) Standard Dental Claim Form
+Association des chirurgiens dentistes du Québec (ACDQ) Dental Claim and Treatment Plan Form
+Computer generated treatment form
+Treatment plan indicating all relevant completed and pending treatment needs, or, based on the provider's scope of practice, confirmation that potential basic treatment needs are being referred and/or to be addressed. This does not need to be submitted as a stand-alone document labelled 'treatment plan' so long as the information is included in the documentation submitted
+Dated periapical and bitewing radiographs (within last 12 months)
+Only required for crown requests: dated complete periodontal chart, including 6 periodontal measurements per tooth (within last 12 months)
+If a complete periodontal chart is not available, a dated Periodontal Screening and Recording (also known as PSR) for each sextant along with periodontal measurements of 6 sites for each tooth for which treatment is being requested (from within the last 12 months), will be considered
+With a PSR score of 4 in any sextant or a score of 3 in two or more sextants, a complete periodontal chart must be submitted
+With a PSR score of 3 in the sextant of the tooth/teeth for which treatment is being requested, charting of the sextant must be submitted
+Any pertinent clinical findings/notes supporting the request
+Oral health providers are encouraged to submit all required and relevant information available to support the request. However, the CDCP may consider preauthorization submissions where only some, but not all, required documentation is provided. Coverage decisions will be based on the information provided and the CDCP's policies and eligibility criteria for the procedure(s) requested.
+Where a submission does not sufficiently demonstrate the eligibility criteria are met, additional information may be requested and/or the submission will be denied.
+6.4 Endodontic services
+In this section
+6.4.1 General principles
+6.4.2 Eligibility criteria
+6.4.3 Pulpectomies and pulpotomies
+6.4.4 Preauthorization documentation requirements for endodontic services
+6.4.1 General principles
+Preauthorization is not required for standard root canal treatment on anterior teeth, bicuspids, and first and second molars
+Preauthorization is required for root canal re-treatment, apicoectomy, retrofilling on all teeth, and standard root canal treatment on third molars
+There is a frequency limitation of 1 root canal re-treatment, 1 apicoectomy, and 1 retrofilling per tooth per lifetime
+The CDCP will consider coverage for a root canal treatment when the tooth eligibility and restorability criteria (see below) have been met
+The CDCP will not consider coverage for a root canal treatment for individuals with a high risk of caries or those with generalized moderate to severe periodontal disease when there is evidence of long-standing, uncontrolled, and/or untreated rampant biological disease (either caries or periodontal disease)
+6.4.2 Eligibility criteria
+6.4.2.1 Tooth eligibility
+The CDCP will consider coverage of a root canal treatment on:
+incisors, canines, bicuspids, first and second molars, and
+third molars where the first and the second molars are missing and the third molar is in occlusion with a prosthetic or natural molar
+6.4.2.2 Tooth restorability
+The CDCP will consider coverage of a root canal treatment when all of the following criteria are met:
+absence of active periodontal disease
+adequate periodontal support, based on alveolar bone levels (crown to root ratio of 1:1 or less, for example, 1:1.5 or 1:2) visible on submitted radiographs with absence of furcation involvement
+adequate remaining non-diseased tooth structure to ensure that the planned restoration margin is 3 mm from the alveolar crest
+a mesio-distal space (vertically and horizontally) equivalent to that of the natural tooth with no loss of space due to caries or crowding; and
+tooth that does not require any additional treatment such as crown lengthening, root resectioning or orthodontic treatment
+Frequency limitations for root canal therapy
+Oral health care procedure
+Frequency limitations
+Root canal re-treatment, apicoectomy, retrofilling
+1 root canal re-treatment, 1 apicoectomy and 1 retrofilling per tooth, per lifetime
+6.4.3 Pulpectomies and pulpotomies
+Pulpectomy/pulpotomy will be covered at a frequency of 1 per tooth in a lifetime
+Primary incisor teeth are eligible only for clients under the age of 5
+Incomplete approved root canal treatment requests will be paid up to the equivalent of a pulpectomy
+The final payment for a root canal treatment includes the cost associated with a pulpectomy/pulpotomy and open and drain within the 3-month period prior to the completion of the root canal treatment, when performed by the same oral health provider/same office
+The final payment for a root canal treatment or pulpectomy/pulpotomy includes the fee for the temporary restoration and its replacement if required
+Prefabricated metal restorations (stainless steel crowns) are indicated for restoring teeth following either a pulpectomy or pulpotomy
+6.4.4 Preauthorization documentation requirements for endodontic services
+Request using 1 of the following forms:
+Canadian Dental Association (CDA)/Canadian Life and Health Insurance Association (CLHIA) Standard Dental Claim Form
+Association des chirurgiens dentistes du Québec (ACDQ) Dental Claim and Treatment Plan Form
+Computer generated treatment form
+Treatment plan indicating all relevant completed and pending treatment needs, or, based on the provider's scope of practice, confirmation that potential basic treatment needs are being referred and/or to be addressed. This does not need to be submitted as a stand-alone document labelled 'treatment plan' so long as the information is included in the documentation submitted.
+Dated radiographs:
+dated periapical radiographs (within last 12 months), or
+dated panoramic radiograph (a panoramic radiograph will only be considered when it is not possible to obtain intraoral radiographs, as indicated in a rationale)
+Dated complete periodontal chart, including 6 periodontal measurements per tooth (within last 12 months)
+If a complete periodontal chart is not available, a dated Periodontal Screening and Recording (also known as PSR) for each sextant along with periodontal measurements of 6 sites for each tooth for which treatment is being requested (from within the last 12 months), will be considered
+With a PSR score of 4 in any sextant or a score of 3 in two or more sextants, a complete periodontal chart must be submitted
+With a PSR score of 3 in the sextant of the tooth/teeth for which treatment is being requested, charting of the sextant must be submitted
+Any pertinent clinical findings/notes supporting the request
+Any pertinent rationale supporting the request
+Oral health providers are encouraged to submit all required and relevant information available to support the request. However, the CDCP may consider preauthorization submissions where only some, but not all, required documentation is provided. Coverage decisions will be based on the information provided and the CDCP's policies and eligibility criteria for the procedure(s) requested.
+Where a submission does not sufficiently demonstrate the eligibility criteria are met, additional information may be requested and/or the submission will be denied.
+6.5 Periodontal services
+In this section
+6.5.1 Periodontal services
+6.5.2 Management of oral disease
+6.5.1 Periodontal services
+Frequency limitations for scaling/root planing and desensitization
+Oral health care procedure
+Age 0 to 11 years
+Age 12 to 16 years
+Age 17+ years
+Scaling
+½ unit in any 12 months
+1 unit in any 12 months
+4 units in any 12 months (in combination with root planing)
+Desensitization (requires preauthorization)
+2 units in any 12 months
+2 units in any 12 months
+2 units in any 12 months
+6.5.1.1 Scaling and root planing (additional units)
+Preauthorization is not required for scaling and root planing services up to the maximum units outlined in the frequency limitations. For any additional units, preauthorization is required.
+Preauthorization is required for the CDCP to consider coverage for additional units of scaling and root planing over the maximum units
+Eligibility for additional units of scaling and root planing will be based on several factors including:
+the severity of periodontal disease based on current (within the last 12 months) clinical documentation such as clinical notes, diagnosis and prognosis, complete periodontal charting, and radiographs
+medical condition relative to periodontal diseases, including any prescribed medication
+6.5.1.2 Preauthorization documentation requirements for additional units of scaling and root planing
+Request using 1 of the following forms:
+Canadian Dental Association (CDA)/Canadian Life and Health Insurance Association (CLHIA) Standard Dental Claim Form
+Association des chirurgiens dentistes du Québec (ACDQ) Dental Claim and Treatment Plan Form
+Canadian Dental Hygienists Association (CDHA) National Dental Hygiene Claim Form
+Computer generated treatment form
+Dated complete periodontal chart, including 6 periodontal measurements per tooth (within last 12 months)
+if a complete periodontal chart cannot be provided, a rationale explaining why the periodontal chart is missing or incomplete is required
+Any pertinent clinical findings/notes/rationale supporting the request
+6.5.1.3 Preauthorization documentation requirements for desensitization
+Request using 1 of the following forms:
+Canadian Dental Association (CDA)/Canadian Life and Health Insurance Association (CLHIA) Standard Dental Claim Form
+Association des chirurgiens dentistes du Québec (ACDQ) Dental Claim and Treatment Plan Form
+Canadian Dental Hygienists Association (CDHA) National Dental Hygiene Claim Form
+Computer generated treatment form
+Treatment plan indicating all relevant completed and pending treatment needs
+Any pertinent clinical findings/notes/rationale supporting the request
+Oral health providers are encouraged to submit all required and relevant information available to support the request. However, the CDCP may consider preauthorization submissions where only some, but not all, required documentation is provided. Coverage decisions will be based on the information provided and the CDCP's policies and eligibility criteria for the procedure(s) requested.
+Where a submission does not sufficiently demonstrate the eligibility criteria are met, additional information may be requested and/or the submission will be denied.
+6.5.2 Management of oral disease
+Frequency limitations for the management of oral disease
+Oral health care procedure
+Frequency limitations
+Management of oral manifestations, oral mucosal disorders, mucocutaneous disorders and diseases of localized mucosal conditions
+2 units in any 12 months
+Management of oral manifestations of systemic disease or complications of medical therapy
+2 units in any 12 months
+6.6 Prosthodontic services - Removable prosthodontics
+In this section
+6.6.1 General principles
+6.6.2 Removable partial dentures
+6.6.3 Removable complete dentures
+6.6.4 Denture labelling
+6.6.5 Non-inserted removable prosthodontics policy
+6.6.1 General principles
+Complete and partial dentures supported by implants as well as all implant-related procedures are exclusions and not covered under the CDCP
+The CDCP fee for complete and partial dentures includes a 3-month period of post-insertion care
+Denture adjustments done on the same date of service and in conjunction with the delivery of new dentures, denture repairs, relines, rebases and/or tissue conditioning are included in the fees billed and paid for these services
+The CDCP fee for immediate dentures includes the tissue conditioner, but not the processed reline/rebase
+The CDCP will not cover a new denture within 24 months of a reline or rebase
+The CDCP will consider requests for replacements above frequency limitations through preauthorization (excluding complete provisional/transitional and complete immediate dentures, as these dentures have a limit of once per lifetime). A rationale indicating the reason for the request is required
+If a transitional/provisional denture has been claimed, the CDCP will consider requests for other denture types after 6 months
+If a complete immediate denture has been claimed, the CDCP will consider requests for other complete dentures after 96 months
+If a partial immediate denture has been claimed, the CDCP will consider requests for other partial acrylic dentures after 60 months and for other partial cast dentures after 96 months
+The CDCP will consider coverage for denture labelling of new dentures through preauthorization (see 6.5.4 Denture labelling)
+6.6.1.1 Frequency limitations for dentures
+Frequency limitations for dentures
+Oral health care procedure
+Frequency limitations
+Complete dentures - standard (do not require preauthorization)
+Complete dentures - overdentures (require preauthorization)
+Complete dentures - standard with long term soft liner (require preauthorization)
+1 per arch in any 96 months (8 years)
+Complete dentures - transitional/provisional (do not require preauthorization)
+Complete dentures - immediate (do not require preauthorization)
+Complete dentures - immediate overdentures (require preauthorization)
+1 per arch in a lifetime
+Partial cast dentures (initial placements require preauthorization)
+1 per arch in any 96 months (8 years)
+Partial acrylic dentures - standard, immediate, overdentures (initial placements require preauthorization)
+1 per arch in any 60 months (5 years)
+Partial acrylic dentures - transitional/provisional (require preauthorization)
+1 per arch in any 60 months (5 years)
+Repairs/additions (do not require preauthorization)
+1 per arch in any 12 months
+Reline/rebase (do not require preauthorization)
+1 per arch in any 24 months (2 years)
+Tissue conditioning (does not require preauthorization)
+1 per arch in any 24 months (2 years)
+6.6.2 Removable partial dentures
+6.6.2.1 General principles
+Preauthorization is required for initial placements of removable partial dentures (preauthorization is not required for replacements where the initial placement was paid for by CDCP and provided that the existing partial denture meets frequency eligibility - see 6.5.2.2 Partial denture replacements)
+Removable partial acrylic dentures are covered once in any 60 months (5 years) per arch
+Removable partial transitional/provisional acrylic dentures are covered once in any 60 months (5 years) per arch
+Removable partial cast dentures are covered once in any 96 months (8 years) per arch
+6.6.2.2 Partial denture replacements
+The CDCP will not consider a client's existing partial denture (obtained outside of the CDCP) when determining whether a partial denture is a replacement or an initial placement, or when considering frequency limitations. This means that a new CDCP client could be eligible for a new partial denture even if they have an existing partial denture obtained outside of the CDCP; eligibility for a new partial denture is based on preauthorization. A partial denture will only be considered a replacement if it is replacing a partial denture that was covered under the CDCP; it will not require preauthorization if it meets frequency limitations, as stipulated in section 6.5.1.1 Frequency limitations for dentures. For more information, see the Policy Regarding Clients' Existing Dentures on Sun Life's CDCP website.
+6.6.2.3 Eligibility
+The CDCP will consider coverage for a partial denture for teeth numbered 16 to 26 and 36 to 46 inclusive, under the following conditions:
+general conditions:
+all basic treatment must be completed including:
+control of caries and of periodontal and periapical disease for all teeth, and
+restoration of major structural defects in the abutment teeth
+the space to be replaced is greater than or equal to the corresponding natural teeth (vertically and horizontally)
+if there is an existing partial cast denture paid for by the CDCP, it must be at least 96 months (8 years) old
+if there is an existing partial acrylic denture paid for by the CDCP, it must be at least 60 months (5 years) old
+specific conditions:
+there must be 1 or more missing teeth in the anterior sextant, or
+there must be 2 or more missing posterior teeth in a quadrant excluding second and third molars
+6.6.2.4 Preauthorization documentation requirements for partial dentures
+Preauthorization must be requested using 1 of the following completed forms:
+Canadian Dental Association (CDA)/Canadian Life and Health Insurance Association (CLHIA) Standard Dental Claim Form
+Association des chirurgiens dentistes du Québec (ACDQ) Dental Claim and Treatment Plan Form
+Denturist Association of Canada (DAC) Dental Care Claim Form
+Computer generated treatment form
+Treatment plan indicating all relevant completed and pending treatment needs, or, based on the provider's scope of practice, confirmation that potential basic treatment needs are being referred and/or to be addressed. This does not need to be submitted as a stand-alone document labelled 'treatment plan' so long as the information is included in the documentation submitted.
+1 of the following:
+dated periapical radiographs of abutment teeth and dated bitewing (right and left) radiographs, taken within last 12 months; or
+when it is not possible to obtain periapical or bitewing radiographs, the most recent dated panoramic radiograph; or
+if radiographs are not available, 1 of the following:
+dated photos of the upper and lower arches (2) (upper and lower arches separate); or
+dated photos of stone models (2) (upper and lower separate); or
+dated stone models (upper and lower)
+Notation of all missing teeth and/or dated panoramic radiograph
+If extractions are planned, notation of planned extractions prior to denture placement
+6.6.3 Removable complete dentures
+6.6.3.1 General principles
+Preauthorization is required for complete overdentures and complete dentures with long term soft liners. All other types of complete dentures do not require preauthorization.
+Transitional/provisional and immediate complete dentures are covered once in a lifetime per arch. All other types of complete dentures are covered once in any 96 months (8 years) per arch.
+6.6.3.2 Eligibility
+For complete dentures, the CDCP will consider coverage:
+for an initial placement, or
+for replacement of an existing complete denture that is at least 96 months (8 years) old, where the initial placement was covered by the CDCP. This excludes replacement complete transitional/provisional and complete immediate dentures, as these dentures have a limit of once per lifetime
+6.6.3.3 Preauthorization documentation requirements for complete dentures
+Preauthorization must be requested using 1 of the following completed forms:
+Canadian Dental Association (CDA)/Canadian Life and Health Insurance Association (CLHIA) Standard Dental Claim Form
+Association des chirurgiens dentistes du Québec (ACDQ) Dental Claim and Treatment Plan Form
+Denturist Association of Canada (DAC) Dental Care Claim Form
+Computer generated treatment form
+Treatment plan indicating all relevant completed and pending treatment needs, or, based on the provider's scope of practice, confirmation that potential basic treatment needs are being referred and/or to be addressed. This does not need to be submitted as a stand-alone document labelled 'treatment plan' so long as the information is included in the documentation submitted.
+Notation of all missing teeth and/or dated panoramic radiograph
+If extractions are planned, notation of planned extractions prior to denture placement
+Any pertinent rationale supporting the request
+6.6.4 Denture labelling
+The CDCP will consider paying a reasonable and customary laboratory fee for denture labelling associated with the fabrication of a denture through preauthorization under the following conditions:
+The labelling must be associated with the fabrication of a new denture
+The denture must be covered under the CDCP, and
+The denture labelling must not be captured in other charges submitted to the CDCP for payment, such as other claimed laboratory fees
+The denture labelling must be preauthorized and eligible for coverage under the CDCP, even if the denture itself does not require preauthorization.
+6.6.4.1 Preauthorization documentation requirements for denture labelling
+Oral health providers can request denture labelling for new dentures that require preauthorization by including denture identification with the preauthorization submission for the new denture.
+For labelling of new dentures that do not require preauthorization under the CDCP, the following documentation requirements apply:
+Preauthorization must be requested using 1 of the following completed forms:
+Denturist Association of Canada (DAC) Dental Care Claim Form
+Computer generated treatment form
+Treatment plan indicating all relevant completed and pending treatment needs, or, based on the provider's scope of practice, confirmation that potential basic treatment needs are being referred and/or to be addressed. This does not need to be submitted as a stand-alone document labelled 'treatment plan' so long as the information is included in the documentation submitted.
+6.6.5 Non-inserted removable prosthodontics policy
+6.6.5.1 Non-inserted standard partial and complete dentures
+For non-inserted standard partial and complete dentures, the CDCP will consider paying up to 50% of the current CDCP professional fee and a reasonable and customary laboratory fee associated with the fabrication of a denture, if applicable, under the following conditions:
+the partial or complete denture has been fabricated, but not inserted due to circumstances beyond the control of the oral health provider
+the oral health provider has made substantial efforts to contact the client to schedule an insertion appointment, and
+the oral health provider has communicated the details of the situation in writing to Sun Life
+6.6.5.2 Non-inserted immediate partial and complete dentures
+For non-inserted immediate partial and complete dentures, the CDCP will consider paying up to 50% of the current CDCP professional fee and a reasonable and customary laboratory fee associated with the fabrication of a denture, if applicable, under the following conditions:
+the oral health provider who manufactured the immediate denture is different from the oral health provider who was scheduled to do the extraction(s) and insertion
+substantial efforts have been made by both oral health providers to contact the client to reschedule the missed extraction/insertion appointment, and
+the oral health provider who manufactured the immediate denture has communicated the details of the situation in writing to Sun Life
+Note:
+oral health providers can contact the Sun Life CDCP Contact Centre at 1-888-888-8110 for additional information about claiming a non-inserted denture
+if a non-inserted denture that has been claimed by an oral health provider without complying with the above-noted conditions and the non-inserted denture amount has been paid in full by the CDCP, this will result in a payment recovery
+at the CDCP's discretion, oral health providers may be required to provide a detailed invoice for any laboratory work
+6.7 Oral surgery services
+In this section
+6.7.1 Preauthorization documentation requirements for oral surgery services
+Implants and ridge augmentation are exclusions under the CDCP.
+Some surgical procedures (for example, tooth exposure, fracture reduction etc.) require preauthorization and must be supported by clinical findings/notes and radiographs. Please refer to the CDCP Dental Benefit Grids to confirm which procedure codes require preauthorization. In emergent situations, requests for post-determination will be considered.
+6.7.1 Preauthorization documentation requirements for oral surgery services
+Request using 1 of the following forms:
+Canadian Dental Association (CDA)/Canadian Life and Health Insurance Association (CLHIA) Standard Dental Claim Form
+Association des chirurgiens dentistes du Québec (ACDQ) Dental Claim and Treatment Plan Form
+Computer generated treatment form
+Treatment plan indicating all relevant completed and pending treatment needs, or, based on the provider's scope of practice, confirmation that potential basic treatment needs are being referred and/or to be addressed. This does not need to be submitted as a stand-alone document labelled 'treatment plan' so long as the information is included in the documentation submitted.
+Dated radiographs:
+dated periapical and bitewing radiographs (within last 12 months), or
+dated panoramic radiograph
+note: if radiographs cannot be provided, dated alternative documentation will be considered
+Rationale
+Any pertinent clinical findings/notes supporting the request
+Oral health providers are encouraged to submit all required and relevant information available to support the request. However, the CDCP may consider preauthorization submissions where only some, but not all, required documentation is provided. Coverage decisions will be based on the information provided and the CDCP's policies and eligibility criteria for the procedure(s) requested.
+Where a submission does not demonstrate the eligibility criteria are met, additional information may be requested and/or the submission will be denied.
+6.8 Orthodontic services
+Orthodontic services are currently not available.
+6.9 Sedation and other adjunctive services
+In this section
+6.9.1 General principles
+6.9.2 Nitrous oxide, oral sedation and nitrous with oral sedation
+6.9.3 Parenteral conscious sedation and combined techniques of inhalation plus IV and/or IM injection
+6.9.4 Deep sedation and general anesthesia
+6.9.5 Preauthorization documentation requirements for sedation services
+6.9.1 General principles
+The CDCP provides coverage for the following sedation services when rendered in conjunction with at least one eligible procedure under the CDCP:
+nitrous oxide, oral sedation and nitrous with oral sedation (no preauthorization required within frequency limitations)
+parenteral conscious sedation and combined techniques of inhalation plus IV and/or IM injection (preauthorization required as outlined in the CDCP Dental Benefit Grids)
+deep sedation and general anesthesia, including facilities where applicable (preauthorization required as outlined in the CDCP Dental Benefit Grids)
+CDCP fees for eligible sedation and general anesthesia codes include the cost of sedation medication and the induction technique procedure, regardless of route of administration (for example, parenteral, injection)
+Oral health providers must adhere to the conditions of licensing, certification, and accreditation in the administration of sedation, as per the provincial or territorial regulatory body in their jurisdiction
+Requests for sedation above the frequency limitation with relevant documentation will be considered through preauthorization. Requests must clearly outline the circumstances leading to the additional need
+Please refer to the CDCP Dental Benefit Grids for the complete list of adjunctive procedure codes eligible for coverage under the CDCP
+6.9.2 Nitrous oxide, oral sedation and nitrous with oral sedation
+6.9.2.1 General principles
+Applicable to nitrous oxide, a single oral sedative drug, or a combination of nitrous oxide and a single oral sedative drug
+Preauthorization is not required for eligible procedure codes within the frequency limitation of 4 sessions in any 12-month period
+Additional sessions above the listed frequency will be considered through preauthorization with a rationale, which should clearly outline the circumstances leading to the request
+6.9.2.2 Coverage eligibility - Nitrous oxide, oral sedation and nitrous with oral sedation
+Clients aged 0 to 11 years
+In cases where treatment cannot be rendered in a normal clinical setting without sedation
+Clients aged 12 years and older
+In cases where either:
+Treatment attempted and was unsuccessful in a normal clinical setting without sedation, or
+Treatment cannot be attempted or was unsuccessful in a normal clinical setting without sedation due to significant mental and/or physical impairment, indicated in a rationale
+Note: The CDCP does not define "significant mental and/or physical impairment". This recognizes that needs can vary depending on the individual circumstances.
+6.9.3 Parenteral conscious sedation and combined techniques of inhalation plus IV and/or IM injection
+6.9.3.1 General principles
+Preauthorization is required; in emergent situations, post-determination will be considered
+If planned treatment must be amended during a session due to an emergent clinical situation and coverage cannot be verified in advance, post-determination submissions will be considered for procedures that normally require preauthorization. Oral health providers should discuss with the client (before they agree to care) which services could be covered by the CDCP and what, if any, amounts may be charged to the CDCP client. See section 5.4 Post-determination for more information
+There is a frequency limitation of 1 session in any 12-month period
+Additional sessions above frequency will be considered through preauthorization
+Aligned with best practices, oral health providers are encouraged, wherever possible, to ensure that other modes of sedation (for example, oral sedation) have been attempted in a normal clinical setting prior to requesting. The CDCP does not require oral health providers to demonstrate that other modes have been attempted
+To limit the associated risks with repeat sedation sessions, when possible, oral health providers are strongly encouraged to complete all necessary treatment in 1 session
+6.9.3.2 Coverage eligibility - Parenteral conscious sedation and combined techniques of inhalation plus IV and/or IM injection
+Preauthorization is required, as outlined in the CDCP Dental Benefit Grids.
+Clients aged 0 to 11 years
+Complex or extensive treatment needs, or
+Age-related behaviour management issues, significant mental and/or physical impairment indicated in a rationale
+Clients aged 12 years and older
+Complex or extensive treatment needs, or
+Significant mental and/or physical impairment indicated in a rationale
+Note: The CDCP does not define "significant mental and/or physical impairment". This recognizes that needs can vary depending on the individual circumstances.
+6.9.4 Deep sedation and general anesthesia
+6.9.4.1 General principles
+Preauthorization is required for deep sedation and general anesthesia, as outlined in the CDCP Dental Benefit Grids. In emergent situations, requests for post-determination will be considered
+If planned treatment must be amended during a deep sedation or general anesthesia sedation session due to an emergent clinical situation and coverage cannot be verified in advance, post-determination submissions will be considered for procedures that normally require preauthorization. Oral health providers should discuss with the client (before they agree to care) which services could be covered by the CDCP and what, if any, amounts may be charged to the CDCP client. See section 5.4 Post-determination for more information
+There is a frequency limitation of 1 session in any 12-month period
+Additional sessions above frequency will be considered through preauthorization
+Aligned with best practices, oral health providers are encouraged, wherever possible, to ensure that other modes of sedation (for example, oral sedation, parenteral conscious sedation) have been attempted in a normal clinical setting, prior to requesting deep sedation or general anesthesia. The CDCP does not require oral health providers to demonstrate that other modes have been attempted
+To limit the associated risks with repeat deep sedation or general anesthesia sessions, when possible, oral health providers are strongly encouraged to complete all necessary treatment in 1 session
+Pediatric clients (aged 0-11 years) who require deep sedation/general anesthesia should be considered for referral to a specialist, when possible
+6.9.4.2 Coverage eligibility - Deep sedation and general anesthesia
+Clients aged 0 to 11 years
+Complex or extensive treatment needs, or
+Age-related behaviour management issues and/or significant mental and/or physical impairment indicated in a rationale
+Clients aged 12 years and older
+Complex or extensive treatment needs, or
+Significant mental and/or physical impairment, indicated in a rationale
+Note: The CDCP does not define "significant mental and/or physical impairment". This recognizes that needs can vary depending on the individual circumstances.
+6.9.5 Preauthorization documentation requirements for sedation services
+Preauthorization and post-determination must be requested using 1 of the following completed forms:
+Canadian Dental Association (CDA)/Canadian Life and Health Insurance Association (CLHIA) Standard Dental Claim Form
+Association des chirurgiens dentistes du Québec (ACDQ) Dental Claim and Treatment Plan Form
+Computer generated treatment form
+Planned/proposed treatment to be completed during sedation session
+Rationale
+Note: As some information may not be available and/or relevant to all situations, the CDCP will still consider preauthorization submissions where not all required documentation is provided. Oral health providers are encouraged to submit all available information to demonstrate that the CDCP's policies and criteria for coverage are met. Coverage decisions will be based on the information provided and the CDCP's policies and eligibility criteria for the procedure(s) requested.
+Where a submission does not demonstrate the eligibility criteria are met, additional information may be requested and/or the submission will be denied.
+7.0 Appendices
+Appendix A: CDCP Dental Benefit Grids
+The CDCP Dental Benefit Grids list what services are eligible by placing coverage into 2 schedules:
+Schedule for services that do not require preauthorization (Schedule A): outlines services that may be completed and billed directly to the claims processor for payment (without requiring preauthorization) within the CDCP policies (for example, frequency limitations)
+Schedule for services requiring preauthorization (Schedule B): outlines services that always require an approved preauthorization (prior approval) to be claimed under the CDCP
+To understand eligibility for services, please refer to the CDCP Dental Benefit Grids. These grids outline which procedure codes are covered under the CDCP, along with any applicable frequency limits and preauthorization requirements, based on oral health provider type and the relevant province or territory.
+Appendix B: Payment and reimbursement
+All claims must be received by the CDCP within 12 months from the date of service to be eligible for payment or reimbursement. The service must be eligible for coverage under the CDCP as of the date of service, and all policies and requirements for coverage apply, including the CDCP Claims Processing and Payment Terms.
+Claims older than 12 months from the date of service are not eligible for payment or reimbursement and therefore will not be accepted for processing.
+Note:
+the 12-month policy applies to the initial claim submission and includes all subsequent resubmissions following a rejection under CDCP (for example, missing required data elements; oral health provider accidentally used incorrect procedure code, client has alternative coverage, etc.)
+the coordination of benefits with other plans must also be completed within 12 months of the date of service
+Only a procedure code or procedure name in a client record is not sufficient to substantiate a claim for payment.
+If applicable, a detailed statement or Explanation of Benefits (EOB) from all other health plan(s)/program(s), through which the client receives coverage for oral health care services, must be provided.
+Oral health providers will receive payments through Electronic Fund Transfers (EFT) or by cheque. For more information, see the Claims Submission Information on Sun Life's CDCP website.
+Note:
+Oral health providers must submit claims for direct payment for services covered under the CDCP
+A CDCP client cannot submit a claim for reimbursement from the CDCP
+Laboratory fees: Certain oral health care services require laboratory work. Laboratory fee submissions will be considered for coverage under the CDCP only in conjunction with an eligible procedure code. The CDCP will reimburse reasonable and customary laboratory fees. The CDCP reserves the right to require a copy of the laboratory report/invoice and to adjust the laboratory fee requested by oral health providers.
+Appendix C: Preauthorization reconsideration process
+For preauthorization submissions that are denied, CDCP clients have the right to seek reconsideration of the denied services, with the exception of procedures that are identified as exclusions (see Appendix E: Exclusions). Oral health providers submit the request for reconsideration on behalf of the CDCP client and must provide additional or new clinical information or documentation.
+Note: Claims that are denied because a frequency limitation has been reached can be considered for certain services through post-determination. The oral health provider can submit post-determinations the same way as requests for preauthorization (see section 5.0: Preauthorization).
+Reconsiderations of denied preauthorization (and post-determination) submissions will be determined using the same CDCP policies and criteria as initial preauthorization submissions.
+There is one level of reconsideration available. The reconsideration decision is final and the request cannot be reconsidered again.
+Requests for reconsideration must be submitted within 60 days of the preauthorization denial
+Requests for reconsideration must be submitted by the oral health provider at the request of the client, or at the request of the client's parent/legal guardian or representative
+Parents/guardians of a CDCP client can authorize a request for reconsideration on their behalf if the client is under 18 years of age
+Requests for reconsideration must be accompanied by supporting documentation, including additional or new clinical information or documentation
+Exclusions are never eligible for reconsideration
+As with preauthorization, Sun Life is responsible for reconsiderations of denied preauthorization/post-determination submissions. A different adjudicator will review the request for reconsideration than the adjudicator who reviewed the denied preauthorization/post-determination submission.
+Appendix D: Claims verification program
+When claiming for services, oral health providers are to ensure compliance with CDCP policies, coverage criteria and limitations, including the policies outlined in this Dental Benefits Guide and the CDCP Dental Benefit Grids for services that do and do not require preauthorization. The claims verification program is intended to confirm that claims are submitted in accordance with the CDCP Claims Processing and Payment Terms.
+The claims verification program has the following objectives:
+Detect administrative claim submission errors
+Detect inaccurate claims and recover overpayments
+Confirm oral health providers have retained the appropriate supporting documentation as required by their provincial/territorial regulatory bodies and the CDCP
+Ensure claimed treatments or services were received by CDCP clients
+Validate oral health providers are in good standing with their regulatory bodies
+Confirm the ineligibility of an oral health provider to submit future claims to the CDCP, if found to have intentionally submitted false or incomplete information to receive benefits or payments
+As part of providing care to CDCP clients, the oral health provider agrees to co-operate with Sun Life in claims verification activities. For more information, see the Claims Verification Program page on Sun Life's CDCP website.
+Appendix E: Exclusions
+These are oral health care procedures that are always outside the scope of the CDCP and are not eligible for coverage at any time. If oral health providers have questions about whether a specific service is an exclusion, they can confirm a CDCP client's coverage by using an EDI estimate, by contacting the Sun Life CDCP Contact Centre at 1-888-888-8110, or by using the CDCP Coverage Look-up tool in Sun Life Direct.
+The list of exclusions includes (but is not limited to):
+veneers in composite or ceramic
+all ¾ crowns
+restorations for incisal wear involving enamel and dentin
+cosmetic treatment, including teeth whitening
+inlays/onlays in composite, precious metal or ceramic
+temporomandibular joint therapy and appliances
+fixed prosthodontics (bridges and all bridge related procedures)
+periodontal appliances, including bruxism appliances (night guards)
+mouth guards
+crown lengthening
+implants and all implant-related procedures
+bone grafts
+extensive rehabilitation
+precision attachment partial dentures
+fluorescent diagnostic light
+If a service is outside the CDCP's scope of coverage and is not an exclusion, a request for an exception may be possible. Requests must be submitted for preauthorization with the documentation requirements listed in the relevant section of this guide and a rationale that clearly demonstrates what the exceptional need is and why no services already covered under the CDCP or available through other public plans could meet that exceptional need. Such requests can be submitted to Sun Life but will be adjudicated by Health Canada. Consideration and coverage of exceptions is expected to be extremely rare.
+Page details

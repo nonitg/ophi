@@ -28,7 +28,7 @@ pytestmark = pytest.mark.skipif(not _vm_up(), reason="ABELDent lab VM unreachabl
 @pytest.fixture(scope="module")
 def client(tmp_path_factory):
     tmp = tmp_path_factory.mktemp("abeldent")
-    return TestClient(create_app(svc=CaseService(store=Store(tmp / "state")), packets_dir=tmp / "packets"))
+    return TestClient(create_app(auto_rules_check=False, svc=CaseService(store=Store(tmp / "state")), packets_dir=tmp / "packets"))
 
 
 def test_providers(client):
