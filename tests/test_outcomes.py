@@ -87,4 +87,4 @@ def test_outcomes_page_without_database(tmp_path, monkeypatch):
 
     monkeypatch.delenv("SUPABASE_DB_URL", raising=False)
     r = TestClient(create_app(svc=CaseService(store=Store(tmp_path / "s")))).get("/outcomes")
-    assert r.status_code == 200 and "SUPABASE_DB_URL is not set" in r.text
+    assert r.status_code == 200 and "Past outcomes are unavailable." in r.text and "SUPABASE_DB_URL" not in r.text

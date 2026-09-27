@@ -7,7 +7,7 @@
 <a class="back" href="{{ BASE }}/cases/{{ cid }}">{{ case.patient.display_name }}</a>
 <header class="case-head">
   <div class="case-title"><h1>{{ 'Signed packet' if view.signed else ('Review and sign' if can_sign and actor.is_dentist else 'Packet preview') }}</h1></div>
-  <p class="case-tx">{{ case.patient.display_name }} · Crown on <b class="num">#{{ case.requested_tooth }}</b>{% if pk.report and pk.report.ok %} · {{ plural(pk.report.file_count, 'file') }}, within CDAnet's limits{% endif %}</p>
+  <p class="case-tx">{{ case.patient.display_name }} · Crown on <b class="num">#{{ case.requested_tooth }}</b>{% if pk.report and pk.report.ok %} · {{ plural(pk.report.file_count, 'file') }}{% endif %}</p>
 </header>
 
 {{ test_banner(view, cid) }}
@@ -25,10 +25,9 @@
   {% if view.signed %}
   <div class="now-head"><h2 id="now-title">Signed by {{ so.signed_by }} on {{ full_date(so.signed_at.date()) }}</h2>{% if not actor.is_dentist %}{{ who(who_tag('coordinator', actor, provider)) }}{% endif %}</div>
   {% if actor.is_dentist %}
-  <p class="now-lead">{% if st.submitted_on %}Marked as sent on {{ full_date(st.submitted_on) }}.{% else %}{{ ACTORS['coordinator'].name }} sends it next, from the PMS. Ophi never transmits anything to Sun Life.{% endif %}</p>
+  <p class="now-lead">{% if st.submitted_on %}Marked as sent on {{ full_date(st.submitted_on) }}.{% else %}{{ ACTORS['coordinator'].name }} sends it next, from the PMS.{% endif %}</p>
   {% else %}
   {{ send_steps(view, case, cid, pk.report and pk.report.shippable) }}
-  <p class="now-foot">Ophi never transmits anything to Sun Life. Your PMS sends it.</p>
   {% endif %}
   {% elif can_sign and actor.is_dentist %}
   <div class="now-head"><h2 id="now-title">Sign the packet</h2>{{ who(who_tag('dentist', actor, provider)) }}</div>
@@ -40,11 +39,11 @@
   </form>
   {% elif can_sign %}
   <div class="now-head"><h2 id="now-title">Waiting on {{ provider }}</h2></div>
-  <p class="now-lead">Only {{ provider }} can sign. Until then, the preview is a draft, not for submission.</p>
+  <p class="now-lead">Only {{ provider }} can sign.</p>
   {% else %}
   <div class="now-head"><h2 id="now-title">Sign-off is blocked</h2></div>
   <p class="now-lead">{{ plural(blocking|length, 'item is', 'items are') }} still open on the case:</p>
-  <ul class="plain">{% for x in blocking %}<li>{{ x.title }}</li>{% endfor %}</ul>
+  <ul class="plain">{% for x in blocking %}<li>{{ action_title(x) }}</li>{% endfor %}</ul>
   <div class="btn-row"><a class="btn" href="{{ BASE }}/cases/{{ cid }}">Back to the case</a></div>
   {% endif %}
 </section>
@@ -69,15 +68,12 @@
       <dl class="kv">
         <dt>Signed by</dt><dd>{{ so.signed_by }}{% if so.licence %} <span class="muted num">{{ so.licence }}</span>{% endif %}</dd>
         <dt>When</dt><dd class="num">{{ local_time(so.signed_at, '%b %-d, %Y, %-I:%M %p %Z') }}</dd>
-        <dt>Rule pack</dt><dd class="num">{{ so.ruleset_version }}</dd>
-        <dt>Assessment</dt><dd class="mono">{{ so.assessment_id }}</dd>
-        <dt>Narrative</dt><dd class="mono">sha256 {{ so.narrative_sha256[:16] }}…</dd>
       </dl>
     </div>
   </details>
   {% else %}
   <details class="fold" id="narrative-fold">
-    {{ fold_summary('Edit the narrative', 'Edited' if st.narrative_edits is not none else 'Drafted from the chart') }}
+    {{ fold_summary('Edit the narrative', 'Edited' if st.narrative_edits is not none else None) }}
     <form method="post" action="{{ BASE }}/cases/{{ cid }}/narrative" class="fold-body" id="narrative-form">
       <textarea class="input" name="narrative" id="narrative" rows="16" data-dirty-warn aria-label="Clinical narrative">{{ narrative }}</textarea>
       <div class="btn-row mt-12">

@@ -56,7 +56,7 @@ def test_board_shows_a_column_per_step_with_deadline_chips(seeded):
     r = seeded.get("/")
     assert r.status_code == 200
     for text in ("Needs the patient", "Paperwork", "With Sun Life", "Decision back", "In the chair now", "Before Teresa leaves",
-                 "Late for Sep 23 crown", "Send by Sep 22", "Ophi checked 11 charts"):
+                 "Late for Sep 23 crown", "Send by Sep 22"):
         assert text in r.text
 
 
@@ -146,7 +146,7 @@ def test_tremblay_happy_path_reaches_ready_then_signs_off(client):
     r = client.post("/cases/tremblay/sign-off", data={"narrative": "Crown #24 following endodontic treatment.\r\nAsymptomatic."})
     assert r.status_code == 303
     page = client.get("/cases/tremblay/packet").text
-    assert "never transmits" in page
+    assert "sends it next, from the PMS" in page
     assert "Dr. Priya Lau" in page
     assert "attestation.narrative_sha256" not in page  # verifier finding when hashes disagree
 
@@ -230,7 +230,7 @@ def test_settings_shows_pack_and_audit_csv(client):
     r = client.get("/settings")
     assert r.status_code == 200
     assert client.app.state.svc.pack.version in r.text
-    assert "ferrule_1_5mm=met" in r.text
+    assert "Recorded a criterion" in r.text and "ferrule_1_5mm=met" not in r.text  # raw detail stays in the CSV
     csv = client.get("/settings/audit.csv")
     assert csv.status_code == 200
     assert csv.headers["content-type"].startswith("text/csv")

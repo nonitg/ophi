@@ -47,7 +47,7 @@ templates = Jinja2Templates(directory=str(HERE / "templates"))
 templates.env.globals.update(
     STATIC_V=STATIC_V, money=present.money, short_date=present.short_date, long_date=present.long_date,
     full_date=present.full_date, day_heading=present.day_heading, sentence=present.sentence, local_time=present.local_time, days_until=present.days_until, in_days=present.in_days, plural=present.plural,
-    tooth_name=present.tooth_name, source_title=present.source_title, kb=present.kb, requirement_detail=present.requirement_detail,
+    tooth_name=present.tooth_name, source_title=present.source_title, kb=present.kb, requirement_detail=present.requirement_detail, action_title=present.action_title,
     who_tag=present.who_tag, initials=present.initials, VERDICT_LABEL=present.VERDICT_LABEL, VERDICT_CLASS=present.VERDICT_CLASS,
     STATUS_LABEL=present.STATUS_LABEL, STATUS_CLASS=present.STATUS_CLASS, STATUS_NA=Status.NOT_APPLICABLE,
     LAYA=model_card, STAGE_LABEL=present.STAGE_LABEL, FOLLOWUP_LABEL=present.FOLLOWUP_LABEL, ACTORS=ACTORS,
@@ -236,8 +236,8 @@ def case_page(request: Request, case_id: str):
     return _render(request, "case.html", view=view, case=view.case, a=view.assessment, stage=view.stage,
                    steps=steps, now=now, waiting=present.waiting_on(now, actor, view.case.treatment.provider.name, timing),
                    next_case=present.next_up(svc.queue(), view, actor, today),
-                   stepper=present.stepper(view, actor), gaps=gaps, gap_summary=present.gap_summary(view),
-                   chair_now=present.in_chair(view), advisory=present.advisory(view),
+                   stepper=present.stepper(view, actor), gaps=gaps,
+                   advisory=present.advisory(view),
                    timing=timing, advice=present.advice(view, timing, today), evidence=present.evidence_panel(view),
                    fx=fx, ml=ml,
                    plan=present.dentist_panel(view, rd) if view.stage in (*workflow.CHART_STAGES, workflow.Stage.DENTIST) else None,
@@ -550,7 +550,8 @@ def outcomes(request: Request):
     try:
         report = build(_svc(request).pack)
     except Exception as e:  # no outcomes database configured must not take the demo down
-        return _render(request, "outcomes.html", report=None, unavailable=f"Past outcomes are unavailable: {e}")
+        log.warning("past outcomes unavailable: %s", e)
+        return _render(request, "outcomes.html", report=None, unavailable="Past outcomes are unavailable.")
     return _render(request, "outcomes.html", report=report, unavailable=None)
 
 
@@ -571,9 +572,7 @@ def settings(request: Request):
         names |= {r.case_id: r.patient_name for r in svc.lookback().rows}
     except Exception:  # names for Recover rows are a nicety; the log still renders with ids
         pass
-    engine_version = svc.view(ids[0]).assessment.engine_version if ids else "—"
-    return _render(request, "settings.html", events=present.audit_rows(svc.store.audit_log(), names),
-                   engine_version=engine_version, case_count=len(ids))
+    return _render(request, "settings.html", events=present.audit_rows(svc.store.audit_log(), names))
 
 
 @router.get("/settings/audit.csv")

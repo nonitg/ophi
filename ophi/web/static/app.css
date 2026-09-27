@@ -64,7 +64,6 @@ q { quotes: "“" "”"; }
 .mono-mark { display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: var(--stone); border: 1px solid var(--rule); font-size: 10.5px; font-weight: 600; color: var(--ink-soft); letter-spacing: .02em; }
 .who-dentist .mono-mark { background: var(--person-tint); border-color: var(--person-line); color: var(--person); }
 .who-sun_life .mono-mark { background: var(--payer-tint); border-color: var(--payer-line); color: var(--payer); border-radius: 5px; }
-.who-ophi .mono-mark { background: var(--ink); border-color: var(--ink); color: var(--paper); }
 
 /* buttons */
 .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 38px; padding: 0 16px; border-radius: var(--r-control); border: 1px solid var(--rule-strong);
@@ -116,7 +115,6 @@ textarea.input { width: 100%; height: auto; padding: 8px 10px; line-height: 1.5;
 .board-head h1 { font-size: 28px; font-weight: 500; letter-spacing: -.02em; line-height: 1.15; }
 .board-fresh-all { display: grid; gap: 4px; justify-items: end; }
 .board-fresh { display: flex; align-items: center; gap: 7px; font-size: 13px; color: var(--muted); }
-.board-fresh .mono-mark, .chair-foot .mono-mark { width: 18px; height: 18px; font-size: 9px; }
 
 /* the one thing to do first */
 .start { display: flex; align-items: center; gap: 14px 24px; margin: 0 0 24px; padding: 18px 22px; border-radius: var(--r-panel); background: var(--linen); }
@@ -136,7 +134,6 @@ textarea.input { width: 100%; height: auto; padding: 8px 10px; line-height: 1.5;
 .chair-hint { font-size: 13px; color: var(--ink-soft); }
 .chair-do { grid-column: 3; justify-self: end; }
 .chair-more { padding-left: 14px; font-size: 13px; color: var(--muted); }
-.chair-foot { margin-top: 10px; display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted); }
 
 /* deadline chip: the only coloured element on a card */
 .due { display: inline-flex; align-items: center; gap: 6px; height: 22px; padding: 0 9px; border-radius: 999px; background: var(--stone); border: 1px solid var(--rule); font-size: 12.5px; font-weight: 500; color: var(--ink-soft); white-space: nowrap; }
@@ -253,10 +250,7 @@ textarea.input { width: 100%; height: auto; padding: 8px 10px; line-height: 1.5;
 .gap-title { font-size: 16px; font-weight: 560; }
 .gap-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px; }
 .gap-group { margin: 18px 0 8px; font-size: 13px; font-weight: 600; color: var(--ink-soft); }
-.gap-lead { margin: 0 0 10px; font-size: 14px; color: var(--ink-soft); }
-.now-ophi { margin-bottom: 14px; }
 .gap-hint { font-size: 14px; color: var(--gap); margin-top: 2px; }
-.gap-hint-muted { color: var(--ink-soft); }
 .gap-rule { margin-top: 8px; font-size: 13px; color: var(--muted); }
 /* denial risk from past decisions, and the fixes Ophi makes itself */
 .lvl { display: inline-block; padding: 0 7px; border-radius: 999px; border: 1px solid; font-size: 12px; font-weight: 600; line-height: 18px; }

@@ -30,7 +30,7 @@
 
 {# Who does a step: an initials monogram and a name (see present.who_tag). #}
 {% macro who(t) -%}
-<span class="who who-{{ t.kind }}"><span class="mono-mark" aria-hidden="true">{{ t.mark }}</span>{{ t.label }}</span>
+<span class="who who-{{ t.kind }}">{% if t.kind != 'ophi' %}<span class="mono-mark" aria-hidden="true">{{ t.mark }}</span>{% endif %}{{ t.label }}</span>
 {%- endmacro %}
 
 {# Laya, Ophi's trained model. The spark marks everything it produced, so its part is never mistaken for a rule or a
@@ -118,12 +118,11 @@ Crown on #{{ c.requested_tooth }} <span class="num">({{ c.treatment.code }})</sp
 {% macro risk_block(r, stale_since=None, after_label='After these fixes') -%}
 {%- if r %}
 <div class="risk">
-  <p class="risk-levels">{{ laya() }}<span class="risk-k">Denial risk</span>
+  <p class="risk-levels">{{ laya() }}<span class="risk-k" title="A guide from past decisions, not Sun Life's answer">Denial risk</span>
     <span class="risk-at">Now <b class="lvl lvl-{{ r.now.level }}">{{ r.now.label }}</b></span>
     {%- if r.after %}<span class="risk-at"><span class="risk-arrow" aria-hidden="true">→</span> {{ after_label }} <b class="lvl lvl-{{ r.after.level }}">{{ r.after.label }}</b></span>{% endif %}
   </p>
   {% if r.remaining %}<p class="risk-line">{{ r.remaining }}</p>{% endif %}
-  <p class="risk-src">Laya's estimate from {{ LAYA.TRAINED_ON }} past decisions in synthetic training data, not Sun Life's answer. <a href="{{ BASE }}/model">What Laya does</a></p>
 </div>
 {%- elif stale_since %}
 <p class="risk-src">The chart changed after Ophi last compared it with past decisions on {{ full_date(stale_since) }}, so no denial risk is shown.</p>

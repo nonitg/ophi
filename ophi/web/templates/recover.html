@@ -3,7 +3,7 @@
 {% block content %}
 <header class="head">
   <h1>{{ plural(r.count, 'past denial was', 'past denials were') }} never resubmitted</h1>
-  <p class="lede">{{ money(r.dollars) }} of crowns that haven't happened. Call each patient; if they still want the crown, start a new request.</p>
+  <p class="lede">{{ money(r.dollars) }} of crowns that haven't happened.</p>
 </header>
 
 {% if r.rebooking or r.declined %}
@@ -25,9 +25,9 @@
     <div>
       <p class="call-why"><span class="payer" data-voice="payer">Sun Life denied it{% if row.denial_text %}: <q class="payer-quote">{{ row.denial_text }}</q>{% else %}.{% endif %}</span></p>
       {% if row.gaps %}
-      <p class="call-why">Missing: {{ row.gaps|join('; ') }}. Add {{ 'it' if row.gaps|length == 1 else 'them' }} to the new request.</p>
+      <p class="call-why">Missing: {{ row.gaps|join('; ') }}.</p>
       {% elif row.unverifiable %}
-      <p class="call-why">The PMS couldn't show: {{ row.unverifiable|join('; ') }}. Check it before a new request.</p>
+      <p class="call-why">The PMS couldn't show: {{ row.unverifiable|join('; ') }}.</p>
       {% else %}
       <p class="call-why">No missing document found.{% if row.other_open %} Still open when it was sent: {{ row.other_open|join('; ') }}.{% endif %}</p>
       {% endif %}
@@ -46,5 +46,4 @@
   <li class="empty">No past denials are waiting on a call.</li>
   {% endfor %}
 </ul>
-<p class="source">From the last 12 months of crown preauthorizations.</p>
 {% endblock %}

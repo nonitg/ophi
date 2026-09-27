@@ -4,7 +4,6 @@
 {% block content %}
 <header class="head">
   <h1>Settings and audit</h1>
-  <p class="lede">The connection, the people who sign, the CDCP rules Ophi checks against, and a log of every action a person took.</p>
 </header>
 
 <div class="settings-grid">
@@ -12,7 +11,6 @@
     <div class="panel">
       <h2>Connection</h2>
       <p><span class="dot"></span>Demo: fictional cases, no PMS connected.</p>
-      <p class="small muted" style="margin-top:6px">{{ plural(case_count, 'case') }} loaded. Times are shown in Ontario time. Engine {{ engine_version }}.</p>
     </div>
 
     <div class="panel">
@@ -32,9 +30,8 @@
         <dt>Payer</dt><dd>{{ pack.payer }}, {{ pack.jurisdiction.province }} {{ pack.jurisdiction.provider_type|upper }} grid {{ pack.jurisdiction.grid_year }}</dd>
         <dt>In effect from</dt><dd class="num">{{ full_date(pack.effective_from) }}</dd>
         <dt>Checked against sources</dt><dd class="num">{{ full_date(pack.verified_on) }}</dd>
-        <dt>Content hash</dt><dd class="mono">{{ pack.content_hash }}</dd>
       </dl>
-      <p class="small" style="margin-top:12px"><a href="{{ BASE }}/outcomes">Past outcomes</a><span class="muted">, the denials the rule pack can't explain</span></p>
+      <p class="small" style="margin-top:12px"><a href="{{ BASE }}/outcomes">Past outcomes</a></p>
       <h3>Sources</h3>
       <ul class="plain small">
         {% for key, s in pack.sources.items() %}<li><a href="{{ s.url }}" target="_blank" rel="noopener">{{ s.title }}</a></li>{% endfor %}
@@ -62,14 +59,14 @@
       <a class="btn btn-sm" href="{{ BASE }}/settings/audit.csv">Export CSV</a>
     </div>
     {% if not events %}
-    <p class="muted">No actions yet. Every answer, confirmation, narrative edit, signature, download and status change is recorded here.</p>
+    <p class="muted">No actions yet.</p>
     {% else %}
     <div class="tbl-wrap">
       <table class="tbl">
         <thead><tr><th>When</th><th>Patient</th><th>Who</th><th>What</th></tr></thead>
         <tbody>
         {% for e in events %}
-        <tr><td class="num nowrap">{{ local_time(e.at) }}</td><td><a href="{{ BASE ~ ('/recover#r-' if e.event == 'recover_followup' else '/cases/') ~ e.case_id }}">{{ e.patient }}</a></td><td class="nowrap">{{ e.actor }}</td><td>{{ e.what|capitalize }}<div class="small muted"{% if e.event == 'record_decision' %} data-voice="payer"{% endif %}>{{ e.detail }}</div></td></tr>
+        <tr><td class="num nowrap">{{ local_time(e.at) }}</td><td><a href="{{ BASE ~ ('/recover#r-' if e.event == 'recover_followup' else '/cases/') ~ e.case_id }}">{{ e.patient }}</a></td><td class="nowrap">{{ e.actor }}</td><td>{{ e.what[:1]|upper ~ e.what[1:] }}<div class="small muted"{% if e.event == 'record_decision' %} data-voice="payer"{% endif %}>{{ e.detail }}</div></td></tr>
         {% endfor %}
         </tbody>
       </table>

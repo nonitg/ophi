@@ -182,7 +182,7 @@ def who_tag(kind: str | None, actor: Actor, provider: str) -> dict:
     """A monogram and a name for whoever does a step, e.g. {'mark': 'PL', 'label': 'Dr. Priya Lau'}."""
     person = provider if kind == "dentist" else ACTORS["coordinator"].name
     return {"kind": kind or "", "label": who_label(kind, actor, provider),
-            "mark": {"sun_life": "SL", "ophi": "O"}.get(kind or "") or initials(person)}
+            "mark": {"sun_life": "SL"}.get(kind or "") or initials(person)}
 
 
 def who_label(owner: str | None, actor: Actor, provider: str) -> str:
@@ -255,21 +255,6 @@ def chair_items(view: CaseView, order: list[str] | None = None) -> list[dict]:
         out.append({"rid": rid, "label": CHAIR_SHORT.get(rid, action_title(act)).format(tooth=view.case.requested_tooth),
                     "role": CHAIR_ROLE.get(rid), "hint": _action_hint(view, act), "capturable": rid in CAPTURABLE})
     return out
-
-
-def gap_summary(view: CaseView) -> str:
-    """Ophi's finding in one line, split by who can close it, so it adds up to what's still undocumented."""
-    a = view.assessment
-    chair, desk = len(chair_actions(a)), len(desk_actions(a))
-    if chair and desk:
-        found = f"Ophi found {chair + desk} gaps: {chair} need the patient, {desk} at the desk."
-    elif chair:
-        found = f"Ophi found {plural(chair, 'gap')} that need{'s' if chair == 1 else ''} the patient."
-    else:
-        found = f"Ophi found {plural(desk, 'gap')} to fix at the desk."
-    dentist = sum(1 for r in a.requirements if r.applicable and r.status not in (Status.SATISFIED, Status.AT_RISK)
-                  and _awaiting_dentist_only(r))
-    return found + (f" {view.case.treatment.provider.name} confirms {dentist} more." if dentist else "")
 
 
 def _unblocked(view: CaseView, a: Action):
@@ -590,7 +575,7 @@ def board(views: list[CaseView], actor: Actor, today: date, risks: dict[str, dic
         headline = f"{plural(n, 'case needs', 'cases need')} you" if n else "Nothing needs you today"
     late = sum(1 for c in mine if c["timing"]["late"])
     return {"today": today, "headline": headline, "late": late, "columns": columns, "start": mine[0] if mine else None,
-            "checked": len(views), "scored": len(risks), "prefilled": sum(prefills.values())}
+            "scored": len(risks), "prefilled": sum(prefills.values())}
 
 
 def next_up(views: list[CaseView], current: CaseView, actor: Actor, today: date) -> dict | None:
@@ -741,10 +726,15 @@ def activity(events: list) -> list[dict]:
     return out
 
 
+# Events whose detail reads as plain words; the rest carry ids and hashes that stay in the CSV export only.
+_READABLE_DETAIL = {"apply_fix", "record_decision"}
+
+
 def audit_rows(events: list, names: dict[str, str]) -> list[dict]:
     """The clinic-wide log for Settings: newest first, a patient's name instead of a case id, plain words."""
     return [{"at": e.at, "actor": e.actor, "case_id": e.case_id, "patient": names.get(e.case_id, e.case_id), "event": e.event,
-             "what": _ACTIVITY.get(e.event, (e.event.replace("_", " "),))[0], "detail": e.detail}
+             "what": _ACTIVITY.get(e.event, (e.event.replace("_", " "),))[0],
+             "detail": e.detail if e.event in _READABLE_DETAIL else ""}
             for e in sorted(events, key=lambda e: e.at, reverse=True)]
 
 

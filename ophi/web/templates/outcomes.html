@@ -4,7 +4,6 @@
 <a class="back" href="{{ BASE }}/settings">Settings</a>
 <header class="head">
   <h1>Past outcomes</h1>
-  <p class="lede">What denied requests show the rule pack does not cover.{% if report %} Rule pack <span class="num">{{ report.pack_version }}</span>. For whoever edits the rules: each row is a pattern to review, not a finding about any one patient.{% endif %}</p>
 </header>
 
 {% if not report %}
@@ -27,7 +26,6 @@
   <section class="fact">
     <h2 class="fact-k">Documents sent that no rule checks</h2>
     <div>
-      <p class="fact-more">On those denials.</p>
       <ul class="counts">
         {% for name, n in report.unmodelled_attachments %}
         <li><span class="mono">{{ name }}</span><span class="num">{{ n }}</span></li>
@@ -41,7 +39,6 @@
   <section class="fact">
     <h2 class="fact-k">Denials by requirement</h2>
     <div>
-      <p class="fact-more">As the engine read each request on its submission date.</p>
       <div class="tbl-wrap">
         <table class="tbl">
           <thead><tr><th>Requirement</th><th>Denied when missing</th><th>Denied otherwise</th></tr></thead>
@@ -52,7 +49,6 @@
           </tbody>
         </table>
       </div>
-      <p class="source">Counts only order actions the rules already rank equal, and only once both sides have at least 10 requests. They never change a requirement or a verdict.</p>
     </div>
   </section>
 </div>

@@ -65,7 +65,6 @@
 
   {% if s.key == 'chart' %}
     {{ risk_block(fx.risk, fx.stale_since) }}
-    {% if gaps %}<p class="now-lead now-ophi">{{ gap_summary }}</p>{% endif %}
     {% if actor.is_dentist and s.who == 'coordinator' %}
     <ul class="plain">{% for it in fx.rows %}<li>{{ it.title }}</li>{% endfor %}</ul>
     {% elif fx.rows or fx.apply.applied or fx.dentist %}
@@ -75,7 +74,6 @@
     {% set ns = namespace(n=0) %}
     {% for group, rows in [('Needs the patient', chair_rows), ('At the desk', desk_rows)] if rows %}
     {% if chair_rows and desk_rows %}<h3 class="gap-group">{{ group }}</h3>{% endif %}
-    {% if rows is sameas chair_rows and not chair_now %}<p class="gap-lead">Book one visit for {{ 'these' if rows|length > 1 else 'this' }}, or add it to a visit already booked.</p>{% endif %}
     <ul class="gaps">
       {% for it in rows %}{% set g = it.gap %}{% set ns.n = ns.n + 1 %}
       <li class="gap">
@@ -91,11 +89,9 @@
           {% endif %}
         </div>
         {% if it.auto %}<p class="gap-effect">Ophi makes this change when you press Apply it.</p>{% endif %}
-        {% if it.effect %}<p class="gap-effect effect-{{ it.effect }}">{{ laya('', link=False) }}{{ {'most': 'Lowers denial risk the most', 'some': 'Lowers denial risk a little', 'none': 'No clear effect on denial risk in past decisions. Still required by CDCP.'}[it.effect] }}</p>
-        {% elif fx.risk and not it.auto %}<p class="gap-effect effect-none">Not scored against past decisions. Still required by CDCP.</p>{% endif %}
+        {% if it.effect in ('most', 'some') %}<p class="gap-effect effect-{{ it.effect }}">{{ laya('', link=False) }}{{ {'most': 'Lowers denial risk the most', 'some': 'Lowers denial risk a little'}[it.effect] }}</p>{% endif %}
         {% if it.concern == 'timing' %}<p class="gap-effect">Do this first, then send.</p>{% endif %}
         {% if g and g.hint %}<p class="gap-hint">{{ g.hint }}</p>{% endif %}
-        {% if g and g.action.action_type == 'check_source' %}<p class="gap-hint gap-hint-muted">Your PMS didn't show Ophi this part of the chart. It may be there.</p>{% endif %}
         {% if g and g.proposal %}{% set pl = g.proposal.payload %}
         <div class="proposal">
           <blockquote class="proposal-quote">“{{ pl.quote }}”</blockquote>
@@ -116,13 +112,12 @@
     {% endfor %}
     {% if fx.dentist %}
     <div class="note"><b>For {{ provider }}</b>
-      {% for f in fx.dentist %}<p class="mt-6">{{ f.title }}.{% if f.concern == 'timing' %} Do this first, then send.{% elif f.concern == 'clinical' %} Clinical, so {{ provider }} decides.{% elif f.kind == 'draft' %} {{ provider }} reads it before signing.{% endif %}{% if f.kind == 'dentist' and not f.clause %} <span class="tag">Not in the rule pack yet</span>{% endif %}</p>{% endfor %}
+      {% for f in fx.dentist %}<p class="mt-6">{{ f.title }}.{% if f.concern == 'timing' %} Do this first, then send.{% elif f.concern == 'clinical' %} Clinical, so {{ provider }} decides.{% endif %}{% if f.kind == 'dentist' and not f.clause %} <span class="tag">Not in the rule pack yet</span>{% endif %}</p>{% endfor %}
     </div>
     {% endif %}
-    {% if desk_rows|rejectattr('auto')|list %}<p class="now-foot">Fix {{ 'the desk items' if chair_rows else 'these' }} in your PMS{% if fx.risk and desk_rows|length > 1 %}, in this order{% endif %}. Ophi checks the chart again each time you open this page.</p>{% endif %}
     {% if steps|selectattr('key', 'equalto', 'criteria')|selectattr('state', 'equalto', 'open')|list %}<p class="now-foot">{{ provider }} can confirm the clinical criteria now, in parallel.</p>{% endif %}
     <div class="now-foot btn-row">
-      {% if gaps|rejectattr('proposal')|list %}<span>Fixed in your PMS?</span><a class="btn btn-sm" href="{{ BASE }}/cases/{{ cid }}">Check the chart again</a>{% endif %}
+      {% if gaps|rejectattr('proposal')|list %}<a class="btn btn-sm" href="{{ BASE }}/cases/{{ cid }}">Check the chart again</a>{% endif %}
       {% if gaps|rejectattr('action.action_type', 'equalto', 'criterion_not_met')|list %}
       <form class="push-end" method="post" action="{{ BASE }}/cases/{{ cid }}/test-skip" data-confirm="Skip these gaps to try the rest of the flow? The case moves on as if the chart were fixed. Its packet can't be downloaded or sent. You can restore the gaps until it's marked sent.">
         <button class="btn btn-sm btn-test" type="submit">Skip gaps to test</button>
@@ -191,7 +186,7 @@
     {% if plan %}{{ risk_block(plan, after_label='After the fixes') }}{{ dentist_extras(plan) }}{% endif %}
     {% if advisory %}
     <div class="note note-warn"><b>Read before signing</b>
-      {% for x in advisory %}<p class="mt-6">{{ x.title }}. {{ x.why }}</p>{% endfor %}
+      {% for x in advisory %}<p class="mt-6">{{ action_title(x) }}. {{ x.why }}</p>{% endfor %}
     </div>
     {% endif %}
     <div class="btn-row"><a class="btn btn-primary" href="{{ BASE }}/cases/{{ cid }}/packet">Review and sign</a></div>
@@ -284,7 +279,6 @@
       {% if not_applicable %}
       <p class="small muted mt-12">Not applicable here: {% for r in not_applicable %}{{ r.label }}{% if not loop.last %}; {% endif %}{% endfor %}.</p>
       {% endif %}
-      <p class="small muted mt-12">{{ a.schedule.detail }} Checked as of <span class="num">{{ full_date(a.submission_date_assumed) }}</span> against rule pack <span class="num">{{ pack.version }}</span>.</p>
     </div>
   </details>
 

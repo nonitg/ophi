@@ -5,7 +5,6 @@
 <header class="board-head">
   <h1>{{ b.headline }}</h1>
   <div class="board-fresh-all">
-    <p class="board-fresh who-ophi"><span class="mono-mark" aria-hidden="true">O</span><span>Ophi checked {{ plural(b.checked, 'chart') }} against the CDCP rules just now</span></p>
     {% if b.scored or b.prefilled %}<p class="board-fresh">{{ laya() }}<span>{% if b.scored %}ranked the fixes on {{ plural(b.scored, 'case') }}{% endif %}{% if b.scored and b.prefilled %} and {% endif %}{% if b.prefilled %}pre-filled {{ plural(b.prefilled, 'clinical criterion', 'clinical criteria') }}{% endif %}</span></p>{% endif %}
   </div>
 </header>
@@ -31,7 +30,6 @@
       {% endfor %}
       {% if c.chair|length > 3 %}<li class="chair-more">+{{ c.chair|length - 3 }} more</li>{% endif %}
     </ul>
-    <p class="chair-foot">{{ who({'kind': 'ophi', 'mark': 'O', 'label': ''}) }}Ophi checks each one as it reaches the chart, then moves {{ c.first }} to Dentist review.</p>
   </div>
   <a class="btn" href="{{ BASE }}/cases/{{ c.case.case_id }}">Open case</a>
 </section>
@@ -52,7 +50,7 @@
     <header class="col-head">
       <h2 id="col-{{ col.key }}">{{ col.label }}</h2>
       <span class="col-n num">{{ col.cards|length }}</span>
-      {% if col.job %}<p class="col-job">{% if col.who %}<span class="who who-{{ col.who.kind }}"><span class="mono-mark" aria-hidden="true">{{ col.who.mark }}</span></span>{% endif %}<span class="col-job-t">{{ col.job }}</span></p>{% endif %}
+      {% if col.job %}<p class="col-job">{% if col.who and col.who.kind != 'ophi' %}<span class="who who-{{ col.who.kind }}"><span class="mono-mark" aria-hidden="true">{{ col.who.mark }}</span></span>{% endif %}<span class="col-job-t">{{ col.job }}</span></p>{% endif %}
     </header>
     {% if col.cards %}
     <ul class="tiles">
