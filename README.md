@@ -33,11 +33,14 @@ single most urgent action, and becomes "Before <patient> leaves" while a patient
 (a stepper that mirrors the board's columns, one "Now" panel with the current step's action, then the
 requirements, chart evidence and patient details folded away) → **Packet** (the dentist signs at the top, PDF
 preview, narrative editing folded away) → **Past denials** (denials never resubmitted, as a call list) →
-**Results** → **Settings & audit**. "View as" in the header switches between the coordinator and the dentist.
+**Results** → **Laya** (what the trained model does on these cases, what it can't do, how it was tested) →
+**Settings & audit**. The dentist's criteria arrive pre-filled where the chart and Laya's reading of the note agree; the
+dentist confirms them in one step. "View as" in the header switches between the coordinator and the dentist.
 `make demo` seeds five cases past sign-off so every column has an example; `scripts/app-serve.sh` serves the
 app with fresh throwaway state, `scripts/app-reshoot.sh` restarts it and screenshots screens,
 `scripts/app-flow.py` drives the whole lifecycle in a browser, and `scripts/app-qa.py` checks phone overflow,
-focus and contrast. Design records: `docs/plan/08-chair-first.md` (who closes each gap) on top of
+focus and contrast. Design records: `docs/plan/09-laya-prefill.md` (pre-filled criteria, Laya made visible) on top of
+`docs/plan/08-chair-first.md` (who closes each gap) on top of
 `docs/plan/07-kanban-board.md` (it supersedes the screens in `docs/plan/06-clinic-worklist.md`).
 
 Other entry points:
