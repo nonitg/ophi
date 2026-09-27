@@ -8,6 +8,7 @@ load_dotenv()
 
 from google import genai  # noqa: E402  (after load_dotenv, which supplies GEMINI_API_KEY)
 
-for m in sorted(genai.Client().models.list(), key=lambda m: m.name or ""):
+client = genai.Client()  # keep the client alive: a temporary one is collected mid-call and closes its httpx client
+for m in sorted(client.models.list(), key=lambda m: m.name or ""):
     if "generateContent" in (m.supported_actions or []) and "embedding" not in (m.name or ""):
         print(f"{m.name:52} in={m.input_token_limit or '?':>9} out={m.output_token_limit or '?':>7}")

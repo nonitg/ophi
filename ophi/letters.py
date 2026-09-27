@@ -15,7 +15,9 @@ from pydantic import BaseModel
 
 from ophi.workflow import REASONS
 
-MODEL = "gemini-2.5-pro"
+# An alias, not a pinned name: Google retires pinned models (gemini-2.5-pro went 404 mid-2026) and a retired
+# model means no letter can be read until someone edits this file.
+MODEL = "gemini-pro-latest"
 IMAGE_TYPES = {"image/png", "image/jpeg", "image/webp", "image/gif"}
 MEDIA_TYPES = {"application/pdf", *IMAGE_TYPES}
 
@@ -51,16 +53,28 @@ Part = tuple[bytes, str] | str  # an uploaded file as (bytes, media type), or pr
 Reader = Callable[[list[Part]], LetterReading]
 
 
+_client = None
+
+
+def _gemini_client():
+    """One client for the process. A throwaway `genai.Client()` is collected mid-call and its __del__ closes the
+    httpx client underneath the request, which surfaces as "Cannot send a request, as the client has been closed"."""
+    global _client
+    from google import genai
+    if _client is None:
+        _client = genai.Client()
+    return _client
+
+
 def gemini_reader(parts: list[Part]) -> LetterReading:
     import httpx
-    from google import genai
     from google.genai import errors, types
 
     contents = [p if isinstance(p, str) else types.Part.from_bytes(data=p[0], mime_type=p[1]) for p in parts]
     config = types.GenerateContentConfig(system_instruction=SYSTEM, response_mime_type="application/json",
                                          response_schema=LetterReading)
     try:
-        res = genai.Client().models.generate_content(model=MODEL, contents=contents, config=config)
+        res = _gemini_client().models.generate_content(model=MODEL, contents=contents, config=config)
     except ValueError as e:  # the SDK found no key at all
         raise LetterError(NO_KEY) from e
     except errors.ClientError as e:
@@ -71,6 +85,8 @@ def gemini_reader(parts: list[Part]) -> LetterReading:
         raise LetterError(f"Gemini couldn't read the letter ({e.code}). Try again, or record the decision by hand.") from e
     except httpx.HTTPError as e:
         raise LetterError("Ophi couldn't reach Gemini. Check the connection and try again.") from e
+    except Exception as e:  # never a 500 on the desk: staff can still record the decision by hand
+        raise LetterError(f"Gemini couldn't read the letter ({type(e).__name__}). Record the decision by hand.") from e
     if not isinstance(res.parsed, LetterReading):  # refused, blocked, or answered with something else
         raise LetterError(UNREADABLE)
     return res.parsed
