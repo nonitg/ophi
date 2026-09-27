@@ -7,14 +7,17 @@ Packet (preview, narrative, the dentist's sign-off) → Recover (past denials wo
 
 from __future__ import annotations
 
+import asyncio
 import csv
 import hashlib
 import io
 import json
+import logging
 import os
 import shutil
 import threading
 import zipfile
+from contextlib import asynccontextmanager
 from datetime import UTC, date, datetime
 from pathlib import Path
 
@@ -26,6 +29,7 @@ from fastapi.templating import Jinja2Templates
 from ophi import demo, fixes, workflow
 from ophi.engine.models import Status
 from ophi.outcomes import model_card, readout
+from ophi.outcomes.live import LiveScorer
 from ophi.outcomes.weights import load as load_weights
 from ophi.packet.build import build_packet
 from ophi.packet.documents import narrative_ascii
@@ -36,6 +40,7 @@ from ophi.web import abeldent_api, present
 from ophi.web.present import ACTORS, DEFAULT_ACTOR, READY_VERDICTS, Actor
 
 HERE = Path(__file__).resolve().parent
+log = logging.getLogger("uvicorn.error")  # uvicorn's own app logger, so lines reach the `make demo` terminal
 # Static assets are cached by the browser; the newest mtime in static/ busts that cache on each deploy.
 STATIC_V = max(int(p.stat().st_mtime) for p in (HERE / "static").rglob("*") if p.is_file())
 templates = Jinja2Templates(directory=str(HERE / "templates"))
@@ -84,6 +89,13 @@ def _base(request: Request) -> str:
 
 def _home(request: Request) -> str:
     return _base(request) or "/"
+
+
+def _known_readout(request: Request, case) -> readout.Readout | None:
+    """The fix plan already made for this chart: the last live one while the chart is unchanged, else the offline one.
+    Never runs the models, so a page listing every case stays fast."""
+    live = request.app.state.live
+    return (live.cached(case) if live else None) or readout.load(case.case_id)
 
 
 def _actor(request: Request) -> Actor:
@@ -195,10 +207,11 @@ def _existing_manifest(out: Path, view: CaseView, narrative: str, sign_off) -> d
 def worklist(request: Request):
     svc = _svc(request)
     views = svc.queue()
+    live = request.app.state.live
     risks = {v.case.case_id: r for v in views if v.stage in workflow.CHART_STAGES
-             and (r := present.board_risk(v, readout.load(v.case.case_id), svc.pack))}
+             and (r := present.board_risk(v, live.latest(v.case) if live else readout.load(v.case.case_id), svc.pack))}
     prefills = {v.case.case_id: n for v in views if v.stage in (*workflow.CHART_STAGES, workflow.Stage.DENTIST)
-                and (n := present.prefilled(v, present.pre_reads_for(v, svc.pack, readout.load(v.case.case_id))))}
+                and (n := present.prefilled(v, present.pre_reads_for(v, svc.pack, _known_readout(request, v.case))))}
     return _render(request, "board.html", b=present.board(views, _actor(request), svc.today(), risks, prefills))
 
 
@@ -211,19 +224,22 @@ def case_page(request: Request, case_id: str):
     if view is None:
         return _error(request, 404, "Case not found", f"No case '{case_id}' in the demo set.")
     svc, actor, today = _svc(request), _actor(request), _svc(request).today()
-    rd, gaps = readout.load(case_id), present.gap_rows(view)
+    live = request.app.state.live
+    rd, gaps = live.score(view.case) if live else readout.load(case_id), present.gap_rows(view)
     relevant, other = present.assertion_rows(view, svc.pack, present.pre_reads_for(view, svc.pack, rd))
     steps = present.case_steps(view)
     now = present.now_step(steps, actor)
     timing = present.timing(view, today)
     fx = present.fix_panel(view, rd, svc.pack, gaps) if view.stage in workflow.CHART_STAGES else None
+    ml = present.ml_debug(view, rd)
+    log.info(present.ml_report(ml))
     return _render(request, "case.html", view=view, case=view.case, a=view.assessment, stage=view.stage,
                    steps=steps, now=now, waiting=present.waiting_on(now, actor, view.case.treatment.provider.name, timing),
                    next_case=present.next_up(svc.queue(), view, actor, today),
                    stepper=present.stepper(view, actor), gaps=gaps, gap_summary=present.gap_summary(view),
                    chair_now=present.in_chair(view), advisory=present.advisory(view),
                    timing=timing, advice=present.advice(view, timing, today), evidence=present.evidence_panel(view),
-                   fx=fx,
+                   fx=fx, ml=ml,
                    plan=present.dentist_panel(view, rd) if view.stage in (*workflow.CHART_STAGES, workflow.Stage.DENTIST) else None,
                    criteria=relevant, crit=present.criteria_groups(view, relevant), criteria_other=other, activity=present.activity(svc.store.audit_log(case_id)),
                    applicable=[r for r in view.assessment.requirements if r.applicable],
@@ -254,7 +270,7 @@ async def bulk_assert(request: Request, case_id: str):
     if view is None:
         return _error(request, 404, "Case not found", f"No case '{case_id}' in the demo set.")
     actor, svc = _actor(request), _svc(request)
-    rows = present.assertion_rows(view, svc.pack, present.pre_reads_for(view, svc.pack, readout.load(case_id)))[0]
+    rows = present.assertion_rows(view, svc.pack, present.pre_reads_for(view, svc.pack, _known_readout(request, view.case)))[0]
     form = await request.form()
     items: list[dict] = []
     for r in rows:
@@ -525,7 +541,7 @@ def results(request: Request):
 def model_page(request: Request):
     svc = _svc(request)
     views = svc.queue()
-    return _render(request, "model.html", m=present.laya_page(views, svc.pack, {v.case.case_id: readout.load(v.case.case_id) for v in views}))
+    return _render(request, "model.html", m=present.laya_page(views, svc.pack, {v.case.case_id: _known_readout(request, v.case) for v in views}))
 
 
 @router.get("/outcomes", response_class=HTMLResponse)
@@ -605,15 +621,28 @@ def set_actor(request: Request, actor: str = Form(...)):
 
 
 def create_app(svc: CaseService | None = None, packets_dir: Path | None = None, seed_demo: bool | None = None,
-               base_path: str | None = None) -> FastAPI:
+               base_path: str | None = None, live_ml: bool | None = None) -> FastAPI:
     """`seed_demo` puts the demo cases at their places in the timeline on an empty store, on the first request.
     It defaults on for the demo's own service and off when a caller (a test) brings its own. `base_path`
-    serves every screen under a prefix, for the demo proxied at ophi.app/<slug>."""
+    serves every screen under a prefix, for the demo proxied at ophi.app/<slug>. `live_ml` runs Laya and
+    LightGBM on every case page open; it defaults on locally and off for tests and the proxied demo, which
+    ship without the models and read the offline readouts instead."""
     base = (os.environ.get("OPHI_BASE_PATH", "") if base_path is None else base_path).rstrip("/")
-    app = FastAPI(title="Ophi", docs_url=None, redoc_url=None)
-    app.state.seed_demo = svc is None if seed_demo is None else seed_demo
+    own = svc is None
+    svc = svc or CaseService(weights=load_weights())
+    live = LiveScorer(svc.pack) if (own and not base if live_ml is None else live_ml) else None
+
+    @asynccontextmanager
+    async def lifespan(_: FastAPI):
+        if live:  # load the models before the first page, not during it
+            await asyncio.to_thread(live.warm)
+        yield
+
+    app = FastAPI(title="Ophi", docs_url=None, redoc_url=None, lifespan=lifespan)
+    app.state.live = live
+    app.state.seed_demo = own if seed_demo is None else seed_demo
     app.state.seeded = False
-    app.state.svc = svc or CaseService(weights=load_weights())
+    app.state.svc = svc
     app.state.packets_dir = packets_dir or (app.state.svc.store.root / "packets")
     app.state.base_path = base
     app.mount(f"{base}/static", StaticFiles(directory=str(HERE / "static")), name="static")

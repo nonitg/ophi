@@ -65,16 +65,10 @@
 
   {% if s.key == 'chart' %}
     {{ risk_block(fx.risk, fx.stale_since) }}
-    {% if gaps %}<p class="now-lead now-ophi">{{ who({'kind': 'ophi', 'mark': 'O', 'label': ''}) }}{{ gap_summary }}</p>{% endif %}
+    {% if gaps %}<p class="now-lead now-ophi">{{ gap_summary }}</p>{% endif %}
     {% if actor.is_dentist and s.who == 'coordinator' %}
     <ul class="plain">{% for it in fx.rows %}<li>{{ it.title }}</li>{% endfor %}</ul>
     {% elif fx.rows or fx.apply.applied or fx.dentist %}
-    {% if fx.apply.open %}{% set n = fx.apply.open|length %}
-    <div class="autofix">
-      <p class="autofix-k">{{ who(who_tag('ophi', actor, provider)) }} can make {{ 'one of these fixes' if n == 1 else n ~ ' of these fixes' }} itself</p>
-      <form method="post" action="{{ BASE }}/cases/{{ cid }}/fixes"><button class="btn btn-primary" type="submit" name="all" value="1">{{ 'Apply it' if n == 1 else 'Apply all ' ~ n }}</button></form>
-    </div>
-    {% endif %}
     {% for f in fx.apply.applied %}<p class="autofix-done">{{ f.title }}: applied by {{ f.by }}. Make the same change in your PMS before you send.</p>{% endfor %}
     {# Grouped by who can close each gap; within a group, in the plan's order. Numbers run across both groups. #}
     {% set chair_rows, desk_rows = fx.rows|selectattr('chair')|list, fx.rows|rejectattr('chair')|list %}
@@ -87,14 +81,16 @@
       <li class="gap">
         <div class="gap-head">
           <h3 class="gap-title">{% if fx.risk %}<span class="gap-n num">{{ ns.n }}</span>{% endif %}{{ it.title }}</h3>
-          {% if g and g.capturable %}
+          {% if it.auto %}
+          <form method="post" action="{{ BASE }}/cases/{{ cid }}/fixes"><button class="btn btn-sm btn-primary" type="submit" name="fix" value="{{ it.rid }}">Apply it</button></form>
+          {% elif g and g.capturable %}
           <form method="post" action="{{ BASE }}/cases/{{ cid }}/capture">
             <input type="hidden" name="requirement_id" value="{{ g.action.unblocks[0] }}">
             <button class="btn btn-sm btn-test" type="submit" title="Stands in for the film or chart reaching the PMS">Mark taken (demo)</button>
           </form>
           {% endif %}
         </div>
-        {% if it.auto %}<p class="gap-effect">Ophi does this when you press {{ 'Apply it' if fx.apply.open|length == 1 else 'Apply all' }}.</p>{% endif %}
+        {% if it.auto %}<p class="gap-effect">Ophi makes this change when you press Apply it.</p>{% endif %}
         {% if it.effect %}<p class="gap-effect effect-{{ it.effect }}">{{ laya('', link=False) }}{{ {'most': 'Lowers denial risk the most', 'some': 'Lowers denial risk a little', 'none': 'No clear effect on denial risk in past decisions. Still required by CDCP.'}[it.effect] }}</p>
         {% elif fx.risk and not it.auto %}<p class="gap-effect effect-none">Not scored against past decisions. Still required by CDCP.</p>{% endif %}
         {% if it.concern == 'timing' %}<p class="gap-effect">Do this first, then send.</p>{% endif %}
@@ -380,4 +376,5 @@
 </aside>
 </div>
 </div>
+<script type="application/json" id="ml-debug">{{ ml|tojson }}</script>
 {% endblock %}

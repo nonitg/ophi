@@ -23,7 +23,7 @@ from ophi.cdm.models import (
 from ophi.dental import notation, sextants
 from ophi.engine.models import Action, Status, Verdict
 from ophi.lookback import DOCUMENT_REQUIREMENTS
-from ophi.outcomes.readout import Readout
+from ophi.outcomes.readout import Readout, fingerprint, text_for
 from ophi.outcomes.training_set import NOTE_QUESTIONS
 from ophi.rules.schema import RulePack
 from ophi.service import MANUAL_MINUTES_PER_PREAUTH, CaseView
@@ -292,6 +292,36 @@ def plan_for(view: CaseView, readout: Readout | None) -> dict | None:
 
 
 
+def ml_debug(view: CaseView, readout: Readout | None) -> dict:
+    """Everything Laya and LightGBM produced for this case, for the browser console: what Laya read, its answer
+    per note question, the tree's P(denied), its drivers and each fix's what-if drop. `shown` names the plan the
+    page uses; None when the chart changed since scoring and the page fell back to the engine's gaps."""
+    text = text_for(view.case)
+    sha = fingerprint(text)
+    plans = readout.plans if readout else []
+    return {"case_id": view.case.case_id, "scored_on": readout.scored_on.isoformat() if readout else None,
+            "shown": next((p.state for p in plans if p.text_sha256 == sha), None), "laya_input": text,
+            "plans": [{"state": p.state, "matches_chart": p.text_sha256 == sha, **p.plan} for p in plans]}
+
+
+def ml_report(ml: dict) -> str:
+    """`ml_debug` as plain text for the server terminal."""
+    head = f"ML {ml['case_id']} scored {ml['scored_on'] or 'never'}: " + (
+        f"page shows {ml['shown']}" if ml["shown"] else "chart changed since scoring, page shows engine gaps" if ml["plans"]
+        else "no plan, run scripts/laya-demo-predict.py")
+    lines = [head, "  Laya input:", *("    " + t for t in ml["laya_input"].splitlines())]
+    for p in ml["plans"]:
+        a = p["after_fixes"]
+        lines += [f"  plan {p['state']}{' (shown)' if p['matches_chart'] else ''}  models: {p['model']['laya']}; {p['model']['risk']}",
+                  f"    LightGBM P(denied) {p['now']['score']} ({p['now']['level']}) -> after fixes {a['score']} ({a['level']}"
+                  f"{', ' + a['because'] if a['because'] else ''})  | {p['remaining']}",
+                  "    Laya P(yes): " + "  ".join(f"{q}={v}" for q, v in p["note_answers"].items()),
+                  "    drivers (log-odds push): " + "  ".join(f"{d['feature']}={d['push']:+}" for d in p["drivers"]),
+                  "    fixes (order, risk_drop):",
+                  *(f"      {i}. [{f['kind']}/{f['who']}] {f['risk_drop']}  {f['title']}" for i, f in enumerate(p["fixes"], 1))]
+    return "\n".join(lines)
+
+
 def safe_fixes(view: CaseView, pack: RulePack) -> dict:
     """The chart gaps Ophi can close itself (ophi.fixes), and those staff already had it close."""
     return {"open": [{"id": rid, "title": fixes.title(view.case, rid, pack)} for rid in fixes.open_on(view.assessment)],
@@ -362,7 +392,7 @@ def _item(view: CaseView, pack: RulePack, gap: dict | None, fix: dict | None, ef
     auto = rid in fixes.open_on(view.assessment)
     title = fixes.title(view.case, rid, pack) if auto else gap["title"] if gap else fix["title"]
     req = view.assessment.requirement(rid) if rid else None
-    return {"title": title, "auto": auto, "effect": effect, "gap": gap, "chair": bool(gap and gap["chair"]), "concern": (fix or {}).get("concern"),
+    return {"title": title, "rid": rid, "auto": auto, "effect": effect, "gap": gap, "chair": bool(gap and gap["chair"]), "concern": (fix or {}).get("concern"),
             "why": (fix or {}).get("why") or (act.why if act else ""),
             "clause": (fix or {}).get("clause") or (req.clause if req else None)}
 

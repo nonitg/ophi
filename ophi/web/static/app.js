@@ -80,4 +80,30 @@
   }
   window.addEventListener("hashchange", reveal);
   reveal();
+  // Dev aid: the case page's Laya + LightGBM output, printed to the browser console.
+  var ml = document.getElementById("ml-debug");
+  if (ml) {
+    var m = JSON.parse(ml.textContent);
+    console.group("Ophi ML — " + m.case_id + " (scored " + (m.scored_on || "never") + ")");
+    console.log(m.shown ? "Page shows plan: " + m.shown
+      : m.plans.length ? "Chart changed since scoring: no plan matches, page shows the engine's gaps"
+      : "No plan for this case; run scripts/laya-demo-predict.py");
+    console.log("Laya input:\n" + m.laya_input);
+    m.plans.forEach(function (p) {
+      console.group("Plan " + p.state + (p.matches_chart ? " (shown)" : ""));
+      console.log("Models:", p.model);
+      console.log("LightGBM P(denied): now " + p.now.score + " (" + p.now.level + ") -> after fixes "
+        + p.after_fixes.score + " (" + p.after_fixes.level + (p.after_fixes.because ? ", " + p.after_fixes.because : "") + ")");
+      console.log("Remaining: " + p.remaining);
+      console.log("Laya P(yes) per note question:");
+      console.table(p.note_answers);
+      console.log("LightGBM drivers (push on log-odds of denial):");
+      console.table(p.drivers.map(function (d) { return { feature: d.feature, push: d.push, label: d.label }; }));
+      console.log("Fixes in plan order (risk_drop = P(denied) removed alone):");
+      console.table(p.fixes.map(function (f) { return { kind: f.kind, who: f.who, risk_drop: f.risk_drop, concern: f.concern, title: f.title }; }));
+      console.groupEnd();
+    });
+    console.log("Raw:", m);
+    console.groupEnd();
+  }
 })();

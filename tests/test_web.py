@@ -314,7 +314,8 @@ def test_fix_chart_step_shows_denial_risk_and_applies_ophis_fixes(seeded):
     assert "Denial risk" in page and "Replace lab code 99333 with 99113" in page and "Apply it" in page
     assert "Lowers denial risk the most" in page and "Do this first, then send." in page  # the plan's ranking and timing
     assert "Finish the pending fillings or scaling first. Do this first" not in page  # staff's fix, not repeated for the dentist
-    r = seeded.post("/cases/deng/fixes", data={"all": "1"})
+    rid = re.search(r'name="fix" value="([^"]+)">Apply it<', page).group(1)  # the button sits on the fix's own card
+    r = seeded.post("/cases/deng/fixes", data={"fix": rid})
     assert r.status_code == 303 and r.headers["location"].endswith("/cases/deng?done=fixed#now")
     page = seeded.get("/cases/deng").text
     assert "Apply it" not in page and "applied by Kim Osei" in page and "Denial risk" in page
@@ -357,3 +358,11 @@ def test_laya_page_names_each_task_and_its_limits(client):
         assert task in page
     assert "See X-rays" in page and "laya-cdcp 2026-09-26" in page
 
+
+def test_case_page_carries_ml_output_for_console(client):
+    import json
+    html = client.get("/cases/kowalchuk").text
+    m = json.loads(re.search(r'<script type="application/json" id="ml-debug">(.*?)</script>', html, re.S).group(1))
+    assert m["shown"] == "as_charted"
+    shown = next(p for p in m["plans"] if p["matches_chart"])
+    assert shown["note_answers"] and shown["drivers"] and shown["now"]["score"] > 0
