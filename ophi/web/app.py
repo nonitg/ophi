@@ -7,6 +7,7 @@ Packet (preview, narrative, the dentist's sign-off) → Recover (past denials wo
 
 from __future__ import annotations
 
+import asyncio
 import csv
 import hashlib
 import io
@@ -16,6 +17,7 @@ import os
 import shutil
 import threading
 import zipfile
+from contextlib import asynccontextmanager
 from datetime import UTC, date, datetime
 from pathlib import Path
 
@@ -27,6 +29,7 @@ from fastapi.templating import Jinja2Templates
 from ophi import demo, fixes, workflow
 from ophi.engine.models import Status
 from ophi.outcomes import readout
+from ophi.outcomes.live import LiveScorer
 from ophi.outcomes.weights import load as load_weights
 from ophi.packet.build import build_packet
 from ophi.packet.documents import narrative_ascii
@@ -197,8 +200,9 @@ def _existing_manifest(out: Path, view: CaseView, narrative: str, sign_off) -> d
 def worklist(request: Request):
     svc = _svc(request)
     views = svc.queue()
+    live = request.app.state.live
     risks = {v.case.case_id: r for v in views if v.stage in workflow.CHART_STAGES
-             and (r := present.board_risk(v, readout.load(v.case.case_id), svc.pack))}
+             and (r := present.board_risk(v, live.latest(v.case) if live else readout.load(v.case.case_id), svc.pack))}
     return _render(request, "board.html", b=present.board(views, _actor(request), svc.today(), risks))
 
 
@@ -215,7 +219,8 @@ def case_page(request: Request, case_id: str):
     steps = present.case_steps(view)
     now = present.now_step(steps, actor)
     timing = present.timing(view, today)
-    rd, gaps = readout.load(case_id), present.gap_rows(view)
+    live = request.app.state.live
+    rd, gaps = live.score(view.case) if live else readout.load(case_id), present.gap_rows(view)
     fx = present.fix_panel(view, rd, svc.pack, gaps) if view.stage in workflow.CHART_STAGES else None
     ml = present.ml_debug(view, rd)
     log.info(present.ml_report(ml))
@@ -599,15 +604,28 @@ def set_actor(request: Request, actor: str = Form(...)):
 
 
 def create_app(svc: CaseService | None = None, packets_dir: Path | None = None, seed_demo: bool | None = None,
-               base_path: str | None = None) -> FastAPI:
+               base_path: str | None = None, live_ml: bool | None = None) -> FastAPI:
     """`seed_demo` puts the demo cases at their places in the timeline on an empty store, on the first request.
     It defaults on for the demo's own service and off when a caller (a test) brings its own. `base_path`
-    serves every screen under a prefix, for the demo proxied at ophi.app/<slug>."""
+    serves every screen under a prefix, for the demo proxied at ophi.app/<slug>. `live_ml` runs Laya and
+    LightGBM on every case page open; it defaults on locally and off for tests and the proxied demo, which
+    ship without the models and read the offline readouts instead."""
     base = (os.environ.get("OPHI_BASE_PATH", "") if base_path is None else base_path).rstrip("/")
-    app = FastAPI(title="Ophi", docs_url=None, redoc_url=None)
-    app.state.seed_demo = svc is None if seed_demo is None else seed_demo
+    own = svc is None
+    svc = svc or CaseService(weights=load_weights())
+    live = LiveScorer(svc.pack) if (own and not base if live_ml is None else live_ml) else None
+
+    @asynccontextmanager
+    async def lifespan(_: FastAPI):
+        if live:  # load the models before the first page, not during it
+            await asyncio.to_thread(live.warm)
+        yield
+
+    app = FastAPI(title="Ophi", docs_url=None, redoc_url=None, lifespan=lifespan)
+    app.state.live = live
+    app.state.seed_demo = own if seed_demo is None else seed_demo
     app.state.seeded = False
-    app.state.svc = svc or CaseService(weights=load_weights())
+    app.state.svc = svc
     app.state.packets_dir = packets_dir or (app.state.svc.store.root / "packets")
     app.state.base_path = base
     app.mount(f"{base}/static", StaticFiles(directory=str(HERE / "static")), name="static")
