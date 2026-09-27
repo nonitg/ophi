@@ -153,9 +153,7 @@ def rank_actions(results: list[RequirementResult], pack: RulePack, sched: Schedu
 
 
 def _fill(text: str, case: Case) -> str:
-    appt = case.treatment.appointment_date
-    at = f" at the {appt.strftime('%b %-d')} appointment" if appt else ""
-    return text.replace("{tooth}", str(case.requested_tooth)).replace("{at_appointment}", at)
+    return text.replace("{tooth}", str(case.requested_tooth))
 
 
 def _sentence(text: str) -> str:
@@ -210,4 +208,5 @@ def _action_for(r: RequirementResult, req: Requirement, case: Case) -> Action:
     elif sf.missing and sf.missing_assertions:
         # The fact that failed is the action; the dentist's pending answers are a separate action.
         why = f"{r.detail.split('; awaiting')[0]}. " + why
-    return Action(rank=0, blocking=True, effort=req.gap.effort, action_type=req.gap.action_type, title=title, why=_sentence(why), unblocks=[r.requirement_id])
+    return Action(rank=0, blocking=True, effort=req.gap.effort, action_type=req.gap.action_type, title=title, why=_sentence(why),
+                  unblocks=[r.requirement_id], needs_patient=req.gap.needs_patient)

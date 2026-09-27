@@ -144,7 +144,7 @@ def test_test_run_skips_chart_gaps_through_to_booking_but_never_ships(svc: CaseS
     from ophi.packet.build import build_packet
     from ophi.verify.verifier import verify_packet
     from ophi.workflow import Stage
-    assert svc.view("singh").stage == Stage.PREPARE  # no periapical of #16 on file
+    assert svc.view("singh").stage == Stage.PATIENT  # no periapical of #16 on file
     svc.skip_gaps("singh", "Kim Osei")
     v = svc.view("singh")
     assert v.stage == Stage.DENTIST and v.test_run
@@ -172,3 +172,15 @@ def test_restoring_skipped_gaps_voids_the_signature(svc: CaseService):
     svc.restore_gaps("tremblay", "Kim Osei")
     v = svc.view("tremblay")
     assert v.stage == Stage.PREPARE and not v.test_run and not v.signed
+
+
+def test_chair_captures_reach_the_chart_and_can_be_taken_back(svc: CaseService):
+    from ophi.workflow import Stage
+    assert svc.view("kowalchuk").stage == Stage.PATIENT  # PA from 2023, 4-point perio chart
+    svc.record_capture("kowalchuk", "radiograph_pa", "Dr. Priya Lau")
+    svc.record_capture("kowalchuk", "perio_chart", "M. Haddad RDH")
+    v = svc.view("kowalchuk")
+    assert v.stage == Stage.DENTIST and v.assessment.requirement("radiograph_pa").status.value == "satisfied"
+    svc.undo("kowalchuk", "capture", "Kim Osei")  # the latest one goes back
+    assert svc.view("kowalchuk").stage == Stage.PATIENT
+    assert [e.event for e in svc.store.audit_log("kowalchuk")][-3:] == ["demo_capture", "demo_capture", "undo"]

@@ -143,11 +143,12 @@ requirements:
         for_tooth: requested
         recency: { months: 12 }
     gap:
-      title: "Take a periapical of #{tooth}{at_appointment}"
+      title: "Take a periapical of #{tooth}"
       why: CDCP crown criteria (crown-to-root ratio, restoration margin relative to the alveolar crest) are assessed on a periapical.
       near_miss_why: "A bitewing dated {bw_date} is on file for #{tooth}. Bitewings do not image the periapical region. CDCP crown criteria require assessment of crown-to-root ratio and restoration margin relative to the alveolar crest — both require a periapical."
       action_type: new_radiograph
       effort: new_radiograph
+      needs_patient: true
 
   - id: radiograph_bw
     label: Dated bitewing radiographs, right and left, within 12 months
@@ -163,6 +164,7 @@ requirements:
       why: The documentation matrix requires dated right and left bitewings within 12 months for restorative preauthorizations.
       action_type: new_radiograph
       effort: new_radiograph
+      needs_patient: true
 
   - id: perio_chart
     label: Dated complete periodontal chart, within 12 months
@@ -212,6 +214,7 @@ requirements:
       why: CDCP requires a dated complete periodontal chart within 12 months for crown preauthorizations.
       action_type: chart_entry
       effort: chart_entry
+      needs_patient: true
 
   - id: client_age
     label: Client is 18 or older
@@ -286,6 +289,7 @@ requirements:
       why: The Guide requires basic caries and periodontal treatment to be completed before a crown request.
       action_type: review
       effort: clinical
+      needs_patient: true
 
   - id: restorability
     label: Restorability criteria confirmed by the treating dentist

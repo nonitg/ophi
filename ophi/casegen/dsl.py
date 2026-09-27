@@ -14,7 +14,7 @@ import yaml
 from dateutil.relativedelta import relativedelta
 
 from ophi.cdm.models import (
-    ArtifactType, AssertionPayload, Availability, Case, ChartArtifact, ClaimFormPayload, Coverage,
+    ArtifactType, AssertionPayload, Availability, Case, ChairVisit, ChartArtifact, ClaimFormPayload, Coverage,
     DentitionState, ExtractedDetailPayload, FileRef, Laterality, NotePayload, Notation, Patient, PerioChartPayload,
     PSRPayload, Practitioner, ProcedureHistoryItem, ProposedTreatment, Provenance, RadiographPayload,
     RadiographView, Section, SiteDepths, SourceAssurance, ToothRef, ToothState, TxPlanPayload,
@@ -85,20 +85,7 @@ def build_case(d: dict, default_id: str) -> Case:
                                     status=h.get("status", "completed"), description=h.get("description"))
                for h in d.get("history", [])]
 
-    artifacts: list[ChartArtifact] = []
-    for r in d.get("radiographs", []):
-        teeth = [notation.to_fdi(x, decl) for x in _listify(r.get("tooth", r.get("teeth", [])))]
-        view = RadiographView(str(r["view"]).upper())
-        lat = r.get("side")
-        artifacts.append(ChartArtifact(
-            artifact_id=r.get("id") or ids.next("rad"), type=ArtifactType.RADIOGRAPH,
-            captured_at=resolve_date(r.get("age", r.get("date")), as_of), recorded_at=resolve_date(r.get("recorded"), as_of),
-            provenance=_prov("imaging", r.get("id")),
-            payload=RadiographPayload(view=view, teeth_fdi=teeth, laterality=Laterality(lat) if lat else None,
-                                      images_apex=(view == RadiographView.PA) if r.get("images_apex") is None else r["images_apex"],
-                                      description=r.get("description")),
-            file=FileRef(path=r["file"]) if r.get("file") else None,
-        ))
+    artifacts: list[ChartArtifact] = [_radiograph(r, as_of, ids, decl) for r in d.get("radiographs", [])]
     for pc in d.get("perio_charts", []):
         artifacts.append(_perio_chart(pc, as_of, ids, dentition, decl))
     for ps in d.get("psr", []):
@@ -143,10 +130,45 @@ def build_case(d: dict, default_id: str) -> Case:
 
     cov = d.get("coverage")
     coverage = Coverage(**cov) if isinstance(cov, dict) else None
+    chair = d.get("in_chair")  # `in_chair: {op: "Op 2", with: "M. Haddad RDH"}`
+    in_chair = ChairVisit(operatory=chair["op"], clinician=chair.get("with")) if chair else None
 
     return Case(case_id=d.get("id", default_id), clinic=d.get("clinic", "Fictional Dental Centre"), as_of=as_of, patient=patient,
                 treatment=treatment, coverage=coverage, dentition=dentition, procedure_history=history, artifacts=artifacts,
-                assurance=assurance, source=Provenance(source_system=d.get("source", "casegen"), extraction_method="casegen"))
+                assurance=assurance, source=Provenance(source_system=d.get("source", "casegen"), extraction_method="casegen"),
+                in_chair=in_chair)
+
+
+# Chair gaps the demo closes in one tap, standing in for the imaging bridge and the perio software.
+CAPTURABLE = frozenset({"radiograph_pa", "perio_chart"})
+
+
+def capture_artifacts(case: Case, captures: dict[str, date]) -> list[ChartArtifact]:
+    """What the chart gains once a clinician takes the film or charts the perio (demo only: fictional values)."""
+    ids, decl = _Ids(), Notation.FDI
+    examiner = case.in_chair.clinician if case.in_chair and case.in_chair.clinician else case.treatment.provider.name
+    made = {
+        "radiograph_pa": lambda day: _radiograph({"id": "demo_pa", "view": "PA", "tooth": case.requested_tooth, "date": day}, day, ids, decl),
+        "perio_chart": lambda day: _perio_chart({"id": "demo_perio", "date": day, "sites": 6, "depth": 3, "examiner": examiner},
+                                                day, ids, case.dentition, decl),
+    }
+    demo = Provenance(source_system="ophi-demo", source_table="capture", extraction_method="user")
+    return [made[rid](day).model_copy(update={"provenance": demo}) for rid, day in captures.items() if rid in made]
+
+
+def _radiograph(r: dict, as_of: date, ids: _Ids, decl: Notation) -> ChartArtifact:
+    teeth = [notation.to_fdi(x, decl) for x in _listify(r.get("tooth", r.get("teeth", [])))]
+    view = RadiographView(str(r["view"]).upper())
+    lat = r.get("side")
+    return ChartArtifact(
+        artifact_id=r.get("id") or ids.next("rad"), type=ArtifactType.RADIOGRAPH,
+        captured_at=resolve_date(r.get("age", r.get("date")), as_of), recorded_at=resolve_date(r.get("recorded"), as_of),
+        provenance=_prov("imaging", r.get("id")),
+        payload=RadiographPayload(view=view, teeth_fdi=teeth, laterality=Laterality(lat) if lat else None,
+                                  images_apex=(view == RadiographView.PA) if r.get("images_apex") is None else r["images_apex"],
+                                  description=r.get("description")),
+        file=FileRef(path=r["file"]) if r.get("file") else None,
+    )
 
 
 def _perio_chart(pc: dict, as_of: date, ids: _Ids, dentition: DentitionState, decl: Notation) -> ChartArtifact:

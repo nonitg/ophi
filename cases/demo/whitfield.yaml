@@ -22,7 +22,7 @@ radiographs:
   - { id: bw_r, view: BW, side: right, teeth: [14, 15, 16, 17, 44, 45, 46, 47], date: 2026-07-08 }
   - { id: bw_l, view: BW, side: left, teeth: [24, 25, 26, 27, 34, 35, 36, 37], date: 2026-07-08 }
 perio_charts:
-  - { id: perio_full, date: 2026-07-08, sites: 6, depth: 2, examiner: "K. Osei RDH" }
+  - { id: perio_full, date: 2026-07-08, sites: 6, depth: 2, examiner: "M. Haddad RDH" }
 notes:
   - id: note_0708
     date: 2026-07-08

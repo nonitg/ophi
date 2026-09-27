@@ -55,8 +55,18 @@ def _draft(case_id: str) -> str:
 def test_board_shows_a_column_per_step_with_deadline_chips(seeded):
     r = seeded.get("/")
     assert r.status_code == 200
-    for text in ("Fix chart", "With Sun Life", "Decision back", "Start here", "Kowalchuk", "Late for Sep 20 crown", "Send by Sep 22"):
+    for text in ("Needs the patient", "Paperwork", "With Sun Life", "Decision back", "In the chair now", "Before Teresa leaves",
+                 "Late for Sep 23 crown", "Send by Sep 22", "Ophi checked 11 charts"):
         assert text in r.text
+
+
+def test_taking_the_chair_gaps_moves_the_case_to_the_dentist(seeded):
+    for rid in ("radiograph_pa", "perio_chart"):
+        r = seeded.post("/cases/kowalchuk/capture", data={"requirement_id": rid, "back": "board"})
+        assert r.status_code == 303 and r.headers["location"].startswith("/?done=")
+    assert r.headers["location"] == "/?done=chair_done"
+    assert "Before Teresa leaves" not in seeded.get("/").text
+    assert seeded.post("/cases/kowalchuk/capture", data={"requirement_id": "radiograph_pa"}).status_code == 409  # nothing left
 
 
 def test_base_path_serves_every_screen_and_link_under_the_prefix(tmp_path):
@@ -285,7 +295,8 @@ def test_copy_law_parser_sees_past_void_tags_inside_payer_text():
 def test_copy_law_in_ophi_voice(seeded):
     as_dentist(seeded)
     seeded.post("/cases/park/decision", data={"outcome": "approved", "decided_on": "2026-09-16", "reason": ""})
-    pages = ["/", "/cases/singh", "/cases/deng", "/cases/rosco", "/cases/tremblay", "/cases/nguyen", "/cases/marchand", "/cases/park", "/cases/okafor",
+    pages = ["/", "/cases/kowalchuk", "/cases/singh", "/cases/deng", "/cases/rosco", "/cases/tremblay", "/cases/nguyen", "/cases/marchand",
+             "/cases/park", "/cases/okafor",
              "/cases/whitfield/packet", "/recover", "/results", "/settings"]
     for actor in ("dentist", "coordinator"):
         seeded.cookies.set("actor", actor)
@@ -298,7 +309,7 @@ def test_copy_law_in_ophi_voice(seeded):
 def test_fix_chart_step_shows_denial_risk_and_applies_ophis_fixes(seeded):
     board = seeded.get("/").text
     assert "Risk <b class=\"lvl lvl-high\">High</b>" in board
-    assert "Take a periapical of #46" in board  # Kowalchuk's card leads with the plan's first fix, not the engine's
+    assert "Before Teresa leaves: PA X-ray of #46, 6-site perio chart" in board  # the plan's first fix leads, not the engine's
     page = seeded.get("/cases/deng").text
     assert "Denial risk" in page and "Replace lab code 99333 with 99113" in page and "Apply it" in page
     assert "Lowers denial risk the most" in page and "Do this first, then send." in page  # the plan's ranking and timing

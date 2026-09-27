@@ -131,6 +131,7 @@ class Action(BaseModel):
     title: str
     why: str
     unblocks: list[str]
+    needs_patient: bool = False
 
 
 class Deadline(BaseModel):

@@ -142,6 +142,7 @@ class Gap(BaseModel):
     near_miss_why: str | None = None  # rendered when related evidence exists but does not satisfy; {bw_date} {tooth}
     action_type: str
     effort: Effort
+    needs_patient: bool = False  # closing it takes the patient in the chair and a clinician, not desk work
 
 
 class Requirement(BaseModel):

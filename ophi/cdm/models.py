@@ -315,6 +315,13 @@ class Section(StrEnum):
     COVERAGE = "coverage"
 
 
+class ChairVisit(BaseModel):
+    """The patient is in an operatory now. From the PMS schedule: today's appointment, arrived or seated."""
+
+    operatory: str
+    clinician: str | None = None
+
+
 class Case(BaseModel):
     """One patient + one proposed treatment, assessed as of an intended submission date."""
 
@@ -329,6 +336,8 @@ class Case(BaseModel):
     artifacts: list[ChartArtifact] = Field(default_factory=list)
     assurance: dict[Section, SourceAssurance] = Field(default_factory=dict)
     source: Provenance | None = None
+    # Not chart evidence: kept out of the dump so the patient leaving never changes the assessment or voids a signature.
+    in_chair: ChairVisit | None = Field(None, exclude=True)
 
     def assurance_for(self, section: Section) -> SourceAssurance:
         return self.assurance.get(section, SourceAssurance(availability=Availability.UNKNOWN, reason="section not reported by driver"))

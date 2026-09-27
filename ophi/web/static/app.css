@@ -112,8 +112,10 @@ textarea.input { width: 100%; height: auto; padding: 8px 10px; line-height: 1.5;
 .back:hover { color: var(--ink); }
 
 /* --- board: one column per step, one card per case ------------------------------------------------ */
-.board-head { margin-bottom: 20px; }
+.board-head { margin-bottom: 20px; display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 24px; }
 .board-head h1 { font-size: 28px; font-weight: 500; letter-spacing: -.02em; line-height: 1.15; }
+.board-fresh { display: flex; align-items: center; gap: 7px; font-size: 13px; color: var(--muted); }
+.board-fresh .mono-mark, .chair-foot .mono-mark { width: 18px; height: 18px; font-size: 9px; }
 
 /* the one thing to do first */
 .start { display: flex; align-items: center; gap: 14px 24px; margin: 0 0 24px; padding: 18px 22px; border-radius: var(--r-panel); background: var(--linen); }
@@ -123,6 +125,17 @@ textarea.input { width: 100%; height: auto; padding: 8px 10px; line-height: 1.5;
 .start-title { margin-top: 2px; font-size: 17px; font-weight: 560; letter-spacing: -.005em; }
 .start-why { margin-top: 6px; font-size: 14px; color: var(--ink-soft); display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; }
 .src { font-size: 12.5px; color: var(--muted); }
+
+/* the patient is still in the chair: the one visit where a gap costs nothing extra */
+.start-chair { align-items: flex-start; }
+.chair-list { list-style: none; margin: 14px 0 0; padding: 0; display: grid; gap: 6px; max-width: 760px; }
+.chair-item { display: grid; grid-template-columns: minmax(0, 15rem) minmax(0, 1fr) auto; align-items: center; gap: 4px 16px; min-height: 44px; padding: 6px 8px 6px 14px; border-radius: 8px; background: var(--paper); border: 1px solid var(--rule); }
+.chair-label { font-size: 14.5px; font-weight: 560; color: var(--ink); }
+.chair-role { margin-left: 6px; font-size: 12.5px; color: var(--muted); }
+.chair-hint { font-size: 13px; color: var(--ink-soft); }
+.chair-do { grid-column: 3; justify-self: end; }
+.chair-more { padding-left: 14px; font-size: 13px; color: var(--muted); }
+.chair-foot { margin-top: 10px; display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted); }
 
 /* deadline chip: the only coloured element on a card */
 .due { display: inline-flex; align-items: center; gap: 6px; height: 22px; padding: 0 9px; border-radius: 999px; background: var(--stone); border: 1px solid var(--rule); font-size: 12.5px; font-weight: 500; color: var(--ink-soft); white-space: nowrap; }
@@ -235,6 +248,11 @@ textarea.input { width: 100%; height: auto; padding: 8px 10px; line-height: 1.5;
 .gap { padding: 14px 16px; border-radius: var(--r-control); background: var(--paper); border: 1px solid var(--rule); }
 .gap > * + * { margin-top: 8px; }
 .gap-title { font-size: 16px; font-weight: 560; }
+.gap-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px; }
+.gap-group { margin: 18px 0 8px; font-size: 13px; font-weight: 600; color: var(--ink-soft); }
+.gap-lead { margin: 0 0 10px; font-size: 14px; color: var(--ink-soft); }
+.now-ophi { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; }
+.now-ophi .mono-mark { width: 20px; height: 20px; font-size: 9.5px; }
 .gap-hint { font-size: 14px; color: var(--gap); margin-top: 2px; }
 .gap-hint-muted { color: var(--ink-soft); }
 .gap-rule { margin-top: 8px; font-size: 13px; color: var(--muted); }
@@ -421,6 +439,8 @@ mark.q-rejected { background: none; text-decoration: line-through; color: var(--
 .fact-more { margin-top: 14px; font-size: 14.5px; color: var(--ink-soft); }
 .counts { list-style: none; margin: 14px 0 0; padding: 0; display: grid; font-size: 14.5px; max-width: 560px; }
 .counts li { display: flex; justify-content: space-between; gap: 16px; padding: 7px 0; border-bottom: 1px solid var(--rule); }
+.counts-k { margin-top: 18px; font-size: 13px; font-weight: 600; color: var(--ink-soft); }
+.counts-k + .counts { margin-top: 4px; }
 
 /* --- settings --------------------------------------------------------------------------------------- */
 .settings-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr); gap: 32px; align-items: start; }
@@ -453,6 +473,8 @@ mark.q-rejected { background: none; text-decoration: line-through; color: var(--
   .head h1, .case-head h1 { font-size: 26px; }
   .start { flex-wrap: wrap; padding: 14px 16px; }
   .start .btn { width: 100%; }
+  .chair-item { grid-template-columns: minmax(0, 1fr); padding: 10px 12px; }
+  .chair-do { grid-column: 1; justify-self: stretch; }
   .test-run { margin-top: -10px; }
   .board { grid-template-columns: minmax(0, 1fr); }
   .col.is-empty .col-head { padding-bottom: 0; }

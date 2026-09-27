@@ -26,9 +26,10 @@ unset USE_MOCK_PMS_API; make demo # real (default)
 # scripts/demo-real.sh / scripts/demo-mock.sh do the same
 ```
 
-Screens: **Board** (a kanban board, one column per step: fix chart → dentist review → ready to send → with Sun
-Life → decision back → booked; each card shows the patient, one next action and a deadline chip; the viewer's
-own cards are solid, everyone else's are outlined; "Start here" names the single most urgent action) → **Case**
+Screens: **Board** (a kanban board, one column per step: needs the patient → paperwork → dentist review → ready to
+send → with Sun Life → decision back, where booked cases close out the column; each card shows the patient, one next
+action and a deadline chip; the viewer's own cards are solid, everyone else's are outlined; "Start here" names the
+single most urgent action, and becomes "Before <patient> leaves" while a patient is still in the chair) → **Case**
 (a stepper that mirrors the board's columns, one "Now" panel with the current step's action, then the
 requirements, chart evidence and patient details folded away) → **Packet** (the dentist signs at the top, PDF
 preview, narrative editing folded away) → **Past denials** (denials never resubmitted, as a call list) →
@@ -36,8 +37,8 @@ preview, narrative editing folded away) → **Past denials** (denials never resu
 `make demo` seeds five cases past sign-off so every column has an example; `scripts/app-serve.sh` serves the
 app with fresh throwaway state, `scripts/app-reshoot.sh` restarts it and screenshots screens,
 `scripts/app-flow.py` drives the whole lifecycle in a browser, and `scripts/app-qa.py` checks phone overflow,
-focus and contrast. Design record: `docs/plan/07-kanban-board.md` (it supersedes the screens in
-`docs/plan/06-clinic-worklist.md`).
+focus and contrast. Design records: `docs/plan/08-chair-first.md` (who closes each gap) on top of
+`docs/plan/07-kanban-board.md` (it supersedes the screens in `docs/plan/06-clinic-worklist.md`).
 
 Other entry points:
 

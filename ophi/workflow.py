@@ -28,7 +28,8 @@ RECONSIDERATION_DAYS = 60
 
 
 class Stage(StrEnum):
-    PREPARE = "prepare"      # chart gaps the coordinator closes
+    PATIENT = "patient"      # chart gaps only a clinician can close, with the patient in the chair
+    PREPARE = "prepare"      # paperwork gaps the coordinator closes at the desk
     DENTIST = "dentist"      # only the treating dentist's confirmations or signature remain
     SEND = "send"            # signed; the clinic submits it through its PMS
     SUN_LIFE = "sun_life"    # submitted; waiting on Sun Life
@@ -39,17 +40,30 @@ class Stage(StrEnum):
 
 
 # Lifecycle order: the worklist groups and the case page steps both follow it.
-ORDER = [Stage.PREPARE, Stage.DENTIST, Stage.SEND, Stage.SUN_LIFE, Stage.BOOK, Stage.RESUBMIT, Stage.DONE, Stage.NOT_NEEDED]
+ORDER = [Stage.PATIENT, Stage.PREPARE, Stage.DENTIST, Stage.SEND, Stage.SUN_LIFE, Stage.BOOK, Stage.RESUBMIT, Stage.DONE,
+         Stage.NOT_NEEDED]
+
+# The stages where the chart itself still has gaps.
+CHART_STAGES = (Stage.PATIENT, Stage.PREPARE)
 
 OWNER: dict[Stage, str | None] = {
-    Stage.PREPARE: "coordinator", Stage.DENTIST: "dentist", Stage.SEND: "coordinator", Stage.SUN_LIFE: "sun_life",
-    Stage.BOOK: "coordinator", Stage.RESUBMIT: "coordinator", Stage.DONE: None, Stage.NOT_NEEDED: None,
+    Stage.PATIENT: "coordinator", Stage.PREPARE: "coordinator", Stage.DENTIST: "dentist", Stage.SEND: "coordinator",
+    Stage.SUN_LIFE: "sun_life", Stage.BOOK: "coordinator", Stage.RESUBMIT: "coordinator", Stage.DONE: None, Stage.NOT_NEEDED: None,
 }
 
 
 def chart_actions(a: Assessment) -> list:
     """Blocking work on the chart itself; staff do it, not the dentist."""
     return [x for x in a.actions if x.blocking and x.action_type != "assert"]
+
+
+def chair_actions(a: Assessment) -> list:
+    """Chart work that needs the patient back in the chair: the desk books it, a clinician does it."""
+    return [x for x in chart_actions(a) if x.needs_patient]
+
+
+def desk_actions(a: Assessment) -> list:
+    return [x for x in chart_actions(a) if not x.needs_patient]
 
 
 def dentist_actions(a: Assessment) -> list:
@@ -83,6 +97,8 @@ def stage_of(assessment: Assessment, signed: bool, submitted_on: date | None, ou
         return Stage.SEND
     if assessment.verdict == Verdict.PREAUTH_NOT_REQUIRED:
         return Stage.NOT_NEEDED
+    if chair_actions(assessment):
+        return Stage.PATIENT  # the visit takes longest, so it leads; desk fixes can happen meanwhile
     if assessment.verdict == Verdict.EXCLUDED_AS_CODED or chart_actions(assessment):
         return Stage.PREPARE
     return Stage.DENTIST

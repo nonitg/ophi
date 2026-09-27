@@ -1,6 +1,8 @@
 # How the Fix chart panel works: Laya, LightGBM and the fixer
 
-*A walkthrough of the case page's **Fix the chart** step, using Teresa Kowalchuk's crown on #46 as the example.
+*A walkthrough of the case page's chart step (**Before Teresa leaves** while she's in the chair, else **Book a
+visit** or **Fix the paperwork**; see [plan/08-chair-first.md](plan/08-chair-first.md)), using Teresa Kowalchuk's
+crown on #46 as the example.
 It covers how the order of fixes is chosen, how the fine-tuned Laya model reads the note, how LightGBM turns
 everything into a denial risk, and how each fix is re-scored to see how much risk it removes. For the
 investor-level background (what ML is, results, limits), see [outcomes-explainer.md](outcomes-explainer.md). For
@@ -258,8 +260,10 @@ each demo case it:
 - The `risk_block` macro shows **Denial risk: Now → After these fixes**, the "what's left" line, and the model
   labels. It always carries the disclaimer that this is *a guide from past decisions in synthetic training data,
   not Sun Life's answer*.
-- The board card uses the same panel through `present.board_risk`. The card's next action is the plan's first
-  fix, not the engine's.
+- The board card uses the same panel through `present.board_risk`. A Paperwork card's next action is the plan's
+  first fix, not the engine's. A Needs the patient card, and the "Before Teresa leaves" checklist, list the visit's
+  items in the plan's order. The case page groups the rows into *Needs the patient* and *At the desk*, keeping
+  the plan's order and numbering across both.
 
 The rest of the panel doesn't come from the models. The red banner ("sooner than Sun Life's usual 7 days") comes
 from `present.timing`, and **Skip gaps to test** is a test-run shortcut (`POST /cases/{id}/test-skip`).

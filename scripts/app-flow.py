@@ -33,6 +33,18 @@ with sync_playwright() as p:
     page = b.new_page(viewport={"width": 1440, "height": 900})
     page.on("pageerror", lambda e: print("JS error:", e))
 
+    # In the chair: take Teresa's perio chart and film from the board hero; her card moves on by itself.
+    page.goto(base + "/")
+    hero = page.locator(".start-chair")
+    expect(hero).to_contain_text("Before Teresa leaves")
+    shot(page, "board-in-the-chair")
+    hero.get_by_role("button", name="Mark taken (demo)").first.click()
+    expect(page.locator(".done-note")).to_have_text("Taken. Ophi checked the chart again.")
+    page.locator(".start-chair").get_by_role("button", name="Mark taken (demo)").first.click()
+    expect(page.locator(".done-note")).to_have_text("Nothing left to take. The patient can go.")
+    expect(page.locator('section[aria-labelledby="col-dentist"]')).to_contain_text("Teresa Kowalchuk")
+    shot(page, "board-chair-closed")
+
     # Coordinator confirms the chart note on Tremblay: chart work done, case moves to the dentist.
     page.goto(base + "/cases/tremblay")
     page.get_by_role("button", name="Yes", exact=True).click()
