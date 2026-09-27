@@ -141,14 +141,13 @@ def test_every_needs_a_person_item_must_be_ticked(rules_client, cdcp, cases):
     assert "acknowledged 1 open items: Check the grid by hand." in (cdcp / "CHANGELOG.md").read_text()
 
 
-def test_check_now_runs_in_the_background_and_the_board_links_the_review(rules_client, status):
+def test_check_now_runs_in_the_background(rules_client, status):
     r = rules_client.post("/rules/check")
     assert r.headers["location"] == "/rules?done=rules_checking"
     for t in threading.enumerate():
         if t.name == "rules-check":
             t.join(20)
     assert watch.load_status(status)["checked_on"] == TODAY.isoformat()
-    assert 'href="/rules"' in rules_client.get("/").text
 
 
 def test_the_page_says_when_a_check_is_running(rules_client, status):

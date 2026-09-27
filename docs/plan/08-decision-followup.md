@@ -87,7 +87,8 @@ today, so its 2002–2007 evidence reads as stale.
 | Sync: ABELDent's claim marks the case sent (signed in Ophi or not; the audit says which); an electronic answer records the decision (by "ABELDent", once per claim, so undo sticks) | `CaseService.sync_from_pms`, every 30 s in ABELDent mode |
 | Letter upload → Claude (`claude-opus-5`, PDF or photo) → decision form pre-filled for staff to check | `ophi/letters.py`, `POST /cases/{id}/letter` |
 | Reason → column: picked at "Start resubmission" (pre-set from the letter or note), opens an ask; "Done" closes it | `workflow.REASONS`, `with_ask`, `CaseService.start_resubmission`/`resolve_ask` |
-| Sample letters (SAMPLE-marked, no branding): ferrule, vague, approved, perio photo | `fixtures/letters/`, `scripts/gen-sample-letters.py` |
+| Sample letters (SAMPLE-marked, no branding): Cherski (pid 160) ferrule, vague, approved, perio photo; Goertsen (pid 164) radiograph, notes, approved, acknowledgement (reads as unclear) | `fixtures/letters/`, `scripts/gen-sample-letters.py` |
+| Checks every sample letter still reads as it should (needs `ANTHROPIC_API_KEY`) | `scripts/check-sample-letters.py` |
 
 Not built: network rejections (`R`/`M`/`*`) back to Ready to send; storing the uploaded letter file; Laya's likely
 reason for vague letters (the case page's fix plan already ranks what is most likely wrong).

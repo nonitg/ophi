@@ -4,10 +4,6 @@
 {% block content %}
 <header class="board-head">
   <h1>{{ b.headline }}</h1>
-  <div class="board-fresh-all">
-    {% if b.scored or b.prefilled %}<p class="board-fresh">{{ laya() }}<span>{% if b.scored %}ranked the fixes on {{ plural(b.scored, 'case') }}{% endif %}{% if b.scored and b.prefilled %} and {% endif %}{% if b.prefilled %}pre-filled {{ plural(b.prefilled, 'clinical criterion', 'clinical criteria') }}{% endif %}</span></p>{% endif %}
-    {%- if b.rules %}<p class="board-rules"><a href="{{ BASE }}/rules">{{ b.rules|join(' ') }}</a></p>{% endif %}
-  </div>
 </header>
 
 {% if b.start and b.start.chair %}{% set c = b.start %}{% set visit = c.case.in_chair %}
@@ -15,16 +11,19 @@
   <div class="start-body">
     <p class="start-who"><b>{{ c.case.patient.display_name }}</b> · Crown on #{{ c.case.requested_tooth }}</p>
     <p class="start-title">Before {{ c.first }} leaves</p>
-    <p class="start-why">{{ due(c.timing) }} <span>{{ visit.operatory }}{% if visit.clinician %} with {{ visit.clinician }}{% endif %}</span></p>
+    <p class="start-why">{{ due(c.timing) }} <span>{{ visit.operatory }}{% if visit.clinician %} with {{ visit.clinician
+        }}{% endif %}</span></p>
     <ul class="chair-list">
       {% for i in c.chair[:3] %}
       <li class="chair-item">
-        <span class="chair-what"><span class="chair-label">{{ sentence(i.label) }}</span>{% if i.role %} <span class="chair-role">{{ i.role }}</span>{% endif %}</span>
+        <span class="chair-what"><span class="chair-label">{{ sentence(i.label) }}</span>{% if i.role %} <span
+            class="chair-role">{{ i.role }}</span>{% endif %}</span>
         {% if i.hint %}<span class="chair-hint">{{ i.hint }}</span>{% endif %}
         {% if i.capturable %}
         <form method="post" action="{{ BASE }}/cases/{{ c.case.case_id }}/capture" class="chair-do">
           <input type="hidden" name="requirement_id" value="{{ i.rid }}"><input type="hidden" name="back" value="board">
-          <button class="btn btn-sm btn-test" type="submit" title="Stands in for the film or chart reaching the PMS">Mark taken (demo)</button>
+          <button class="btn btn-sm btn-test" type="submit"
+            title="Stands in for the film or chart reaching the PMS">Mark taken (demo)</button>
         </form>
         {% endif %}
       </li>
@@ -39,7 +38,8 @@
   <div class="start-body">
     <p class="start-who"><b>{{ c.case.patient.display_name }}</b> · Crown on #{{ c.case.requested_tooth }}</p>
     <p class="start-title">{{ c.action.title }}</p>
-    <p class="start-why">{% if c.advice %}{{ c.advice }} {{ turnaround_source() }}{% else %}{{ due(c.timing) }}{% if c.timing.appt %} <span>Crown appointment {{ long_date(c.timing.appt) }}</span>{% endif %}{% endif %}</p>
+    <p class="start-why">{% if c.advice %}{{ c.advice }} {{ turnaround_source() }}{% else %}{{ due(c.timing) }}{% if
+      c.timing.appt %} <span>Crown appointment {{ long_date(c.timing.appt) }}</span>{% endif %}{% endif %}</p>
   </div>
   <a class="btn btn-primary" href="{{ BASE }}/cases/{{ c.case.case_id }}">Start here</a>
 </section>
@@ -47,28 +47,39 @@
 
 <div class="board">
   {% for col in b.columns %}
-  <section class="col{% if col.mine %} is-mine{% endif %}{% if not col.cards %} is-empty{% endif %}" aria-labelledby="col-{{ col.key }}">
+  <section class="col{% if col.mine %} is-mine{% endif %}{% if not col.cards %} is-empty{% endif %}"
+    aria-labelledby="col-{{ col.key }}">
     <header class="col-head">
       <h2 id="col-{{ col.key }}">{{ col.label }}</h2>
       <span class="col-n num">{{ col.cards|length }}</span>
-      {% if col.job %}<p class="col-job">{% if col.who and col.who.kind != 'ophi' %}<span class="who who-{{ col.who.kind }}"><span class="mono-mark" aria-hidden="true">{{ col.who.mark }}</span></span>{% endif %}<span class="col-job-t">{{ col.job }}</span></p>{% endif %}
+      {% if col.job %}<p class="col-job">{% if col.who and col.who.kind != 'ophi' %}<span
+          class="who who-{{ col.who.kind }}"><span class="mono-mark" aria-hidden="true">{{ col.who.mark
+            }}</span></span>{% endif %}<span class="col-job-t">{{ col.job }}</span></p>{% endif %}
     </header>
     {% if col.cards %}
     <ul class="tiles">
       {% for c in col.cards %}{% set act = c.action %}
-      <li><a class="tile{% if c.mine %} is-mine{% endif %}{% if c.stage == 'done' %} is-done{% endif %}" href="{{ BASE }}/cases/{{ c.case.case_id }}">
-        <span class="tile-name">{{ c.case.patient.display_name }}{% if c.view.test_run %} <span class="tag tag-test">Test</span>{% endif %}</span>
-        <span class="tile-tx">Crown on #{{ c.case.requested_tooth }}</span>
-        {% if act.waiting %}<span class="tile-wait">Waiting on {{ act.waiting }}</span>
-        {% elif c.stage != 'done' %}
-        <span class="tile-act">{{ act.title }}{% if act.more %}&nbsp;<span class="more">+{{ act.more }} more</span>{% endif %}</span>
-        {% if act.payer %}<span class="tile-note payer" data-voice="payer">Sun Life {{ act.payer.outcome }} it {{ short_date(act.payer.on) }}{% if act.payer.reason and act.payer.outcome == 'denied' %}: “{{ act.payer.reason|truncate(90) }}”{% endif %}</span>
-        {% elif act.note %}<span class="tile-note">{{ act.note }}</span>{% endif %}
-        {% if act.prefilled %}<span class="tile-pre">{{ laya('') }}{{ act.prefilled }} of {{ act.criteria }} pre-filled</span>{% endif %}
-        {% endif %}
-        {% if c.risk %}<span class="tile-risk">{{ laya('Risk') }} <b class="lvl lvl-{{ c.risk.now }}">{{ RISK_LABEL[c.risk.now] }}</b>{% if c.risk.after %} <span aria-label="after fixes">→</span> <b class="lvl lvl-{{ c.risk.after }}">{{ RISK_LABEL[c.risk.after] }}</b>{% endif %}</span>{% endif %}
-        {% if c.timing.text %}<span class="tile-foot">{{ due(c.timing) }}</span>{% endif %}
-      </a></li>
+      <li><a class="tile{% if c.mine %} is-mine{% endif %}{% if c.stage == 'done' %} is-done{% endif %}"
+          href="{{ BASE }}/cases/{{ c.case.case_id }}">
+          <span class="tile-name">{{ c.case.patient.display_name }}{% if c.view.test_run %} <span
+              class="tag tag-test">Test</span>{% endif %}</span>
+          <span class="tile-tx">Crown on #{{ c.case.requested_tooth }}</span>
+          {% if act.waiting %}<span class="tile-wait">Waiting on {{ act.waiting }}</span>
+          {% elif c.stage != 'done' %}
+          <span class="tile-act">{{ act.title }}{% if act.more %}&nbsp;<span class="more">+{{ act.more }} more</span>{%
+            endif %}</span>
+          {% if act.payer %}<span class="tile-note payer" data-voice="payer">Sun Life {{ act.payer.outcome }} it {{
+            short_date(act.payer.on) }}{% if act.payer.reason and act.payer.outcome == 'denied' %}: “{{
+            act.payer.reason|truncate(90) }}”{% endif %}</span>
+          {% elif act.note %}<span class="tile-note">{{ act.note }}</span>{% endif %}
+          {% if act.prefilled %}<span class="tile-pre">{{ laya('') }}{{ act.prefilled }} of {{ act.criteria }}
+            pre-filled</span>{% endif %}
+          {% endif %}
+          {% if c.risk %}<span class="tile-risk">{{ laya('Risk') }} <b class="lvl lvl-{{ c.risk.now }}">{{
+              RISK_LABEL[c.risk.now] }}</b>{% if c.risk.after %} <span aria-label="after fixes">→</span> <b
+              class="lvl lvl-{{ c.risk.after }}">{{ RISK_LABEL[c.risk.after] }}</b>{% endif %}</span>{% endif %}
+          {% if c.timing.text %}<span class="tile-foot">{{ due(c.timing) }}</span>{% endif %}
+        </a></li>
       {% endfor %}
     </ul>
     {% endif %}
