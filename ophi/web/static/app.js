@@ -20,8 +20,11 @@
   });
 
   // A pre-filled answer looks like a suggestion until the dentist touches it; then it reads as theirs.
+  // Click, not change: tapping the suggested option leaves the radio as it was, so only a click says they took it.
   document.querySelectorAll(".crit.is-pre").forEach(function (row) {
-    row.addEventListener("change", function () { row.classList.remove("is-pre"); });
+    row.addEventListener("click", function (e) {
+      if (e.target.closest(".seg")) row.classList.remove("is-pre");
+    });
   });
 
   // The confirm button says how many answers it will record, and the line beside it how many are still open.

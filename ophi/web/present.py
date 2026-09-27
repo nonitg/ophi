@@ -10,7 +10,7 @@ from __future__ import annotations
 import hashlib
 import json
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import date, datetime
 from pathlib import Path
 from zoneinfo import ZoneInfo
@@ -60,6 +60,20 @@ ACTORS: dict[str, Actor] = {
     "coordinator": Actor("coordinator", "Kim Osei", "treatment coordinator", None),
 }
 DEFAULT_ACTOR = "coordinator"
+
+
+def actors(provider: str | None) -> dict[str, Actor]:
+    """Who can be signed in. The dentist is the clinic's treating provider under their own name, so the header,
+    the criteria and the signature never disagree with the Dentist the PMS put on the chart."""
+    d = ACTORS["dentist"]
+    return ACTORS if not provider or provider == d.name else {**ACTORS, "dentist": replace(d, name=provider)}
+
+
+def treating_provider(svc) -> str | None:
+    """The dentist the PMS names on the crown list. One provider runs it in this deployment, so the first chart
+    answers for the clinic."""
+    ids = svc.case_ids()
+    return svc.base_case(ids[0]).treatment.provider.name if ids else None
 
 # --- labels ---------------------------------------------------------------------------------------
 
@@ -316,18 +330,29 @@ def safe_fixes(view: CaseView, pack: RulePack) -> dict:
             "applied": list(view.state.fixes.values())}
 
 
-def _levels(plan: dict) -> dict:
+def _levels(plan: dict, open_fixes: list[dict]) -> dict:
+    """Denial risk as the page states it. One level, not two, unless the fixes move it: once they are all done
+    the after-the-fixes number is what the chart carries now, and an arrow to the same word reads as a change
+    the case will not see."""
     now, after = plan["now"], plan.get("after_fixes")
+    done = bool(after) and not open_fixes
+    if done:
+        now, after = after, None
+    elif after and after["level"] == now["level"]:
+        after = None
     return {"now": {"level": now["level"], "label": RISK_LABEL[now["level"]]},
             "after": {"level": after["level"], "label": RISK_LABEL[after["level"]], "because": after.get("because")} if after else None,
-            "remaining": plan.get("remaining"), "model": plan["model"]}
+            "remaining": None if done else plan.get("remaining"), "model": plan["model"]}
 
 
 def _still_open(plan: dict, view: CaseView) -> list[dict]:
-    """The plan's fixes the chart still needs: one whose requirement is now documented is done."""
+    """The plan's fixes the chart still needs: one whose requirement is now documented is done, and so is the
+    narrative draft once the dentist has taken it."""
     a = view.assessment
+    took_draft = bool(view.state.narrative_edits) or view.signed
     return [f for f in plan["fixes"]
-            if not ((r := a.requirement(f["requirement_id"]) if f.get("requirement_id") else None) and r.status == Status.SATISFIED)]
+            if not (f["kind"] == "draft" and took_draft)
+            and not ((r := a.requirement(f["requirement_id"]) if f.get("requirement_id") else None) and r.status == Status.SATISFIED)]
 
 
 EFFECT_FLOOR = 0.01  # a fix that lowers P(denied) by less than this has no effect the model can tell apart
@@ -340,12 +365,12 @@ def fix_panel(view: CaseView, readout: Readout | None, pack: RulePack, gaps: lis
     plan's clinical and timing calls go to `dentist`. With no plan for this chart, the engine's gaps (`gap_rows`) in
     its order. Rows keep the gap dicts they were given, so anything the caller adds to a gap reaches the template."""
     plan = plan_for(view, readout)
-    out: dict = {"apply": safe_fixes(view, pack), "risk": _levels(plan) if plan else None,
+    live = _still_open(plan, view) if plan else []
+    out: dict = {"apply": safe_fixes(view, pack), "risk": _levels(plan, live) if plan else None,
                  "stale_since": readout.scored_on if readout and not plan else None, "rows": [], "dentist": []}
     shown: set[int] = set()
     if plan:
         gap_of = {rid: g for g in gaps for rid in g["action"].unblocks}
-        live = _still_open(plan, view)
         staff = [f for f in live if f["kind"] in ("auto", "task") and f["who"] != "dentist"]
         top = max((f.get("risk_drop") or 0 for f in staff), default=0)
         out["dentist"] = [f for f in live if f["kind"] == "draft" or (f["who"] == "dentist" and (f.get("concern") or f["kind"] == "task"))]
@@ -398,7 +423,7 @@ def dentist_panel(view: CaseView, readout: Readout | None) -> dict | None:
         return None
     asked = {rid for x in view.assessment.actions if x.action_type == "assert" for rid in x.unblocks}
     live = _still_open(plan, view)
-    return {**_levels(plan),
+    return {**_levels(plan, live),
             "drafts": [f for f in live if f["kind"] == "draft" and (f.get("patch") or {}).get("narrative")],
             "decide": [f for f in live if (f["kind"] == "dentist" and f.get("requirement_id") not in asked)
                        or (f["kind"] == "task" and f["who"] == "dentist")]}
@@ -705,6 +730,13 @@ def next_up(views: list[CaseView], current: CaseView, actor: Actor, today: date)
 # --- case page: the steps from chart to chair -----------------------------------------------------
 
 
+def skipped_note(a) -> str:
+    """A test run's skipped gaps ship no evidence, so the documented count leaves them out while the requirement
+    list still shows them ticked and tagged. Name them, or the two readings of the same case disagree."""
+    n = sum(1 for r in a.requirements if r.applicable and r.skipped)
+    return f", {n} skipped for the test run" if n else ""
+
+
 def case_steps(view: CaseView) -> list[dict]:
     """The case's life as a sequence. Each step names who does it; the current one opens. Criteria can be
     confirmed while chart work is still open, so that step can be open alongside the current one."""
@@ -715,7 +747,7 @@ def case_steps(view: CaseView) -> list[dict]:
     open_reqs = [r for r in a.requirements if r.applicable and r.status not in (Status.SATISFIED, Status.AT_RISK)]
     need_dentist = sum(1 for r in open_reqs if _awaiting_dentist_only(r))
     need_chart = len(open_reqs) - need_dentist
-    check = f"{a.completeness['satisfied']} of {a.completeness['applicable']} CDCP requirements documented"
+    check = f"{a.completeness['satisfied']} of {a.completeness['applicable']} CDCP requirements documented{skipped_note(a)}"
     if need_chart or need_dentist:
         check += "; " + ", ".join(p for p in (need_chart and f"{need_chart} need chart work", need_dentist and f"{need_dentist} need the dentist") if p)
     if stage == Stage.NOT_NEEDED:  # nothing to sign or send: the steps after the check don't apply

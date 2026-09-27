@@ -297,7 +297,7 @@
 
 <div class="folds">
   <details class="fold" id="requirements">
-    {{ fold_summary('CDCP requirements', a.completeness.satisfied ~ ' of ' ~ a.completeness.applicable ~ ' documented') }}
+    {{ fold_summary('CDCP requirements', a.completeness.satisfied ~ ' of ' ~ a.completeness.applicable ~ ' documented' ~ skipped_note(a)) }}
     <div class="fold-body">
       <ul class="reqs">
         {% for r in applicable %}

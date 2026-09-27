@@ -86,3 +86,26 @@ def test_results_count_gaps_caught_and_sun_life_decisions(svc):
     assert sum(n for _, n in res["caught_chair"]) == 6 and res["denied_for_chair"] > 0  # films, perio and basic treatment
     assert (res["approved"], res["denied"], res["waiting"]) == (1, 1, 2)
     assert res["recover"]["count"] == 10
+
+
+def test_skipped_gaps_are_named_apart_from_the_documented_count(svc):
+    svc.skip_gaps("tremblay", "Kim Osei")
+    a = svc.view("tremblay").assessment
+    assert present.skipped_note(a) == ", 1 skipped for the test run"
+    assert present.skipped_note(svc.view("park").assessment) == ""
+
+
+def test_the_dentist_signs_in_under_the_name_the_pms_puts_on_the_chart(svc):
+    assert present.actors("Dr. Terry Ackerman")["dentist"].name == "Dr. Terry Ackerman"
+    assert present.actors("Dr. Terry Ackerman")["dentist"].licence == ACTORS["dentist"].licence
+    assert present.actors(None) is ACTORS
+
+
+def test_risk_shows_two_levels_only_when_the_fixes_move_it():
+    plan = {"now": {"level": "high"}, "after_fixes": {"level": "medium"}, "remaining": "x", "model": {}}
+    open_fix = [{"kind": "task", "requirement_id": None}]
+    assert present._levels(plan, open_fix)["after"]["level"] == "medium"
+    assert present._levels(plan, [])["now"]["label"] == present.RISK_LABEL["medium"]  # fixes done: after is now
+    assert present._levels(plan, [])["after"] is None
+    same = {**plan, "after_fixes": {"level": "high"}}
+    assert present._levels(same, open_fix)["after"] is None  # an arrow to the same word says nothing

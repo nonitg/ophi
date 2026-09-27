@@ -257,8 +257,8 @@ requirements:
     clause: { source: grid, ref: "Schedule B — 2.0 Restoration, crowns", quote: "1/96mo/tooth" }
     satisfied_by: { fact: no_prior_code_on_tooth_within, codes: ["27201", "27211", "27301"], months: 96 }
     gap:
-      title: Prior crown on this tooth within 96 months — above frequency
-      why: The grid allows one crown per tooth per 96 months; a request above frequency is adjudicated as an exception.
+      title: This tooth had a crown less than 96 months ago — over the limit
+      why: The grid allows one crown per tooth every 96 months. Sun Life judges a sooner one as an exception.
       action_type: review
       effort: clinical
 
@@ -267,8 +267,8 @@ requirements:
     clause: { source: grid, ref: "Schedule B — 2.0 Restoration, crowns", quote: "4/120mo/client" }
     satisfied_by: { fact: prior_codes_count_below, codes: ["27201", "27211", "27301"], months: 120, max_count: 4 }
     gap:
-      title: Client at crown frequency limit (4 per 120 months)
-      why: The grid allows four crowns per client per 120 months.
+      title: This client has had 4 crowns in 120 months — at the limit
+      why: The grid allows four crowns per client every 120 months.
       action_type: review
       effort: clinical
 

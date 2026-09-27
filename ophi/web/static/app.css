@@ -335,7 +335,7 @@ textarea.input { width: 100%; height: auto; padding: 8px 10px; line-height: 1.5;
 .crit-tools { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; justify-self: stretch; }
 #crit-form .crits { justify-self: stretch; }
 .crits { list-style: none; padding: 0; background: var(--paper); border-radius: var(--r-control); border: 1px solid var(--rule); }
-.crit { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px 18px; align-items: start; padding: 14px 16px; }
+.crit { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px 18px; align-items: start; padding: 14px 16px; scroll-margin: 72px 0 80px; }
 .crit + .crit { border-top: 1px solid var(--rule); }
 .crit-label { font-weight: 500; }
 .crit-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; margin-top: 4px; font-size: 13px; color: var(--muted); }

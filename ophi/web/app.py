@@ -53,7 +53,7 @@ templates.env.globals.update(
     STATIC_V=STATIC_V, money=present.money, short_date=present.short_date, long_date=present.long_date,
     full_date=present.full_date, day_heading=present.day_heading, sentence=present.sentence, local_time=present.local_time, days_until=present.days_until, in_days=present.in_days, plural=present.plural,
     tooth_name=present.tooth_name, source_title=present.source_title, kb=present.kb, requirement_detail=present.requirement_detail, action_title=present.action_title,
-    who_tag=present.who_tag, initials=present.initials, VERDICT_LABEL=present.VERDICT_LABEL, VERDICT_CLASS=present.VERDICT_CLASS,
+    who_tag=present.who_tag, initials=present.initials, skipped_note=present.skipped_note, VERDICT_LABEL=present.VERDICT_LABEL, VERDICT_CLASS=present.VERDICT_CLASS,
     STATUS_LABEL=present.STATUS_LABEL, STATUS_CLASS=present.STATUS_CLASS, STATUS_NA=Status.NOT_APPLICABLE,
     STAGE_LABEL=present.STAGE_LABEL, FOLLOWUP_LABEL=present.FOLLOWUP_LABEL, ACTORS=ACTORS,
     TURNAROUND_DAYS=workflow.SUN_LIFE_TURNAROUND_DAYS, TURNAROUND_SOURCE=workflow.TURNAROUND_SOURCE,
@@ -127,8 +127,18 @@ def _known_readout(request: Request, case) -> readout.Readout | None:
     return (live.cached(case) if live else None) or readout.load(case.case_id)
 
 
+def _actors(request: Request) -> dict[str, Actor]:
+    """The people who can be signed in, with the dentist named as the PMS names them. Resolved once: a clinic's
+    provider does not change between page loads."""
+    app = request.app
+    if app.state.provider is None:
+        app.state.provider = present.treating_provider(app.state.svc) or ""
+    return present.actors(app.state.provider)
+
+
 def _actor(request: Request) -> Actor:
-    return ACTORS.get(request.cookies.get("actor", ""), ACTORS[DEFAULT_ACTOR])
+    a = _actors(request)
+    return a.get(request.cookies.get("actor", ""), a[DEFAULT_ACTOR])
 
 
 def _render(request: Request, name: str, status: int = 200, **ctx) -> HTMLResponse:
@@ -137,7 +147,7 @@ def _render(request: Request, name: str, status: int = 200, **ctx) -> HTMLRespon
         auto.maybe_start(request.app.state.rules_env)
     base = _base(request)
     ctx.setdefault("pack", ctx["view"].pack if "view" in ctx else svc.pack)  # a case's pages cite its own pack
-    ctx.update(actor=_actor(request), request=request, today=svc.today(),
+    ctx.update(actor=_actor(request), ACTORS=_actors(request), request=request, today=svc.today(),
                done=DONE_MESSAGES.get(request.query_params.get("done", "")),
                BASE=base, HOME=_home(request), here=request.url.path.removeprefix(base) or "/")
     return templates.TemplateResponse(request, name, ctx, status_code=status)
@@ -666,7 +676,7 @@ def _rules_page(request: Request, error: str | None = None, status: int = 200) -
         if proposed is not None:
             changes = present.request_changes(svc.queue(), proposed, svc.assess_under)
     return _render(request, "rules.html", status=status, error=error, read_only=bool(request.app.state.base_path),
-                   r=present.rules_page(auto.review_status(env), draft_dir, changes), DENTIST=ACTORS["dentist"])
+                   r=present.rules_page(auto.review_status(env), draft_dir, changes), DENTIST=_actors(request)["dentist"])
 
 
 @router.get("/rules", response_class=HTMLResponse)
@@ -822,6 +832,7 @@ def create_app(svc: CaseService | None = None, packets_dir: Path | None = None, 
     app.state.clinic = os.environ.get("OPHI_CLINIC_ID", "").strip() or None
     if app.state.clinic is None:
         log.warning("OPHI_CLINIC_ID is not set: past requests from every clinic are readable one at a time")
+    app.state.provider = None  # the PMS's name for the treating dentist, read on the first page
     app.state.seed_demo = own if seed_demo is None else seed_demo
     app.state.seeded = False
     app.state.pms_synced_at = float("-inf")
