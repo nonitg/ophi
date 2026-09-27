@@ -1,5 +1,5 @@
 {
- "recorded_at": "2026-09-27T10:43:10+00:00",
+ "recorded_at": "2026-09-27T14:30:49+00:00",
  "planned_pids": [
   5,
   6,
@@ -25,8 +25,7 @@
   164,
   165,
   166,
-  168,
-  170
+  168
  ],
  "charts": {
   "5": {
@@ -48,7 +47,7 @@
     "dob": "1940-12-22",
     "gender": "F",
     "dentist": "T",
-    "inactive": false,
+    "inactive": true,
     "non_patient": false,
     "phone": "905-555-0005",
     "email": null,
@@ -692,7 +691,7 @@
       "duplicate_of": null
      },
      {
-      "trans_id": 1533,
+      "trans_id": 1632,
       "date": "2026-08-20",
       "code": "02111",
       "description": "Single Periapical Film",
@@ -716,7 +715,7 @@
       "duplicate_of": null
      },
      {
-      "trans_id": 1534,
+      "trans_id": 1633,
       "date": "2026-08-20",
       "code": "02144",
       "description": "Four Bitewings",
@@ -4370,7 +4369,7 @@
       "chart_num": 1
      },
      {
-      "trans_id": 1533,
+      "trans_id": 1632,
       "date": "2026-08-20",
       "code": "02111",
       "description": "Single Periapical Film",
@@ -4379,7 +4378,7 @@
       "chart_num": 3
      },
      {
-      "trans_id": 1534,
+      "trans_id": 1633,
       "date": "2026-08-20",
       "code": "02144",
       "description": "Four Bitewings",
@@ -4620,7 +4619,7 @@
       "duplicate_of": null
      },
      {
-      "trans_id": 1535,
+      "trans_id": 1634,
       "date": "2026-08-20",
       "code": "02111",
       "description": "Single Periapical Film",
@@ -4644,7 +4643,7 @@
       "duplicate_of": null
      },
      {
-      "trans_id": 1536,
+      "trans_id": 1635,
       "date": "2026-08-20",
       "code": "02144",
       "description": "Four Bitewings",
@@ -8071,7 +8070,7 @@
     "items": [],
     "procedure_events": [
      {
-      "trans_id": 1535,
+      "trans_id": 1634,
       "date": "2026-08-20",
       "code": "02111",
       "description": "Single Periapical Film",
@@ -8080,7 +8079,7 @@
       "chart_num": 3
      },
      {
-      "trans_id": 1536,
+      "trans_id": 1635,
       "date": "2026-08-20",
       "code": "02144",
       "description": "Four Bitewings",
@@ -8365,7 +8364,7 @@
       "duplicate_of": null
      },
      {
-      "trans_id": 1543,
+      "trans_id": 1642,
       "date": "2026-08-20",
       "code": "02111",
       "description": "Single Periapical Film",
@@ -8389,7 +8388,7 @@
       "duplicate_of": null
      },
      {
-      "trans_id": 1544,
+      "trans_id": 1643,
       "date": "2026-08-20",
       "code": "02144",
       "description": "Four Bitewings",
@@ -10149,7 +10148,7 @@
     "items": [],
     "procedure_events": [
      {
-      "trans_id": 1543,
+      "trans_id": 1642,
       "date": "2026-08-20",
       "code": "02111",
       "description": "Single Periapical Film",
@@ -10158,7 +10157,7 @@
       "chart_num": 4
      },
      {
-      "trans_id": 1544,
+      "trans_id": 1643,
       "date": "2026-08-20",
       "code": "02144",
       "description": "Four Bitewings",
@@ -10403,7 +10402,7 @@
       "duplicate_of": null
      },
      {
-      "trans_id": 1551,
+      "trans_id": 1650,
       "date": "2026-08-20",
       "code": "02111",
       "description": "Single Periapical Film",
@@ -10427,7 +10426,7 @@
       "duplicate_of": null
      },
      {
-      "trans_id": 1552,
+      "trans_id": 1651,
       "date": "2026-08-20",
       "code": "02144",
       "description": "Four Bitewings",
@@ -17555,7 +17554,7 @@
       "chart_num": 2
      },
      {
-      "trans_id": 1551,
+      "trans_id": 1650,
       "date": "2026-08-20",
       "code": "02111",
       "description": "Single Periapical Film",
@@ -17564,7 +17563,7 @@
       "chart_num": 4
      },
      {
-      "trans_id": 1552,
+      "trans_id": 1651,
       "date": "2026-08-20",
       "code": "02144",
       "description": "Four Bitewings",
@@ -18425,7 +18424,7 @@
       "duplicate_of": null
      },
      {
-      "trans_id": 1553,
+      "trans_id": 1652,
       "date": "2026-08-20",
       "code": "02111",
       "description": "Single Periapical Film",
@@ -18449,7 +18448,7 @@
       "duplicate_of": null
      },
      {
-      "trans_id": 1554,
+      "trans_id": 1653,
       "date": "2026-08-20",
       "code": "02144",
       "description": "Four Bitewings",
@@ -18696,7 +18695,7 @@
       "chart_num": 1
      },
      {
-      "trans_id": 1553,
+      "trans_id": 1652,
       "date": "2026-08-20",
       "code": "02111",
       "description": "Single Periapical Film",
@@ -18705,7 +18704,7 @@
       "chart_num": 8
      },
      {
-      "trans_id": 1554,
+      "trans_id": 1653,
       "date": "2026-08-20",
       "code": "02144",
       "description": "Four Bitewings",
@@ -19015,7 +19014,7 @@
       "duplicate_of": null
      },
      {
-      "trans_id": 1537,
+      "trans_id": 1636,
       "date": "2026-08-20",
       "code": "02111",
       "description": "Single Periapical Film",
@@ -19039,7 +19038,7 @@
       "duplicate_of": null
      },
      {
-      "trans_id": 1538,
+      "trans_id": 1637,
       "date": "2026-08-20",
       "code": "02144",
       "description": "Four Bitewings",
@@ -20822,7 +20821,7 @@
     "items": [],
     "procedure_events": [
      {
-      "trans_id": 1537,
+      "trans_id": 1636,
       "date": "2026-08-20",
       "code": "02111",
       "description": "Single Periapical Film",
@@ -20831,7 +20830,7 @@
       "chart_num": 3
      },
      {
-      "trans_id": 1538,
+      "trans_id": 1637,
       "date": "2026-08-20",
       "code": "02144",
       "description": "Four Bitewings",
@@ -22492,7 +22491,7 @@
       "duplicate_of": null
      },
      {
-      "trans_id": 1545,
+      "trans_id": 1644,
       "date": "2026-08-20",
       "code": "02111",
       "description": "Single Periapical Film",
@@ -22516,7 +22515,7 @@
       "duplicate_of": null
      },
      {
-      "trans_id": 1546,
+      "trans_id": 1645,
       "date": "2026-08-20",
       "code": "02144",
       "description": "Four Bitewings",
@@ -28123,7 +28122,7 @@
       "chart_num": 1
      },
      {
-      "trans_id": 1545,
+      "trans_id": 1644,
       "date": "2026-08-20",
       "code": "02111",
       "description": "Single Periapical Film",
@@ -28132,7 +28131,7 @@
       "chart_num": 8
      },
      {
-      "trans_id": 1546,
+      "trans_id": 1645,
       "date": "2026-08-20",
       "code": "02144",
       "description": "Four Bitewings",
@@ -28426,7 +28425,7 @@
       "duplicate_of": null
      },
      {
-      "trans_id": 1539,
+      "trans_id": 1638,
       "date": "2026-08-20",
       "code": "02111",
       "description": "Single Periapical Film",
@@ -28450,7 +28449,7 @@
       "duplicate_of": null
      },
      {
-      "trans_id": 1540,
+      "trans_id": 1639,
       "date": "2026-08-20",
       "code": "02144",
       "description": "Four Bitewings",
@@ -31998,7 +31997,7 @@
       "chart_num": 3
      },
      {
-      "trans_id": 1539,
+      "trans_id": 1638,
       "date": "2026-08-20",
       "code": "02111",
       "description": "Single Periapical Film",
@@ -32007,7 +32006,7 @@
       "chart_num": 5
      },
      {
-      "trans_id": 1540,
+      "trans_id": 1639,
       "date": "2026-08-20",
       "code": "02144",
       "description": "Four Bitewings",
@@ -69008,7 +69007,7 @@
       "duplicate_of": null
      },
      {
-      "trans_id": 1557,
+      "trans_id": 1656,
       "date": "2026-08-20",
       "code": "02111",
       "description": "Single Periapical Film",
@@ -69032,7 +69031,7 @@
       "duplicate_of": null
      },
      {
-      "trans_id": 1558,
+      "trans_id": 1657,
       "date": "2026-08-20",
       "code": "02144",
       "description": "Four Bitewings",
@@ -74618,7 +74617,7 @@
       "chart_num": 6
      },
      {
-      "trans_id": 1557,
+      "trans_id": 1656,
       "date": "2026-08-20",
       "code": "02111",
       "description": "Single Periapical Film",
@@ -74627,7 +74626,7 @@
       "chart_num": 8
      },
      {
-      "trans_id": 1558,
+      "trans_id": 1657,
       "date": "2026-08-20",
       "code": "02144",
       "description": "Four Bitewings",
@@ -82724,7 +82723,7 @@
       "duplicate_of": null
      },
      {
-      "trans_id": 1559,
+      "trans_id": 1658,
       "date": "2026-08-20",
       "code": "02111",
       "description": "Single Periapical Film",
@@ -82748,7 +82747,7 @@
       "duplicate_of": null
      },
      {
-      "trans_id": 1560,
+      "trans_id": 1659,
       "date": "2026-08-20",
       "code": "02144",
       "description": "Four Bitewings",
@@ -90067,7 +90066,7 @@
       "chart_num": 8
      },
      {
-      "trans_id": 1559,
+      "trans_id": 1658,
       "date": "2026-08-20",
       "code": "02111",
       "description": "Single Periapical Film",
@@ -90076,7 +90075,7 @@
       "chart_num": 9
      },
      {
-      "trans_id": 1560,
+      "trans_id": 1659,
       "date": "2026-08-20",
       "code": "02144",
       "description": "Four Bitewings",
@@ -98690,7 +98689,7 @@
       "duplicate_of": null
      },
      {
-      "trans_id": 1561,
+      "trans_id": 1660,
       "date": "2026-08-20",
       "code": "02111",
       "description": "Single Periapical Film",
@@ -98714,7 +98713,7 @@
       "duplicate_of": null
      },
      {
-      "trans_id": 1562,
+      "trans_id": 1661,
       "date": "2026-08-20",
       "code": "02144",
       "description": "Four Bitewings",
@@ -103974,7 +103973,7 @@
       "chart_num": 1
      },
      {
-      "trans_id": 1561,
+      "trans_id": 1660,
       "date": "2026-08-20",
       "code": "02111",
       "description": "Single Periapical Film",
@@ -103983,7 +103982,7 @@
       "chart_num": 7
      },
      {
-      "trans_id": 1562,
+      "trans_id": 1661,
       "date": "2026-08-20",
       "code": "02144",
       "description": "Four Bitewings",
@@ -105568,7 +105567,7 @@
       "duplicate_of": null
      },
      {
-      "trans_id": 1549,
+      "trans_id": 1648,
       "date": "2026-08-20",
       "code": "02111",
       "description": "Single Periapical Film",
@@ -105592,7 +105591,7 @@
       "duplicate_of": null
      },
      {
-      "trans_id": 1550,
+      "trans_id": 1649,
       "date": "2026-08-20",
       "code": "02144",
       "description": "Four Bitewings",
@@ -112783,7 +112782,7 @@
       "chart_num": 8
      },
      {
-      "trans_id": 1549,
+      "trans_id": 1648,
       "date": "2026-08-20",
       "code": "02111",
       "description": "Single Periapical Film",
@@ -112792,7 +112791,7 @@
       "chart_num": 9
      },
      {
-      "trans_id": 1550,
+      "trans_id": 1649,
       "date": "2026-08-20",
       "code": "02144",
       "description": "Four Bitewings",
@@ -114164,7 +114163,7 @@
       "duplicate_of": null
      },
      {
-      "trans_id": 1563,
+      "trans_id": 1662,
       "date": "2026-08-20",
       "code": "02111",
       "description": "Single Periapical Film",
@@ -114188,7 +114187,7 @@
       "duplicate_of": null
      },
      {
-      "trans_id": 1564,
+      "trans_id": 1663,
       "date": "2026-08-20",
       "code": "02144",
       "description": "Four Bitewings",
@@ -121204,7 +121203,7 @@
       "chart_num": 1
      },
      {
-      "trans_id": 1563,
+      "trans_id": 1662,
       "date": "2026-08-20",
       "code": "02111",
       "description": "Single Periapical Film",
@@ -121213,7 +121212,7 @@
       "chart_num": 8
      },
      {
-      "trans_id": 1564,
+      "trans_id": 1663,
       "date": "2026-08-20",
       "code": "02144",
       "description": "Four Bitewings",
@@ -123168,7 +123167,7 @@
       "duplicate_of": null
      },
      {
-      "trans_id": 1547,
+      "trans_id": 1646,
       "date": "2026-08-20",
       "code": "02111",
       "description": "Single Periapical Film",
@@ -123192,7 +123191,7 @@
       "duplicate_of": null
      },
      {
-      "trans_id": 1548,
+      "trans_id": 1647,
       "date": "2026-08-20",
       "code": "02144",
       "description": "Four Bitewings",
@@ -130262,7 +130261,7 @@
       "chart_num": 1
      },
      {
-      "trans_id": 1547,
+      "trans_id": 1646,
       "date": "2026-08-20",
       "code": "02111",
       "description": "Single Periapical Film",
@@ -130271,7 +130270,7 @@
       "chart_num": 7
      },
      {
-      "trans_id": 1548,
+      "trans_id": 1647,
       "date": "2026-08-20",
       "code": "02144",
       "description": "Four Bitewings",
@@ -131581,7 +131580,7 @@
       "duplicate_of": null
      },
      {
-      "trans_id": 1555,
+      "trans_id": 1654,
       "date": "2026-08-20",
       "code": "02111",
       "description": "Single Periapical Film",
@@ -131605,7 +131604,7 @@
       "duplicate_of": null
      },
      {
-      "trans_id": 1556,
+      "trans_id": 1655,
       "date": "2026-08-20",
       "code": "02144",
       "description": "Four Bitewings",
@@ -135424,7 +135423,7 @@
       "chart_num": 1
      },
      {
-      "trans_id": 1555,
+      "trans_id": 1654,
       "date": "2026-08-20",
       "code": "02111",
       "description": "Single Periapical Film",
@@ -135433,7 +135432,7 @@
       "chart_num": 8
      },
      {
-      "trans_id": 1556,
+      "trans_id": 1655,
       "date": "2026-08-20",
       "code": "02144",
       "description": "Four Bitewings",
@@ -135467,7 +135466,7 @@
     "dob": "1990-01-01",
     "gender": "F",
     "dentist": "T",
-    "inactive": false,
+    "inactive": true,
     "non_patient": false,
     "phone": "905-555-0168",
     "email": null,
@@ -135502,7 +135501,7 @@
    "planned_procedures": {
     "items": [
      {
-      "trans_id": 1532,
+      "trans_id": 1631,
       "date": "2026-08-20",
       "code": "27211",
       "description": "Porcelain/Ceramic/Polymer Glass Fused Metal Based Crown",
@@ -135538,7 +135537,7 @@
    "completed_procedures": {
     "items": [
      {
-      "trans_id": 1541,
+      "trans_id": 1640,
       "date": "2026-08-20",
       "code": "02111",
       "description": "Single Periapical Film",
@@ -135562,7 +135561,7 @@
       "duplicate_of": null
      },
      {
-      "trans_id": 1542,
+      "trans_id": 1641,
       "date": "2026-08-20",
       "code": "02144",
       "description": "Four Bitewings",
@@ -137280,7 +137279,7 @@
     "items": [],
     "procedure_events": [
      {
-      "trans_id": 1541,
+      "trans_id": 1640,
       "date": "2026-08-20",
       "code": "02111",
       "description": "Single Periapical Film",
@@ -137289,7 +137288,7 @@
       "chart_num": 1
      },
      {
-      "trans_id": 1542,
+      "trans_id": 1641,
       "date": "2026-08-20",
       "code": "02144",
       "description": "Four Bitewings",
@@ -137298,407 +137297,6 @@
       "chart_num": 1
      }
     ],
-    "source_assurance": {
-     "status": "indeterminate",
-     "detail": "items: imaging tables are readable but hold zero rows database-wide (AImage=0, AImageVersion=0, TDIImageLink=0, Imaging=0, Document=0). 9 AImageToothNumber rows reference images that no longer exist, so Fictional Data once had images and ships without them. Cannot distinguish 'none recorded' from 'not visible to this driver'; treat as indeterminate until the imaging spike resolves it. Manual upload is the only radiograph source for now. procedure_events: charted Transactions rows (Type=' ', Deleted=0) with ChartCode 242 (radiograph procedure codes 02102-02601). An event proves a radiograph was taken and charted/billed on that date; it does not locate the image. The evidence matcher must not treat a procedure event as a retrievable artifact."
-    }
-   }
-  },
-  "170": {
-   "source": {
-    "pms": "ABELDent",
-    "version": "15.1.0 Freemium",
-    "dataset": "Fictional Data (CA)",
-    "notation": {
-     "Transactions.ToothNum": "FDI",
-     "tdi.itooth": "FDI",
-     "Notes.ToothNumber": "FDI",
-     "Perio arrays": "Universal 1-32, converted to FDI here"
-    }
-   },
-   "patient": {
-    "pid": 170,
-    "surname": "GARGYYYY",
-    "given": "YATHU",
-    "dob": "1990-01-01",
-    "gender": "",
-    "dentist": "T",
-    "inactive": false,
-    "non_patient": false,
-    "phone": null,
-    "email": null,
-    "source_assurance": {
-     "status": "present",
-     "detail": "pat row"
-    }
-   },
-   "coverage": {
-    "items": [],
-    "source_assurance": {
-     "status": "none_recorded",
-     "detail": "ixi joined to nsp (plan) and ins (carrier). Family members carry a blank plan id and point at the subscriber via ixisubpid."
-    }
-   },
-   "planned_procedures": {
-    "items": [
-     {
-      "trans_id": 1438,
-      "date": "2026-09-26",
-      "code": "27211",
-      "description": "Porcelain/Ceramic/Polymer Glass Fused Metal Based Crown",
-      "chart_code": 203,
-      "tooth_fdi": 12,
-      "tooth_universal": 7,
-      "surfaces": null,
-      "provider": "T",
-      "responsible_provider": "T",
-      "fee": 581.0,
-      "phase": 1,
-      "item_num": 0,
-      "bridge_group": null,
-      "deleted_raw": 0,
-      "appt": 1,
-      "applied": 0,
-      "plan_num": 1,
-      "plan": {
-       "date": "2026-09-26",
-       "description": null,
-       "state": 1
-      },
-      "status": "planned",
-      "financial_mirror": {
-       "itrid": 99999998,
-       "date": "2026-09-26",
-       "code": "27211",
-       "description": "Porcelain/Ceramic/Polymer Glass Fused Metal Based Crown",
-       "needs_xrays_flag": null,
-       "tooth_fdi": 12,
-       "tooth_universal": 7,
-       "surfaces": null,
-       "provider": "T",
-       "responsible_provider": "T",
-       "fee": 581.0,
-       "lab_fee": 0.0,
-       "status": "planned",
-       "itype_raw": "P"
-      },
-      "financial_mirror_match": "code_tooth"
-     },
-     {
-      "trans_id": 1439,
-      "date": "2026-09-26",
-      "code": "99111",
-      "description": "Commercial Laboratory Procedures",
-      "chart_code": 248,
-      "tooth_fdi": null,
-      "tooth_universal": null,
-      "surfaces": null,
-      "provider": "T",
-      "responsible_provider": "T",
-      "fee": 0.0,
-      "phase": 1,
-      "item_num": 1,
-      "bridge_group": null,
-      "deleted_raw": 0,
-      "appt": 1,
-      "applied": 0,
-      "plan_num": 1,
-      "plan": {
-       "date": "2026-09-26",
-       "description": null,
-       "state": 1
-      },
-      "status": "planned",
-      "financial_mirror": {
-       "itrid": 99999998,
-       "date": "2026-09-26",
-       "code": "99111",
-       "description": "Commercial Laboratory Procedures",
-       "needs_xrays_flag": null,
-       "tooth_fdi": null,
-       "tooth_universal": null,
-       "surfaces": null,
-       "provider": "T",
-       "responsible_provider": "T",
-       "fee": 0.0,
-       "lab_fee": 0.0,
-       "status": "planned",
-       "itype_raw": "P"
-      },
-      "financial_mirror_match": "code_tooth"
-     },
-     {
-      "trans_id": 1440,
-      "date": "2026-09-26",
-      "code": "00004",
-      "description": "prep",
-      "chart_code": 0,
-      "tooth_fdi": null,
-      "tooth_universal": null,
-      "surfaces": null,
-      "provider": "T",
-      "responsible_provider": "T",
-      "fee": 0.0,
-      "phase": 1,
-      "item_num": 2,
-      "bridge_group": null,
-      "deleted_raw": 0,
-      "appt": 1,
-      "applied": 0,
-      "plan_num": 1,
-      "plan": {
-       "date": "2026-09-26",
-       "description": null,
-       "state": 1
-      },
-      "status": "planned",
-      "financial_mirror": {
-       "itrid": 99999998,
-       "date": "2026-09-26",
-       "code": "00004",
-       "description": "prep",
-       "needs_xrays_flag": null,
-       "tooth_fdi": null,
-       "tooth_universal": null,
-       "surfaces": null,
-       "provider": "T",
-       "responsible_provider": "T",
-       "fee": 0.0,
-       "lab_fee": 0.0,
-       "status": "planned",
-       "itype_raw": "P"
-      },
-      "financial_mirror_match": "code_tooth"
-     }
-    ],
-    "source_assurance": {
-     "status": "present",
-     "detail": "Transactions WHERE Type='P' (all Deleted values, see deleted_raw), joined to Plans on PlanNum. status planned_applied = Applied=1: the item has been posted as completed and a Type=' ' row exists for it. Transactions is the clinical chart ledger (what the Treatment view shows); tdi is the financial ledger. Planned items entered through the modern Treatment view are mirrored into tdi (itype 'P', sentinel itrid 99999998); older fictional plans exist only in Transactions, so financial_mirror is null for them. bridge_group is Transactions.Grp: 0/null for single units; for bridge units it is the 1..n position within the bridge (retainer, pontic, ...). Consecutive rows with ascending Grp starting at 1 form one bridge; Grp is not a shared bridge id."
-    }
-   },
-   "completed_procedures": {
-    "items": [
-     {
-      "trans_id": 1407,
-      "date": "2026-09-26",
-      "code": "27211",
-      "description": "Porcelain/Ceramic/Polymer Glass Fused Metal Based Crown",
-      "chart_code": 203,
-      "tooth_fdi": 11,
-      "tooth_universal": 8,
-      "surfaces": null,
-      "provider": "T",
-      "responsible_provider": "T",
-      "fee": 581.0,
-      "phase": 1,
-      "item_num": 0,
-      "bridge_group": null,
-      "deleted_raw": 0,
-      "appt": 1,
-      "applied": 0,
-      "chart_num": 1,
-      "status": "completed",
-      "financial_mirror": {
-       "itrid": 1269,
-       "date": "2026-09-26",
-       "code": "27211",
-       "description": "Porcelain/Ceramic/Polymer Glass Fused Metal Based Crown",
-       "needs_xrays_flag": null,
-       "tooth_fdi": 11,
-       "tooth_universal": 8,
-       "surfaces": null,
-       "provider": "T",
-       "responsible_provider": "T",
-       "fee": 581.0,
-       "lab_fee": 0.0,
-       "status": "completed",
-       "itype_raw": ""
-      },
-      "financial_mirror_match": "code_tooth_date",
-      "duplicate_of": null
-     },
-     {
-      "trans_id": 1408,
-      "date": "2026-09-26",
-      "code": "99111",
-      "description": "Commercial Laboratory Procedures",
-      "chart_code": 248,
-      "tooth_fdi": null,
-      "tooth_universal": null,
-      "surfaces": null,
-      "provider": "T",
-      "responsible_provider": "T",
-      "fee": 0.0,
-      "phase": 1,
-      "item_num": 0,
-      "bridge_group": null,
-      "deleted_raw": 0,
-      "appt": 1,
-      "applied": 0,
-      "chart_num": 1,
-      "status": "completed",
-      "financial_mirror": {
-       "itrid": 1270,
-       "date": "2026-09-26",
-       "code": "99111",
-       "description": "Commercial Laboratory Procedures",
-       "needs_xrays_flag": null,
-       "tooth_fdi": null,
-       "tooth_universal": null,
-       "surfaces": null,
-       "provider": "T",
-       "responsible_provider": "T",
-       "fee": 0.0,
-       "lab_fee": 0.0,
-       "status": "completed",
-       "itype_raw": ""
-      },
-      "financial_mirror_match": "code_tooth_date",
-      "duplicate_of": null
-     },
-     {
-      "trans_id": 1409,
-      "date": "2026-09-26",
-      "code": "00007",
-      "description": "prep",
-      "chart_code": 203,
-      "tooth_fdi": null,
-      "tooth_universal": null,
-      "surfaces": null,
-      "provider": "T",
-      "responsible_provider": "T",
-      "fee": 0.0,
-      "phase": 1,
-      "item_num": 0,
-      "bridge_group": null,
-      "deleted_raw": 0,
-      "appt": 1,
-      "applied": 0,
-      "chart_num": 1,
-      "status": "completed",
-      "financial_mirror": {
-       "itrid": 1271,
-       "date": "2026-09-26",
-       "code": "00007",
-       "description": "prep",
-       "needs_xrays_flag": null,
-       "tooth_fdi": null,
-       "tooth_universal": null,
-       "surfaces": null,
-       "provider": "T",
-       "responsible_provider": "T",
-       "fee": 0.0,
-       "lab_fee": 0.0,
-       "status": "completed",
-       "itype_raw": ""
-      },
-      "financial_mirror_match": "code_tooth_date",
-      "duplicate_of": null
-     },
-     {
-      "trans_id": 1435,
-      "date": "2026-09-26",
-      "code": "27211",
-      "description": "Porcelain/Ceramic/Polymer Glass Fused Metal Based Crown",
-      "chart_code": 203,
-      "tooth_fdi": 12,
-      "tooth_universal": 7,
-      "surfaces": null,
-      "provider": "T",
-      "responsible_provider": "T",
-      "fee": 581.0,
-      "phase": 0,
-      "item_num": 0,
-      "bridge_group": null,
-      "deleted_raw": 0,
-      "appt": 0,
-      "applied": 0,
-      "chart_num": 1,
-      "status": "completed",
-      "financial_mirror": null,
-      "financial_mirror_match": "unmatched",
-      "duplicate_of": null
-     },
-     {
-      "trans_id": 1436,
-      "date": "2026-09-26",
-      "code": "99111",
-      "description": "Commercial Laboratory Procedures",
-      "chart_code": 248,
-      "tooth_fdi": null,
-      "tooth_universal": null,
-      "surfaces": null,
-      "provider": "T",
-      "responsible_provider": "T",
-      "fee": 0.0,
-      "phase": 0,
-      "item_num": 0,
-      "bridge_group": null,
-      "deleted_raw": 0,
-      "appt": 0,
-      "applied": 0,
-      "chart_num": 1,
-      "status": "completed",
-      "financial_mirror": null,
-      "financial_mirror_match": "unmatched",
-      "duplicate_of": 1408
-     },
-     {
-      "trans_id": 1437,
-      "date": "2026-09-26",
-      "code": "00004",
-      "description": "prep",
-      "chart_code": 0,
-      "tooth_fdi": null,
-      "tooth_universal": null,
-      "surfaces": null,
-      "provider": "T",
-      "responsible_provider": "T",
-      "fee": 0.0,
-      "phase": 0,
-      "item_num": 0,
-      "bridge_group": null,
-      "deleted_raw": 0,
-      "appt": 0,
-      "applied": 0,
-      "chart_num": 1,
-      "status": "completed",
-      "financial_mirror": null,
-      "financial_mirror_match": "unmatched",
-      "duplicate_of": null
-     }
-    ],
-    "source_assurance": {
-     "status": "present",
-     "detail": "Transactions WHERE Type=' ' AND Code<>'' AND Deleted=0. financial_mirror is the tdi row (itype='') with the same code and tooth, matched on posting date first and equal fee second (financial_mirror_match: code_tooth_date, code_tooth_fee_nearest within 400 days, or unmatched); each tdi row mirrors at most one clinical row. duplicate_of points a same-day chart companion row (Appt=0, Phase=0) at its appointment posting; count only rows with duplicate_of null. bridge_group is Transactions.Grp: 0/null for single units; for bridge units it is the 1..n position within the bridge (retainer, pontic, ...). Consecutive rows with ascending Grp starting at 1 form one bridge; Grp is not a shared bridge id."
-    }
-   },
-   "odontogram_conditions": {
-    "items": [],
-    "source_assurance": {
-     "status": "none_recorded",
-     "detail": "Transactions WHERE Type=' ' AND Code is empty: odontogram markings by ChartCode (116 Decay, 102 Crown, 114 Bridge, 106 Implant, 100/104/108/140 Existing Condition, ...). Not procedures and never billed."
-    }
-   },
-   "other_ledger_rows": [],
-   "perio_exams": {
-    "items": [],
-    "source_assurance": {
-     "status": "none_recorded",
-     "detail": "Perio table, positional byte arrays decoded per site. DateCertified blank in all Fictional Data rows."
-    }
-   },
-   "clinical_notes": {
-    "items": [],
-    "excluded_deleted_or_superseded": 0,
-    "source_assurance": {
-     "status": "none_recorded",
-     "detail": "Notes WHERE IsDeleted=0 AND IsLatest=1, joined to Charts on KeyNumber=ChartNum. Edits and 'make view only' create a new row and mark the old one IsDeleted=1/IsLatest=0, so the filter keeps current versions only. Modern notes are RTF and are converted to text here (text_format)."
-    }
-   },
-   "imaging": {
-    "items": [],
-    "procedure_events": [],
     "source_assurance": {
      "status": "indeterminate",
      "detail": "items: imaging tables are readable but hold zero rows database-wide (AImage=0, AImageVersion=0, TDIImageLink=0, Imaging=0, Document=0). 9 AImageToothNumber rows reference images that no longer exist, so Fictional Data once had images and ships without them. Cannot distinguish 'none recorded' from 'not visible to this driver'; treat as indeterminate until the imaging spike resolves it. Manual upload is the only radiograph source for now. procedure_events: charted Transactions rows (Type=' ', Deleted=0) with ChartCode 242 (radiograph procedure codes 02102-02601). An event proves a radiograph was taken and charted/billed on that date; it does not locate the image. The evidence matcher must not treat a procedure event as a retrievable artifact."
@@ -137902,7 +137500,7 @@
    "params": null,
    "rows": [
     {
-     "u": "2026-09-27T03:42:13.647"
+     "u": "2026-09-27T07:05:02.580"
     }
    ]
   },
@@ -137911,7 +137509,7 @@
    "params": null,
    "rows": [
     {
-     "charts": "2026-09-27T03:42:14.690",
+     "charts": "2026-09-27T07:05:02.580",
      "claims": 9004
     }
    ]
@@ -138206,7 +137804,7 @@
      "mobile": null,
      "email": null,
      "dentist_id": "T",
-     "inactive": false
+     "inactive": true
     },
     {
      "id": 44,
