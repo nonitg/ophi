@@ -33,6 +33,15 @@ def fake_sql(query, params):
     return ROWS
 
 
+def fake_vm_sql(query, params=None):
+    """The VM queries a case pull makes besides the charts: last chart write, crown appointments, dentist names."""
+    if "dm_db_index_usage_stats" in query:
+        return [{"u": None}]
+    if "FROM apt" in query:
+        return []
+    return [{"id": "T", "name": "Dr. Terry Ackerman"}]
+
+
 CHARTS = Path(__file__).parents[1] / "fixtures/abeldent/fictional"
 YOKOYAMA, RANDAL, CHERSKI = "abeldent_158", "abeldent_162", "abeldent_160"
 
@@ -43,7 +52,7 @@ def svc(tmp_path, monkeypatch):
     repo = AbelDentPmsRepository()
     monkeypatch.setattr(repo, "planned_patient_ids", lambda: [158, 160, 162])
     monkeypatch.setattr(repo, "fetch_patient_charts", lambda pids: {p: json.loads((CHARTS / f"{p}.json").read_text()) for p in pids})
-    monkeypatch.setattr(repo, "sql", lambda query, params=None: [{"id": "T", "name": "Dr. Terry Ackerman"}])  # dentist names
+    monkeypatch.setattr(repo, "sql", fake_vm_sql)
     return CaseService(store=Store(tmp_path / "state"), repository=repo, clock=lambda: datetime(2026, 9, 26, 12),
                        pms_claims=lambda: abeldent.list_predeterminations(fake_sql), note_reader=lambda text: "missing_radiograph")
 

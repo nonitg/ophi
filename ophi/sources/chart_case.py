@@ -58,8 +58,9 @@ def _perio_charts(chart: dict) -> list[dict]:
 
 
 def chart_to_dsl(chart: dict, crown: dict, *, case_id: str, as_of: date, providers: dict[str, str] | None = None,
-                 clinic: str = "ABELDent", source: str = "abeldent") -> dict:
-    """The export in casegen's dialect, for the planned procedure `crown`. `providers` maps PMS provider ids to names."""
+                 appointment: date | None = None, clinic: str = "ABELDent", source: str = "abeldent") -> dict:
+    """The export in casegen's dialect, for the planned procedure `crown`. `providers` maps PMS provider ids to names;
+    `appointment` is the booked crown visit, if any."""
     p, names = chart["patient"], providers or {}
     dentist = crown.get("responsible_provider") or crown.get("provider") or p.get("dentist") or ""
     plan = [x for x in _items(chart, "planned_procedures") if x.get("plan_num") == crown.get("plan_num")]
@@ -76,7 +77,7 @@ def chart_to_dsl(chart: dict, crown: dict, *, case_id: str, as_of: date, provide
         "provider": {"name": names.get(dentist, f"Dentist {dentist}".strip()), "licence": None},
         "treatment": {"code": crown["code"], "description": crown.get("description"), "tooth": crown["tooth_fdi"],
                       "planned": crown.get("date"), "fee_cents": round(crown["fee"] * 100) if crown.get("fee") else None,
-                      "surfaces": list(crown.get("surfaces") or "")},
+                      "surfaces": list(crown.get("surfaces") or ""), "appointment": appointment},
         "history": [{"code": h["code"], "tooth": h.get("tooth_fdi"), "surfaces": list(h.get("surfaces") or ""), "date": h["date"],
                      "description": h.get("description")} for h in _items(chart, "completed_procedures") if h.get("date")],
         "radiographs": films,

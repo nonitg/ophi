@@ -36,6 +36,7 @@ Usage:
 from __future__ import annotations
 
 import json
+import logging
 import os
 import time
 from datetime import date, datetime
@@ -56,6 +57,7 @@ ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_CASES_DIR = ROOT / "cases" / "demo"
 DEFAULT_LOOKBACK_DIR = ROOT / "cases" / "lookback"
 DEFAULT_MOCKS_DIR = ROOT / "mocks"
+log = logging.getLogger("uvicorn.error")
 
 # ---------------------------------------------------------------------------
 # Toggle — env-var based mock switch
@@ -187,6 +189,13 @@ class FileSystemPmsRepository:
 # ABELDent live implementation — wraps lab/tools/chart_dump.py logic
 # ---------------------------------------------------------------------------
 
+# Each patient's next booked visit whose scheduled work names a crown ("crn #46"): the appointment the request races.
+NEXT_CROWN_APPOINTMENTS = """
+SELECT apid AS pid, CONVERT(varchar(10), MIN(adate), 23) AS day FROM apt
+WHERE apid > 0 AND adate >= CAST(GETDATE() AS date) AND (apwork LIKE '%crn%' OR apwork LIKE '%crown%')
+GROUP BY apid"""
+
+
 class AbelDentPmsRepository:
     """Live ABELDent PMS repository. Delegates to chart_dump fetch logic.
 
@@ -194,13 +203,19 @@ class AbelDentPmsRepository:
     behaviour. Requires the VM bridge at lab/vm/vm.
     """
 
-    CACHE_SECONDS = 300
+    CHECK_SECONDS = 15
+    # Tables charts are built from. SQL Server records each table's last write, so one cheap query tells whether
+    # staff edited anything in ABELDent since the last pull.
+    _CHANGED_SQL = ("SELECT CONVERT(varchar(23), MAX(last_user_update), 126) AS u FROM sys.dm_db_index_usage_stats "
+                    "WHERE database_id = DB_ID() AND object_id IN (" + ", ".join(
+                        f"OBJECT_ID('{t}')" for t in ("pat", "Transactions", "Plans", "tdi", "Perio", "Notes", "Charts", "dnt", "apt", "ixi", "nsp")) + ")")
 
     def __init__(self, vm_path: Path | None = None) -> None:
         self.vm_path = Path(vm_path) if vm_path else ROOT / "lab" / "vm" / "vm"
         # Lazy import to avoid hard dependency on VM at import time
         self._chart_dump = None
         self._cache: tuple[float, dict[str, Case]] | None = None
+        self._stamp: str | None = None  # ABELDent's last chart write as of the cached pull
 
     def _load_chart_dump(self):
         if self._chart_dump is None:
@@ -226,24 +241,34 @@ class AbelDentPmsRepository:
     # -- PmsRepository interface --------------------------------------------
 
     def _cases(self) -> dict[str, Case]:
-        """One case per patient with a planned crown, judged as of today. Re-read after CACHE_SECONDS: a pull is
-        nine queries over SSH (about 7 s), and every page asks for its cases."""
-        if self._cache is None or time.monotonic() - self._cache[0] > self.CACHE_SECONDS:
-            charts = self.fetch_patient_charts(self.planned_patient_ids())
-            providers = {r["id"]: r["name"] for r in self.sql("SELECT RTRIM(did) AS id, RTRIM(dname) AS name FROM dnt", None)}
-            cases = {}
-            for pid, chart in sorted(charts.items()):
-                crowns = [p for p in chart["planned_procedures"]["items"] if p["code"].startswith("27") and p["tooth_fdi"]]
-                if crowns:  # an open plan item before one ABELDent already marked applied
-                    first = next((p for p in crowns if p["status"] == "planned"), crowns[0])
-                    cases[f"abeldent_{pid}"] = chart_to_case(chart, first, case_id=f"abeldent_{pid}", as_of=date.today(),
-                                                             providers=providers, clinic="ABELDent lab (Fictional Data)")
-            self._cache = (time.monotonic(), cases)
-        return self._cache[1]
+        """One case per patient with a planned crown, judged as of today. A pull is nine queries over SSH (about 7 s)
+        and every page asks for its cases, so re-pull only when ABELDent's charts changed, checked every CHECK_SECONDS."""
+        if self._cache is not None and time.monotonic() - self._cache[0] < self.CHECK_SECONDS:
+            return self._cache[1]
+        try:
+            stamp = self.sql(self._CHANGED_SQL)[0]["u"]
+        except RuntimeError as e:  # chart_dump.VmSqlError: VM unreachable; staff keep the last pull
+            if self._cache is None:
+                raise
+            log.warning(f"ABELDent change check skipped: {e}")
+            return self._cache[1]
+        cases = self._pull() if self._cache is None or stamp != self._stamp else self._cache[1]
+        self._cache, self._stamp = (time.monotonic(), cases), stamp
+        return cases
 
-    def refresh(self) -> None:
-        """Re-read ABELDent on the next ask, for edits staff just made in the PMS."""
-        self._cache = None
+    def _pull(self) -> dict[str, Case]:
+        charts = self.fetch_patient_charts(self.planned_patient_ids())
+        providers = {r["id"]: r["name"] for r in self.sql("SELECT RTRIM(did) AS id, RTRIM(dname) AS name FROM dnt", None)}
+        appointments = {r["pid"]: date.fromisoformat(r["day"]) for r in self.sql(NEXT_CROWN_APPOINTMENTS, None)}
+        cases = {}
+        for pid, chart in sorted(charts.items()):
+            crowns = [p for p in chart["planned_procedures"]["items"] if p["code"].startswith("27") and p["tooth_fdi"]]
+            if crowns:  # an open plan item before one ABELDent already marked applied
+                first = next((p for p in crowns if p["status"] == "planned"), crowns[0])
+                cases[f"abeldent_{pid}"] = chart_to_case(chart, first, case_id=f"abeldent_{pid}", as_of=date.today(),
+                                                         providers=providers, appointment=appointments.get(pid),
+                                                         clinic="ABELDent lab (Fictional Data)")
+        return cases
 
     def list_case_ids(self) -> list[str]:
         return list(self._cases())

@@ -139,8 +139,7 @@ def _render(request: Request, name: str, status: int = 200, **ctx) -> HTMLRespon
     ctx.setdefault("pack", ctx["view"].pack if "view" in ctx else svc.pack)  # a case's pages cite its own pack
     ctx.update(actor=_actor(request), request=request, today=svc.today(),
                done=DONE_MESSAGES.get(request.query_params.get("done", "")),
-               BASE=base, HOME=_home(request), here=request.url.path.removeprefix(base) or "/",
-               pms_live=isinstance(svc.repository, AbelDentPmsRepository))
+               BASE=base, HOME=_home(request), here=request.url.path.removeprefix(base) or "/")
     return templates.TemplateResponse(request, name, ctx, status_code=status)
 
 
@@ -745,16 +744,6 @@ def reset(request: Request):
             demo.seed(svc)
         request.app.state.pms_synced_at = float("-inf")  # the reseeded cases take the PMS's steps on the next page
     return RedirectResponse(_home(request), status_code=303)
-
-
-@router.post("/refresh")
-def refresh(request: Request):
-    """Pull charts and Sun Life's answers from ABELDent now. ML reruns only for charts whose text changed."""
-    repo = request.app.state.svc.repository
-    if isinstance(repo, AbelDentPmsRepository):
-        repo.refresh()
-    request.app.state.pms_synced_at = float("-inf")
-    return _back(request, _home(request))
 
 
 # --- api & actor ---------------------------------------------------------------------------------------
