@@ -262,8 +262,12 @@ def worklist(request: Request):
     svc = _svc(request)
     views = svc.queue()
     live = request.app.state.live
+    # The board never waits on the models: it shows the plans it already has, and scores the rest in the
+    # background so the case staff click next is ready by the time they get there.
     risks = {v.case.case_id: r for v in views if v.stage in workflow.CHART_STAGES
-             and (r := present.board_risk(v, live.latest(v.case) if live else readout.load(v.case.case_id), v.pack))}
+             and (r := present.board_risk(v, _known_readout(request, v.case), v.pack))}
+    if live:
+        live.warm_cases([v.case for v in views])  # any card can be clicked, and the case page scores every stage
     prefills = {v.case.case_id: n for v in views if v.stage in (*workflow.CHART_STAGES, workflow.Stage.DENTIST)
                 and (n := present.prefilled(v, present.pre_reads_for(v, v.pack, _known_readout(request, v.case))))}
     return _render(request, "board.html", b=present.board(views, _actor(request), svc.today(), risks, prefills,
@@ -282,7 +286,8 @@ def _case_page(request: Request, case_id: str, **extra):
     view = _view(request, case_id)
     if view is None:
         return _error(request, 404, "Case not found", f"No case '{case_id}' in the demo set.")
-    svc, actor, today = _svc(request), _actor(request, case_id), _svc(request).today()
+    svc, actor = _svc(request), _actor(request, case_id)
+    today = svc.today()
     live = request.app.state.live
     rd, gaps = live.latest(view.case) if live else readout.load(case_id), present.gap_rows(view)
     relevant, other = present.assertion_rows(view, view.pack, present.pre_reads_for(view, view.pack, rd))

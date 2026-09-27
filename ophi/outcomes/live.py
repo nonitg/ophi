@@ -27,6 +27,7 @@ class LiveScorer:
         self._lock = threading.Lock()  # one GPU, one forward pass at a time
         self._latest: dict[str, Readout] = {}  # case id -> last live plan, for the board
         self.clinic_rate: Callable[[Case], float | None] | None = None  # the clinic's past denials, when the app has them
+        self._warming = threading.Lock()  # one background sweep at a time, however many boards are open
 
     def warm(self) -> None:
         with self._lock:
@@ -67,3 +68,22 @@ class LiveScorer:
     def latest(self, case: Case) -> Readout:
         """The last live plan if the chart hasn't changed since; otherwise score it now."""
         return self.cached(case) or self.score(case)
+
+    def warm_cases(self, cases: list[Case]) -> None:
+        """Score in the background whatever has no plan yet, so opening a case doesn't wait on the models.
+        Staff read the board for a few seconds before clicking, which is the time this needs."""
+        if not self._warming.acquire(blocking=False):  # a sweep is already running; it covers these cases too
+            return
+
+        def sweep():
+            try:
+                for case in cases:
+                    if self.cached(case) is None:
+                        try:
+                            self.score(case)
+                        except Exception as e:  # one unscorable chart must not stop the rest
+                            log.warning(f"ML warm skipped {case.case_id}: {e}")
+            finally:
+                self._warming.release()
+
+        threading.Thread(target=sweep, daemon=True, name="ml-warm").start()
