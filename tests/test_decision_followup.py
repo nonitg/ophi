@@ -86,16 +86,16 @@ def test_resubmission_goes_to_the_column_the_reason_names_and_the_old_claim_stay
     assert svc.view(YOKOYAMA).state.ask.done_by == "Kim Osei"
 
 
-def test_read_letter_sends_a_pdf_as_a_document_and_a_photo_as_an_image():
+def test_read_letter_passes_the_file_through_and_rejects_other_types():
     seen = []
 
-    def reader(content):
-        seen.append(content[0]["type"])
+    def reader(parts):
+        seen.append(parts[0])
         return letters.LetterReading(outcome="denied", reason_key="insufficient_ferrule")
 
     assert letters.read_letter(b"%PDF", "application/pdf", reader).reason_key == "insufficient_ferrule"
     letters.read_letter(b"\x89PNG", "image/png", reader)
-    assert seen == ["document", "image"]
+    assert seen == [(b"%PDF", "application/pdf"), (b"\x89PNG", "image/png")]
     with pytest.raises(letters.LetterError):
         letters.read_letter(b"x", "text/plain", reader)
 

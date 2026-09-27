@@ -226,7 +226,7 @@
       <button class="btn{% if paper %} btn-primary{% endif %}" type="submit">Read the letter</button>
     </form>
     {% if letter_error %}<p class="note note-warn">{{ letter_error }}</p>{% endif %}
-    {% if letter %}<p class="note">Claude read the letter{% if letter.outcome == 'unclear' %} but couldn't tell what Sun Life decided. Record it from the letter{% else %}. Check what it found against the letter, then record it{% endif %}.{% if letter.outcome == 'denied' and not letter.reason_key %} The letter doesn't say why Sun Life denied it.{% endif %}</p>{% endif %}
+    {% if letter %}<p class="note">Ophi read the letter{% if letter.outcome == 'unclear' %} but couldn't tell what Sun Life decided. Record it from the letter{% else %}. Check what it found against the letter, then record it{% endif %}.{% if letter.outcome == 'denied' and not letter.reason_key %} The letter doesn't say why Sun Life denied it.{% endif %}</p>{% endif %}
     {% if waiting and not letter %}<details class="reveal"><summary class="btn btn-sm">Decision arrived? Record it</summary>{% endif %}
       <form method="post" action="{{ BASE }}/cases/{{ cid }}/decision" class="stack decision-form">
         <fieldset class="choice-cards" data-voice="payer" aria-label="Sun Life's decision">

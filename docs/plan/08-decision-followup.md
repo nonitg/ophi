@@ -48,8 +48,8 @@ No real CDCP decision letters are public; only reason code N05 is documented. Fo
 ## Reading a letter
 
 1. **Upload** a PDF or phone photo on a "With Sun Life" or "Decision back" case.
-2. **Extract** the text: `pypdf` for digital PDFs; Claude vision (`claude-sonnet-5`) for photos and scans.
-3. **Structure it** with Claude: outcome, decision date, the reason quoted word for word (it must appear in
+2. **Extract** the text: the file goes to the model as-is, a PDF as a document and a photo as an image.
+3. **Structure it** with Gemini: outcome, decision date, the reason quoted word for word (it must appear in
    the text), the documents asked for, and one reason key from `laya_questions.REASON_KEYS` or `unspecified`.
 4. **Laya handles vague letters only.** Laya is trained to predict the reason from the chart, not to read
    letters; untrained questions lean "no". When the letter is `unspecified`, Laya's decision head scores the chart
@@ -58,7 +58,7 @@ No real CDCP decision letters are public; only reason code N05 is documented. Fo
 
 Electronic answers (`Status P`) skip steps 1–3: the reason is G26, and the outcome is G15 > 0.
 
-Privacy: letters carry patient information. Claude sees only synthetic letters for the demo. In production,
+Privacy: letters carry patient information. Gemini sees only synthetic letters for the demo. In production,
 extraction runs locally (OCR + Laya fine-tuned on letter text) or on a Canadian-hosted model.
 
 ## Reason → column
@@ -77,7 +77,7 @@ On "Start resubmission", the confirmed reason reopens its requirement, and `work
 ## Built (2026-09-26)
 
 Demo files: `scripts/demo-real.sh`. Live ABELDent: `scripts/demo-abeldent.sh` (`USE_ABELDENT_PMS=true`; the VM must be up;
-`ANTHROPIC_API_KEY` in `.env` for letter reading). In ABELDent mode every patient with a planned crown is a case, judged as of
+`GEMINI_API_KEY` in `.env` for letter reading). In ABELDent mode every patient with a planned crown is a case, judged as of
 today, so its 2002–2007 evidence reads as stale.
 
 | Piece | Where |
@@ -85,10 +85,10 @@ today, so its 2002–2007 evidence reads as stale.
 | Predetermination reader, `GET /api/abeldent/patients/{pid}/predeterminations` | `ophi/sources/abeldent.py`, `ophi/web/abeldent_api.py` |
 | Cases from the VM: chart_dump charts → `chart_to_case` (shared with the mock repository), cached 5 min | `AbelDentPmsRepository` |
 | Sync: ABELDent's claim marks the case sent (signed in Ophi or not; the audit says which); an electronic answer records the decision (by "ABELDent", once per claim, so undo sticks) | `CaseService.sync_from_pms`, every 30 s in ABELDent mode |
-| Letter upload → Claude (`claude-opus-5`, PDF or photo) → decision form pre-filled for staff to check | `ophi/letters.py`, `POST /cases/{id}/letter` |
+| Letter upload → Gemini (`gemini-2.5-pro`, PDF or photo) → decision form pre-filled for staff to check | `ophi/letters.py`, `POST /cases/{id}/letter` |
 | Reason → column: picked at "Start resubmission" (pre-set from the letter or note), opens an ask; "Done" closes it | `workflow.REASONS`, `with_ask`, `CaseService.start_resubmission`/`resolve_ask` |
 | Sample letters (SAMPLE-marked, no branding): Cherski (pid 160) ferrule, vague, approved, perio photo; Goertsen (pid 164) radiograph, notes, approved, acknowledgement (reads as unclear) | `fixtures/letters/`, `scripts/gen-sample-letters.py` |
-| Checks every sample letter still reads as it should (needs `ANTHROPIC_API_KEY`) | `scripts/check-sample-letters.py` |
+| Checks every sample letter still reads as it should (needs `GEMINI_API_KEY`) | `scripts/check-sample-letters.py` |
 
 Not built: network rejections (`R`/`M`/`*`) back to Ready to send; storing the uploaded letter file; Laya's likely
 reason for vague letters (the case page's fix plan already ranks what is most likely wrong).

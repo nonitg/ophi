@@ -820,7 +820,7 @@ _ACTIVITY = {"apply_fix": ("applied a fix", "applied {n} fixes"), "assert": ("re
              "edit_narrative": ("edited the narrative",), "sign_off": ("signed the packet",), "download_packet": ("downloaded the packet",),
              "mark_submitted": ("marked it sent",), "record_decision": ("recorded Sun Life's decision",),
              "start_resubmission": ("started a resubmission",), "mark_booked": ("marked the crown booked",),
-             "undo": ("took back a step",), "read_letter": ("had Claude read Sun Life's letter",),
+             "undo": ("took back a step",), "read_letter": ("had Ophi read Sun Life's letter",),
              "resolve_ask": ("covered what Sun Life asked for",), "recover_followup": ("logged a call-back",),
              "test_skip": ("skipped the chart gaps for a test run",), "test_restore": ("restored the skipped gaps",),
              "demo_capture": ("marked a chair gap taken (demo)", "marked {n} chair gaps taken (demo)")}

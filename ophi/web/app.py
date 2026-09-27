@@ -104,7 +104,7 @@ def _sync_pms(app) -> None:
 
 
 def _note_reason(text: str) -> str | None:
-    """Which denial reason Sun Life's note names, when Claude can say; otherwise staff pick it."""
+    """Which denial reason Sun Life's note names, when Gemini can say; otherwise staff pick it."""
     try:
         return letters.read_note(text).reason_key
     except letters.LetterError as e:
@@ -381,7 +381,7 @@ def mark_submitted(request: Request, case_id: str, on: str = Form("")):
 
 @router.post("/cases/{case_id}/letter", response_class=HTMLResponse)
 async def read_letter(request: Request, case_id: str, letter: UploadFile = File(...)):
-    """Claude reads Sun Life's letter; the case page comes back with the decision form filled in for staff to check."""
+    """Gemini reads Sun Life's letter; the case page comes back with the decision form filled in for staff to check."""
     if _view(request, case_id) is None:
         return _error(request, 404, "Case not found", f"No case '{case_id}' in the demo set.")
     data = await letter.read()

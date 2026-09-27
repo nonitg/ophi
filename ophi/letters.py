@@ -1,13 +1,12 @@
 """Read Sun Life's decision out of its letter, or out of the note text on an electronic answer.
 
-Claude reads the letter (PDF or phone photo) and names the outcome, the date, Sun Life's reason word for word, and
+Gemini reads the letter (PDF or phone photo) and names the outcome, the date, Sun Life's reason word for word, and
 which of the rule pack's denial reasons it is. Staff confirm before anything is recorded. Laya is not used here: it
 was trained to predict a reason from the chart, not to read letters.
 """
 
 from __future__ import annotations
 
-import base64
 from collections.abc import Callable
 from datetime import date
 from typing import Literal
@@ -16,7 +15,7 @@ from pydantic import BaseModel
 
 from ophi.workflow import REASONS
 
-MODEL = "claude-opus-5"
+MODEL = "gemini-2.5-pro"
 IMAGE_TYPES = {"image/png", "image/jpeg", "image/webp", "image/gif"}
 MEDIA_TYPES = {"application/pdf", *IMAGE_TYPES}
 
@@ -32,6 +31,9 @@ Canadian Dental Care Plan crown preauthorization (predetermination). Report only
 - carrier_ref: Sun Life's reference or claim number for the request, or null.
 Reasons: {"; ".join(f"{k} = {v[0]}" for k, v in REASONS.items())}."""
 
+NO_KEY = "Ophi can't reach Gemini: set GEMINI_API_KEY for the server."
+UNREADABLE = "Gemini couldn't read the letter. Record the decision by hand."
+
 
 class LetterReading(BaseModel):
     outcome: Literal["approved", "denied", "unclear"]
@@ -45,38 +47,42 @@ class LetterError(Exception):
     """The letter couldn't be read; the message is fit to show staff."""
 
 
-Reader = Callable[[list[dict]], LetterReading]  # user content blocks -> reading
+Part = tuple[bytes, str] | str  # an uploaded file as (bytes, media type), or prompt text
+Reader = Callable[[list[Part]], LetterReading]
 
 
-def claude_reader(content: list[dict]) -> LetterReading:
-    import anthropic
+def gemini_reader(parts: list[Part]) -> LetterReading:
+    import httpx
+    from google import genai
+    from google.genai import errors, types
 
+    contents = [p if isinstance(p, str) else types.Part.from_bytes(data=p[0], mime_type=p[1]) for p in parts]
+    config = types.GenerateContentConfig(system_instruction=SYSTEM, response_mime_type="application/json",
+                                         response_schema=LetterReading)
     try:
-        res = anthropic.Anthropic().messages.parse(model=MODEL, max_tokens=16000, system=SYSTEM,
-                                                   messages=[{"role": "user", "content": content}],
-                                                   output_format=LetterReading)
-    except anthropic.AuthenticationError as e:
-        raise LetterError("Ophi can't reach Claude: set ANTHROPIC_API_KEY for the server.") from e
-    except anthropic.APIConnectionError as e:
-        raise LetterError("Ophi couldn't reach Claude. Check the connection and try again.") from e
-    except anthropic.APIStatusError as e:
-        raise LetterError(f"Claude couldn't read the letter ({e.status_code}). Try again, or record the decision by hand.") from e
-    except TypeError as e:  # the SDK found no credentials at all
-        raise LetterError("Ophi can't reach Claude: set ANTHROPIC_API_KEY for the server.") from e
-    if res.stop_reason == "refusal" or res.parsed_output is None:
-        raise LetterError("Claude couldn't read the letter. Record the decision by hand.")
-    return res.parsed_output
+        res = genai.Client().models.generate_content(model=MODEL, contents=contents, config=config)
+    except ValueError as e:  # the SDK found no key at all
+        raise LetterError(NO_KEY) from e
+    except errors.ClientError as e:
+        if e.code in (401, 403):
+            raise LetterError(NO_KEY) from e
+        raise LetterError(f"Gemini couldn't read the letter ({e.code}). Try again, or record the decision by hand.") from e
+    except errors.ServerError as e:
+        raise LetterError(f"Gemini couldn't read the letter ({e.code}). Try again, or record the decision by hand.") from e
+    except httpx.HTTPError as e:
+        raise LetterError("Ophi couldn't reach Gemini. Check the connection and try again.") from e
+    if not isinstance(res.parsed, LetterReading):  # refused, blocked, or answered with something else
+        raise LetterError(UNREADABLE)
+    return res.parsed
 
 
-def read_letter(data: bytes, media_type: str, reader: Reader = claude_reader) -> LetterReading:
+def read_letter(data: bytes, media_type: str, reader: Reader = gemini_reader) -> LetterReading:
     """A letter file as staff uploaded it: a PDF, or a photo of the page."""
     if media_type not in MEDIA_TYPES:
         raise LetterError("Upload the letter as a PDF or a photo (PNG or JPEG).")
-    source = {"type": "base64", "media_type": media_type, "data": base64.standard_b64encode(data).decode()}
-    block = {"type": "image" if media_type in IMAGE_TYPES else "document", "source": source}
-    return reader([block, {"type": "text", "text": "Read this letter."}])
+    return reader([(data, media_type), "Read this letter."])
 
 
-def read_note(text: str, reader: Reader = claude_reader) -> LetterReading:
+def read_note(text: str, reader: Reader = gemini_reader) -> LetterReading:
     """Sun Life's note text from an electronic answer, already in the PMS."""
-    return reader([{"type": "text", "text": f"Read this explanation-of-benefits note:\n\n{text}"}])
+    return reader([f"Read this explanation-of-benefits note:\n\n{text}"])

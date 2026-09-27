@@ -1,7 +1,7 @@
 """Read every sample letter in fixtures/letters/ with the real reader and check what it found.
 
 Guards the letter-upload demo: if a regenerated letter stops saying what it used to, or the prompt drifts, this
-fails before staff see it. Needs ANTHROPIC_API_KEY (it calls Claude, one request per letter).
+fails before staff see it. Needs GEMINI_API_KEY (it calls Gemini, one request per letter).
 Run: .venv/bin/python scripts/check-sample-letters.py
 """
 import sys
