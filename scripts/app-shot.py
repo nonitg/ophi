@@ -1,6 +1,6 @@
 """Screenshot one internal-app page quickly while iterating on the design.
 
-Usage: .venv/bin/python scripts/app-shot.py <url> <out.png> [--w=1440] [--h=900] [--full] [--dentist] [--scroll=selector]
+Usage: .venv/bin/python scripts/app-shot.py <url> <out.png> [--w=1440] [--h=900] [--full] [--dentist] [--scroll=selector] [--open=selector]
 Fails loudly on a non-200 response or on template errors, so a broken page never passes as a picture.
 """
 import sys
@@ -21,6 +21,8 @@ with sync_playwright() as p:
     if resp is None or resp.status != 200:
         sys.exit(f"{url}: HTTP {resp.status if resp else 'no response'}")
     page.evaluate("document.fonts.ready")
+    if "open" in opts:  # <details> panels are shut by default; a screenshot of the copy inside needs them open
+        page.eval_on_selector_all(opts["open"], "els => els.forEach(e => e.open = true)")
     if "scroll" in opts:
         page.locator(opts["scroll"]).first.scroll_into_view_if_needed()
     page.screenshot(path=out, full_page="full" in opts)

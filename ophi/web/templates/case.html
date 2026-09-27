@@ -119,7 +119,7 @@
     {% endfor %}
     {% if fx.dentist %}
     <div class="note"><b>For {{ provider }}</b>
-      {% for f in fx.dentist %}<p class="mt-6">{{ f.title }}.{% if f.concern == 'timing' %} Do this first, then send.{% elif f.concern == 'clinical' %} Clinical, so {{ provider }} decides.{% endif %}{% if f.kind == 'dentist' and not f.clause %} <span class="tag">Not in the rule pack yet</span>{% endif %}</p>{% endfor %}
+      {% for f in fx.dentist %}<p class="mt-6">{{ f.title }}.{% if f.concern == 'timing' %} Do this first, then send.{% elif f.concern == 'clinical' %} Clinical, so {{ provider }} decides.{% endif %}{% if f.clause %} {{ clause_chip(f.clause, pack) }}{% elif f.kind == 'dentist' %} <span class="tag">Not in the rule pack yet</span>{% endif %}</p>{% endfor %}
     </div>
     {% endif %}
     {% if steps|selectattr('key', 'equalto', 'criteria')|selectattr('state', 'equalto', 'open')|list %}<p class="now-foot">{{ provider }} can confirm the clinical criteria now, in parallel.</p>{% endif %}
@@ -386,7 +386,7 @@
     <dt>Dentist</dt><dd>{{ provider }}</dd>
     <dt>Born</dt><dd class="num">{{ full_date(case.patient.dob) }}</dd>
     <dt>CDCP ID</dt><dd class="num">{{ case.patient.cdcp_client_id or 'Not on file' }}</dd>
-    {% if a.deadlines %}<dt>Current until</dt><dd>{% for d in a.deadlines|sort(attribute='expires_on') %}<span class="kv-line">{{ sentence(d.label) }} <span class="muted num">{{ full_date(d.expires_on) }}</span></span>{% endfor %}</dd>{% endif %}
+    {% if a.deadlines %}<dt>Current until</dt><dd>{% for d in a.deadlines|sort(attribute='expires_on') %}<span class="kv-line">{{ plain_label(d.label) }} <span class="muted num">{{ full_date(d.expires_on) }}</span></span>{% endfor %}</dd>{% endif %}
   </dl>
   {% if activity %}
   <h2 class="side-h">Activity</h2>

@@ -95,7 +95,7 @@
   {% endif %}
   {% if a.deadlines %}
   <h2 class="side-h">Current until</h2>
-  <ul class="plain small">{% for d in a.deadlines|sort(attribute='expires_on') %}<li>{{ sentence(d.label) }} <span class="muted num">{{ full_date(d.expires_on) }}</span></li>{% endfor %}</ul>
+  <ul class="plain small">{% for d in a.deadlines|sort(attribute='expires_on') %}<li>{{ plain_label(d.label) }} <span class="muted num">{{ full_date(d.expires_on) }}</span></li>{% endfor %}</ul>
   {% endif %}
 </aside>
 </div>

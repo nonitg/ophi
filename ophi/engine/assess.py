@@ -99,7 +99,7 @@ def check_schedule(case: Case, pack: RulePack) -> ScheduleResult:
         return ScheduleResult(disposition="preauth_required", preauth_required=True,
                               detail=f"{code} is in Schedule B ({s.family_label}) on the {pack.jurisdiction.province} {pack.jurisdiction.provider_type.upper()} {pack.jurisdiction.grid_year} grid; preauthorization is always required.")
     if code.startswith(s.family_prefix):
-        return ScheduleResult(disposition="not_in_schedule_b", preauth_required=None,
+        return ScheduleResult(disposition="not_in_schedule_b", preauth_required=None, clause=s.clause,
                               detail=f"{code} is a {s.family_label.lower()} code but is not in the Schedule B crown list ({', '.join(s.preauth_always)}) on the {pack.jurisdiction.grid_year} grid. The grid is the authority: confirm the code before submitting.")
     return ScheduleResult(disposition="not_required", preauth_required=False,
                           detail=f"{code} is outside this pack's scope ({s.family_label}); no preauthorization rule in this pack applies.")

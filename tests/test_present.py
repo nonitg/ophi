@@ -8,8 +8,18 @@ import pytest
 
 from ophi.demo import seed
 from ophi.service import CaseService, Store
+from ophi.casegen.dsl import build_case
+from ophi.engine.assess import check_schedule
 from ophi.web import present
 from ophi.web.present import ACTORS
+
+
+def check_schedule_for(code: str, pack):
+    """How the pack's schedule reads one procedure code."""
+    from tests._cases import ready_dict
+    d = ready_dict()
+    d["treatment"]["code"] = code
+    return check_schedule(build_case(d, "inline"), pack)
 
 
 @pytest.fixture
@@ -97,8 +107,14 @@ def test_skipped_gaps_are_named_apart_from_the_documented_count(svc):
 
 def test_the_dentist_signs_in_under_the_name_the_pms_puts_on_the_chart(svc):
     assert present.actors("Dr. Terry Ackerman")["dentist"].name == "Dr. Terry Ackerman"
-    assert present.actors("Dr. Terry Ackerman")["dentist"].licence == ACTORS["dentist"].licence
+    assert present.actors(("Dr. Terry Ackerman", "ON-99999"))["dentist"].licence == "ON-99999"
+    assert present.actors("Dr. Terry Ackerman")["dentist"].licence is None  # a PMS export carries no licence
     assert present.actors(None) is ACTORS
+
+
+def test_the_clinic_name_for_the_dentist_needs_every_chart_to_agree(svc):
+    assert present.treating_provider(svc) == "Dr. Priya Lau"
+    assert present.case_provider(svc.base_case("singh")) == ("Dr. Priya Lau", "ON-48213")
 
 
 def test_risk_shows_two_levels_only_when_the_fixes_move_it():
@@ -109,3 +125,30 @@ def test_risk_shows_two_levels_only_when_the_fixes_move_it():
     assert present._levels(plan, [])["after"] is None
     same = {**plan, "after_fixes": {"level": "high"}}
     assert present._levels(same, open_fix)["after"] is None  # an arrow to the same word says nothing
+
+
+def test_why_text_says_the_rule_in_everyday_words_and_keeps_the_clause(svc):
+    """Staff read the gap, not the clause's own vocabulary; the cited wording stays on the row as a rule chip."""
+    v = svc.view("kowalchuk")
+    rows = {r["rid"]: r for r in present.fix_panel(v, None, v.pack, present.gap_rows(v))["rows"]}
+    pa = rows["radiograph_pa"]
+    assert "the X-ray that shows the whole tooth down to the root tip" in pa["why"]
+    assert "crown-to-root ratio" not in pa["why"] and "12-month bound" not in pa["why"]
+    assert "days past the 12 months Sun Life allows" in pa["why"]
+    assert pa["clause"].ref.startswith("Restorative services — PA+BW")
+
+
+def test_an_excluded_code_reads_plainly_and_cites_the_exclusion_list(svc):
+    """The one gap no paperwork closes: say so in a sentence, and cite the list the code is on."""
+    pack = svc.pack
+    sched = check_schedule_for("62501", pack)
+    assert sched.clause.ref == "Appendix E — Exclusions"
+    plain = present._plain_schedule(sched, "62501", pack)
+    assert plain.startswith("62501 is on Sun Life's exclusion list, under “Fixed prosthodontics")
+    assert "no paperwork changes it" in plain
+
+
+def test_a_crown_code_off_the_grid_cites_the_grid(svc):
+    sched = check_schedule_for("27215", svc.pack)
+    assert sched.clause.source == "grid"  # the list of codes needing preauthorization comes from Schedule B
+    assert "not one of the 3 crown codes" in present._plain_schedule(sched, "27215", svc.pack)

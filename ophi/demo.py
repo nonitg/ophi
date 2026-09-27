@@ -9,7 +9,7 @@ from datetime import date
 
 from ophi.packet.narrative import draft_narrative
 from ophi.service import CaseService
-from ophi.web.present import ACTORS, actors, treating_provider
+from ophi.web.present import ACTORS, actors, case_provider
 
 # (case, signed, sent to Sun Life, Sun Life's decision: (outcome, on, reason verbatim))
 TIMELINE = [
@@ -27,13 +27,14 @@ ABELDENT_SIGNED = [("abeldent_6", date(2026, 9, 24))]
 def seed(svc: CaseService) -> None:
     if svc.store.audit_log():
         return
-    dentist, coordinator = actors(treating_provider(svc))["dentist"], ACTORS["coordinator"]
+    coordinator = ACTORS["coordinator"]
     known = set(svc.case_ids())
     for case_id, signed, sent, decision in TIMELINE + [(cid, day, None, None) for cid, day in ABELDENT_SIGNED]:
         if case_id not in known:
             continue
         with svc.at(signed):
             v = svc.view(case_id)
+            dentist = actors(case_provider(v.case))["dentist"]  # each chart is signed by the dentist the PMS put on it
             if case_id.startswith("abeldent_"):  # a PMS chart carries no clinician answers: the dentist confirms them here
                 open_ = sorted({c for r in v.assessment.requirements if r.applicable for c in r.shortfall.missing_assertions})
                 svc.assert_many(case_id, [{"criterion_id": c, "value": "met"} for c in open_], dentist.name, dentist.licence, role=dentist.role)

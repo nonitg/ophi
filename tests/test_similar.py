@@ -1,4 +1,4 @@
-"""Past requests like a case, from Supabase: both of Sun Life's answers for a fix step, and the links on the case page."""
+"""The outcomes corpus behind a case: the clinic's denial rate for scoring, and no past outcomes on the step."""
 
 from __future__ import annotations
 
@@ -33,17 +33,6 @@ def _case(tmp_path, case_id: str = "kowalchuk"):
     return CaseService(store=Store(tmp_path / "state")).view(case_id).case
 
 
-def test_periapical_step_finds_both_answers_like_this_tooth_first(tmp_path, past):
-    case = _case(tmp_path)  # crown on #46, a molar
-    [like] = similar.for_steps(past, case, default_pack(), [["radiograph_pa"]])
-    assert like["approved"] and like["denied"] and like["n_resent"] and like["n_denied"]
-    assert like["approved"][0]["resent_then_approved"] and like["approved"][0]["outcome"] == "approved"
-    assert all(x["outcome"] == "denied" and not x["resent_then_approved"] for x in like["denied"])
-    assert like["denied"][0]["tooth"] == 46  # the same tooth outranks the rest
-    assert all(x["tooth"] % 10 in (6, 7, 8) for x in like["approved"][:1] + like["denied"])  # molars like #46 first
-    assert like["reasons"][0]["reason"] == "X-ray over 12 months old"  # #46 has a periapical, just an old one
-
-
 def test_clinic_denial_rate_for_a_clinic_with_past_requests(tmp_path, past, url):
     case = _case(tmp_path)
     assert similar.clinic_denial_rate(past, lambda: store.connect(url), case) is None  # the demo clinic has no past requests
@@ -60,20 +49,3 @@ def test_case_page_keeps_past_outcomes_off_the_step(tmp_path, past):
     app.state.past = past
     html = TestClient(app).get("/cases/kowalchuk").text
     assert "Past requests like this" not in html and "/past/PA-SYN-" not in html
-
-
-def test_counts_stay_corpus_wide_when_chips_are_scoped_to_one_clinic(tmp_path, past):
-    case = _case(tmp_path)
-    [every] = similar.for_steps(past, case, default_pack(), [["radiograph_pa"]])
-    clinic = every["denied"][0]
-    owner = next(r["clinic_id"] for r in past.rows() if r["preauth_id"] == clinic["id"])
-    [mine] = similar.for_steps(past, case, default_pack(), [["radiograph_pa"]], owner)
-    assert (mine["n_resent"], mine["n_approved"], mine["n_denied"]) == (every["n_resent"], every["n_approved"], every["n_denied"])
-    ids = {x["id"] for x in mine["approved"] + mine["denied"]}
-    assert ids and all(r["clinic_id"] == owner for r in past.rows() if r["preauth_id"] in ids)
-
-
-def test_a_clinic_with_no_past_requests_still_sees_the_counts(tmp_path, past):
-    case = _case(tmp_path)
-    [like] = similar.for_steps(past, case, default_pack(), [["radiograph_pa"]], "SYN-P-NOBODY")
-    assert like["n_denied"] and not like["approved"] and not like["denied"]

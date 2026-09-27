@@ -78,3 +78,15 @@ def test_a_note_answer_with_no_concern_is_never_named_as_a_driver():
     plan = plan_fixes(e.sent, e.submitted_on, PACK, NoisyDriver(endo_not_healed=0.03, extensively_restored=0.9), request_id=e.preauth_id)
     assert [d.feature for d in plan.drivers] == ["pa_age_days"]
     assert "root canal" not in plan.remaining
+
+
+def test_a_schedule_gap_cites_the_grid_not_a_requirement():
+    """'schedule' is no requirement, so the fix used to reach the dentist with no rule beside it."""
+    from ophi.engine.models import Action
+    from ophi.outcomes.fixer import _from_action
+
+    act = Action(rank=1, blocking=True, effort="clinical", action_type="excluded_code",
+                 title="Procedure code falls under a listed CDCP exclusion", why="…", unblocks=["schedule"])
+    clause = PACK.schedule.excluded_families[0].clause
+    fix = _from_action(act, EXAMPLES["PA-SYN-300010"], PACK, FakeScorer().note, clause)
+    assert fix.kind == "dentist" and fix.clause is clause

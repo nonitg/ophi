@@ -62,18 +62,25 @@ ACTORS: dict[str, Actor] = {
 DEFAULT_ACTOR = "coordinator"
 
 
-def actors(provider: str | None) -> dict[str, Actor]:
-    """Who can be signed in. The dentist is the clinic's treating provider under their own name, so the header,
+def actors(provider: tuple[str, str | None] | str | None) -> dict[str, Actor]:
+    """Who can be signed in. The dentist is the treating provider under their own name and licence, so the header,
     the criteria and the signature never disagree with the Dentist the PMS put on the chart."""
+    name, licence = provider if isinstance(provider, tuple) else (provider, None)
     d = ACTORS["dentist"]
-    return ACTORS if not provider or provider == d.name else {**ACTORS, "dentist": replace(d, name=provider)}
+    return ACTORS if not name or name == d.name else {**ACTORS, "dentist": replace(d, name=name, licence=licence)}
+
+
+def case_provider(case) -> tuple[str, str | None]:
+    """The dentist the PMS put on this chart, with the licence the chart carries (a PMS export often carries none)."""
+    p = case.treatment.provider
+    return p.name, p.licence
 
 
 def treating_provider(svc) -> str | None:
-    """The dentist the PMS names on the crown list. One provider runs it in this deployment, so the first chart
-    answers for the clinic."""
-    ids = svc.case_ids()
-    return svc.base_case(ids[0]).treatment.provider.name if ids else None
+    """The dentist the PMS names on the crown list, for the pages that are not about one case. A clinic with more
+    than one provider has no single answer, so those pages fall back to the clinic's default name."""
+    names = {svc.base_case(cid).treatment.provider.name for cid in svc.case_ids()}
+    return names.pop() if len(names) == 1 else None
 
 # --- labels ---------------------------------------------------------------------------------------
 
@@ -232,6 +239,106 @@ def _action_hint(view: CaseView, a: Action) -> str | None:
             return f"Last one {full_date(s.captured_at)}, {round(s.age_days / 30.44)} months old"
         if r.shortfall.incomplete and r.shortfall.incomplete.get("sites_per_tooth", 6) < 6:
             return f"{r.shortfall.incomplete['sites_per_tooth']}-point chart on file"
+    return None
+
+
+# --- plain words ----------------------------------------------------------------------------------
+# The engine and the rule pack write for an auditor: every gap cites its clause in the clause's own
+# vocabulary. Staff read the same gap on the worklist, so the page says it once in everyday words and
+# keeps the cited wording in the rule chip beside it. Sentence for sentence, nothing dropped.
+
+PLAIN_RULE: dict[str, str] = {
+    "tx_plan_details": "Sun Life asks for the treatment plan with a crown request: what has been done and what is still to do.",
+    "radiograph_pa": "A crown request needs a periapical — the X-ray that shows the whole tooth down to the root tip. It is the view the crown rules are measured on.",
+    "radiograph_bw": "A crown request needs bitewing X-rays of both sides, taken in the last 12 months.",
+    "perio_chart": "A crown request needs a gum chart from the last 12 months, with all six points measured on every tooth.",
+    "client_age": "These crown rules are for patients 18 and older.",
+    "tooth_eligibility": "The rules name which teeth can have a crown. Wisdom teeth count only in the one case they name.",
+    "frequency_tooth": "The grid allows one crown per tooth every 96 months — eight years. Sun Life treats a sooner one as an exception.",
+    "frequency_client": "The grid allows four crowns per patient every 120 months — ten years.",
+    "basic_treatment_complete": "Fillings and gum treatment come first: the Guide asks for them to be finished before a crown request.",
+    "restorability": "Four of these are measurements the dentist reads off the X-ray, and the rules ask for every one to be met.",
+    "extensively_restored": "How worn or filled a tooth has to be depends on which tooth it is. The dentist says which definition applies and whether this tooth meets it.",
+    "endo_healed": "A tooth that has had a root canal has to be healed before a crown is requested.",
+    "lab_codes_current": "Lab codes retired on Apr 1, 2026 do not hold for 2026 treatment dates. An old fee table in the PMS is a quiet cause of denials.",
+}
+
+# Sentences the engine or the pack writes the same way every time.
+PLAIN_PHRASE: dict[str, str] = {
+    "Proposed from the note text; the engine only counts evidence a human has confirmed.":
+        "Ophi read this in the clinical note. It counts once a person confirms the note really says it.",
+    "Absent and unseen are different conclusions.":
+        "Not finding one is not the same as one not being there.",
+    "Bitewings do not image the periapical region.":
+        "A bitewing stops at the gum line and never shows the root.",
+    "CDCP crown criteria require assessment of crown-to-root ratio and restoration margin relative to the alveolar crest — both require a periapical.":
+        "The crown rules are measured on the root and the bone around it, so they need a periapical.",
+    "; recency cannot be established (never inferred from the import date)":
+        ", so nothing shows how recent it is — Ophi never reads the import date as the day it was taken",
+    "; CDCP requires 6 measurements per tooth": "",
+    "; CDCP crown criteria apply to clients 18+": "",
+    "Client is ": "The patient is ",
+    "reported as Unknown by the source; frequency cannot be checked":
+        "could not be read from the PMS, so Ophi cannot check the crown limits",
+    "and the source cannot confirm the section is complete (Unknown)":
+        "and the imaging software could not confirm it had shown Ophi everything",
+    " on record but without a capture date": " is on file with no date on it",
+    "No BW radiographs (right and left) found": "No bitewings, right or left, are in the chart",
+    "left BW": "left bitewing",
+    "right BW": "right bitewing",
+    "It restates the chart's own entries and the documentation against each CDCP rule; the dentist edits and signs it.":
+        "It puts the chart's own entries against each rule in one paragraph. The dentist edits it and signs it.",
+    "This comes from the clinical note; the rule pack has no clause for it yet. The dentist decides.":
+        "This comes from the clinical note, and no rule in the pack covers it. The dentist decides.",
+    "Paperwork won't change this; the dentist decides.":
+        "No amount of paperwork changes this one. The dentist decides.",
+}
+
+_STALE = re.compile(r"is dated (\d{4}-\d{2}-\d{2}), \d+ days before submission \((\d+) days? past the 12-month bound\)")
+_PA_OF = re.compile(r"\bPA of #(\d+)")
+_SITES = re.compile(r"records (\d) sites per tooth")
+_LIMIT = re.compile(r"; limit is \d+ per \d+ months")
+_ISO_DAY = re.compile(r"\b(\d{4})-(\d{2})-(\d{2})\b")
+
+
+def plain_why(why: str, rid: str | None, view: CaseView, pack: RulePack) -> str:
+    """One gap's reason as a person would say it. The cited wording still travels with the case: it is in the
+    rule chip beside the reason, and in the packet."""
+    if rid == "schedule":
+        return _plain_schedule(view.assessment.schedule, view.case.treatment.code, pack) or why
+    req = pack.requirement(rid) if rid else None
+    if req and req.gap.why and req.gap.why in why:
+        why = why.replace(req.gap.why, PLAIN_RULE.get(rid, req.gap.why))
+    return _plainer(why)
+
+
+def plain_label(label: str) -> str:
+    """An evidence label as staff say it: the engine writes 'PA of #37' and 'left BW'."""
+    return _plainer(label)
+
+
+def _plainer(text: str) -> str:
+    """The engine's stock phrases, abbreviations and ISO dates, swapped for the words staff use."""
+    for exact, plain in PLAIN_PHRASE.items():
+        text = text.replace(exact, plain)
+    text = _STALE.sub(lambda m: f"was taken {full_date(date.fromisoformat(m[1]))}, {m[2]} days past the 12 months Sun Life allows", text)
+    text = _PA_OF.sub(r"periapical of #\1", text)
+    text = _SITES.sub(r"has only \1 of the six points measured on each tooth", text)
+    text = _LIMIT.sub("", text)
+    return sentence(_ISO_DAY.sub(lambda m: full_date(date.fromisoformat(m[0])), text))
+
+
+def _plain_schedule(sched, code: str, pack: RulePack) -> str | None:
+    """The two schedule gaps: a code on the exclusion list, and a crown code the grid does not list."""
+    s = pack.schedule
+    if sched.disposition == "excluded":
+        fam = next((f for f in s.excluded_families if code.startswith(f.prefix)), None)
+        return (f"{code} is on Sun Life's exclusion list, under “{fam.label}”. " if fam else f"{code} is on Sun Life's exclusion list. ") + \
+            "Sun Life does not reconsider a code on that list, so no paperwork changes it."
+    if sched.disposition == "not_in_schedule_b":
+        return (f"{code} is a crown code, but it is not one of the {len(s.preauth_always)} crown codes on the "
+                f"{pack.jurisdiction.grid_year} {pack.jurisdiction.province} grid ({', '.join(s.preauth_always)}). "
+                "The grid is the authority here, so check the code before this goes out.")
     return None
 
 
@@ -405,14 +512,10 @@ def _item(view: CaseView, pack: RulePack, gap: dict | None, fix: dict | None, ef
     auto = rid in fixes.open_on(view.assessment)
     title = fixes.title(view.case, rid, pack) if auto else gap["title"] if gap else fix["title"]
     req = view.assessment.requirement(rid) if rid else None
+    sched = view.assessment.schedule
     return {"title": title, "rid": rid, "auto": auto, "effect": effect, "gap": gap, "chair": bool(gap and gap["chair"]), "concern": (fix or {}).get("concern"),
-            "why": (fix or {}).get("why") or (act.why if act else ""),
-            "clause": (fix or {}).get("clause") or (req.clause if req else None)}
-
-
-def row_requirements(row: dict) -> list[str]:
-    """The requirement ids a fix-panel row settles, to find past requests Sun Life decided on the same gap."""
-    return list(row["gap"]["action"].unblocks) if row["gap"] else [row["rid"]] if row["rid"] else []
+            "why": plain_why((fix or {}).get("why") or (act.why if act else ""), rid, view, pack),
+            "clause": (fix or {}).get("clause") or (req.clause if req else None) or (sched.clause if rid == "schedule" else None)}
 
 
 def dentist_panel(view: CaseView, readout: Readout | None) -> dict | None:

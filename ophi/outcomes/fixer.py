@@ -157,7 +157,7 @@ def with_fixes(e: Example, fixes: list[Fix]) -> Example:
 def candidate_fixes(e: Example, a: Assessment, pack: RulePack, note: dict[str, float]) -> list[Fix]:
     """One fix per engine action, shaped by Laya's reading where the dentist confirms a criterion; plus a
     narrative draft when none was sent, and a dentist item for an indication the pack has no clause for."""
-    fixes = [_from_action(act, e, pack, note) for act in a.actions if act.unblocks[0] not in NOT_IN_EXPORTS]
+    fixes = [_from_action(act, e, pack, note, a.schedule.clause) for act in a.actions if act.unblocks[0] not in NOT_IN_EXPORTS]
     if not e.sent["narrative"]:
         fixes.append(Fix(id="narrative", kind="draft", who="dentist", title="Add a narrative for the dentist to approve",
                          why="It restates the chart's own entries and the documentation against each CDCP rule; the dentist edits and signs it.",
@@ -169,10 +169,11 @@ def candidate_fixes(e: Example, a: Assessment, pack: RulePack, note: dict[str, f
     return fixes
 
 
-def _from_action(act: Action, e: Example, pack: RulePack, note: dict[str, float]) -> Fix:
+def _from_action(act: Action, e: Example, pack: RulePack, note: dict[str, float], sched_clause: Clause | None = None) -> Fix:
     rid = act.unblocks[0]
     req = pack.requirement(rid) if rid != "schedule" else None
-    base = {"id": rid, "requirement_id": rid if req else None, "clause": req.clause if req else None, "title": act.title, "why": act.why}
+    clause = req.clause if req else sched_clause  # a schedule gap cites the grid or the exclusion list, not a requirement
+    base = {"id": rid, "requirement_id": rid if req else None, "clause": clause, "title": act.title, "why": act.why}
     s, as_of, tooth = e.sent, str(e.submitted_on), int(e.sent["services"][0]["tooth"])
     if rid == "lab_codes_current":
         swap = {r.code: r.replaced_by for r in pack.schedule.retired_codes}

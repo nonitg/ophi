@@ -185,6 +185,7 @@ class ExcludedFamily(BaseModel):
 class Schedule(BaseModel):
     service_category: str
     preauth_always: list[str]
+    clause: Clause | None = None  # where the preauth code list itself comes from
     family_prefix: str
     family_label: str
     excluded_families: list[ExcludedFamily] = Field(default_factory=list)

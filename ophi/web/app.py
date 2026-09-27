@@ -51,7 +51,7 @@ STATIC_V = max(int(p.stat().st_mtime) for p in (HERE / "static").rglob("*") if p
 templates = Jinja2Templates(directory=str(HERE / "templates"))
 templates.env.globals.update(
     STATIC_V=STATIC_V, money=present.money, short_date=present.short_date, long_date=present.long_date,
-    full_date=present.full_date, day_heading=present.day_heading, sentence=present.sentence, local_time=present.local_time, days_until=present.days_until, in_days=present.in_days, plural=present.plural,
+    full_date=present.full_date, day_heading=present.day_heading, sentence=present.sentence, plain_label=present.plain_label, local_time=present.local_time, days_until=present.days_until, in_days=present.in_days, plural=present.plural,
     tooth_name=present.tooth_name, source_title=present.source_title, kb=present.kb, requirement_detail=present.requirement_detail, action_title=present.action_title,
     who_tag=present.who_tag, initials=present.initials, skipped_note=present.skipped_note, VERDICT_LABEL=present.VERDICT_LABEL, VERDICT_CLASS=present.VERDICT_CLASS,
     STATUS_LABEL=present.STATUS_LABEL, STATUS_CLASS=present.STATUS_CLASS, STATUS_NA=Status.NOT_APPLICABLE,
@@ -127,17 +127,28 @@ def _known_readout(request: Request, case) -> readout.Readout | None:
     return (live.cached(case) if live else None) or readout.load(case.case_id)
 
 
-def _actors(request: Request) -> dict[str, Actor]:
-    """The people who can be signed in, with the dentist named as the PMS names them. Resolved once: a clinic's
-    provider does not change between page loads."""
+def _actors_for(case) -> dict[str, Actor]:
+    """Signed in against one chart: the dentist is the one the PMS put on it."""
+    return present.actors(present.case_provider(case))
+
+
+def _actors(request: Request, case_id: str | None = None) -> dict[str, Actor]:
+    """The people who can be signed in. The dentist is the one the PMS put on the chart in hand, so the header, the
+    criteria and the signature never name a dentist other than this case's. Away from a case, the clinic's name for
+    the dentist, when its charts agree on one."""
     app = request.app
+    if case_id is not None:
+        try:
+            return _actors_for(app.state.svc.base_case(case_id))
+        except (FileNotFoundError, KeyError):
+            pass
     if app.state.provider is None:
         app.state.provider = present.treating_provider(app.state.svc) or ""
     return present.actors(app.state.provider)
 
 
-def _actor(request: Request) -> Actor:
-    a = _actors(request)
+def _actor(request: Request, case_id: str | None = None) -> Actor:
+    a = _actors(request, case_id)
     return a.get(request.cookies.get("actor", ""), a[DEFAULT_ACTOR])
 
 
@@ -147,7 +158,8 @@ def _render(request: Request, name: str, status: int = 200, **ctx) -> HTMLRespon
         auto.maybe_start(request.app.state.rules_env)
     base = _base(request)
     ctx.setdefault("pack", ctx["view"].pack if "view" in ctx else svc.pack)  # a case's pages cite its own pack
-    ctx.update(actor=_actor(request), ACTORS=_actors(request), request=request, today=svc.today(),
+    acts = _actors_for(ctx["view"].case) if "view" in ctx else _actors(request)
+    ctx.update(actor=acts.get(request.cookies.get("actor", ""), acts[DEFAULT_ACTOR]), ACTORS=acts, request=request, today=svc.today(),
                done=DONE_MESSAGES.get(request.query_params.get("done", "")),
                BASE=base, HOME=_home(request), here=request.url.path.removeprefix(base) or "/")
     return templates.TemplateResponse(request, name, ctx, status_code=status)
@@ -270,7 +282,7 @@ def _case_page(request: Request, case_id: str, **extra):
     view = _view(request, case_id)
     if view is None:
         return _error(request, 404, "Case not found", f"No case '{case_id}' in the demo set.")
-    svc, actor, today = _svc(request), _actor(request), _svc(request).today()
+    svc, actor, today = _svc(request), _actor(request, case_id), _svc(request).today()
     live = request.app.state.live
     rd, gaps = live.latest(view.case) if live else readout.load(case_id), present.gap_rows(view)
     relevant, other = present.assertion_rows(view, view.pack, present.pre_reads_for(view, view.pack, rd))
@@ -278,11 +290,6 @@ def _case_page(request: Request, case_id: str, **extra):
     now = present.now_step(steps, actor)
     timing = present.timing(view, today)
     fx = present.fix_panel(view, rd, view.pack, gaps) if view.stage in workflow.CHART_STAGES else None
-    if fx:  # past requests Sun Life decided on the same gap, under each step's Why
-        found = similar.for_steps(request.app.state.past, view.case, view.pack, [present.row_requirements(r) for r in fx["rows"]],
-                                  request.app.state.clinic)
-        for r, like in zip(fx["rows"], found):
-            r["past"] = like
     ml = present.ml_debug(view, rd)
     log.info(present.ml_report(ml))
     return _render(request, "case.html", view=view, case=view.case, a=view.assessment, stage=view.stage,
@@ -303,7 +310,7 @@ def _case_page(request: Request, case_id: str, **extra):
 def assert_criterion(request: Request, case_id: str, criterion_id: str = Form(...), value: str = Form(...), note: str = Form("")):
     if (denied := _dentist_only(request, "Clinical criteria are the treating dentist's judgment.")) is not None:
         return denied
-    actor = _actor(request)
+    actor = _actor(request, case_id)
     try:
         _svc(request).assert_criterion(case_id, criterion_id, value, actor.name, actor.licence, note.strip() or None, role=actor.role)
     except (KeyError, ValueError) as e:
@@ -350,7 +357,7 @@ def decide_proposal(request: Request, case_id: str, artifact_id: str, decision: 
     if view is None or not any(p.artifact_id == artifact_id for p in view.proposals):
         return _error(request, 404, "Chart note not found", f"No proposed evidence '{artifact_id}' on this case.")
     try:
-        _svc(request).confirm_proposal(case_id, artifact_id, decision, _actor(request).name)
+        _svc(request).confirm_proposal(case_id, artifact_id, decision, _actor(request, case_id).name)
     except ValueError as e:
         return _error(request, 400, "Invalid decision", str(e))
     except PermissionError as e:
@@ -382,7 +389,7 @@ def mark_submitted(request: Request, case_id: str, on: str = Form("")):
     if _view(request, case_id) is None:
         return _error(request, 404, "Case not found", f"No case '{case_id}' in the demo set.")
     try:
-        _svc(request).mark_submitted(case_id, _actor(request).name, _form_date(on))
+        _svc(request).mark_submitted(case_id, _actor(request, case_id).name, _form_date(on))
     except PermissionError as e:
         return _error(request, 409, "Can't mark it sent", str(e).capitalize() + ".")
     except ValueError as e:
@@ -414,7 +421,7 @@ def record_decision(request: Request, case_id: str, outcome: str = Form(""), dec
     if on is None or outcome not in ("approved", "denied"):
         return _error(request, 400, "Decision incomplete", "Choose Sun Life's decision and the date on it.")
     try:
-        _svc(request).record_decision(case_id, outcome, on, _form_text(reason), _actor(request).name,
+        _svc(request).record_decision(case_id, outcome, on, _form_text(reason), _actor(request, case_id).name,
                                       reason_key=reason_key if outcome == "denied" and reason_key else None)
     except PermissionError as e:
         return _error(request, 409, "Not waiting on Sun Life", str(e).capitalize() + ".")
@@ -426,7 +433,7 @@ def record_decision(request: Request, case_id: str, outcome: str = Form(""), dec
 @router.post("/cases/{case_id}/resubmit")
 def start_resubmission(request: Request, case_id: str, reason_key: str = Form("")):
     try:
-        _svc(request).start_resubmission(case_id, _actor(request).name, reason_key or None)
+        _svc(request).start_resubmission(case_id, _actor(request, case_id).name, reason_key or None)
     except PermissionError as e:
         return _error(request, 409, "Nothing to resubmit", str(e).capitalize() + ".")
     except ValueError as e:
@@ -437,7 +444,7 @@ def start_resubmission(request: Request, case_id: str, reason_key: str = Form(""
 @router.post("/cases/{case_id}/ask/done")
 def resolve_ask(request: Request, case_id: str):
     try:
-        _svc(request).resolve_ask(case_id, _actor(request).name)
+        _svc(request).resolve_ask(case_id, _actor(request, case_id).name)
     except PermissionError as e:
         return _error(request, 409, "Nothing open", str(e).capitalize() + ".")
     return _done(request, f"/cases/{case_id}", "asked")
@@ -452,7 +459,7 @@ def mark_booked(request: Request, case_id: str, on: str = Form("")):
     if day is None:
         return _error(request, 400, "Date needed", "Enter the date of the crown appointment.")
     try:
-        _svc(request).mark_booked(case_id, day, _actor(request).name)
+        _svc(request).mark_booked(case_id, day, _actor(request, case_id).name)
     except PermissionError as e:
         return _error(request, 409, "Sun Life's decision isn't recorded", str(e).capitalize() + ".")
     except ValueError as e:
@@ -463,7 +470,7 @@ def mark_booked(request: Request, case_id: str, on: str = Form("")):
 @router.post("/cases/{case_id}/test-skip")
 def test_skip(request: Request, case_id: str):
     try:
-        _svc(request).skip_gaps(case_id, _actor(request).name)
+        _svc(request).skip_gaps(case_id, _actor(request, case_id).name)
     except FileNotFoundError:
         return _error(request, 404, "Case not found", f"No case '{case_id}' in the demo set.")
     except PermissionError as e:
@@ -476,7 +483,7 @@ def capture(request: Request, case_id: str, requirement_id: str = Form(""), back
     """Demo: a clinician took a chair gap; the case moves on by itself once the chart shows it."""
     svc = _svc(request)
     try:
-        svc.record_capture(case_id, requirement_id, _actor(request).name)
+        svc.record_capture(case_id, requirement_id, _actor(request, case_id).name)
     except FileNotFoundError:
         return _error(request, 404, "Case not found", f"No case '{case_id}' in the demo set.")
     except PermissionError as e:
@@ -488,7 +495,7 @@ def capture(request: Request, case_id: str, requirement_id: str = Form(""), back
 @router.post("/cases/{case_id}/test-restore")
 def test_restore(request: Request, case_id: str):
     try:
-        _svc(request).restore_gaps(case_id, _actor(request).name)
+        _svc(request).restore_gaps(case_id, _actor(request, case_id).name)
     except PermissionError as e:
         return _error(request, 409, "Can't restore the gaps", str(e).capitalize() + ".")
     return _done(request, f"/cases/{case_id}", "restored")
@@ -497,7 +504,7 @@ def test_restore(request: Request, case_id: str):
 @router.post("/cases/{case_id}/undo")
 def undo(request: Request, case_id: str, step: str = Form("")):
     try:
-        _svc(request).undo(case_id, step, _actor(request).name)
+        _svc(request).undo(case_id, step, _actor(request, case_id).name)
     except PermissionError as e:
         return _error(request, 409, "Can't take that back", str(e).capitalize() + ".")
     return _done(request, f"/cases/{case_id}", "undone")
@@ -514,7 +521,7 @@ def packet(request: Request, case_id: str):
     svc = _svc(request)
     narrative = _narrative(view, view.pack)
     pk = _build_packet(request, view, narrative)
-    nxt = present.next_up(svc.queue(), view, _actor(request), svc.today())
+    nxt = present.next_up(svc.queue(), view, _actor(request, case_id), svc.today())
     return _render(request, "packet.html", view=view, case=view.case, a=view.assessment, narrative=narrative, pk=pk,
                    can_sign=view.assessment.verdict in READY_VERDICTS, stage=view.stage, next_case=nxt,
                    blocking=[x for x in view.assessment.actions if x.blocking])
@@ -544,7 +551,7 @@ def packet_download(request: Request, case_id: str):
         for f in sorted(pk["dir"].rglob("*")):
             if f.is_file():
                 z.write(f, f.relative_to(pk["dir"]).as_posix())
-    svc.audit(case_id, _actor(request).name, "download_packet", f"{buf.tell()} bytes")
+    svc.audit(case_id, _actor(request, case_id).name, "download_packet", f"{buf.tell()} bytes")
     return Response(buf.getvalue(), media_type="application/zip",
                     headers={"Content-Disposition": f'attachment; filename="ophi-packet-{case_id}.zip"'})
 
@@ -552,7 +559,7 @@ def packet_download(request: Request, case_id: str):
 @router.post("/cases/{case_id}/narrative")
 def save_narrative(request: Request, case_id: str, narrative: str = Form("")):
     try:
-        _svc(request).save_narrative(case_id, _form_text(narrative), _actor(request).name)
+        _svc(request).save_narrative(case_id, _form_text(narrative), _actor(request, case_id).name)
     except NarrativeInvalid as e:
         return _narrative_error(request, e)
     except PermissionError as e:
@@ -570,7 +577,7 @@ def _narrative_error(request: Request, e: NarrativeInvalid) -> HTMLResponse:
 def sign_off(request: Request, case_id: str, narrative: str = Form("")):
     if (denied := _dentist_only(request, "Sign-off is the treating dentist's attestation.")) is not None:
         return denied
-    actor = _actor(request)
+    actor = _actor(request, case_id)
     try:
         _svc(request).sign_off(case_id, actor.name, actor.licence, _form_text(narrative), role=actor.role)
     except NarrativeInvalid as e:

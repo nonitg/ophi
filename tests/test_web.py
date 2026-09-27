@@ -370,3 +370,26 @@ def test_case_page_carries_ml_output_for_console(client):
     assert m["shown"] == "as_charted"
     shown = next(p for p in m["plans"] if p["matches_chart"])
     assert shown["note_answers"] and shown["drivers"] and shown["now"]["score"] > 0
+
+
+def test_a_case_page_names_the_dentist_on_that_chart(tmp_path):
+    """A clinic with two dentists: the header, the steps and the dentist's note all name this chart's dentist,
+    not whoever happens to be first on the board."""
+    import shutil
+    from pathlib import Path
+
+    cases = tmp_path / "cases"
+    cases.mkdir()
+    for name in ("kowalchuk", "singh"):
+        shutil.copy(Path("cases/demo") / f"{name}.yaml", cases / f"{name}.yaml")
+    other = cases / "singh.yaml"
+    other.write_text(other.read_text().replace('name: "Dr. Priya Lau", licence: "ON-48213"',
+                                               'name: "Dr. Omar Reyes", licence: "ON-77001"'))
+    svc = CaseService(store=Store(tmp_path / "state"), cases_dir=cases)
+    app = create_app(auto_rules_check=False, svc=svc, packets_dir=tmp_path / "packets")
+    client = TestClient(app, follow_redirects=False)
+    header = lambda path: re.search(r'<header class="bar">.*?</header>', client.get(path).text, re.S).group(0)
+    assert "Dr. Omar Reyes" in header("/cases/singh") and "Dr. Priya Lau" not in header("/cases/singh")
+    assert "Dr. Priya Lau" in header("/cases/kowalchuk")
+    page = client.get("/cases/singh").text
+    assert re.search(r'Dentist review</span>\s*<span class="stp-who">Dr\. Omar Reyes</span>', page)  # the step's owner

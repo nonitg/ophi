@@ -36,6 +36,7 @@ schedule:
   service_category: restorative
   # Schedule B crown codes on the ON GPSP 2026 grid. Preauthorization always required.
   preauth_always: ["27201", "27211", "27301"]
+  clause: { source: grid, ref: "Schedule B — 2.0 Restoration, crowns", quote: "27201, 27211, 27301 — preauthorization required" }
   # Codes in this family that are NOT listed above are not in the Schedule B crown list; the grid is
   # the authority, so the engine asks a human to confirm rather than deciding.
   family_prefix: "27"
