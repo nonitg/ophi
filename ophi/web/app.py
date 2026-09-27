@@ -436,6 +436,26 @@ def record_decision(request: Request, case_id: str, outcome: str = Form(""), dec
     return _done(request, f"/cases/{case_id}", "decision")
 
 
+@router.post("/cases/{case_id}/reason", response_class=HTMLResponse)
+async def read_reason(request: Request, case_id: str, letter: UploadFile | None = File(None), text: str = Form("")):
+    """Name the denial reason from Sun Life's own letter or message, so staff don't classify it themselves."""
+    if _view(request, case_id) is None:
+        return _error(request, 404, "Case not found", f"No case '{case_id}' in the demo set.")
+    data = await letter.read() if letter is not None else b""
+    body = _form_text(text)
+    if not data and not body:
+        return _case_page(request, case_id, reason_error="Upload Sun Life's letter or paste its message first.")
+    try:
+        if data:
+            reading = await asyncio.to_thread(letters.read_letter, data, letter.content_type or "")
+        else:
+            reading = await asyncio.to_thread(letters.read_note, body)
+    except letters.LetterError as e:
+        return _case_page(request, case_id, reason_error=str(e))
+    _svc(request).audit(case_id, _actor(request).name, "read_reason", reading.reason_key or "no reason named")
+    return _case_page(request, case_id, proposed=reading)
+
+
 @router.post("/cases/{case_id}/resubmit")
 def start_resubmission(request: Request, case_id: str, reason_key: str = Form("")):
     try:
@@ -824,9 +844,11 @@ def create_app(svc: CaseService | None = None, packets_dir: Path | None = None, 
     base = (os.environ.get("OPHI_BASE_PATH", "") if base_path is None else base_path).rstrip("/")
     own = svc is None
     svc = svc or db_store.service_from_env(weights=load_weights()) or CaseService(weights=load_weights())
+    if svc.note_reader is None:  # every denial is classified from Sun Life's words, in the demo set as in the clinic
+        svc.note_reader = _note_reason
     if isinstance(svc.repository, AbelDentPmsRepository) and svc.pms_claims is None:  # cases from the VM: so are their claims
         pms = svc.repository
-        svc.pms_claims, svc.note_reader = (lambda: abeldent.list_predeterminations(pms.sql)), _note_reason
+        svc.pms_claims = lambda: abeldent.list_predeterminations(pms.sql)
         svc.lookback_report = PmsLookBack(pms).report  # the live clinic's own past, in place of the saved rows
     if live_ml is None:
         live_ml = (own and not base
