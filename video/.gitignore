@@ -1,0 +1,13 @@
+node_modules/
+tools/**/node_modules/
+# Renders and check outputs (multi-GB): re-render with `npx remotion render` (see docs/pitch/)
+out/
+# Scratch and superseded assets
+audition/
+sfx-synth/
+music-v1/
+# Regenerable: scripts/video-tooth-capture.py rebuilds the turntable in about 8 s
+public/tooth/
+# Regenerable: scripts/video-audio-prep.sh derives the wavs from the .mp3 cues
+public/music/*.wav
+.DS_Store

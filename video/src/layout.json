@@ -1,0 +1,82 @@
+{
+  "_doc": "Single source of section timing (seconds). Read by src/vo.ts, src/timeline.ts and scripts/video-*.{py,sh}.",
+  "runtime": 300,
+  "order": [
+    "cold",
+    "patient",
+    "problem",
+    "demo",
+    "value",
+    "market",
+    "vision",
+    "team",
+    "close",
+    "end"
+  ],
+  "founder": {
+    "team": 35,
+    "close": 10
+  },
+  "narration": {
+    "cold": {
+      "lead": 0.8,
+      "gaps": [
+        0.4
+      ],
+      "tail": 0.6
+    },
+    "patient": {
+      "lead": 0.2,
+      "gaps": [
+        0.3
+      ],
+      "tail": 0.3
+    },
+    "problem": {
+      "lead": 0.2,
+      "gaps": [
+        0.2,
+        0.6
+      ],
+      "tail": 0.7
+    },
+    "demo": {
+      "lead": 0.5,
+      "gaps": [
+        0.1,
+        0.1,
+        0.1,
+        0.1,
+        0.1,
+        0.15,
+        0.2,
+        0.15,
+        0.15
+      ],
+      "tail": 0.4
+    },
+    "value": {
+      "lead": 0.3,
+      "gaps": [
+        0.25,
+        0.3,
+        0.25
+      ],
+      "tail": 0.5
+    },
+    "market": {
+      "lead": 0.3,
+      "gaps": [],
+      "tail": 0.5
+    },
+    "vision": {
+      "lead": 0.5,
+      "gaps": [
+        0.4,
+        0.4,
+        0.4
+      ],
+      "tail": 3.0
+    }
+  }
+}

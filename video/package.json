@@ -1,0 +1,30 @@
+{
+  "name": "ophi-pitch-video",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Ophi AF Hacks pitch video (Remotion)",
+  "scripts": {
+    "studio": "remotion studio src/index.ts",
+    "render": "remotion render src/index.ts Pitch out/ophi-pitch.mp4",
+    "still": "remotion still src/index.ts"
+  },
+  "dependencies": {
+    "@remotion/bundler": "^4.0.529",
+    "@remotion/cli": "^4.0.529",
+    "@remotion/google-fonts": "^4.0.529",
+    "@remotion/layout-utils": "^4.0.529",
+    "@remotion/media-utils": "^4.0.529",
+    "@remotion/noise": "^4.0.529",
+    "@remotion/paths": "^4.0.529",
+    "@remotion/renderer": "^4.0.529",
+    "@remotion/shapes": "^4.0.529",
+    "@remotion/transitions": "^4.0.529",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "remotion": "^4.0.529"
+  },
+  "devDependencies": {
+    "@types/react": "^19.3.0",
+    "typescript": "^7.0.2"
+  }
+}
