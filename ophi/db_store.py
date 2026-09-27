@@ -84,7 +84,8 @@ class SupabaseStore(Store):
     def reset(self) -> None:
         """Start the demo over: clear workflow state; the patients' charts stay."""
         with self._db() as conn:
-            conn.execute("truncate app.case_state, app.followup, app.audit_event")
+            for t in ("case_state", "followup", "audit_event"):  # delete, not truncate: the app role is granted DML only
+                conn.execute(f"delete from app.{t}")
         shutil.rmtree(self.root / "packets", ignore_errors=True)
 
 
