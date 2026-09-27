@@ -9,5 +9,6 @@ DELETE FROM Charts WHERE Date = @at;
 DELETE FROM Plans WHERE Date = @at;
 DELETE FROM ixi WHERE ixiplanid = 'CDCP';
 DELETE FROM nsp WHERE nid = 'CDCP';
+DELETE FROM apt WHERE aduedate = @at;
 COMMIT;
 SELECT (SELECT COUNT(*) FROM Transactions WHERE DatePosted = @at) + (SELECT COUNT(*) FROM Perio WHERE Date = @at) AS rows_left;

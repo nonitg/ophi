@@ -21,7 +21,7 @@ TIMELINE = [
 ]
 # ABELDent mode (scripts/demo-abeldent.sh): the dentist has confirmed the criteria and signed, so the case is Ready to
 # send. Sending, and Sun Life's answers, come from ABELDent itself (lab/fixtures/*.sql).
-ABELDENT_SIGNED = [("abeldent_7", date(2026, 9, 24))]
+ABELDENT_SIGNED = [("abeldent_6", date(2026, 9, 24))]
 
 
 def seed(svc: CaseService) -> None:
