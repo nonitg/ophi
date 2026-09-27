@@ -139,7 +139,8 @@ def _render(request: Request, name: str, status: int = 200, **ctx) -> HTMLRespon
     ctx.setdefault("pack", ctx["view"].pack if "view" in ctx else svc.pack)  # a case's pages cite its own pack
     ctx.update(actor=_actor(request), request=request, today=svc.today(),
                done=DONE_MESSAGES.get(request.query_params.get("done", "")),
-               BASE=base, HOME=_home(request), here=request.url.path.removeprefix(base) or "/")
+               BASE=base, HOME=_home(request), here=request.url.path.removeprefix(base) or "/",
+               pms_live=isinstance(svc.repository, AbelDentPmsRepository))
     return templates.TemplateResponse(request, name, ctx, status_code=status)
 
 
@@ -262,7 +263,7 @@ def _case_page(request: Request, case_id: str, **extra):
         return _error(request, 404, "Case not found", f"No case '{case_id}' in the demo set.")
     svc, actor, today = _svc(request), _actor(request), _svc(request).today()
     live = request.app.state.live
-    rd, gaps = live.score(view.case) if live else readout.load(case_id), present.gap_rows(view)
+    rd, gaps = live.latest(view.case) if live else readout.load(case_id), present.gap_rows(view)
     relevant, other = present.assertion_rows(view, view.pack, present.pre_reads_for(view, view.pack, rd))
     steps = present.case_steps(view)
     now = present.now_step(steps, actor)
@@ -746,6 +747,16 @@ def reset(request: Request):
     return RedirectResponse(_home(request), status_code=303)
 
 
+@router.post("/refresh")
+def refresh(request: Request):
+    """Pull charts and Sun Life's answers from ABELDent now. ML reruns only for charts whose text changed."""
+    repo = request.app.state.svc.repository
+    if isinstance(repo, AbelDentPmsRepository):
+        repo.refresh()
+    request.app.state.pms_synced_at = float("-inf")
+    return _back(request, _home(request))
+
+
 # --- api & actor ---------------------------------------------------------------------------------------
 
 
@@ -783,8 +794,8 @@ def create_app(svc: CaseService | None = None, packets_dir: Path | None = None, 
     base = (os.environ.get("OPHI_BASE_PATH", "") if base_path is None else base_path).rstrip("/")
     own = svc is None
     svc = svc or db_store.service_from_env(weights=load_weights()) or CaseService(weights=load_weights())
-    if own and not base and os.environ.get("OPHI_ABELDENT") == "1":  # lab: read sent requests from the ABELDent VM
-        pms = AbelDentPmsRepository()
+    if isinstance(svc.repository, AbelDentPmsRepository) and svc.pms_claims is None:  # cases from the VM: so are their claims
+        pms = svc.repository
         svc.pms_claims, svc.note_reader = (lambda: abeldent.list_predeterminations(pms.sql)), _note_reason
     live = LiveScorer(svc.pack_for) if (own and not base if live_ml is None else live_ml) else None
     past = past_store.Cached(store.connect)  # lazy: no database is touched until a page reads past requests

@@ -2,7 +2,7 @@
 PY := .venv/bin/python
 PIP := .venv/bin/pip
 
-.PHONY: setup setup-ml laya-train fix-plan laya-ask test eval demo demo-real demo-mock assess packet verify reset
+.PHONY: setup setup-ml laya-train fix-plan laya-ask test eval demo demo-real demo-mock demo-abeldent assess packet verify reset
 
 setup:            ## create venv, install package + dev deps
 	python3 -m venv .venv
@@ -44,6 +44,9 @@ demo-real:        ## run the web app with real filesystem cases (USE_MOCK_PMS_AP
 
 demo-mock:        ## run the web app with dummy mock fixtures (USE_MOCK_PMS_API=true)
 	USE_MOCK_PMS_API=true $(PY) -m ophi.cli serve
+
+demo-abeldent:    ## run the web app on live ABELDent VM data (USE_ABELDENT_PMS=true)
+	./scripts/demo-abeldent.sh
 
 reset:            ## wipe demo state (assertions, sign-offs, audit log)
 	rm -rf var/

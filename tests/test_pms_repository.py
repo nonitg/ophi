@@ -66,10 +66,18 @@ def test_filesystem_fetch_raw_not_implemented():
         repo.fetch_raw([1])
 
 
-def test_abeldent_list_case_ids_not_implemented():
+def test_abeldent_cases_are_the_planned_crowns_from_its_charts(monkeypatch):
+    """A saved Fictional Data chart stands in for the VM: pid 158 plans a filling first, then a crown on #24."""
+    import json
+    from pathlib import Path
+    chart = json.loads((Path(__file__).parents[1] / "fixtures/abeldent/fictional/158.json").read_text())
     repo = AbelDentPmsRepository()
-    with pytest.raises(NotImplementedError):
-        repo.list_case_ids()
+    monkeypatch.setattr(repo, "planned_patient_ids", lambda: [158])
+    monkeypatch.setattr(repo, "fetch_patient_charts", lambda pids: {158: chart})
+    monkeypatch.setattr(repo, "sql", lambda query, params=None: [{"id": "T", "name": "Dr. Terry Ackerman"}])  # dentist names
+    assert repo.list_case_ids() == ["abeldent_158"]
+    case = repo.get_case("abeldent_158")
+    assert (case.patient.patient_id, case.treatment.code, case.requested_tooth) == ("158", "27211", 24)
 
 
 def test_service_uses_repository():

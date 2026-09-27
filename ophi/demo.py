@@ -18,12 +18,10 @@ TIMELINE = [
     ("okafor", date(2026, 9, 8), date(2026, 9, 9), None),
     ("nguyen", date(2026, 9, 1), date(2026, 9, 2), ("approved", date(2026, 9, 8), None)),
     ("marchand", date(2026, 8, 26), date(2026, 8, 27), ("denied", date(2026, 9, 3), "Denied as per the plan criteria.")),
-    # Signed only: with OPHI_ABELDENT=1 the lab ABELDent's own claims mark these sent and bring Sun Life's answers
-    # (lab/fixtures/fake-sunlife-responses.sql).
-    ("randal", date(2026, 9, 7), None, None),
-    ("yokoyama", date(2026, 9, 9), None, None),
-    ("cherski", date(2026, 9, 14), None, None),
 ]
+# ABELDent mode (scripts/demo-abeldent.sh): the dentist has confirmed the criteria and signed, so the case is Ready to
+# send. Sending, and Sun Life's answers, come from ABELDent itself (lab/fixtures/*.sql).
+ABELDENT_SIGNED = [("abeldent_7", date(2026, 9, 24))]
 
 
 def seed(svc: CaseService) -> None:
@@ -31,11 +29,15 @@ def seed(svc: CaseService) -> None:
         return
     dentist, coordinator = ACTORS["dentist"], ACTORS["coordinator"]
     known = set(svc.case_ids())
-    for case_id, signed, sent, decision in TIMELINE:
+    for case_id, signed, sent, decision in TIMELINE + [(cid, day, None, None) for cid, day in ABELDENT_SIGNED]:
         if case_id not in known:
             continue
         with svc.at(signed):
             v = svc.view(case_id)
+            if case_id.startswith("abeldent_"):  # a PMS chart carries no clinician answers: the dentist confirms them here
+                open_ = sorted({c for r in v.assessment.requirements if r.applicable for c in r.shortfall.missing_assertions})
+                svc.assert_many(case_id, [{"criterion_id": c, "value": "met"} for c in open_], dentist.name, dentist.licence, role=dentist.role)
+                v = svc.view(case_id)
             svc.sign_off(case_id, dentist.name, dentist.licence, draft_narrative(v.case, v.assessment, v.pack), role=dentist.role)
         if sent:
             with svc.at(sent):

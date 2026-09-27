@@ -13,6 +13,7 @@ Toggle (env var, primary: USE_MOCK_PMS_API):
     USE_MOCK_PMS_API=true  -> MockPmsRepository (mocks/*.json)
     USE_MOCK_PMS_API=false -> FileSystemPmsRepository (cases/demo/*.yaml)
     Aliases: USE_MOCK_DATA, PMS_USE_MOCKS (same truthy parsing).
+    USE_ABELDENT_PMS=true  -> AbelDentPmsRepository (live lab VM; wins over the mock toggle)
     Truthy (case-insensitive): "true", "1", "yes", "on", "y"
     Falsy: "false", "0", "no", "off", "n", ""
     Helpers: should_use_mocks() / is_mock_enabled(), create_repository("auto"), create_auto_repository()
@@ -36,6 +37,7 @@ from __future__ import annotations
 
 import json
 import os
+import time
 from datetime import date, datetime
 from pathlib import Path
 from typing import Protocol, runtime_checkable
@@ -44,6 +46,7 @@ import yaml
 
 from ophi.casegen.dsl import build_case, load_case
 from ophi.cdm.models import Case
+from ophi.sources.chart_case import chart_to_case
 
 # ---------------------------------------------------------------------------
 # Protocol — the abstraction boundary
@@ -92,6 +95,11 @@ def should_use_mocks() -> bool:
 
 # alias for ergonomics
 is_mock_enabled = should_use_mocks
+
+
+def should_use_abeldent() -> bool:
+    """True if USE_ABELDENT_PMS asks for the live ABELDent VM."""
+    return _parse_bool_env(os.environ.get("USE_ABELDENT_PMS")) is True
 
 
 @runtime_checkable
@@ -186,10 +194,13 @@ class AbelDentPmsRepository:
     behaviour. Requires the VM bridge at lab/vm/vm.
     """
 
+    CACHE_SECONDS = 300
+
     def __init__(self, vm_path: Path | None = None) -> None:
         self.vm_path = Path(vm_path) if vm_path else ROOT / "lab" / "vm" / "vm"
         # Lazy import to avoid hard dependency on VM at import time
         self._chart_dump = None
+        self._cache: tuple[float, dict[str, Case]] | None = None
 
     def _load_chart_dump(self):
         if self._chart_dump is None:
@@ -214,15 +225,35 @@ class AbelDentPmsRepository:
 
     # -- PmsRepository interface --------------------------------------------
 
+    def _cases(self) -> dict[str, Case]:
+        """One case per patient with a planned crown, judged as of today. Re-read after CACHE_SECONDS: a pull is
+        nine queries over SSH (about 7 s), and every page asks for its cases."""
+        if self._cache is None or time.monotonic() - self._cache[0] > self.CACHE_SECONDS:
+            charts = self.fetch_patient_charts(self.planned_patient_ids())
+            providers = {r["id"]: r["name"] for r in self.sql("SELECT RTRIM(did) AS id, RTRIM(dname) AS name FROM dnt", None)}
+            cases = {}
+            for pid, chart in sorted(charts.items()):
+                crowns = [p for p in chart["planned_procedures"]["items"] if p["code"].startswith("27") and p["tooth_fdi"]]
+                if crowns:  # an open plan item before one ABELDent already marked applied
+                    first = next((p for p in crowns if p["status"] == "planned"), crowns[0])
+                    cases[f"abeldent_{pid}"] = chart_to_case(chart, first, case_id=f"abeldent_{pid}", as_of=date.today(),
+                                                             providers=providers, clinic="ABELDent lab (Fictional Data)")
+            self._cache = (time.monotonic(), cases)
+        return self._cache[1]
+
+    def refresh(self) -> None:
+        """Re-read ABELDent on the next ask, for edits staff just made in the PMS."""
+        self._cache = None
+
     def list_case_ids(self) -> list[str]:
-        # Live PMS has no YAML case ids; delegate to filesystem or raise
-        raise NotImplementedError("AbelDentPmsRepository lists pids, not case ids; use planned_patient_ids()")
+        return list(self._cases())
 
     def get_case(self, case_id: str) -> Case:
-        raise NotImplementedError("AbelDentPmsRepository fetches patient charts, not CDM cases directly")
+        return self._cases()[case_id]
 
     def get_cases(self, case_ids: list[str] | None = None) -> list[Case]:
-        raise NotImplementedError("AbelDentPmsRepository fetches patient charts, not CDM cases directly")
+        cases = self._cases()
+        return [cases[cid] for cid in (case_ids if case_ids is not None else cases)]
 
     def planned_patient_ids(self) -> list[int]:
         mod = self._load_chart_dump()
@@ -314,29 +345,7 @@ class MockPmsRepository:
 
     def _chart_to_case(self, chart: dict) -> Case:
         """Convert a chart_dump-shaped dict to a CDM Case."""
-        from ophi.cdm.models import (
-            ArtifactType, Availability, ChartArtifact, Coverage, DentitionState,
-            NotePayload, PerioChartPayload, Practitioner, ProcedureHistoryItem,
-            ProposedTreatment, Provenance, RadiographPayload, Section, SiteDepths,
-            SourceAssurance, ToothRef, Notation, Patient, Availability as Av,
-        )
-
-        patient_raw = chart.get("patient", {})
-        pid = patient_raw.get("pid", 0)
-        # map patient
-        dob = None
-        if patient_raw.get("dob"):
-            try:
-                dob = date.fromisoformat(patient_raw["dob"])
-            except Exception:
-                dob = None
-        patient = Patient(
-            patient_id=str(pid),
-            display_name=f"{patient_raw.get('given','')} {patient_raw.get('surname','')}".strip() or str(pid),
-            dob=dob,
-            sex=patient_raw.get("gender") or patient_raw.get("sex"),
-            cdcp_client_id=patient_raw.get("cdcp_client_id"),
-        )
+        pid = chart.get("patient", {}).get("pid", 0)
         # treatment from first planned_procedure
         planned_items = chart.get("planned_procedures", {}).get("items", []) if isinstance(chart.get("planned_procedures"), dict) else []
         if planned_items:
@@ -357,114 +366,8 @@ class MockPmsRepository:
         if first is None:
             raise ValueError(f"No planned procedure for pid {pid} in mocks")
 
-        code = str(first.get("code", "27211"))
-        tooth_fdi = int(first.get("tooth_fdi") or 16)
-        provider = Practitioner(name=first.get("provider") or patient_raw.get("provider_name") or "Dr. Mock", licence=patient_raw.get("licence"))
-        planned_date = None
-        for k in ("date", "planned_date", "appointment_date"):
-            if first.get(k):
-                try:
-                    planned_date = date.fromisoformat(first[k])
-                    break
-                except Exception:
-                    pass
-        fee_cents = None
-        if first.get("fee") is not None:
-            fee_cents = int(round(float(first["fee"]) * 100))
-
-        tooth_ref = ToothRef(tooth_fdi=tooth_fdi, tooth_as_written=str(tooth_fdi), notation_declared=Notation.FDI)
-        # as_of = planned date or today
-        as_of = planned_date or date.today()
-        treatment = ProposedTreatment(
-            code=code, description=first.get("description"), tooth=tooth_ref,
-            surfaces=list(first.get("surfaces") or []),
-            provider=provider, planned_date=planned_date, fee_cents=fee_cents,
-            appointment_date=planned_date,
-        )
-        # coverage
-        coverage = None
-        cov_items = chart.get("coverage", {}).get("items", []) if isinstance(chart.get("coverage"), dict) else []
-        if cov_items:
-            c0 = cov_items[0]
-            coverage = Coverage(payer=c0.get("carrier_name") or "CDCP", plan_number=c0.get("plan_id"), member_id=c0.get("certificate"), active=c0.get("active", True))
-        # procedure history from completed_procedures
-        history: list[ProcedureHistoryItem] = []
-        for cp in chart.get("completed_procedures", {}).get("items", []) if isinstance(chart.get("completed_procedures"), dict) else []:
-            try:
-                d = date.fromisoformat(cp["date"]) if cp.get("date") else as_of
-            except Exception:
-                d = as_of
-            history.append(ProcedureHistoryItem(
-                code=str(cp.get("code","")), tooth_fdi=cp.get("tooth_fdi"), surfaces=list(cp.get("surfaces") or []) if cp.get("surfaces") else [],
-                performed_on=d, status="completed", description=cp.get("description"),
-            ))
-        # artifacts: perio, notes, radiographs
-        artifacts: list[ChartArtifact] = []
-        for exam in chart.get("perio_exams", {}).get("items", []) if isinstance(chart.get("perio_exams"), dict) else []:
-            pocket = exam.get("pocket") or {}
-            by_tooth = pocket.get("by_tooth_fdi") or {}
-            teeth = []
-            for k, depths in by_tooth.items():
-                try:
-                    fdi = int(k)
-                except Exception:
-                    continue
-                vals = list(depths) + [None] * (6 - len(depths))
-                teeth.append(SiteDepths(tooth_fdi=fdi, depths_mm=vals[:6]))
-            if teeth:
-                artifacts.append(ChartArtifact(
-                    artifact_id=f"perio_{exam.get('exam_num',1)}_{pid}", type=ArtifactType.PERIO_CHART,
-                    captured_at=date.fromisoformat(exam["date"]) if exam.get("date") else as_of,
-                    provenance=Provenance(source_system="mocks", source_table="Perio", extraction_method="db_field"),
-                    payload=PerioChartPayload(teeth=teeth, examiner=exam.get("provider"), certified=bool(exam.get("date_certified"))),
-                ))
-        for note in chart.get("clinical_notes", {}).get("items", []) if isinstance(chart.get("clinical_notes"), dict) else []:
-            txt = note.get("text") or ""
-            try:
-                nd = date.fromisoformat(note["date"]) if note.get("date") else as_of
-            except Exception:
-                nd = as_of
-            artifacts.append(ChartArtifact(
-                artifact_id=f"note_{note.get('chart_num',1)}_{pid}", type=ArtifactType.CLINICAL_NOTE,
-                captured_at=nd, provenance=Provenance(source_system="mocks", source_table="Notes", extraction_method="db_field"),
-                payload=NotePayload(text=txt, author=note.get("operator"), teeth_fdi=[note["tooth_fdi"]] if note.get("tooth_fdi") else []),
-            ))
-        # imaging: treat procedure_events with ChartCode 242 as radiographs if no items
-        for img in chart.get("imaging", {}).get("items", []) if isinstance(chart.get("imaging"), dict) else []:
-            artifacts.append(ChartArtifact(
-                artifact_id=f"rad_{pid}_{img.get('view','BW')}", type=ArtifactType.RADIOGRAPH,
-                captured_at=as_of, provenance=Provenance(source_system="mocks", source_table="ChartArtifact", extraction_method="db_field"),
-                payload=RadiographPayload(view=img.get("view","BW"), teeth_fdi=img.get("teeth_fdi") or []),
-            ))
-        # also surface procedure_events as radiograph hints
-        if not any(a.type == ArtifactType.RADIOGRAPH for a in artifacts):
-            for ev in chart.get("imaging", {}).get("procedure_events", []) if isinstance(chart.get("imaging"), dict) else []:
-                artifacts.append(ChartArtifact(
-                    artifact_id=f"rad_ev_{ev.get('trans_id',pid)}", type=ArtifactType.RADIOGRAPH,
-                    captured_at=date.fromisoformat(ev["date"]) if ev.get("date") else as_of,
-                    provenance=Provenance(source_system="mocks", source_table="Transactions", extraction_method="heuristic"),
-                    payload=RadiographPayload(view="BW", teeth_fdi=[ev["tooth_fdi"]] if ev.get("tooth_fdi") else [], description=ev.get("description")),
-                ))
-
-        # assurance
-        assurance: dict[Section, SourceAssurance] = {}
-        for sec_key in ["imaging", "perio_exams", "clinical_notes"]:
-            sec_map = {"imaging": Section.IMAGING, "perio_exams": Section.PERIO, "clinical_notes": Section.NOTES}
-            sec = sec_map[sec_key]
-            sa = chart.get(sec_key, {}).get("source_assurance") if isinstance(chart.get(sec_key), dict) else None
-            if sa:
-                status = sa.get("status", "present")
-                avail_map = {"present": Av.PRESENT, "none_recorded": Av.ABSENT_CONFIRMED, "indeterminate": Av.UNKNOWN}
-                assurance[sec] = SourceAssurance(availability=avail_map.get(status, Av.PRESENT), reason=sa.get("detail"))
-
-        case_id = f"mock_{pid}"
-        return Case(
-            case_id=case_id, clinic="Mock Dental Centre", as_of=as_of,
-            patient=patient, treatment=treatment, coverage=coverage,
-            dentition=DentitionState(), procedure_history=history,
-            artifacts=artifacts, assurance=assurance,
-            source=Provenance(source_system="mocks", extraction_method="casegen"),
-        )
+        return chart_to_case(chart, first, case_id=f"mock_{pid}", as_of=date.fromisoformat(first["date"]) if first.get("date") else date.today(),
+                             clinic="Mock Dental Centre", source="mocks")
 
     # -- PmsRepository interface --------------------------------------------
 
@@ -564,6 +467,8 @@ def create_repository(kind: str = "filesystem", **kwargs) -> PmsRepository:
     if kind == "mock":
         return MockPmsRepository(**kwargs)  # type: ignore[arg-type]
     if kind == "auto":
+        if should_use_abeldent():
+            return AbelDentPmsRepository(**kwargs)  # type: ignore[arg-type]
         if should_use_mocks():
             return MockPmsRepository(**kwargs)  # type: ignore[arg-type]
         return FileSystemPmsRepository(**kwargs)  # type: ignore[arg-type]

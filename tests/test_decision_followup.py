@@ -1,14 +1,17 @@
 """Sun Life's decision back into Ophi: from the PMS's own claims, or from the letter staff upload."""
 from __future__ import annotations
 
-from datetime import date
+import json
+from datetime import date, datetime
+from pathlib import Path
 
 import pytest
 from fastapi.testclient import TestClient
 
-from ophi import demo, letters
+from ophi import letters
 from ophi.service import CaseService, Store
 from ophi.sources import abeldent
+from ophi.sources.pms_repository import AbelDentPmsRepository
 from ophi.web.app import create_app
 from ophi.workflow import Stage
 
@@ -30,12 +33,19 @@ def fake_sql(query, params):
     return ROWS
 
 
+CHARTS = Path(__file__).parents[1] / "fixtures/abeldent/fictional"
+YOKOYAMA, RANDAL, CHERSKI = "abeldent_158", "abeldent_162", "abeldent_160"
+
+
 @pytest.fixture
-def svc(tmp_path):
-    s = CaseService(store=Store(tmp_path / "state"), pms_claims=lambda: abeldent.list_predeterminations(fake_sql),
-                    note_reader=lambda text: "missing_radiograph")
-    demo.seed(s)
-    return s
+def svc(tmp_path, monkeypatch):
+    """ABELDent mode, with saved Fictional Data charts standing in for the VM."""
+    repo = AbelDentPmsRepository()
+    monkeypatch.setattr(repo, "planned_patient_ids", lambda: [158, 160, 162])
+    monkeypatch.setattr(repo, "fetch_patient_charts", lambda pids: {p: json.loads((CHARTS / f"{p}.json").read_text()) for p in pids})
+    monkeypatch.setattr(repo, "sql", lambda query, params=None: [{"id": "T", "name": "Dr. Terry Ackerman"}])  # dentist names
+    return CaseService(store=Store(tmp_path / "state"), repository=repo, clock=lambda: datetime(2026, 9, 26, 12),
+                       pms_claims=lambda: abeldent.list_predeterminations(fake_sql), note_reader=lambda text: "missing_radiograph")
 
 
 def test_list_predeterminations_reads_status_and_electronic_answer():
@@ -47,23 +57,24 @@ def test_list_predeterminations_reads_status_and_electronic_answer():
 
 
 def test_sync_marks_sent_and_records_electronic_answers(svc):
-    svc.sync_from_pms()
-    assert svc.view("randal").stage == Stage.BOOK
-    yok = svc.view("yokoyama")
+    svc.sync_from_pms()  # none is signed in Ophi: ABELDent is the record of what was sent
+    assert svc.view(RANDAL).stage == Stage.BOOK
+    yok = svc.view(YOKOYAMA)
     assert yok.stage == Stage.RESUBMIT and yok.state.decision.recorded_by == "ABELDent"
     assert yok.state.decision.reason_key == "missing_radiograph"
-    cher = svc.view("cherski")
+    cher = svc.view(CHERSKI)
     assert cher.stage == Stage.SUN_LIFE and cher.pms.answer_at == "paper"
+    assert any("without a sign-off in Ophi" in e.detail for e in svc.store.audit_log(CHERSKI))
 
 
 def test_resubmission_goes_to_the_column_the_reason_names_and_the_old_claim_stays_used(svc):
     svc.sync_from_pms()
-    svc.start_resubmission("yokoyama", "Kim Osei", "missing_radiograph")
+    svc.start_resubmission(YOKOYAMA, "Kim Osei", "missing_radiograph")
     svc.sync_from_pms()  # the earlier claim must not mark the new request sent
-    v = svc.view("yokoyama")
+    v = svc.view(YOKOYAMA)
     assert v.stage == Stage.PATIENT and v.state.submitted_on is None
-    svc.resolve_ask("yokoyama", "Kim Osei")
-    assert svc.view("yokoyama").stage == Stage.DENTIST
+    svc.resolve_ask(YOKOYAMA, "Kim Osei")
+    assert svc.view(YOKOYAMA).state.ask.done_by == "Kim Osei"
 
 
 def test_read_letter_sends_a_pdf_as_a_document_and_a_photo_as_an_image():
@@ -86,11 +97,11 @@ def test_uploaded_letter_prefills_the_decision_then_records_it(svc, tmp_path, mo
                                     reason="Less than 1.5 mm of sound tooth structure remains on tooth 26.")
     monkeypatch.setattr(letters, "read_letter", lambda data, media_type: reading)
     client = TestClient(create_app(auto_rules_check=False, svc=svc, packets_dir=tmp_path / "packets"), follow_redirects=False)
-    r = client.post("/cases/cherski/letter", files={"letter": ("letter.pdf", b"%PDF", "application/pdf")})
+    r = client.post(f"/cases/{CHERSKI}/letter", files={"letter": ("letter.pdf", b"%PDF", "application/pdf")})
     assert r.status_code == 200 and "Less than 1.5 mm of sound tooth structure" in r.text
     assert 'name="reason_key" value="insufficient_ferrule"' in r.text
-    client.post("/cases/cherski/decision", data={"outcome": "denied", "decided_on": "2026-09-17",
+    client.post(f"/cases/{CHERSKI}/decision", data={"outcome": "denied", "decided_on": "2026-09-17",
                                                  "reason": reading.reason, "reason_key": "insufficient_ferrule"})
-    assert svc.view("cherski").state.decision.reason_key == "insufficient_ferrule"
-    client.post("/cases/cherski/resubmit", data={"reason_key": "insufficient_ferrule"})
-    assert svc.view("cherski").stage == Stage.DENTIST
+    assert svc.view(CHERSKI).state.decision.reason_key == "insufficient_ferrule"
+    client.post(f"/cases/{CHERSKI}/resubmit", data={"reason_key": "insufficient_ferrule"})
+    assert svc.view(CHERSKI).state.ask.stage == Stage.DENTIST

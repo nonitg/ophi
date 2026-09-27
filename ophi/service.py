@@ -300,12 +300,16 @@ class CaseService:
             self.repository = repository
         else:
             from ophi.sources.pms_repository import (
+                AbelDentPmsRepository,
                 FileSystemPmsRepository,
                 MockPmsRepository,
+                should_use_abeldent,
                 should_use_mocks,
             )
 
-            if should_use_mocks():
+            if should_use_abeldent():
+                self.repository = AbelDentPmsRepository()
+            elif should_use_mocks():
                 self.repository = MockPmsRepository()
             else:
                 self.repository = FileSystemPmsRepository(cases_dir)
@@ -378,7 +382,8 @@ class CaseService:
 
     def sync_from_pms(self) -> None:
         """Take what the PMS knows about each request: that it was sent, and Sun Life's electronic answer.
-        Each step is taken once per PMS claim, so staff can still undo it; an unsigned case is left alone."""
+        Each step is taken once per PMS claim, so staff can still undo it. The PMS is the record of what was sent,
+        so a request sent without Ophi's sign-off still moves on, and the audit log says so."""
         if self.pms_claims is None:
             return
         claims = self.pms_claims()
@@ -394,10 +399,11 @@ class CaseService:
             st = self.store.load(cid)
             sent, decided = f"{claim.claim_id}:sent", f"{claim.claim_id}:decision"
             if sent not in st.pms_synced and st.submitted_on is None and claim.answer_at != "rejected":
-                try:
-                    self.mark_submitted(cid, "ABELDent", claim.sent_on)
-                except (PermissionError, ValueError):
-                    continue  # not signed for this chart, or signed after ABELDent sent it
+                st.submitted_at, st.submitted_on = self.now(), claim.sent_on
+                self.store.save(cid, st)
+                signed = st.sign_off is not None and st.sign_off.signed_at.date() <= claim.sent_on
+                self.audit(cid, "ABELDent", "mark_submitted", f"sent to Sun Life on {claim.sent_on.isoformat()} from ABELDent"
+                           + ("" if signed else ", without a sign-off in Ophi"))
                 self._synced(cid, sent)
             st = self.store.load(cid)
             if claim.outcome and decided not in st.pms_synced and st.submitted_on == claim.sent_on and st.decision is None:

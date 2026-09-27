@@ -27,7 +27,7 @@ def test_board_starts_with_the_patient_in_the_chair_then_the_late_appointment(sv
     assert cols["prepare"] == ["tremblay"] and cols["sun_life"] == ["okafor", "park"]  # the longest wait first
     start = b["start"]
     assert start["case"].case_id == "kowalchuk" and [i["label"] for i in start["chair"]] == ["6-site perio chart", "PA X-ray of #46"]
-    assert b["headline"] == "12 cases need you"  # okafor counts: past 7 days, the mailbox needs checking; randal, yokoyama and cherski wait to be sent
+    assert b["headline"] == "9 cases need you"  # okafor counts: past 7 days, the mailbox needs checking
     mine = {x["case"].case_id: x["mine"] for c in b["columns"] for x in c["cards"]}
     assert not mine["whitfield"] and not mine["park"] and mine["okafor"]
 

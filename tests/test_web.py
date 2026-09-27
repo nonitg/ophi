@@ -358,3 +358,14 @@ def test_case_page_carries_ml_output_for_console(client):
     assert m["shown"] == "as_charted"
     shown = next(p for p in m["plans"] if p["matches_chart"])
     assert shown["note_answers"] and shown["drivers"] and shown["now"]["score"] > 0
+
+
+def test_refresh_rereads_abeldent(tmp_path):
+    from ophi.sources.pms_repository import AbelDentPmsRepository
+
+    repo = AbelDentPmsRepository()
+    repo._cache = (0.0, {})  # a pull already made
+    app = create_app(svc=CaseService(store=Store(tmp_path / "state"), repository=repo), packets_dir=tmp_path / "packets")
+    r = TestClient(app, follow_redirects=False).post("/refresh", headers={"referer": "/cases/abeldent_168"})
+    assert r.status_code == 303 and r.headers["location"] == "/cases/abeldent_168"
+    assert repo._cache is None and app.state.pms_synced_at == float("-inf")

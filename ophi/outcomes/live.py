@@ -1,7 +1,7 @@
-"""The fix plan scored live: Laya and LightGBM run on the chart as it stands each time a case page opens.
+"""The fix plan scored live: Laya and LightGBM run on the chart as it stands when a page needs its plan.
 
 Replaces the offline readouts (cases/demo/laya) in the running app, so a new case or a PMS change is scored
-the moment it's opened. The models load once per process; the board reuses the latest live plan per chart.
+the moment it's opened. The models load once per process; every page reuses the latest plan until the chart text changes.
 """
 
 from __future__ import annotations

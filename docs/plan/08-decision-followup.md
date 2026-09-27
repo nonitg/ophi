@@ -76,15 +76,17 @@ On "Start resubmission", the confirmed reason reopens its requirement, and `work
 
 ## Built (2026-09-26)
 
-Run `scripts/demo-abeldent.sh` (the VM must be up; set `ANTHROPIC_API_KEY` in `.env` for letter reading).
+Demo files: `scripts/demo-real.sh`. Live ABELDent: `scripts/demo-abeldent.sh` (`USE_ABELDENT_PMS=true`; the VM must be up;
+`ANTHROPIC_API_KEY` in `.env` for letter reading). In ABELDent mode every patient with a planned crown is a case, judged as of
+today, so its 2002–2007 evidence reads as stale.
 
 | Piece | Where |
 |---|---|
 | Predetermination reader, `GET /api/abeldent/patients/{pid}/predeterminations` | `ophi/sources/abeldent.py`, `ophi/web/abeldent_api.py` |
-| Sync: ABELDent's claim marks a signed case sent; an electronic answer records the decision (by "ABELDent", once per claim, so undo sticks) | `CaseService.sync_from_pms`, every 30 s when `OPHI_ABELDENT=1` |
+| Cases from the VM: chart_dump charts → `chart_to_case` (shared with the mock repository), cached 5 min | `AbelDentPmsRepository` |
+| Sync: ABELDent's claim marks the case sent (signed in Ophi or not; the audit says which); an electronic answer records the decision (by "ABELDent", once per claim, so undo sticks) | `CaseService.sync_from_pms`, every 30 s in ABELDent mode |
 | Letter upload → Claude (`claude-opus-5`, PDF or photo) → decision form pre-filled for staff to check | `ophi/letters.py`, `POST /cases/{id}/letter` |
 | Reason → column: picked at "Start resubmission" (pre-set from the letter or note), opens an ask; "Done" closes it | `workflow.REASONS`, `with_ask`, `CaseService.start_resubmission`/`resolve_ask` |
-| Demo cases for pids 158/160/162, signed in the demo timeline | `cases/demo/{yokoyama,randal,cherski}.yaml`, `ophi/demo.py` |
 | Sample letters (SAMPLE-marked, no branding): ferrule, vague, approved, perio photo | `fixtures/letters/`, `scripts/gen-sample-letters.py` |
 
 Not built: network rejections (`R`/`M`/`*`) back to Ready to send; storing the uploaded letter file; Laya's likely

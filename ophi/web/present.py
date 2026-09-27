@@ -522,7 +522,10 @@ def card_action(view: CaseView, actor: Actor, today: date, order: list[str] | No
     elif stage == Stage.SEND:
         out["title"] = "Send the packet from your PMS"
     elif stage == Stage.SUN_LIFE:
-        out["title"] = "Check your CDAnet mailbox" if (today - st.submitted_on).days > SUN_LIFE_TURNAROUND_DAYS else "Waiting for the decision"
+        if view.pms and view.pms.answer_at == "paper":  # never reaches the mailbox or the PMS
+            out["title"] = "Upload Sun Life's letter when it comes"
+        else:
+            out["title"] = "Check your CDAnet mailbox" if (today - st.submitted_on).days > SUN_LIFE_TURNAROUND_DAYS else "Waiting for the decision"
     elif stage == Stage.BOOK:
         out.update(title="Call the patient to book", payer=_payer(st.decision))
     elif stage == Stage.RESUBMIT:
