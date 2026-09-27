@@ -333,3 +333,12 @@ def test_skip_gaps_to_test_moves_the_case_on_and_restore_brings_them_back(client
     assert 'tag-test">Test' in client.get("/").text
     assert client.post("/cases/singh/test-restore").status_code == 303
     assert "Test run." not in client.get("/cases/singh").text
+
+
+def test_case_page_carries_ml_output_for_console(client):
+    import json
+    html = client.get("/cases/kowalchuk").text
+    m = json.loads(re.search(r'<script type="application/json" id="ml-debug">(.*?)</script>', html, re.S).group(1))
+    assert m["shown"] == "as_charted"
+    shown = next(p for p in m["plans"] if p["matches_chart"])
+    assert shown["note_answers"] and shown["drivers"] and shown["now"]["score"] > 0

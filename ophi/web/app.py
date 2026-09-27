@@ -11,6 +11,7 @@ import csv
 import hashlib
 import io
 import json
+import logging
 import os
 import shutil
 import threading
@@ -36,6 +37,7 @@ from ophi.web import abeldent_api, present
 from ophi.web.present import ACTORS, DEFAULT_ACTOR, READY_VERDICTS, Actor
 
 HERE = Path(__file__).resolve().parent
+log = logging.getLogger("uvicorn.error")  # uvicorn's own app logger, so lines reach the `make demo` terminal
 # Static assets are cached by the browser; the newest mtime in static/ busts that cache on each deploy.
 STATIC_V = max(int(p.stat().st_mtime) for p in (HERE / "static").rglob("*") if p.is_file())
 templates = Jinja2Templates(directory=str(HERE / "templates"))
@@ -215,13 +217,15 @@ def case_page(request: Request, case_id: str):
     timing = present.timing(view, today)
     rd, gaps = readout.load(case_id), present.gap_rows(view)
     fx = present.fix_panel(view, rd, svc.pack, gaps) if view.stage in workflow.CHART_STAGES else None
+    ml = present.ml_debug(view, rd)
+    log.info(present.ml_report(ml))
     return _render(request, "case.html", view=view, case=view.case, a=view.assessment, stage=view.stage,
                    steps=steps, now=now, waiting=present.waiting_on(now, actor, view.case.treatment.provider.name, timing),
                    next_case=present.next_up(svc.queue(), view, actor, today),
                    stepper=present.stepper(view, actor), gaps=gaps, gap_summary=present.gap_summary(view),
                    chair_now=present.in_chair(view), advisory=present.advisory(view),
                    timing=timing, advice=present.advice(view, timing, today), evidence=present.evidence_panel(view),
-                   fx=fx,
+                   fx=fx, ml=ml,
                    plan=present.dentist_panel(view, rd) if view.stage in (*workflow.CHART_STAGES, workflow.Stage.DENTIST) else None,
                    criteria=relevant, criteria_other=other, activity=present.activity(svc.store.audit_log(case_id)),
                    applicable=[r for r in view.assessment.requirements if r.applicable],
