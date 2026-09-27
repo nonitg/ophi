@@ -1,0 +1,22 @@
+{
+ "amb-clinic": "sfx/amb-clinic.wav",
+ "approved": "sfx/approved.wav",
+ "chime": "sfx/chime.wav",
+ "click": "sfx/click.wav",
+ "clock": "sfx/clock.wav",
+ "coin": "sfx/coin.wav",
+ "counter": "sfx/counter.wav",
+ "denied": "sfx/denied.wav",
+ "grow": "sfx/grow.wav",
+ "impact": "sfx/impact.wav",
+ "loop-back": "sfx/loop-back.wav",
+ "paper-slide": "sfx/paper-slide.wav",
+ "pop": "sfx/pop.wav",
+ "pounce": "sfx/pounce.wav",
+ "riser": "sfx/riser.wav",
+ "shimmer": "sfx/shimmer.wav",
+ "stamp": "sfx/stamp.wav",
+ "typewriter": "sfx/typewriter.wav",
+ "whoosh": "sfx/whoosh.wav",
+ "xray-sweep": "sfx/xray-sweep.wav"
+}
