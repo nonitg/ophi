@@ -56,17 +56,6 @@
 {%- endif %}
 {%- endmacro %}
 
-{# Past requests Sun Life decided on the same gap: secondary evidence under a step's Why, in Sun Life's voice. #}
-{% macro past_like(p, cid) -%}
-<div class="like" data-voice="payer">
-  <p>Past requests like this: Sun Life
-    {%- if p.n_resent %} approved {{ p.n_resent }} after a resend with this fixed{% elif p.n_approved %} approved {{ p.n_approved }} with this in place{% endif %}
-    {%- if p.n_approved and p.n_denied %} ·{% endif %}
-    {%- if p.n_denied %} denied {% for c in p.reasons %}{{ c.n }} ({{ c.reason }}){{ ', ' if not loop.last }}{% endfor %}{% endif %}</p>
-  {% if p.approved or p.denied %}<p class="like-links">{% for x in p.approved + p.denied %}<a class="like-link like-{{ x.outcome }}" href="{{ BASE }}/past/{{ x.id }}?from={{ cid }}">{% if x.tooth %}<span class="num">#{{ x.tooth }}</span>, {% endif %}{{ x.sent_on.strftime('%b %Y') }} · {{ 'approved on resend' if x.resent_then_approved else x.outcome }}</a>{% endfor %}</p>{% endif %}
-</div>
-{%- endmacro %}
-
 {% set s = now %}
 <section class="now{% if waiting %} is-waiting{% endif %}" id="now" aria-labelledby="now-title">
   {% if s %}
@@ -123,7 +112,6 @@
         <details class="why"><summary>Why</summary>
           <p>{{ it.why }}</p>
           {% if it.clause %}<p class="gap-rule">Required by {{ clause_chip(it.clause, pack) }}</p>{% endif %}
-          {% if it.past %}{{ past_like(it.past, cid) }}{% endif %}
         </details>
       </li>
       {% endfor %}

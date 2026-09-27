@@ -54,11 +54,12 @@ def test_clinic_denial_rate_for_a_clinic_with_past_requests(tmp_path, past, url)
     assert want is not None and similar.clinic_denial_rate(past, lambda: store.connect(url), ours) == pytest.approx(want)
 
 
-def test_case_page_links_past_requests_under_why(tmp_path, past):
+def test_case_page_keeps_past_outcomes_off_the_step(tmp_path, past):
+    """The step says what to do; past approvals and denials stay on the Past denials pages."""
     app = create_app(svc=CaseService(store=Store(tmp_path / "state")), packets_dir=tmp_path / "packets")
     app.state.past = past
     html = TestClient(app).get("/cases/kowalchuk").text
-    assert "Past requests like this:" in html and 'href="/past/PA-SYN-' in html and "?from=kowalchuk" in html
+    assert "Past requests like this" not in html and "/past/PA-SYN-" not in html
 
 
 def test_counts_stay_corpus_wide_when_chips_are_scoped_to_one_clinic(tmp_path, past):
