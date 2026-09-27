@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% from "macros.html" import due, turnaround_source, who, laya with context %}
+{% from "macros.html" import due, turnaround_source, who with context %}
 {% block title %}Board — Ophi{% endblock %}
 {% block content %}
 <header class="board-head">
@@ -72,10 +72,10 @@
             short_date(act.payer.on) }}{% if act.payer.reason and act.payer.outcome == 'denied' %}: “{{
             act.payer.reason|truncate(90) }}”{% endif %}</span>
           {% elif act.note %}<span class="tile-note">{{ act.note }}</span>{% endif %}
-          {% if act.prefilled %}<span class="tile-pre">{{ laya('') }}{{ act.prefilled }} of {{ act.criteria }}
+          {% if act.prefilled %}<span class="tile-pre">{{ act.prefilled }} of {{ act.criteria }}
             pre-filled</span>{% endif %}
           {% endif %}
-          {% if c.risk %}<span class="tile-risk">{{ laya('Risk') }} <b class="lvl lvl-{{ c.risk.now }}">{{
+          {% if c.risk %}<span class="tile-risk">Risk <b class="lvl lvl-{{ c.risk.now }}">{{
               RISK_LABEL[c.risk.now] }}</b>{% if c.risk.after %} <span aria-label="after fixes">→</span> <b
               class="lvl lvl-{{ c.risk.after }}">{{ RISK_LABEL[c.risk.after] }}</b>{% endif %}</span>{% endif %}
           {% if c.timing.text %}<span class="tile-foot">{{ due(c.timing) }}</span>{% endif %}

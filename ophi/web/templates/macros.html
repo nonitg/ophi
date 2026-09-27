@@ -33,15 +33,9 @@
 <span class="who who-{{ t.kind }}">{% if t.kind != 'ophi' %}<span class="mono-mark" aria-hidden="true">{{ t.mark }}</span>{% endif %}{{ t.label }}</span>
 {%- endmacro %}
 
-{# Laya, Ophi's trained model. The spark marks everything it produced, so its part is never mistaken for a rule or a
-   person's answer; it links to what Laya does and can't do. #}
-{% macro laya(label='Laya') -%}
-<span class="laya{% if not label %} laya-mark{% endif %}"{% if not label %} aria-label="Laya"{% endif %}><svg class="laya-spark" width="11" height="11" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 .5c.6 3.9 3.2 6.6 7.5 7.5-4.3.9-6.9 3.6-7.5 7.5C7.4 11.6 4.8 8.9.5 8 4.8 7.1 7.4 4.4 8 .5z"/></svg>{{ label }}</span>
-{%- endmacro %}
-
-{# Where one piece of a pre-read came from: the chart (Ophi's rules) or Laya's reading of the note. #}
+{# Where one piece of a pre-read came from: the chart or the clinical note. #}
 {% macro source_tag(src) -%}
-{%- if src == 'note' %}{{ laya() }}{% else %}<span class="src-chart">Chart</span>{% endif -%}
+{%- if src == 'note' %}<span class="src-chart">Note</span>{% else %}<span class="src-chart">Chart</span>{% endif -%}
 {%- endmacro %}
 
 {# Sun Life's decision, in Sun Life's voice. data-voice marks text that is not Ophi's (the copy-law test skips it). #}
@@ -118,7 +112,7 @@ Crown on #{{ c.requested_tooth }} <span class="num">({{ c.treatment.code }})</sp
 {% macro risk_block(r, stale_since=None, after_label='After these fixes') -%}
 {%- if r %}
 <div class="risk">
-  <p class="risk-levels">{{ laya() }}<span class="risk-k" title="A guide from past decisions, not Sun Life's answer">Denial risk</span>
+  <p class="risk-levels"><span class="risk-k" title="A guide from past decisions, not Sun Life's answer">Denial risk</span>
     <span class="risk-at">Now <b class="lvl lvl-{{ r.now.level }}">{{ r.now.label }}</b></span>
     {%- if r.after %}<span class="risk-at"><span class="risk-arrow" aria-hidden="true">→</span> {{ after_label }} <b class="lvl lvl-{{ r.after.level }}">{{ r.after.label }}</b></span>{% endif %}
   </p>

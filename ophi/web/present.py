@@ -1041,8 +1041,8 @@ def criteria_groups(view: CaseView, rows: list[dict]) -> dict:
     call = [r for r in open_rows if not (r["pre"] and r["pre"].suggest)]
     filled = [r for r in open_rows if r not in call]
     pa = latest_pa(view.case)
-    film = (f"Look at the PA of #{view.case.requested_tooth} ({short_date(pa)}), then confirm these. Laya reads notes, not films." if pa
-            else f"No PA of #{view.case.requested_tooth} on file. Laya reads notes, not films.")
+    film = (f"Look at the PA of #{view.case.requested_tooth} ({short_date(pa)}), then confirm these. Ophi reads notes, not films." if pa
+            else f"No PA of #{view.case.requested_tooth} on file. Ophi reads notes, not films.")
     groups = [("call", "Your call", None, call),
               ("chart", "Pre-filled from the chart and note", None, [r for r in filled if not r["pre"].on_film]),
               ("film", "Pre-filled from the note", film, [r for r in filled if r["pre"].on_film]),

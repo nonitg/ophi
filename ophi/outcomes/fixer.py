@@ -165,7 +165,7 @@ def candidate_fixes(e: Example, a: Assessment, pack: RulePack, note: dict[str, f
     if note["uncovered_indication"] >= FLAG:
         fixes.append(Fix(id="uncovered_indication", kind="dentist", who="dentist", concern="clinical",
                          title="The note gives a cracked-tooth, sensitivity or cosmetic reason for the crown",
-                         why="This is Laya's reading of the note; the rule pack has no clause for it yet. The dentist decides."))
+                         why="This comes from the clinical note; the rule pack has no clause for it yet. The dentist decides."))
     return fixes
 
 
@@ -194,7 +194,7 @@ def _from_action(act: Action, e: Example, pack: RulePack, note: dict[str, float]
                 return Fix(**base | {"title": "Finish the pending fillings or scaling first", "why": why}, kind="task", who="moa",
                            patch={"completed_treatment": done} if done else None, concern="timing")
         if worst < FLAG:
-            return Fix(**base | {"why": f"Laya's reading of the note raises no concern here. {act.why}"}, kind="dentist", who="dentist")
+            return Fix(**base | {"why": f"The clinical note raises no concern here. {act.why}"}, kind="dentist", who="dentist")
         if rid == "endo_healed":
             return Fix(**base | {"title": f"Wait for #{tooth}'s root canal to heal, then take a new periapical",
                                  "why": f"The note {CONCERN[q]}. {act.why}"},

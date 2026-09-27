@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% from "macros.html" import clause_chip, status_mark, who, payer_decision, teeth, due, turnaround_source, test_banner, send_steps, next_up, fold_summary, risk_block, laya, source_tag with context %}
+{% from "macros.html" import clause_chip, status_mark, who, payer_decision, teeth, due, turnaround_source, test_banner, send_steps, next_up, fold_summary, risk_block, source_tag with context %}
 {% block title %}{{ case.patient.display_name }}, #{{ case.requested_tooth }} — Ophi{% endblock %}
 {% block content %}
 <div class="case">
@@ -107,7 +107,7 @@
           {% endif %}
         </div>
         {% if it.auto %}<p class="gap-effect">Ophi makes this change when you press Apply it.</p>{% endif %}
-        {% if it.effect in ('most', 'some') %}<p class="gap-effect effect-{{ it.effect }}">{{ laya('') }}{{ {'most': 'Lowers denial risk the most', 'some': 'Lowers denial risk a little'}[it.effect] }}</p>{% endif %}
+        {% if it.effect in ('most', 'some') %}<p class="gap-effect effect-{{ it.effect }}">{{ {'most': 'Lowers denial risk the most', 'some': 'Lowers denial risk a little'}[it.effect] }}</p>{% endif %}
         {% if it.concern == 'timing' %}<p class="gap-effect">Do this first, then send.</p>{% endif %}
         {% if g and g.hint %}<p class="gap-hint">{{ g.hint }}</p>{% endif %}
         {% if g and g.proposal %}{% set pl = g.proposal.payload %}
@@ -151,7 +151,7 @@
     {% if actor.is_dentist %}
     {% if plan %}{{ risk_block(plan, after_label='After the fixes') }}{% endif %}
     {{ dentist_extras(plan) }}
-    <p class="now-lead now-ophi">{{ laya('') }}<span>{% if crit.call %}<b>{{ crit.call }} need{{ 's' if crit.call == 1 }} your call.</b> {% endif %}{% if crit.prefilled %}Laya pre-filled {{ 'the other ' if crit.call else 'all ' }}{{ crit.prefilled }} from the chart and the note.{% elif not crit.open %}Every criterion is recorded.{% endif %}{% if s.state == 'open' %} You can confirm while {{ ACTORS['coordinator'].name }} finishes the chart.{% endif %}</span></p>
+    <p class="now-lead"><span>{% if crit.call %}<b>{{ crit.call }} need{{ 's' if crit.call == 1 }} your call.</b> {% endif %}{% if crit.prefilled %}Ophi pre-filled {{ 'the other ' if crit.call else 'all ' }}{{ crit.prefilled }} from the chart and the note.{% elif not crit.open %}Every criterion is recorded.{% endif %}{% if s.state == 'open' %} You can confirm while {{ ACTORS['coordinator'].name }} finishes the chart.{% endif %}</span></p>
     <form method="post" action="{{ BASE }}/cases/{{ cid }}/assert/bulk" id="crit-form" class="stack">
       {% for g in crit.groups %}
       <div class="crit-group crit-group-{{ g.key }}">
@@ -182,7 +182,7 @@
                 <label><input type="radio" name="value_{{ c.id }}" value="{{ val }}" {% if pick == val %}checked{% endif %}><span>{{ lab }}</span></label>
                 {% endfor %}
               </div>
-              {% if not c.current and pre and pre.suggest %}<span class="crit-sugg">Suggested by Laya</span>{% endif %}
+              {% if not c.current and pre and pre.suggest %}<span class="crit-sugg">Suggested</span>{% endif %}
             </div>
           </li>
           {% endfor %}
@@ -196,7 +196,7 @@
     </form>
     {% else %}
     {% set answered = criteria|selectattr('current')|list|length %}
-    <p class="now-lead now-ophi">{{ laya('') }}<span>{% if crit.prefilled %}Ophi pre-filled {{ crit.prefilled }} of {{ crit.open }} criteria for {{ provider }} to confirm.{% else %}{{ provider }} confirms {{ plural(crit.open, 'criterion', 'criteria') }}.{% endif %}{% if answered %} {{ answered }} recorded.{% endif %} Then the signature.</span></p>
+    <p class="now-lead"><span>{% if crit.prefilled %}Ophi pre-filled {{ crit.prefilled }} of {{ crit.open }} criteria for {{ provider }} to confirm.{% else %}{{ provider }} confirms {{ plural(crit.open, 'criterion', 'criteria') }}.{% endif %}{% if answered %} {{ answered }} recorded.{% endif %} Then the signature.</span></p>
     {% endif %}
 
   {% elif s.key == 'sign' %}

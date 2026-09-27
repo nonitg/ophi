@@ -292,12 +292,15 @@ def test_copy_law_parser_sees_past_void_tags_inside_payer_text():
     assert FORBIDDEN.findall(_ophi_voice(html)) == ["will be approved"]
 
 
+EVERY_SCREEN = ["/", "/cases/kowalchuk", "/cases/singh", "/cases/deng", "/cases/rosco", "/cases/tremblay", "/cases/nguyen",
+                "/cases/marchand", "/cases/park", "/cases/okafor",
+                "/cases/whitfield/packet", "/recover", "/results", "/settings"]
+
+
 def test_copy_law_in_ophi_voice(seeded):
     as_dentist(seeded)
     seeded.post("/cases/park/decision", data={"outcome": "approved", "decided_on": "2026-09-16", "reason": ""})
-    pages = ["/", "/cases/kowalchuk", "/cases/singh", "/cases/deng", "/cases/rosco", "/cases/tremblay", "/cases/nguyen", "/cases/marchand",
-             "/cases/park", "/cases/okafor",
-             "/cases/whitfield/packet", "/recover", "/results", "/settings"]
+    pages = EVERY_SCREEN
     for actor in ("dentist", "coordinator"):
         seeded.cookies.set("actor", actor)
         for path in pages:
@@ -306,9 +309,18 @@ def test_copy_law_in_ophi_voice(seeded):
             assert not hits, f"{actor} {path}: {hits}"
 
 
+def test_the_model_is_never_named_on_screen(seeded):
+    """Staff see the step to take, not the machinery behind it. Scripts are exempt: the ml-debug blob is a dev aid."""
+    for actor in ("dentist", "coordinator"):
+        seeded.cookies.set("actor", actor)
+        for path in EVERY_SCREEN + ["/cases/whitfield"]:
+            html = re.sub(r"<script.*?</script>", "", seeded.get(path).text, flags=re.S)
+            assert "laya" not in html.lower(), f"{actor} {path}"
+
+
 def test_fix_chart_step_shows_denial_risk_and_applies_ophis_fixes(seeded):
     board = seeded.get("/").text
-    assert "Risk</span> <b class=\"lvl lvl-high\">High</b>" in board
+    assert "Risk <b class=\"lvl lvl-high\">High</b>" in board
     assert "Before Teresa leaves: PA X-ray of #46, 6-site perio chart" in board  # the plan's first fix leads, not the engine's
     page = seeded.get("/cases/deng").text
     assert "Denial risk" in page and "Replace lab code 99333 with 99113" in page and "Apply it" in page
@@ -339,15 +351,15 @@ def test_skip_gaps_to_test_moves_the_case_on_and_restore_brings_them_back(client
 def test_dentist_confirms_ophis_pre_fills_in_one_submit(client):
     as_dentist(client)
     page = client.get("/cases/tremblay").text
-    assert "1 needs your call." in page and "Laya pre-filled the other 9" in page
+    assert "1 needs your call." in page and "Ophi pre-filled the other 9" in page
     assert page.count('checked') == 9  # the suggestions are selected, not recorded
     form = dict(re.findall(r'name="(value_\w+)" value="(\w+)" checked', page))
     form["value_mesiodistal_space"] = "met"  # the one Ophi left to the dentist
     form["value_ferrule_1_5mm"] = "not_met"  # and one they change
     assert client.post("/cases/tremblay/assert/bulk", data=form).status_code == 303
     log = [e.detail for e in client.app.state.svc.store.audit_log("tremblay")]
-    assert "margin_3mm=met, as Laya pre-filled" in log
-    assert "ferrule_1_5mm=not_met, Laya pre-filled met" in log
+    assert "margin_3mm=met, as pre-filled" in log
+    assert "ferrule_1_5mm=not_met, pre-filled met" in log
     assert "mesiodistal_space=met" in log
 
 
