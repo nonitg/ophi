@@ -16,7 +16,6 @@ from ophi.outcomes.case_export import to_export
 from ophi.outcomes.fixer import plan_fixes
 from ophi.outcomes.readout import READOUT_DIR, Readout, ScoredPlan, fingerprint, note_fingerprint, text_for
 from ophi.outcomes.risk import RiskModel
-from ophi.rules.loader import default_pack
 from ophi.service import CaseService
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -27,10 +26,11 @@ def main():
     ap.add_argument("--models", type=Path, default=ROOT / "var/models", help="holds laya-cdcp/ and risk-tree/")
     args = ap.parse_args()
     model = RiskModel.load(args.models / "laya-cdcp", args.models / "risk-tree")
-    svc, pack = CaseService(), default_pack()
+    svc = CaseService()
     READOUT_DIR.mkdir(parents=True, exist_ok=True)
     for cid in svc.case_ids():
         case = svc.base_case(cid)
+        pack = svc.pack_for(case)  # date-of-service pack, as the app scores it
         safe = fixes.open_on(assess(case, pack))
         states = [("as_charted", case)] + ([("safe_fixes", fixes.apply(case, safe, pack))] if safe else [])
         plans = [ScoredPlan(state=s, text_sha256=fingerprint(text_for(c)), note_sha256=note_fingerprint(c),
