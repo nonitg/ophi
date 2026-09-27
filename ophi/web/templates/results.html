@@ -44,6 +44,9 @@
       {% else %}
       <p class="fact-v"><b class="num">{{ res.recover.count }}</b> past denials were never resubmitted, {{ money(res.recover.dollars) }} of treatment. None are rebooking yet; {{ res.recover.to_call }} are on the call list.</p>
       {% endif %}
+      {% if res.recover.back %}
+      <p class="fact-v"><b class="num">{{ plural(res.recover.back, 'crown') }}</b> off that list {{ 'is' if res.recover.back == 1 else 'are' }} planned again and back on the board, {{ money(res.recover.back_dollars) }} of treatment. Each still needs a new preauthorization before it can be sent.</p>
+      {% endif %}
       <p class="fact-more"><a href="{{ BASE }}/recover">Open the call list</a></p>
     </div>
   </section>

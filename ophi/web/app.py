@@ -28,6 +28,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
 from ophi import db_store, demo, fixes, letters, workflow
+from ophi.callscript import draft_call_script
 from ophi.engine.models import Status
 from ophi.outcomes import past_store, past_view, readout, similar, store
 from ophi.outcomes.live import LiveScorer
@@ -39,6 +40,7 @@ from ophi.rules import auto
 from ophi.rules.loader import load_pack
 from ophi.service import CaseService, CaseView, NarrativeInvalid, identity_tokens
 from ophi.sources import abeldent
+from ophi.sources.pms_lookback import PmsLookBack
 from ophi.sources.pms_repository import AbelDentPmsRepository
 from ophi.verify.verifier import verify_packet
 from ophi.web import abeldent_api, present
@@ -599,24 +601,44 @@ def _lookback_unavailable(e: Exception) -> str:
     return f"The look-back of past requests could not run ({e}). The worklist is not affected."
 
 
+def _recover_page(request: Request, status: int = 200, **extra) -> HTMLResponse:
+    svc = _svc(request)
+    r = present.recover(svc.recover_rows(), svc.orphan_followups(), svc.today())
+    return _render(request, "recover.html", status=status, r=r, **extra)
+
+
 @router.get("/recover", response_class=HTMLResponse)
 def recover(request: Request):
     try:
-        r = present.recover(_svc(request).recover_rows())
+        return _recover_page(request)
     except Exception as e:  # a broken retrospective must not take the page down
         return _error(request, 503, "Recover is unavailable", _lookback_unavailable(e))
-    return _render(request, "recover.html", r=r)
 
 
 @router.post("/recover/{row_id}")
-def recover_followup(request: Request, row_id: str, status: str = Form(...), note: str = Form("")):
+def recover_followup(request: Request, row_id: str, status: str = Form(...), note: str = Form(""),
+                     callback_on: str = Form("")):
     try:
-        _svc(request).record_followup(row_id, status, note, _actor(request).name)
+        _svc(request).record_followup(row_id, status, note, _actor(request).name, _form_date(callback_on))
     except KeyError:
         return _error(request, 404, "Not on the list", f"No past denial '{row_id}' is waiting on a call.")
     except ValueError as e:
         return _error(request, 400, "Invalid follow-up", str(e))
     return _done(request, f"/recover#r-{row_id}", "followup")
+
+
+@router.post("/recover/{row_id}/script", response_class=HTMLResponse)
+def recover_script(request: Request, row_id: str):
+    """Draft what to say. Ophi never dials: a person reads this and makes the call."""
+    svc = _svc(request)
+    row = next((x["row"] for x in svc.recover_rows() if x["row"].case_id == row_id), None)
+    if row is None:
+        return _error(request, 404, "Not on the list", f"No past denial '{row_id}' is waiting on a call.")
+    try:
+        script = draft_call_script(row, svc.clinic_name())
+    except letters.LetterError as e:
+        return _recover_page(request, script_row=row_id, script_error=str(e))
+    return _recover_page(request, script_row=row_id, script=script)
 
 
 @router.get("/results", response_class=HTMLResponse)
@@ -818,6 +840,7 @@ def create_app(svc: CaseService | None = None, packets_dir: Path | None = None, 
     if isinstance(svc.repository, AbelDentPmsRepository) and svc.pms_claims is None:  # cases from the VM: so are their claims
         pms = svc.repository
         svc.pms_claims, svc.note_reader = (lambda: abeldent.list_predeterminations(pms.sql)), _note_reason
+        svc.lookback_report = PmsLookBack(pms).report  # the live clinic's own past, in place of the saved rows
     if live_ml is None:
         live_ml = (own and not base
                    and os.environ.get("OPHI_LIVE_ML", "1").strip().lower() not in ("0", "false", "off", "no"))

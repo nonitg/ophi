@@ -18,7 +18,7 @@ from contextlib import contextmanager
 from contextvars import ContextVar
 from datetime import UTC, date, datetime, time
 from pathlib import Path
-from typing import Literal
+from typing import Literal, get_args
 
 from pydantic import BaseModel, Field, model_validator
 
@@ -33,10 +33,11 @@ from ophi.extract.proposer import propose_for_case
 from ophi.packet.documents import narrative_ascii
 from ophi.packet.narrative import validate_narrative
 from ophi.outcomes.weights import Weights
-from ophi.lookback import LookBackReport, run_lookback
+from ophi.lookback import LookBackReport, LookBackRow
 from ophi.rules.loader import default_pack, pack_for
 from ophi.rules.schema import RulePack
 from ophi.sources.abeldent import Predetermination
+from ophi.sources.fixture_lookback import fixture_lookback
 from ophi.workflow import REASONS, Stage, chair_actions, chart_actions, documentation_gaps, stage_of, valid_until, with_ask
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -159,14 +160,20 @@ class CaseState(BaseModel):
         return self.submitted_on is not None
 
 
-FollowUpStatus = Literal["left_message", "rebooking", "declined"]
+FollowUpStatus = Literal["left_message", "rebooking", "declined", "reopened"]
+# Statuses that mean the clinic is still chasing this patient, so the row wants a date to call back on.
+OPEN_FOLLOWUP = ("left_message", "rebooking", "reopened")
 
 
 class FollowUp(BaseModel):
-    """Staff's call-back on a past denial that was never resubmitted (the Recover list)."""
+    """One call staff made on a past denial that was never resubmitted (the Recover list).
+
+    Kept as a history, not a latest-value: three failed attempts to reach a patient and one are different
+    facts, and only the history tells staff when to stop chasing."""
 
     status: FollowUpStatus
     note: str | None = None
+    callback_on: date | None = None  # when to try again; without it a call list has no next action and rots
     by: str
     at: datetime
 
@@ -203,17 +210,24 @@ class Store:
                 st.first_check = fc
                 (self.root / f"{case_id}.json").write_text(st.model_dump_json(indent=2))
 
-    def load_followups(self) -> dict[str, FollowUp]:
+    def load_followup_calls(self) -> dict[str, list[FollowUp]]:
+        """Every call made against each row, oldest first. Reads the pre-history format (one call per row) too."""
         p = self.root / "followups.json"
         if not p.exists():
             return {}
-        return {k: FollowUp.model_validate(v) for k, v in json.loads(p.read_text()).items()}
+        raw = json.loads(p.read_text())
+        return {k: [FollowUp.model_validate(c) for c in (v if isinstance(v, list) else [v])] for k, v in raw.items()}
 
-    def set_followup(self, row_id: str, followup: FollowUp) -> None:
+    def load_followups(self) -> dict[str, FollowUp]:
+        """The latest call on each row, for screens that show one status."""
+        return {k: calls[-1] for k, calls in self.load_followup_calls().items() if calls}
+
+    def add_followup(self, row_id: str, followup: FollowUp) -> None:
         with self._lock:
-            followups = self.load_followups()
-            followups[row_id] = followup
-            (self.root / "followups.json").write_text(json.dumps({k: v.model_dump(mode="json") for k, v in followups.items()}, indent=2))
+            calls = self.load_followup_calls()
+            calls.setdefault(row_id, []).append(followup)
+            (self.root / "followups.json").write_text(
+                json.dumps({k: [c.model_dump(mode="json") for c in v] for k, v in calls.items()}, indent=2))
 
     def audit(self, case_id: str, actor: str, event: str, detail: str, at: datetime | None = None) -> None:
         ev = AuditEvent(at=at or datetime.now(UTC), case_id=case_id, actor=actor, event=event, detail=detail)
@@ -284,14 +298,18 @@ class CaseService:
         weights: Weights | None = None,
         pms_claims: Callable[[], list[Predetermination]] | None = None,
         note_reader: Callable[[str], str | None] | None = None,
+        lookback_report: Callable[[], LookBackReport] | None = None,
     ) -> None:
         """`pms_claims` reads the predeterminations the PMS sent; `note_reader` names the REASONS key in Sun Life's
-        note text. Both are optional: without them staff record every step by hand."""
+        note text. Both are optional: without them staff record every step by hand. `lookback_report` reads the
+        clinic's own past submissions; without it the Look-Back reads the saved ABELDent rows, so the demo and a
+        live clinic go down the same path."""
         self.cases_dir = cases_dir
         self.store = store or Store()
         self._pinned = pack  # tests pin one pack; otherwise each request gets the pack for its own date
         self.weights = weights
         self.pms_claims, self.note_reader = pms_claims, note_reader
+        self.lookback_report = lookback_report
         self._pms: dict[str, Predetermination] = {}  # case id -> its predetermination at the last sync
         self.clock = clock or self._chart_clock
         self._chart_day: tuple[date, date] | None = None  # (real day it was computed, chart day)
@@ -657,22 +675,68 @@ class CaseService:
     # --- recover: past denials never resubmitted ---------------------------------------------------
 
     def lookback(self) -> LookBackReport:
-        return run_lookback()
+        return self.lookback_report() if self.lookback_report else fixture_lookback()
+
+    def _board_index(self) -> dict[tuple[str, str, int], str]:
+        """Board cases keyed by patient, code and tooth -- how a past denial recognises its own crown once the
+        clinic re-plans it. The PMS has no Ophi case id and Ophi never writes one back, so identity is the
+        same triple `sync_from_pms` matches claims on."""
+        idx = {}
+        for cid in self.case_ids():
+            c = self.base_case(cid)
+            idx[(c.patient.display_name.casefold(), c.treatment.code, c.requested_tooth)] = cid
+        return idx
+
+    def _linked_case(self, row: LookBackRow, idx: dict[tuple[str, str, int], str]) -> str | None:
+        return idx.get((row.patient_name.casefold(), row.code, row.tooth_fdi))
 
     def recover_rows(self) -> list[dict]:
-        """Denials from the look-back that were never resubmitted, each with staff's latest follow-up."""
-        followups = self.store.load_followups()
+        """Denials from the look-back that were never resubmitted: each with every call staff made on it, and
+        the board case it turned into once the crown was re-planned."""
+        calls = self.store.load_followup_calls()
+        idx = self._board_index()
         rows = [r for r in self.lookback().rows if r.decision == "denied" and not r.resubmitted]
-        return [{"row": r, "followup": followups.get(r.case_id)} for r in rows]
+        return [{"row": r, "calls": calls.get(r.case_id, []), "followup": (calls.get(r.case_id) or [None])[-1],
+                 "case_id": self._linked_case(r, idx)} for r in rows]
 
-    def record_followup(self, row_id: str, status: FollowUpStatus, note: str | None, by: str) -> None:
+    def clinic_name(self) -> str:
+        """What the clinic is called out loud, for a script a staffer reads to a patient. The charts carry it;
+        `OPHI_CLINIC_NAME` overrides when a driver doesn't."""
+        override = os.environ.get("OPHI_CLINIC_NAME", "").strip()
+        if override:
+            return override
+        ids = self.case_ids()
+        return self.base_case(ids[0]).clinic if ids else "Fictional Dental Centre"
+
+    def recovered_rows(self) -> list[dict]:
+        """Past denials that are moving again -- a crown for the same patient and tooth is back on the board.
+        This is the only honest measure of what the call list won back: Ophi cannot write to the PMS, so a
+        re-planned crown appearing there is the clinic acting, not Ophi claiming."""
+        idx, calls = self._board_index(), self.store.load_followup_calls()
+        return [{"row": r, "case_id": cid, "calls": calls.get(r.case_id, [])}
+                for r in self.lookback().rows if r.decision == "denied"
+                if (cid := self._linked_case(r, idx))]
+
+    def orphan_followups(self) -> int:
+        """Follow-ups recorded against rows the current source no longer lists -- staff's calls against an
+        earlier history. Counted, not hidden: the work was done even if the row it belonged to is gone."""
+        listed = {r.case_id for r in self.lookback().rows}
+        return sum(1 for row_id in self.store.load_followups() if row_id not in listed)
+
+    def record_followup(self, row_id: str, status: FollowUpStatus, note: str | None, by: str,
+                        callback_on: date | None = None) -> None:
         if row_id not in {x["row"].case_id for x in self.recover_rows()}:
             raise KeyError(row_id)
-        if status not in ("left_message", "rebooking", "declined"):
+        if status not in get_args(FollowUpStatus):
             raise ValueError(status)
-        f = FollowUp(status=status, note=(note or "").strip() or None, by=by, at=self.now())
-        self.store.set_followup(row_id, f)
-        self.audit(row_id, by, "recover_followup", status + (f" ({f.note})" if f.note else ""))
+        if callback_on is not None and callback_on < self.today():
+            raise ValueError("a call-back date is in the past")
+        if status == "declined" and callback_on is not None:
+            raise ValueError("a patient who is not proceeding has no call-back date")
+        f = FollowUp(status=status, note=(note or "").strip() or None, callback_on=callback_on, by=by, at=self.now())
+        self.store.add_followup(row_id, f)
+        detail = status + (f", call back {callback_on.isoformat()}" if callback_on else "") + (f" ({f.note})" if f.note else "")
+        self.audit(row_id, by, "recover_followup", detail)
 
     def reset(self) -> None:
         self.store.reset()

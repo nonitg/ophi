@@ -33,7 +33,7 @@ def test_workflow_state_round_trips_through_supabase(url, tmp_path):
     assert "kowalchuk" in svc.case_ids() and svc.base_case("kowalchuk").case_id == "kowalchuk"
 
     svc.skip_gaps("kowalchuk", "Kim Osei")
-    st.set_followup("r1", FollowUp(status="left_message", by="Kim Osei", at=datetime(2026, 9, 17, tzinfo=UTC)))
+    st.add_followup("r1", FollowUp(status="left_message", by="Kim Osei", at=datetime(2026, 9, 17, tzinfo=UTC)))
     fresh = db_store.SupabaseStore(connect, tmp_path)  # a new process sees the same state
     assert fresh.load("kowalchuk").test_skips and fresh.load("kowalchuk") == st.load("kowalchuk")
     assert [e.case_id for e in fresh.audit_log("kowalchuk")] and "r1" in fresh.load_followups()

@@ -56,6 +56,8 @@ class LookBackReport(BaseModel):
     denied_with_doc_gap_dollars: float
     never_resubmitted: int
     never_resubmitted_dollars: float
+    # Sent, but no decision reached the source: Sun Life answered on paper, so the file is neither won nor lost.
+    undecided: int = 0
     rows: list[LookBackRow]
 
     @property
@@ -68,6 +70,20 @@ def _initials(name: str) -> str:
     return "".join(p[0].upper() + "." for p in parts[:2]) or "—"
 
 
+def gaps_of(case, pack) -> tuple[list[str], list[str], list[str]]:
+    """Judge one past submission: the documents it was missing, the ones the source couldn't show, and what
+    else was open. `other_open` names only what was definitely unsatisfied. A requirement resting on a
+    clinician's assertion reads as indeterminate on a chart alone -- nobody answered it retrospectively --
+    and calling that "still open" would invent a gap the clinic could have closed."""
+    a = assess(case, pack)
+    docs = [r for r in a.requirements if r.applicable and r.requirement_id in DOCUMENT_REQUIREMENTS]
+    gaps = [r.label for r in docs if r.status == Status.UNSATISFIED]
+    unverifiable = [r.label for r in docs if r.status == Status.INDETERMINATE]
+    other = [r.label for r in a.requirements if r.applicable and r.requirement_id not in DOCUMENT_REQUIREMENTS
+             and r.status == Status.UNSATISFIED]
+    return gaps, unverifiable, other
+
+
 def load_rows(cases_dir: Path = LOOKBACK_DIR) -> list[LookBackRow]:
     rows = []
     for f in sorted(cases_dir.glob("*.yaml")):
@@ -75,12 +91,7 @@ def load_rows(cases_dir: Path = LOOKBACK_DIR) -> list[LookBackRow]:
         outcome = d.pop("outcome")
         d["as_of"] = outcome["submitted"]  # judge the chart as it stood on the day it was sent
         case = build_case(d, f.stem)
-        a = assess(case, default_pack(case.as_of))  # the rules in force on the day it was sent
-        docs = [r for r in a.requirements if r.applicable and r.requirement_id in DOCUMENT_REQUIREMENTS]
-        gaps = [r.label for r in docs if r.status == Status.UNSATISFIED]
-        unverifiable = [r.label for r in docs if r.status == Status.INDETERMINATE]
-        other = [r.label for r in a.requirements if r.applicable and r.requirement_id not in DOCUMENT_REQUIREMENTS
-                 and r.status not in (Status.SATISFIED, Status.NOT_APPLICABLE)]
+        gaps, unverifiable, other = gaps_of(case, default_pack(case.as_of))  # the rules in force that day
         rows.append(LookBackRow(
             case_id=case.case_id, patient_label=_initials(case.patient.display_name), patient_name=case.patient.display_name, code=case.treatment.code,
             tooth_fdi=case.requested_tooth, submitted_on=case.as_of, decision=outcome["decision"],
@@ -91,13 +102,12 @@ def load_rows(cases_dir: Path = LOOKBACK_DIR) -> list[LookBackRow]:
     return rows
 
 
-def run_lookback(cases_dir: Path = LOOKBACK_DIR) -> LookBackReport:
-    rows = load_rows(cases_dir)
+def report(rows: list[LookBackRow], window_label: str = "last 12 months", undecided: int = 0) -> LookBackReport:
     denied = [r for r in rows if r.decision == "denied"]
     with_gap = [r for r in denied if r.documentation_gap]
     never = [r for r in denied if not r.resubmitted]
     return LookBackReport(
-        window_label="last 12 months",
+        window_label=window_label,
         ruleset_version=", ".join(sorted({default_pack(r.submitted_on).version for r in rows})) or default_pack().version,
         submitted=len(rows),
         denied=len(denied),
@@ -107,5 +117,10 @@ def run_lookback(cases_dir: Path = LOOKBACK_DIR) -> LookBackReport:
         denied_with_doc_gap_dollars=round(sum(r.fee_dollars for r in with_gap), 2),
         never_resubmitted=len(never),
         never_resubmitted_dollars=round(sum(r.fee_dollars for r in never), 2),
+        undecided=undecided,
         rows=sorted(rows, key=lambda r: r.submitted_on, reverse=True),
     )
+
+
+def run_lookback(cases_dir: Path = LOOKBACK_DIR) -> LookBackReport:
+    return report(load_rows(cases_dir))

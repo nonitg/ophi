@@ -6,21 +6,24 @@
   <p class="lede">{{ money(r.dollars) }} of crowns that haven't happened.</p>
 </header>
 
-{% if r.rebooking or r.declined %}
+{% if r.rebooking or r.declined or r.back or r.due %}
 <div class="tally" aria-label="Call list progress">
+  {% if r.due %}<span class="is-due"><b class="num">{{ r.due }}</b>to call back today</span>{% endif %}
   <span><b class="num">{{ r.to_call }}</b>to call, {{ money(r.to_call_dollars) }}</span>
   {% if r.rebooking %}<span><b class="num">{{ r.rebooking }}</b>rebooking, {{ money(r.rebooking_dollars) }}</span>{% endif %}
+  {% if r.back %}<span class="is-back"><b class="num">{{ r.back }}</b>back on the board, {{ money(r.back_dollars) }}</span>{% endif %}
   {% if r.declined %}<span><b class="num">{{ r.declined }}</b>not proceeding</span>{% endif %}
 </div>
 {% endif %}
 
 <ul class="calls">
   {% for x in r.calls %}{% set row = x.row %}{% set f = x.followup %}
-  <li class="call{% if f and f.status == 'declined' %} is-closed{% endif %}" id="r-{{ row.case_id }}">
+  <li class="call{% if f and f.status == 'declined' %} is-closed{% endif %}{% if x.case_id %} is-back{% endif %}{% if x.overdue %} is-due{% endif %}" id="r-{{ row.case_id }}">
     <div>
       <div class="call-name">{{ row.patient_name }}</div>
       <div class="call-sub">Crown on #{{ row.tooth_fdi }}, sent {{ full_date(row.submitted_on) }}</div>
       <div class="call-fee num">{{ money(row.fee_dollars) }}</div>
+      {% if x.due_on %}<div class="call-due{% if x.overdue %} is-due{% endif %}">{{ 'Call back due' if x.overdue else 'Call back' }} {{ long_date(x.due_on) }}</div>{% endif %}
     </div>
     <div>
       <p class="call-why"><span class="payer" data-voice="payer">Sun Life denied it{% if row.denial_text %}: <q class="payer-quote">{{ row.denial_text }}</q>{% else %}.{% endif %}</span></p>
@@ -31,19 +34,53 @@
       {% else %}
       <p class="call-why">No missing document found.{% if row.other_open %} Still open when it was sent: {{ row.other_open|join('; ') }}.{% endif %}</p>
       {% endif %}
+      {% if x.case_id %}
+      <p class="call-back-note">The crown on #{{ row.tooth_fdi }} is planned again and <a href="{{ BASE }}/cases/{{ x.case_id }}">back on the board</a>. Nothing left to call about.</p>
+      {% elif f and f.status == 'reopened' %}
+      <p class="call-next">Next: plan the crown on #{{ row.tooth_fdi }} again in the practice management system. Ophi only reads it, so it reaches the board once it's there.</p>
+      {% endif %}
+      {% if script_row == row.case_id %}
+        {% if script_error %}<p class="call-script-err">{{ script_error }}</p>
+        {% else %}
+        <div class="call-script">
+          <p class="call-script-head">What to say <span class="muted">— a draft. Read it, change it, then call. Ophi never phones a patient.</span></p>
+          <p class="call-script-text">{{ script.text }}</p>
+          <p class="muted small">Checked against this patient's chart: {{ script.report.checks|length }} checks, all passed.</p>
+        </div>
+        {% endif %}
+      {% endif %}
+      {% if x.calls|length > 1 %}
+      <details class="call-log"><summary>{{ plural(x.calls|length, 'call') }} logged</summary>
+        <ol>{% for c in x.calls %}<li>{{ FOLLOWUP_LABEL[c.status] }} — {{ c.by }}, {{ local_time(c.at, '%b %-d') }}{% if c.note %}: “{{ c.note }}”{% endif %}</li>{% endfor %}</ol>
+      </details>
+      {% endif %}
     </div>
-    <form class="call-act" method="post" action="{{ BASE }}/recover/{{ row.case_id }}">
+    <div class="call-act">
       {% if f %}<p class="call-status"><b>{{ FOLLOWUP_LABEL[f.status] }}</b> <span class="muted">{{ f.by }}, {{ local_time(f.at, '%b %-d') }}{% if f.note %}: “{{ f.note }}”{% endif %}</span></p>{% endif %}
-      <div class="btn-row">
-        <button class="btn btn-sm" name="status" value="left_message">Left a message</button>
-        <button class="btn btn-sm" name="status" value="rebooking">Rebooking</button>
-        <button class="btn btn-sm" name="status" value="declined">Not proceeding</button>
-      </div>
-      <details class="crit-note"><summary>Add a note</summary><input class="input" type="text" name="note" aria-label="Note for {{ row.patient_name }}"></details>
-    </form>
+      {% if not x.case_id %}
+      <form method="post" action="{{ BASE }}/recover/{{ row.case_id }}">
+        <div class="btn-row">
+          <button class="btn btn-sm" name="status" value="left_message">Left a message</button>
+          <button class="btn btn-sm" name="status" value="rebooking">Rebooking</button>
+          <button class="btn btn-sm" name="status" value="reopened">Taking it back up</button>
+          <button class="btn btn-sm" name="status" value="declined">Not proceeding</button>
+        </div>
+        <label class="call-when">Call back on <input class="input" type="date" name="callback_on"
+          value="{{ x.due_on.isoformat() if x.due_on else '' }}" min="{{ today.isoformat() }}"></label>
+        <details class="crit-note"><summary>Add a note</summary><input class="input" type="text" name="note" aria-label="Note for {{ row.patient_name }}"></details>
+      </form>
+      <form method="post" action="{{ BASE }}/recover/{{ row.case_id }}/script">
+        <button class="btn btn-sm btn-quiet" type="submit">Draft what to say</button>
+      </form>
+      {% endif %}
+    </div>
   </li>
   {% else %}
   <li class="empty">No past denials are waiting on a call.</li>
   {% endfor %}
 </ul>
+{% if r.orphans %}
+<p class="muted small orphan-note">{{ plural(r.orphans, 'follow-up was', 'follow-ups were') }} recorded against an earlier
+  set of past requests, and {{ 'is' if r.orphans == 1 else 'are' }} no longer listed here. The audit log still has {{ 'it' if r.orphans == 1 else 'them' }}.</p>
+{% endif %}
 {% endblock %}

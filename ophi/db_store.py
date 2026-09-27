@@ -63,13 +63,19 @@ class SupabaseStore(Store):
                          "where case_id = %s and coalesce(state->'first_check', 'null') = 'null'",
                          (Jsonb(fc.model_dump(mode="json")), case_id))
 
-    def load_followups(self) -> dict[str, FollowUp]:
+    def load_followup_calls(self) -> dict[str, list[FollowUp]]:
+        """One jsonb array of calls per row. Rows written before follow-ups kept a history hold a bare object."""
         with self._db() as conn:
-            return {r: FollowUp.model_validate(f) for r, f in conn.execute("select row_id, followup from app.followup").fetchall()}
+            rows = conn.execute("select row_id, followup from app.followup").fetchall()
+        return {r: [FollowUp.model_validate(c) for c in (f if isinstance(f, list) else [f])] for r, f in rows}
 
-    def set_followup(self, row_id: str, followup: FollowUp) -> None:
-        self._write("insert into app.followup (row_id, followup) values (%s, %s) on conflict (row_id) "
-                    "do update set followup = excluded.followup, updated_at = now()", (row_id, Jsonb(followup.model_dump(mode="json"))))
+    def add_followup(self, row_id: str, followup: FollowUp) -> None:
+        """Append, in one statement so two staff calling at once don't drop a call. Converts a pre-history
+        row to an array on the way, which is why the column is not simply concatenated."""
+        self._write("insert into app.followup (row_id, followup) values (%s, %s) on conflict (row_id) do update "
+                    "set followup = (case when jsonb_typeof(app.followup.followup) = 'array' then app.followup.followup "
+                    "else jsonb_build_array(app.followup.followup) end) || excluded.followup, updated_at = now()",
+                    (row_id, Jsonb([followup.model_dump(mode="json")])))
 
     def audit(self, case_id: str, actor: str, event: str, detail: str, at: datetime | None = None) -> None:
         self._write("insert into app.audit_event (at, case_id, actor, event, detail) values (%s, %s, %s, %s, %s)",

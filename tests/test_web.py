@@ -8,6 +8,7 @@ from html.parser import HTMLParser
 import pytest
 from fastapi.testclient import TestClient
 
+from ophi import copy_law
 from ophi.service import CaseService, Store
 from ophi.web.app import create_app
 
@@ -16,7 +17,7 @@ RESTORABILITY = ["no_active_perio", "crown_root_ratio", "no_furcation", "margin_
 ALL_TREMBLAY = RESTORABILITY + ["extensively_restored", "active_disease_addressed", "endo_healed"]
 
 # Ophi's own voice never predicts payer behaviour. Chart quotes and Sun Life text are exempt.
-FORBIDDEN = re.compile(r"\b(will be approved|approved|eligible|covered|likely|probability)\b", re.I)
+FORBIDDEN = copy_law.FORBIDDEN  # re-exported: tests/test_pack_auto.py imports it from here
 
 
 @pytest.fixture

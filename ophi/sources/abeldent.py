@@ -55,8 +55,11 @@ class Predetermination(BaseModel):
 
     claim_id: int
     patient_id: int
+    patient_name: str | None = None
     code: str
     tooth: int | None
+    trans_id: int | None = None  # the chart row this claim was for; the way back into the chart dump
+    fee_cents: int | None = None  # the clinic's fee, not Sun Life's payable (that is benefit_cents)
     sent_on: date
     status: str  # Claim.Status letter
     status_label: str  # ABELDent's own wording for the letter
@@ -118,17 +121,24 @@ CLAIM_STATUS: dict[str, tuple[str, AnswerAt]] = {
 }
 
 # One row per predetermination: its first line's planned procedure, and the network message its status came from.
+# `trans_id` is the chart row the claim was for -- the only unambiguous way back to it across a year of history,
+# where the same tooth may be submitted more than once. Bounded to 12 months: the look-back claims that window,
+# and the bound is what keeps the chart pull behind it finite.
 LIST_PREDETERMINATIONS = """
 SELECT c.ClaimID AS claim_id, c.PatientID AS patient_id, RTRIM(t.Code) AS code, t.ToothNum AS tooth,
+  t.TransID AS trans_id, t.Billed AS fee_cents,
+  RTRIM(p.pfname) + ' ' + RTRIM(p.plname) AS patient_name,
   CONVERT(varchar(10), c.BillingDate, 23) AS sent_on, RTRIM(c.Status) AS status,
   NULLIF(RTRIM(c.CarrierClaimNumber), '') AS carrier_ref, RTRIM(i.insname) AS carrier,
   CONVERT(varchar(10), n.Timestamp, 23) AS answered_on, n.ReceivedMessage AS received
 FROM Claim c
 JOIN ClaimItem ci ON ci.ClaimID = c.ClaimID AND ci.ClaimItemNumber = 1
 JOIN Transactions t ON t.TransID = ci.ServiceTransaction
+LEFT JOIN pat p ON p.pid = c.PatientID
 LEFT JOIN ins i ON i.inscoid = c.CarrierID
 LEFT JOIN NetLog n ON n.LogEventID = c.LogEventID
 WHERE c.IsPredetermination = 1 AND c.ClaimID > 0
+  AND c.BillingDate >= DATEADD(month, -12, CAST(GETDATE() AS date))
 ORDER BY c.BillingDate DESC"""
 
 
@@ -171,6 +181,8 @@ def _predetermination(row: dict) -> Predetermination:
                     "benefit_cents": benefit, "reason": " ".join(f.get("G26", [])) or next(iter(f.get("G07", [])), None)}
     return Predetermination(**{k: row[k] for k in ("claim_id", "patient_id", "code", "tooth", "sent_on", "status",
                                                     "carrier", "carrier_ref")},
+                            # A mock PMS may not carry these; the look-back skips a claim it can't place in a chart.
+                            **{k: row.get(k) for k in ("trans_id", "fee_cents", "patient_name")},
                             status_label=label, answer_at=answer_at, **decision)
 
 

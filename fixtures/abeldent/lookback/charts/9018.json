@@ -1,0 +1,324 @@
+{
+ "source": "lookback-fixture",
+ "patient": {
+  "pid": 9018,
+  "surname": "THOMPSON",
+  "given": "AVA",
+  "dob": "1976-08-08",
+  "gender": "F",
+  "dentist": "L1",
+  "inactive": false,
+  "non_patient": false
+ },
+ "coverage": {
+  "items": []
+ },
+ "planned_procedures": {
+  "items": [
+   {
+    "trans_id": 901800,
+    "plan_num": 1,
+    "code": "27211",
+    "description": "Crown, porcelain fused to metal",
+    "tooth_fdi": 21,
+    "surfaces": "",
+    "date": "2026-02-05",
+    "fee": 1285.0,
+    "provider": "L1",
+    "responsible_provider": "L1",
+    "status": "planned",
+    "plan": {
+     "date": "2026-02-05",
+     "description": null
+    }
+   },
+   {
+    "trans_id": 901801,
+    "plan_num": 1,
+    "code": "01202",
+    "tooth_fdi": null,
+    "date": "2026-02-05",
+    "provider": "L1",
+    "responsible_provider": "L1",
+    "status": "planned_applied"
+   }
+  ]
+ },
+ "completed_procedures": {
+  "items": [
+   {
+    "trans_id": 901804,
+    "code": "01202",
+    "tooth_fdi": null,
+    "surfaces": "",
+    "date": "2026-02-05",
+    "description": null
+   }
+  ]
+ },
+ "perio_exams": {
+  "items": [
+   {
+    "exam_num": 1,
+    "date": "2026-02-05",
+    "provider": "L1",
+    "date_certified": "2026-02-05",
+    "pocket": {
+     "teeth_no_value_fdi": [
+      18,
+      28,
+      38,
+      48
+     ],
+     "by_tooth_fdi": {
+      "11": [
+       3,
+       3,
+       3,
+       3,
+       3,
+       3
+      ],
+      "12": [
+       3,
+       3,
+       3,
+       3,
+       3,
+       3
+      ],
+      "13": [
+       3,
+       3,
+       3,
+       3,
+       3,
+       3
+      ],
+      "14": [
+       3,
+       3,
+       3,
+       3,
+       3,
+       3
+      ],
+      "15": [
+       3,
+       3,
+       3,
+       3,
+       3,
+       3
+      ],
+      "16": [
+       3,
+       3,
+       3,
+       3,
+       3,
+       3
+      ],
+      "17": [
+       3,
+       3,
+       3,
+       3,
+       3,
+       3
+      ],
+      "21": [
+       3,
+       3,
+       3,
+       3,
+       3,
+       3
+      ],
+      "22": [
+       3,
+       3,
+       3,
+       3,
+       3,
+       3
+      ],
+      "23": [
+       3,
+       3,
+       3,
+       3,
+       3,
+       3
+      ],
+      "24": [
+       3,
+       3,
+       3,
+       3,
+       3,
+       3
+      ],
+      "25": [
+       3,
+       3,
+       3,
+       3,
+       3,
+       3
+      ],
+      "26": [
+       3,
+       3,
+       3,
+       3,
+       3,
+       3
+      ],
+      "27": [
+       3,
+       3,
+       3,
+       3,
+       3,
+       3
+      ],
+      "31": [
+       3,
+       3,
+       3,
+       3,
+       3,
+       3
+      ],
+      "32": [
+       3,
+       3,
+       3,
+       3,
+       3,
+       3
+      ],
+      "33": [
+       3,
+       3,
+       3,
+       3,
+       3,
+       3
+      ],
+      "34": [
+       3,
+       3,
+       3,
+       3,
+       3,
+       3
+      ],
+      "35": [
+       3,
+       3,
+       3,
+       3,
+       3,
+       3
+      ],
+      "36": [
+       3,
+       3,
+       3,
+       3,
+       3,
+       3
+      ],
+      "37": [
+       3,
+       3,
+       3,
+       3,
+       3,
+       3
+      ],
+      "41": [
+       3,
+       3,
+       3,
+       3,
+       3,
+       3
+      ],
+      "42": [
+       3,
+       3,
+       3,
+       3,
+       3,
+       3
+      ],
+      "43": [
+       3,
+       3,
+       3,
+       3,
+       3,
+       3
+      ],
+      "44": [
+       3,
+       3,
+       3,
+       3,
+       3,
+       3
+      ],
+      "45": [
+       3,
+       3,
+       3,
+       3,
+       3,
+       3
+      ],
+      "46": [
+       3,
+       3,
+       3,
+       3,
+       3,
+       3
+      ],
+      "47": [
+       3,
+       3,
+       3,
+       3,
+       3,
+       3
+      ]
+     }
+    }
+   }
+  ]
+ },
+ "clinical_notes": {
+  "items": []
+ },
+ "imaging": {
+  "procedure_events": [
+   {
+    "trans_id": 901802,
+    "code": "02111",
+    "tooth_fdi": 21,
+    "date": "2026-02-05",
+    "description": "Periapical film"
+   },
+   {
+    "trans_id": 901803,
+    "code": "02141",
+    "tooth_fdi": null,
+    "date": "2026-02-05",
+    "description": "Bitewing series"
+   }
+  ]
+ }
+}

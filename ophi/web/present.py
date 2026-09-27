@@ -1202,22 +1202,46 @@ def kb(n: int | None) -> str:
 
 # --- recover: past denials worth a call -----------------------------------------------------------
 
-FOLLOWUP_LABEL = {"left_message": "Left a message", "rebooking": "Rebooking", "declined": "Not proceeding"}
+FOLLOWUP_LABEL = {"left_message": "Left a message", "rebooking": "Rebooking",
+                  "reopened": "Taking it back up", "declined": "Not proceeding"}
 
 
-def recover(rows: list[dict]) -> dict:
-    """The call list: patients still to call first (largest fee first), then those in progress, then closed."""
+def recover(rows: list[dict], orphans: int = 0, today: date | None = None) -> dict:
+    """The call list, in the order a morning is actually worked: call-backs that are due, then patients nobody
+    has called, then the rest by fee. A row whose crown is back on the board is done -- it drops to the bottom
+    and counts as won back, because the clinic re-planned the treatment and Ophi can see it."""
+    day = today or date.today()
+
     def status(x):
         return x["followup"].status if x["followup"] else None
-    order = {None: 0, "left_message": 1, "rebooking": 2, "declined": 3}
-    items = sorted(rows, key=lambda x: (order[status(x)], -x["row"].fee_dollars))
-    to_call = [x for x in rows if status(x) in (None, "left_message")]
-    rebooking = [x for x in rows if status(x) == "rebooking"]
+
+    def due(x):
+        f = x["followup"]
+        return f.callback_on if f and f.callback_on and not x["case_id"] else None
+
+    def overdue(x):
+        d = due(x)
+        return d is not None and d <= day
+
+    order = {None: 1, "left_message": 2, "reopened": 2, "rebooking": 3, "declined": 5}
+    def rank(x):
+        if x["case_id"]:
+            return 4  # back on the board: nothing left to call about
+        return 0 if overdue(x) else order[status(x)]
+
+    items = sorted(rows, key=lambda x: (rank(x), due(x) or date.max, -x["row"].fee_dollars))
+    for x in items:  # the template reads these rather than recomputing dates in Jinja
+        x["due_on"], x["overdue"] = due(x), overdue(x)
+    back = [x for x in rows if x["case_id"]]
+    to_call = [x for x in rows if not x["case_id"] and status(x) in (None, "left_message", "reopened")]
+    rebooking = [x for x in rows if not x["case_id"] and status(x) == "rebooking"]
     return {"calls": items, "count": len(rows), "dollars": sum(x["row"].fee_dollars for x in rows),
             "with_gap": sum(1 for x in rows if x["row"].gaps),
             "to_call": len(to_call), "to_call_dollars": sum(x["row"].fee_dollars for x in to_call),
+            "due": sum(1 for x in rows if overdue(x)),
             "rebooking": len(rebooking), "rebooking_dollars": sum(x["row"].fee_dollars for x in rebooking),
-            "declined": sum(1 for x in rows if status(x) == "declined")}
+            "back": len(back), "back_dollars": sum(x["row"].fee_dollars for x in back),
+            "declined": sum(1 for x in rows if status(x) == "declined"), "orphans": orphans}
 
 
 # --- results: what Ophi has done for the clinic ---------------------------------------------------
