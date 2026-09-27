@@ -2,11 +2,10 @@
 
 Usage: PYTHONPATH=. .venv/bin/python scripts/check-fix-in-packet.py [case_id]
 """
+import subprocess
 import sys
 import tempfile
 from pathlib import Path
-
-from pypdf import PdfReader
 
 from ophi import fixes
 from ophi.packet.build import build_packet
@@ -21,6 +20,6 @@ v = svc.view(cid)
 print("after: ", v.case.treatment.lab_codes)
 build_packet(v.case, v.assessment, tmp / "packet")
 for pdf in sorted((tmp / "packet").rglob("*.pdf")):
-    text = "".join(p.extract_text() or "" for p in PdfReader(pdf).pages)
+    text = subprocess.run(["pdftotext", str(pdf), "-"], capture_output=True, text=True).stdout
     hits = [c for c in ("99333", "99113") if c in text]
     print(f"{pdf.name}: {hits or '-'}")
