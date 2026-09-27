@@ -94,6 +94,9 @@ below). It subclasses `AbelDentPmsRepository` and replaces only the wire, so cas
 Look-Back are rebuilt by the real code on every run — the board is judged as of today, not as of the recording.
 Queries the recording does not hold answer with no rows (the lab-only patient search, other days' schedules).
 
+The change-stamp queries are recorded too, so `PmsLookBack`'s cache sees a stamp that never moves: editing a
+recording in a running process will not rebuild the report. Restart, or re-record.
+
 ## Full chart fixtures
 
 `pms/chart_dump_101.json` — single crown (16, 27211) with bitewing history, perio full-mouth, one PA.
