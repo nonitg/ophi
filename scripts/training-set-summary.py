@@ -1,12 +1,20 @@
 """Summarize the Laya / tree-model training set built from fixtures/cdcp_crowns: sizes per split, label
 balance per note question, reason classes, and the longest request text (Laya's context is 512 tokens)."""
-import sys
+import argparse
 from collections import Counter
 
-from ophi.outcomes.training_set import NOTE_QUESTIONS, VAGUE, features, clinic_denial_rates, load_examples, note_labels, request_text, split_by_clinic
+from dotenv import load_dotenv
+
+from ophi.outcomes.past_store import load_training
+from ophi.outcomes.training_set import NOTE_QUESTIONS, VAGUE, features, clinic_denial_rates, note_labels, request_text, split_by_clinic
 from ophi.rules.loader import default_pack
 
-examples = load_examples()
+ap = argparse.ArgumentParser()
+ap.add_argument("index", type=int, nargs="?", default=10, help="example whose request text to print")
+ap.add_argument("--from-files", action="store_true", help="read fixtures/cdcp_crowns instead of Supabase")
+args = ap.parse_args()
+load_dotenv()
+examples = load_training(args.from_files)
 parts = split_by_clinic(examples)
 print(f"{len(examples)} examples ({sum(e.truth is None for e in examples)} resubmissions)")
 for name, rows in parts.items():
@@ -22,7 +30,7 @@ print("decision classes (train):", dict(Counter(e.decision for e in parts["train
 
 longest = max(examples, key=lambda e: len(request_text(e)))
 print(f"\nlongest request text: {len(request_text(longest))} chars, {len(request_text(longest).split())} words ({longest.preauth_id})")
-print(request_text(examples[int(sys.argv[1]) if len(sys.argv) > 1 else 10]))
+print(request_text(examples[args.index]))
 
 rates = clinic_denial_rates(examples)
 f = features(examples[10], default_pack(), rates[examples[10].preauth_id])

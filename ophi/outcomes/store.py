@@ -1,6 +1,6 @@
 """Write past submissions + the engine's reading of them to the outcomes schema; read the lift back.
 
-Connects with SUPABASE_DB_URL from the environment; the URL never appears in code, logs or output.
+Connects with SUPABASE_DB_URL from the environment (entry points load the gitignored .env); the URL never appears in code, logs or output.
 """
 
 from __future__ import annotations
@@ -21,7 +21,7 @@ def connect(url: str | None = None) -> psycopg.Connection:
     url = url or os.environ.get("SUPABASE_DB_URL")
     if not url:
         raise RuntimeError("SUPABASE_DB_URL is not set")
-    return psycopg.connect(url)
+    return psycopg.connect(url, connect_timeout=5)  # an unreachable host must not hang a page
 
 
 def migrate(conn: psycopg.Connection) -> None:

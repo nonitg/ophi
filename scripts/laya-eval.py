@@ -7,7 +7,7 @@ apply. Every metric sits beside a trivial guess learned from the train clinics:
 - hidden reason: on vague letters, whether the true reason is the top-ranked (or a top-3) denial reason.
 Writes the fine-tuned model's answers for every request to <model>/predictions.jsonl for scripts/risk-tree.py.
 
-Run: .venv/bin/python scripts/laya-eval.py [--model var/models/laya-cdcp]
+Run: .venv/bin/python scripts/laya-eval.py [--model var/models/laya-cdcp] [--from-files]
 """
 import argparse
 import json
@@ -17,11 +17,13 @@ from pathlib import Path
 import laya
 import numpy as np
 import torch
+from dotenv import load_dotenv
 from laya.common import ece_score
 from sklearn.metrics import roc_auc_score
 
 from ophi.outcomes.laya_questions import APPROVED, DECISION, DECISION_KEYS, QUESTIONS, YES, decision_key
-from ophi.outcomes.training_set import NOTE_QUESTIONS, VAGUE, load_examples, note_labels, request_text, split_by_clinic
+from ophi.outcomes.past_store import load_training
+from ophi.outcomes.training_set import NOTE_QUESTIONS, VAGUE, note_labels, request_text, split_by_clinic
 
 ROOT = Path(__file__).resolve().parent.parent
 BASE = ROOT / "var/models/laya"
@@ -79,8 +81,10 @@ def trivial(train, test) -> dict[str, float]:
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--model", type=Path, default=ROOT / "var/models/laya-cdcp")
+    ap.add_argument("--from-files", action="store_true", help="read fixtures/cdcp_crowns instead of Supabase")
     args = ap.parse_args()
-    parts = split_by_clinic(load_examples())
+    load_dotenv()
+    parts = split_by_clinic(load_training(args.from_files))
     split_of = {e.preauth_id: name for name, rows in parts.items() for e in rows}
     everything = [e for rows in parts.values() for e in rows]
     test = parts["test"]

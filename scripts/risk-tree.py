@@ -7,7 +7,7 @@ as features, and both are scored on the same test requests beside Laya's own dec
 
 With --save, the combined model is written to var/models/risk-tree/ for ophi.outcomes.risk.RiskModel.
 
-Run: .venv/bin/python scripts/risk-tree.py [--laya var/models/laya-cdcp/predictions.jsonl [--save]]
+Run: .venv/bin/python scripts/risk-tree.py [--laya var/models/laya-cdcp/predictions.jsonl [--save]] [--from-files]
 """
 import argparse
 import json
@@ -16,11 +16,13 @@ from pathlib import Path
 
 import lightgbm as lgb
 import numpy as np
+from dotenv import load_dotenv
 from sklearn.metrics import brier_score_loss, roc_auc_score
 
 from ophi.outcomes.laya_questions import APPROVED, DECISION, YES
+from ophi.outcomes.past_store import load_training
 from ophi.outcomes.risk import TREE_DIR, build_vocab, categorical, encode, with_note_answers
-from ophi.outcomes.training_set import NOTE_QUESTIONS, clinic_denial_rates, features, load_examples, split_by_clinic
+from ophi.outcomes.training_set import NOTE_QUESTIONS, clinic_denial_rates, features, split_by_clinic
 from ophi.rules.loader import default_pack
 
 # Small, shallow trees: a few hundred training rows.
@@ -49,8 +51,10 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--laya", type=Path, help="predictions.jsonl from scripts/laya-eval.py")
     ap.add_argument("--save", action="store_true", help=f"with --laya, write the combined model to {TREE_DIR}")
+    ap.add_argument("--from-files", action="store_true", help="read fixtures/cdcp_crowns instead of Supabase")
     args = ap.parse_args()
-    parts = split_by_clinic(load_examples())
+    load_dotenv()
+    parts = split_by_clinic(load_training(args.from_files))
     ordered = [e for rows in parts.values() for e in rows]
     split = np.array([name for name, rows in parts.items() for _ in rows])
     rates, pack = clinic_denial_rates(ordered), default_pack()

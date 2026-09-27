@@ -7,6 +7,8 @@ import json
 import sys
 from pathlib import Path
 
+from dotenv import load_dotenv
+
 from ophi.casegen.dsl import load_case
 from ophi.engine.assess import assess
 from ophi.extract.proposer import propose_for_case
@@ -75,7 +77,8 @@ def cmd_serve(args: argparse.Namespace) -> int:
 
 
 def cmd_outcomes(args: argparse.Namespace) -> int:
-    from ophi.outcomes import store, weights
+    from ophi import db_store
+    from ophi.outcomes import past_store, store, weights
     from ophi.outcomes.ingest import ingest_dir
 
     pack = default_pack()
@@ -83,6 +86,10 @@ def cmd_outcomes(args: argparse.Namespace) -> int:
         if args.action == "ingest":
             c = ingest_dir(conn, [Path(d) for d in args.dirs], pack)
             print(f"ingested {c['submissions']} submissions, {c['assessed']} assessed against {pack.id} {pack.version}")
+            p = past_store.save_all(conn, pack, [Path(d) for d in args.dirs])
+            print(f"stored {p['requests']} past requests from {p['clinics']} clinics in outcomes.past_request")
+            n = db_store.seed_cases(conn, Path("cases/demo"))
+            print(f"stored {n} patient charts in app.patient_case")
             return 0
         rows = store.denial_lift(conn, pack.version)
     w = weights.compute(pack.version, rows)
@@ -198,6 +205,7 @@ def cmd_pack_baseline(args: argparse.Namespace) -> int:
 
 
 def main(argv: list[str] | None = None, env: PackEnv | None = None) -> int:
+    load_dotenv()  # SUPABASE_DB_URL; the nearest .env up from here, so worktrees share the main checkout's
     p = argparse.ArgumentParser(prog="ophi")
     sub = p.add_subparsers(dest="cmd", required=True)
 

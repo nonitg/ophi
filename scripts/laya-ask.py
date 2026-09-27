@@ -7,14 +7,18 @@
 
 Run: make laya-ask   (after make laya-train)
 """
+import argparse
 import readline  # noqa: F401  arrow keys and history at the prompt
 from textwrap import indent
+
+from dotenv import load_dotenv
 
 from ophi.engine.models import Status
 from ophi.outcomes.fixer import plan_fixes
 from ophi.outcomes.laya_questions import APPROVED, DECISION, QUESTIONS, YES
+from ophi.outcomes.past_store import load_training
 from ophi.outcomes.risk import RiskModel
-from ophi.outcomes.training_set import (NOTE_QUESTIONS, VAGUE, Example, assess_sent, clinic_denial_rates, load_examples,
+from ophi.outcomes.training_set import (NOTE_QUESTIONS, VAGUE, Example, assess_sent, clinic_denial_rates,
                                         request_text, split_by_clinic)
 from ophi.rules.loader import default_pack
 
@@ -74,8 +78,12 @@ def ask(e: Example, question: str, model: RiskModel):
 
 
 def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--from-files", action="store_true", help="read fixtures/cdcp_crowns instead of Supabase")
+    args = ap.parse_args()
+    load_dotenv()
     pack, model = default_pack(), RiskModel.load()
-    parts = split_by_clinic(load_examples())
+    parts = split_by_clinic(load_training(args.from_files))
     by_id = {e.preauth_id: (e, split) for split, rows in parts.items() for e in rows}
     rates = clinic_denial_rates([e for e, _ in by_id.values()])
     print(HELP)

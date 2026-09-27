@@ -1,24 +1,31 @@
 """Show one training example the three ways the scripts see it: the request text Laya reads, the exact
 token sequences and gold answers it trains on, and the feature row LightGBM gets.
 
-Run: .venv/bin/python scripts/training-example.py [PREAUTH_ID]   (default PA-SYN-300010)
+Run: .venv/bin/python scripts/training-example.py [PREAUTH_ID] [--from-files]   (default PA-SYN-300010)
 """
+import argparse
 import json
-import sys
 from pathlib import Path
 
 import laya
+from dotenv import load_dotenv
 from laya.common import build_sequence
 from transformers import AutoTokenizer
 
 from ophi.outcomes.laya_questions import QUESTIONS, gold
-from ophi.outcomes.training_set import clinic_denial_rates, features, load_examples, request_text
+from ophi.outcomes.past_store import load_training
+from ophi.outcomes.training_set import clinic_denial_rates, features, request_text
 from ophi.rules.loader import default_pack
 
 TOKENIZER = Path(__file__).resolve().parent.parent / "var/models/laya/tokenizer"
 
-examples = load_examples()
-e = next(x for x in examples if x.preauth_id == (sys.argv[1] if len(sys.argv) > 1 else "PA-SYN-300010"))
+ap = argparse.ArgumentParser()
+ap.add_argument("preauth_id", nargs="?", default="PA-SYN-300010")
+ap.add_argument("--from-files", action="store_true", help="read fixtures/cdcp_crowns instead of Supabase")
+args = ap.parse_args()
+load_dotenv()
+examples = load_training(args.from_files)
+e = next(x for x in examples if x.preauth_id == args.preauth_id)
 print(f"== {e.preauth_id} | clinic {e.clinic} | decision label: {e.decision} | true reason: {e.true_reason}\n")
 print("-- 1. request text (Laya's input) --")
 print(request_text(e))

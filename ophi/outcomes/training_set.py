@@ -57,20 +57,22 @@ class Example(BaseModel):
 
 
 def load_examples(root: Path = CROWNS) -> list[Example]:
-    out = []
-    for f in sorted(root.glob("*.json")):
-        d = json.loads(f.read_text())
-        sent = {k: d[k] for k in SENT}
-        dec = d["decision"]
-        out.append(Example(preauth_id=d["preauth_id"], clinic=d["provider"]["provider_id"], submitted_on=d["submitted_date"],
-                           decided_on=d["decision_date"], sent=sent, decision=dec["reason_code"] or "approved", truth=d["_generator_truth"],
-                           true_reason=d["_generator_truth"]["denial_reason"]))
-        fu = d.get("followup")
-        if fu and fu.get("changes") is not None:
-            out.append(Example(preauth_id=f"{d['preauth_id']}/resubmission", clinic=d["provider"]["provider_id"],
-                               submitted_on=fu["submitted_date"], decided_on=None, sent=resubmitted(sent, fu),
-                               decision="approved" if fu["outcome"] == "approved" else fu["reason_code"],
-                               true_reason=d["_generator_truth"]["resubmission_denial_reason"]))
+    """From export files on disk. The app and training read the same requests from Supabase (past_store)."""
+    return [e for f in sorted(root.glob("*.json")) for e in examples_from(json.loads(f.read_text()))]
+
+
+def examples_from(d: dict) -> list[Example]:
+    """One crown export -> the first request, plus its resubmission when the clinic sent one."""
+    sent = {k: d[k] for k in SENT}
+    dec, truth, clinic = d["decision"], d["_generator_truth"], d["provider"]["provider_id"]
+    out = [Example(preauth_id=d["preauth_id"], clinic=clinic, submitted_on=d["submitted_date"], decided_on=d["decision_date"],
+                   sent=sent, decision=dec["reason_code"] or "approved", truth=truth, true_reason=truth["denial_reason"])]
+    fu = d.get("followup")
+    if fu and fu.get("changes") is not None:
+        out.append(Example(preauth_id=f"{d['preauth_id']}/resubmission", clinic=clinic,
+                           submitted_on=fu["submitted_date"], decided_on=None, sent=resubmitted(sent, fu),
+                           decision="approved" if fu["outcome"] == "approved" else fu["reason_code"],
+                           true_reason=truth["resubmission_denial_reason"]))
     return out
 
 

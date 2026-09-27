@@ -8,7 +8,7 @@ per question size there, and never reads the test clinics. Writes a checkpoint l
 Loss is soft cross-entropy on the option logits, the term that dominates the official notebook's objective
 (NandhaKishorM/laya notebooks/laya_finetune_typed_decisions_2xT4_kaggle.ipynb); learning rates are its.
 
-Run: .venv/bin/python scripts/laya-finetune.py [--epochs 4] [--out var/models/laya-cdcp]
+Run: .venv/bin/python scripts/laya-finetune.py [--epochs 4] [--out var/models/laya-cdcp] [--from-files]
      (after scripts/laya-download.sh)
 """
 import argparse
@@ -21,11 +21,13 @@ from pathlib import Path
 
 import laya
 import torch
+from dotenv import load_dotenv
 from laya.common import QTYPES, build_sequence, clamp_temperature, collate_items, serialize_state, temp_bucket
 from safetensors.torch import load_file, save_file
 
 from ophi.outcomes.laya_questions import QUESTIONS, gold
-from ophi.outcomes.training_set import CROWNS, load_examples, request_text, split_by_clinic
+from ophi.outcomes.past_store import load_training
+from ophi.outcomes.training_set import request_text, split_by_clinic
 
 ROOT = Path(__file__).resolve().parent.parent
 BASE = ROOT / "var/models/laya"
@@ -101,11 +103,10 @@ def save_weights(model, out: Path):
     save_file({k: v.detach().half().cpu().contiguous() for k, v in model.state_dict().items()}, out / "model.safetensors")
 
 
-def data_hash(root: Path) -> str:
-    h = hashlib.sha256()
-    for f in sorted(root.glob("*.json")):
-        h.update(f.read_bytes())
-    return "sha256:" + h.hexdigest()
+def data_hash(examples) -> str:
+    """Of what the model trains on, not where it came from, so Supabase and the export files hash the same."""
+    rows = sorted(({"preauth_id": e.preauth_id, "text": request_text(e), "gold": gold(e)} for e in examples), key=lambda r: r["preauth_id"])
+    return "sha256:" + hashlib.sha256(json.dumps(rows, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
 
 
 def main():
@@ -113,7 +114,9 @@ def main():
     ap.add_argument("--epochs", type=int, default=4)
     ap.add_argument("--out", type=Path, default=ROOT / "var/models/laya-cdcp")
     ap.add_argument("--seed", type=int, default=0)
+    ap.add_argument("--from-files", action="store_true", help="read fixtures/cdcp_crowns instead of Supabase")
     args = ap.parse_args()
+    load_dotenv()
     torch.manual_seed(args.seed)
     args.out.mkdir(parents=True, exist_ok=True)
 
@@ -123,7 +126,7 @@ def main():
     model.head_checkpointing = True
     model.train()
 
-    parts = split_by_clinic(load_examples())
+    parts = split_by_clinic(load_training(args.from_files))
     train, calib = build_items(parts["train"], tok, cfg), build_items(parts["calib"], tok, cfg)
     print(f"items: train {len(train)}, calib {len(calib)} | longest {max(len(i['ids']) for i in train + calib)} tokens")
 
@@ -164,7 +167,7 @@ def main():
     # Fitted buckets replace the shipped ones, which were fitted to other tasks; other sizes fall back per type.
     out_cfg = {**cfg, "temperature_by_options": {b: clamp_temperature(t) for b, t in fitted.items()},
                "training": {"base_model": f"convaiinnovations/laya@{(BASE / '.revision').read_text().strip()}",
-                            "data": data_hash(CROWNS), "split_seed": 2026, "seed": args.seed, "trained_on": str(date.today()),
+                            "data": data_hash(parts["train"] + parts["calib"]), "split_seed": 2026, "seed": args.seed, "trained_on": str(date.today()),
                             "epochs": args.epochs, "kept_epoch": best, "calib_soft_ce": [round(x, 4) for x in history],
                             "items": {"train": len(train), "calib": len(calib)}, "temperature_fitted": fitted}}
     (args.out / "rl_agent_config.json").write_text(json.dumps(out_cfg, indent=2))

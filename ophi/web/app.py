@@ -27,9 +27,9 @@ from fastapi.responses import FileResponse, HTMLResponse, RedirectResponse, Resp
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
-from ophi import demo, fixes, letters, workflow
+from ophi import db_store, demo, fixes, letters, workflow
 from ophi.engine.models import Status
-from ophi.outcomes import readout
+from ophi.outcomes import past_store, past_view, readout, similar, store
 from ophi.outcomes.live import LiveScorer
 from ophi.outcomes.weights import load as load_weights
 from ophi.packet.build import build_packet
@@ -268,6 +268,10 @@ def _case_page(request: Request, case_id: str, **extra):
     now = present.now_step(steps, actor)
     timing = present.timing(view, today)
     fx = present.fix_panel(view, rd, view.pack, gaps) if view.stage in workflow.CHART_STAGES else None
+    if fx:  # past requests Sun Life decided on the same gap, under each step's Why
+        found = similar.for_steps(request.app.state.past, view.case, view.pack, [present.row_requirements(r) for r in fx["rows"]])
+        for r, like in zip(fx["rows"], found):
+            r["past"] = like
     ml = present.ml_debug(view, rd)
     log.info(present.ml_report(ml))
     return _render(request, "case.html", view=view, case=view.case, a=view.assessment, stage=view.stage,
@@ -603,14 +607,34 @@ def results(request: Request):
 
 
 @router.get("/outcomes", response_class=HTMLResponse)
-def outcomes(request: Request):
+def outcomes(request: Request, status: str = "all", clinic: str = "", tooth: str = "", reason: str = "", page: int = 1):
     from ophi.outcomes.report import build
     try:
-        report = build(_svc(request).pack)
+        rows = request.app.state.past.rows()
     except Exception as e:  # no outcomes database configured must not take the demo down
         log.warning("past outcomes unavailable: %s", e)
-        return _render(request, "outcomes.html", report=None, unavailable="Past outcomes are unavailable.")
-    return _render(request, "outcomes.html", report=report, unavailable=None)
+        return _render(request, "outcomes.html", past=None, report=None, unavailable="Past outcomes are unavailable.")
+    try:
+        report = build(_svc(request).pack)
+    except Exception as e:  # the pack's blind-spot report is secondary; the list still shows
+        log.warning("outcomes report unavailable: %s", e)
+        report = None
+    past = past_view.listing(rows, status, clinic, tooth, reason, page)
+    return _render(request, "outcomes.html", past=past, report=report, unavailable=None)
+
+
+@router.get("/past/{preauth_id}", response_class=HTMLResponse)
+def past_request(request: Request, preauth_id: str):
+    try:
+        row = past_view.find(request.app.state.past.rows(), preauth_id)
+    except Exception as e:
+        log.warning("past outcomes unavailable: %s", e)
+        return _error(request, 503, "Past outcomes are unavailable", "The past requests could not be read. Try again shortly.")
+    if row is None:
+        return _error(request, 404, "Past request not found", f"No past request '{preauth_id}'.")
+    svc, from_id = _svc(request), request.query_params.get("from")
+    from_case = svc.base_case(from_id) if from_id in svc.case_ids() else None  # the case whose fix linked here
+    return _render(request, "past.html", p=past_view.detail(row), from_case=from_case)
 
 
 @router.get("/look-back")
@@ -758,11 +782,14 @@ def create_app(svc: CaseService | None = None, packets_dir: Path | None = None, 
     the check and the /rules review page at other packs and another web (tests)."""
     base = (os.environ.get("OPHI_BASE_PATH", "") if base_path is None else base_path).rstrip("/")
     own = svc is None
-    svc = svc or CaseService(weights=load_weights())
+    svc = svc or db_store.service_from_env(weights=load_weights()) or CaseService(weights=load_weights())
     if own and not base and os.environ.get("OPHI_ABELDENT") == "1":  # lab: read sent requests from the ABELDent VM
         pms = AbelDentPmsRepository()
         svc.pms_claims, svc.note_reader = (lambda: abeldent.list_predeterminations(pms.sql)), _note_reason
     live = LiveScorer(svc.pack_for) if (own and not base if live_ml is None else live_ml) else None
+    past = past_store.Cached(store.connect)  # lazy: no database is touched until a page reads past requests
+    if live:
+        live.clinic_rate = lambda case: similar.clinic_denial_rate(past, store.connect, case)
 
     @asynccontextmanager
     async def lifespan(_: FastAPI):
@@ -777,6 +804,7 @@ def create_app(svc: CaseService | None = None, packets_dir: Path | None = None, 
                             and os.environ.get("OPHI_AUTO_RULES_CHECK", "1").strip().lower() not in ("0", "false", "off", "no"))
     app.state.auto_rules = auto_rules_check
     app.state.rules_env = rules_env or auto.PackEnv()
+    app.state.past = past
     app.state.seed_demo = own if seed_demo is None else seed_demo
     app.state.seeded = False
     app.state.pms_synced_at = float("-inf")

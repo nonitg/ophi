@@ -6,10 +6,78 @@
   <h1>Past outcomes</h1>
 </header>
 
-{% if not report %}
+{% if not past %}
 <p class="note">{{ unavailable }}</p>
 {% else %}
-<div class="report">
+{# Sun Life's decisions, in Sun Life's voice: the tabs and outcome cells are marked data-voice="payer". #}
+<nav class="plist-tabs" aria-label="Outcome" data-voice="payer">
+  {% for t in past.tabs %}
+  <a class="plist-tab{% if t.key == past.tab %} is-on{% endif %}" href="{{ BASE }}/outcomes{{ t.href }}"{% if t.key == past.tab %} aria-current="page"{% endif %}><b class="num">{{ t.count }}</b>{{ t.label }}</a>
+  {% endfor %}
+</nav>
+
+<form class="plist-filters" method="get" action="{{ BASE }}/outcomes">
+  {% if past.tab != 'all' %}<input type="hidden" name="status" value="{{ past.tab }}">{% endif %}
+  <label class="field"><span>Clinic</span>
+    <select class="input" name="clinic">
+      <option value="">All clinics</option>
+      {% for c in past.clinics %}<option value="{{ c }}"{% if past.filters.clinic == c %} selected{% endif %}>{{ c }}</option>{% endfor %}
+    </select>
+  </label>
+  <label class="field"><span>Tooth</span>
+    <select class="input" name="tooth">
+      <option value="">Any tooth</option>
+      <optgroup label="Kind">
+        {% for k, label in past.kinds %}<option value="{{ k }}"{% if past.filters.tooth == k %} selected{% endif %}>{{ label }}</option>{% endfor %}
+      </optgroup>
+      <optgroup label="Tooth">
+        {% for t in past.teeth %}<option value="{{ t }}"{% if past.filters.tooth == t|string %} selected{% endif %}>#{{ t }}</option>{% endfor %}
+      </optgroup>
+    </select>
+  </label>
+  <label class="field" data-voice="payer"><span>Sun Life's reason</span>
+    <select class="input" name="reason">
+      <option value="">Any reason</option>
+      {% for code, label in past.reasons %}<option value="{{ code }}"{% if past.filters.reason == code %} selected{% endif %}>{{ label }}</option>{% endfor %}
+    </select>
+  </label>
+  <div class="btn-row">
+    <button class="btn btn-sm">Show</button>
+    {% if past.filters %}<a class="plist-clear" href="{{ BASE }}/outcomes{% if past.tab != 'all' %}?status={{ past.tab }}{% endif %}">Clear</a>{% endif %}
+  </div>
+</form>
+
+<div class="tbl-wrap">
+  <table class="tbl plist">
+    <thead><tr><th>Sent</th><th>Tooth</th><th>Code</th><th>Sun Life</th><th class="plist-clinic">Clinic</th></tr></thead>
+    <tbody>
+    {% for r in past.rows %}
+    <tr>
+      <td class="num"><a class="plist-link" href="{{ BASE }}/past/{{ r.id }}">{{ full_date(r.sent_on) }}</a></td>
+      <td>{% if r.tooth %}<span class="num">#{{ r.tooth }}</span> <span class="muted">{{ r.kind }}</span>{% else %}<span class="muted">—</span>{% endif %}</td>
+      <td class="num">{{ r.code }}</td>
+      <td data-voice="payer">{% if r.outcome == 'approved' %}<span class="plist-ok">Approved</span>{% else %}<span class="plist-no">{{ r.reason }}</span>{% endif %}{% if r.resent_approved %} <span class="plist-resent">resent → approved</span>{% endif %}</td>
+      <td class="mono muted plist-clinic">{{ r.clinic_id }}</td>
+    </tr>
+    {% else %}
+    <tr><td colspan="5" class="muted">No past requests match.</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% if past.pages > 1 %}
+<nav class="plist-pager" aria-label="Pages">
+  {% if past.prev %}<a class="btn btn-sm" href="{{ BASE }}/outcomes{{ past.prev }}">Newer</a>{% endif %}
+  <span class="muted num">Page {{ past.page }} of {{ past.pages }} · {{ plural(past.total, 'request') }}</span>
+  {% if past.next %}<a class="btn btn-sm" href="{{ BASE }}/outcomes{{ past.next }}">Older</a>{% endif %}
+</nav>
+{% endif %}
+
+{% if report %}
+<details class="fold plist-report">
+  <summary><span class="fold-title">What the rule pack can't explain</span><span class="fold-sub">{{ plural(report.blind_spots|length, 'blind spot') }}</span></summary>
+  <div class="fold-body report">
   <section class="fact">
     <h2 class="fact-k">Denials the pack can't explain</h2>
     <div>
@@ -51,6 +119,8 @@
       </div>
     </div>
   </section>
-</div>
+  </div>
+</details>
+{% endif %}
 {% endif %}
 {% endblock %}

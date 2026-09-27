@@ -385,6 +385,11 @@ def _item(view: CaseView, pack: RulePack, gap: dict | None, fix: dict | None, ef
             "clause": (fix or {}).get("clause") or (req.clause if req else None)}
 
 
+def row_requirements(row: dict) -> list[str]:
+    """The requirement ids a fix-panel row settles, to find past requests Sun Life decided on the same gap."""
+    return list(row["gap"]["action"].unblocks) if row["gap"] else [row["rid"]] if row["rid"] else []
+
+
 def dentist_panel(view: CaseView, readout: Readout | None) -> dict | None:
     """What the dentist needs from the plan: the risk left after the fixes and why, narrative drafts to approve,
     and clinical calls no requirement asks for yet."""

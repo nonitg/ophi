@@ -26,6 +26,7 @@ class LiveScorer:
         self.pack_for, self._model = pack_for, model
         self._lock = threading.Lock()  # one GPU, one forward pass at a time
         self._latest: dict[str, Readout] = {}  # case id -> last live plan, for the board
+        self.clinic_rate: Callable[[Case], float | None] | None = None  # the clinic's past denials, when the app has them
 
     def warm(self) -> None:
         with self._lock:
@@ -47,10 +48,11 @@ class LiveScorer:
 
     def score(self, case: Case) -> Readout:
         """Run both models on the case now."""
+        rate = self.clinic_rate(case) if self.clinic_rate else None
         with self._lock:
             model = self._load()
             t = time.perf_counter()
-            plan = plan_fixes(to_export(case), case.as_of, self.pack_for(case), model, request_id=case.case_id)
+            plan = plan_fixes(to_export(case), case.as_of, self.pack_for(case), model, clinic_denial_rate=rate, request_id=case.case_id)
             log.info(f"ML ran Laya + LightGBM live for {case.case_id} in {1000 * (time.perf_counter() - t):.0f}ms")
         rd = Readout(case_id=case.case_id, scored_on=case.as_of,
                      plans=[ScoredPlan(state="live", text_sha256=fingerprint(text_for(case)), plan=plan.model_dump(mode="json"))])

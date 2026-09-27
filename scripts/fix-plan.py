@@ -12,12 +12,14 @@ import argparse
 import json
 
 import numpy as np
+from dotenv import load_dotenv
 from sklearn.metrics import roc_auc_score
 
 from ophi.outcomes.fixer import FixPlan, level, plan_fixes
 from ophi.outcomes.laya_questions import APPROVED
+from ophi.outcomes.past_store import load_training
 from ophi.outcomes.risk import RiskModel
-from ophi.outcomes.training_set import VAGUE, clinic_denial_rates, load_examples, split_by_clinic
+from ophi.outcomes.training_set import VAGUE, clinic_denial_rates, split_by_clinic
 from ophi.rules.loader import default_pack
 
 
@@ -59,8 +61,10 @@ def main():
     ap.add_argument("ids", nargs="*", default=["PA-SYN-300010"])
     ap.add_argument("--json", action="store_true")
     ap.add_argument("--check", action="store_true")
+    ap.add_argument("--from-files", action="store_true", help="read fixtures/cdcp_crowns instead of Supabase")
     args = ap.parse_args()
-    examples = load_examples()
+    load_dotenv()
+    examples = load_training(args.from_files)
     rates, pack, model = clinic_denial_rates(examples), default_pack(), RiskModel.load()
     by_id = {e.preauth_id: e for e in examples}
     for rid in args.ids:
