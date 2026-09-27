@@ -402,7 +402,7 @@ def _item(view: CaseView, pack: RulePack, gap: dict | None, fix: dict | None, ef
     auto = rid in fixes.open_on(view.assessment)
     title = fixes.title(view.case, rid, pack) if auto else gap["title"] if gap else fix["title"]
     req = view.assessment.requirement(rid) if rid else None
-    return {"title": title, "auto": auto, "effect": effect, "gap": gap, "chair": bool(gap and gap["chair"]), "concern": (fix or {}).get("concern"),
+    return {"title": title, "rid": rid, "auto": auto, "effect": effect, "gap": gap, "chair": bool(gap and gap["chair"]), "concern": (fix or {}).get("concern"),
             "why": (fix or {}).get("why") or (act.why if act else ""),
             "clause": (fix or {}).get("clause") or (req.clause if req else None)}
 

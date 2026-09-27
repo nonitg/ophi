@@ -314,7 +314,8 @@ def test_fix_chart_step_shows_denial_risk_and_applies_ophis_fixes(seeded):
     assert "Denial risk" in page and "Replace lab code 99333 with 99113" in page and "Apply it" in page
     assert "Lowers denial risk the most" in page and "Do this first, then send." in page  # the plan's ranking and timing
     assert "Finish the pending fillings or scaling first. Do this first" not in page  # staff's fix, not repeated for the dentist
-    r = seeded.post("/cases/deng/fixes", data={"all": "1"})
+    rid = re.search(r'name="fix" value="([^"]+)">Apply it<', page).group(1)  # the button sits on the fix's own card
+    r = seeded.post("/cases/deng/fixes", data={"fix": rid})
     assert r.status_code == 303 and r.headers["location"].endswith("/cases/deng?done=fixed#now")
     page = seeded.get("/cases/deng").text
     assert "Apply it" not in page and "applied by Kim Osei" in page and "Denial risk" in page
