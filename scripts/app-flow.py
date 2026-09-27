@@ -45,6 +45,13 @@ with sync_playwright() as p:
     expect(page.locator('section[aria-labelledby="col-dentist"]')).to_contain_text("Teresa Kowalchuk")
     shot(page, "board-chair-closed")
 
+    # New films change the request, not the note: Laya's note reading still pre-fills Teresa's criteria.
+    act_as(page, "dentist")
+    page.goto(base + "/cases/kowalchuk")
+    expect(page.locator(".crit.is-pre .laya").first).to_be_visible()
+    shot(page, "kowalchuk-prefilled")
+    act_as(page, "coordinator")
+
     # Coordinator confirms the chart note on Tremblay: chart work done, case moves to the dentist.
     page.goto(base + "/cases/tremblay")
     page.get_by_role("button", name="Yes", exact=True).click()
@@ -58,12 +65,12 @@ with sync_playwright() as p:
     expect(page.locator("h1")).to_contain_text("waiting on you")
     shot(page, "dentist-board")
     page.goto(base + "/cases/tremblay")
-    page.get_by_role("button", name="Set the rest to Met").click()
-    flagged = page.locator(".crit[data-needs-look]")
-    assert flagged.count() > 0 and flagged.locator("input:checked").count() == 0, "bulk Met must skip rows Ophi flags"
-    for i in range(flagged.count()):  # the dentist reads each flagged row and answers it herself
-        flagged.nth(i).locator('label:has-text("Met")').first.click()
-    page.get_by_role("button", name="Record answers").click()
+    calls = page.locator(".crit-group-call .crit")
+    assert calls.count() > 0 and calls.locator("input:checked").count() == 0, "Ophi must not pre-fill what it can't read"
+    assert page.locator(".crit.is-pre input:checked").count() > 0, "Ophi pre-fills what the chart and note agree on"
+    for i in range(calls.count()):  # the dentist answers what Ophi left to her, and confirms the rest
+        calls.nth(i).locator('label:has-text("Met")').first.click()
+    page.get_by_role("button", name="Confirm answers").click()
     expect(page.locator(".done-note")).to_have_text("Criteria recorded.")
     shot(page, "tremblay-criteria-recorded")
 
@@ -119,11 +126,10 @@ with sync_playwright() as p:
     shot(page, "singh-skipped")
     page.get_by_role("button", name="View as Dr. Priya Lau").first.click()
     page.wait_for_load_state("networkidle")
-    page.get_by_role("button", name="Set the rest to Met").click()
-    flagged = page.locator(".crit[data-needs-look]")
-    for i in range(flagged.count()):
-        flagged.nth(i).locator('label:has-text("Met")').first.click()
-    page.get_by_role("button", name="Record answers").click()
+    calls = page.locator(".crit-group-call .crit")
+    for i in range(calls.count()):
+        calls.nth(i).locator('label:has-text("Met")').first.click()
+    page.get_by_role("button", name="Confirm answers").click()
     page.get_by_role("link", name="Review and sign").first.click()
     expect(page.locator(".test-run")).to_be_visible()
     page.get_by_role("button", name="Sign test run as Dr. Priya Lau (ON-48213)").click()

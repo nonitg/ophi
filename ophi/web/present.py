@@ -999,22 +999,23 @@ def results(views: list[CaseView], pack: RulePack, report, recovered: dict) -> d
 
 
 def laya_page(views: list[CaseView], pack: RulePack, readouts: dict[str, Readout | None]) -> dict:
-    """Laya's work on the cases as they stand, each task with a case to see it on, and how often the dentist kept its
-    pre-fills: those confirmations are the labels real training data would come from."""
+    """Laya's work on the cases as they stand, each task linked to a case whose page shows it now, and how often the
+    dentist kept its pre-fills: those confirmations are the labels real training data would come from."""
     read = [v for v in views if (rd := readouts.get(v.case.case_id)) and rd.note_answers(v.case)]
-    scored = [v for v in views if v.stage in CHART_STAGES and plan_for(v, readouts.get(v.case.case_id))]
+    scored = sorted((v for v in views if v.stage in CHART_STAGES and plan_for(v, readouts.get(v.case.case_id))), key=lambda v: not in_chair(v))
     asked = [v for v in views if v.stage in (*CHART_STAGES, Stage.DENTIST) and pending_criteria(v.assessment)]
     filled = {v.case.case_id: prefilled(v, pre_reads_for(v, pack, readouts.get(v.case.case_id))) for v in asked}
+    confirm_now = [v for v in asked if filled[v.case.case_id] and (v.stage == Stage.DENTIST or _can_confirm_early(v))]
     answers = [a for v in views for a in v.state.assertions.values() if a.get("ophi")]
     tasks = [
-        {"title": "Reads the clinical note", "count": plural(len(read), "note") + " read", "example": _first_case(read),
+        {"title": "Reads the clinical note", "count": plural(len(read), "note") + " read", "example": None,
          "what": "Answers 7 questions the rules can't read from the chart's fields."},
-        {"title": "Estimates denial risk", "count": plural(len(scored), "case") + " scored", "example": _first_case(scored),
+        {"title": "Estimates denial risk", "count": plural(len(scored), "case") + " scored", "example": _nth_case(scored, 0),
          "what": "Weighs the rule check, film ages, pocket depths and its note answers against past decisions. "
                  "Shown as Low, Medium or High, never a number."},
-        {"title": "Ranks the fixes", "count": plural(len(scored), "fix list") + " ordered", "example": _first_case(scored),
+        {"title": "Ranks the fixes", "count": plural(len(scored), "fix list") + " ordered", "example": _nth_case(scored, 1),
          "what": "Re-scores the request with each fix made, so the fix that lowers denial risk most comes first."},
-        {"title": "Pre-fills the dentist's criteria", "example": _first_case([v for v in asked if filled[v.case.case_id]]),
+        {"title": "Pre-fills the dentist's criteria", "example": _nth_case(confirm_now, 0),
          "count": f"{sum(filled.values())} of {sum(pending_criteria(v.assessment) for v in asked)} pre-filled",
          "what": "Suggests an answer where the chart and its note reading agree. Anything unclear or contradicting stays the dentist's call."},
     ]
@@ -1023,5 +1024,6 @@ def laya_page(views: list[CaseView], pack: RulePack, readouts: dict[str, Readout
             "kept": sum(a["ophi"] == a["value"] for a in answers), "changed": sum(a["ophi"] != a["value"] for a in answers)}
 
 
-def _first_case(views: list[CaseView]):
-    return views[0].case if views else None
+def _nth_case(views: list[CaseView], n: int):
+    """A different case per task where there are enough, so the links show different pages."""
+    return views[min(n, len(views) - 1)].case if views else None

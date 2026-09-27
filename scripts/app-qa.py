@@ -12,7 +12,7 @@ from playwright.sync_api import sync_playwright
 base = sys.argv[1].rstrip("/")
 PAGES = ["/", "/cases/kowalchuk", "/cases/singh", "/cases/tremblay", "/cases/rosco", "/cases/deng", "/cases/fontaine",
          "/cases/okafor", "/cases/nguyen", "/cases/marchand", "/cases/whitfield/packet", "/cases/fontaine/packet",
-         "/recover", "/results", "/settings"]
+         "/recover", "/results", "/settings", "/model"]
 
 
 def lum(hex_):

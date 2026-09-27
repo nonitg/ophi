@@ -95,7 +95,7 @@
           {% endif %}
         </div>
         {% if it.auto %}<p class="gap-effect">Ophi does this when you press {{ 'Apply it' if fx.apply.open|length == 1 else 'Apply all' }}.</p>{% endif %}
-        {% if it.effect %}<p class="gap-effect effect-{{ it.effect }}">{{ {'most': 'Lowers denial risk the most', 'some': 'Lowers denial risk a little', 'none': 'No clear effect on denial risk in past decisions. Still required by CDCP.'}[it.effect] }}</p>
+        {% if it.effect %}<p class="gap-effect effect-{{ it.effect }}">{{ laya('', link=False) }}{{ {'most': 'Lowers denial risk the most', 'some': 'Lowers denial risk a little', 'none': 'No clear effect on denial risk in past decisions. Still required by CDCP.'}[it.effect] }}</p>
         {% elif fx.risk and not it.auto %}<p class="gap-effect effect-none">Not scored against past decisions. Still required by CDCP.</p>{% endif %}
         {% if it.concern == 'timing' %}<p class="gap-effect">Do this first, then send.</p>{% endif %}
         {% if g and g.hint %}<p class="gap-hint">{{ g.hint }}</p>{% endif %}
@@ -153,21 +153,24 @@
             <div>
               <div class="crit-label">{{ c.label }}</div>
               {% if not c.current %}
-              <ul class="ev">
-                {% for e in pre.evidence if pre %}<li class="ev-{{ e.stance }}">{{ source_tag(e.source) }}<span>{{ e.text }}.</span></li>{% endfor %}
+              <ul class="pre-ev">
+                {% for e in pre.evidence if pre %}<li class="pre-ev-{{ e.stance }}">{{ source_tag(e.source) }}<span>{{ e.text }}.</span></li>{% endfor %}
                 {% if c.odontogram and not (pre and pre.evidence|selectattr('source', 'equalto', 'chart')|list) %}<li>{{ source_tag('chart') }}<span>{{ c.odontogram }}.</span></li>{% endif %}
-                {% if not (pre and pre.evidence) and not c.odontogram %}<li class="ev-none"><span>Nothing in the chart or note bears on this{% if pre and pre.on_film %}. Judge it on the film{% endif %}.</span></li>{% endif %}
+                {% if not (pre and pre.evidence) and not c.odontogram %}<li class="pre-ev-none"><span>Nothing in the chart or note bears on this{% if pre and pre.on_film %}. Judge it on the film{% endif %}.</span></li>{% endif %}
               </ul>
               {% endif %}
-              <div class="crit-meta">{{ clause_chip(c.clause, pack) }}{% if c.variant %}<span>{{ c.variant }}</span>{% endif %}</div>
               {% if c.current %}<div class="crit-now">Recorded <span class="val val-{{ c.current.value }}">{{ c.current.value|replace('_', ' ')|capitalize }}</span> by {{ c.current.asserted_by }}, {{ full_date(c.current.asserted_at.date()) }}{% if c.current.note %}: “{{ c.current.note }}”{% endif %}</div>{% endif %}
+              {% if c.variant %}<p class="crit-meta">{{ c.variant }}</p>{% endif %}
+              <div class="crit-foot">
+                <div class="crit-meta">{{ clause_chip(c.clause, pack) }}</div>
+                <details class="crit-note"{% if c.current and c.current.note %} open{% endif %}><summary>Add a note</summary><input class="input" type="text" name="note_{{ c.id }}" value="{{ (c.current.note or '') if c.current else '' }}" aria-label="Note for {{ c.label }}"></details>
+              </div>
             </div>
             <div class="seg" role="radiogroup" aria-label="{{ c.label }}">
               {% for val, lab in [('met', 'Met'), ('not_met', 'Not met'), ('not_applicable', 'N/A')] %}
               <label><input type="radio" name="value_{{ c.id }}" value="{{ val }}" {% if pick == val %}checked{% endif %}><span>{{ lab }}</span></label>
               {% endfor %}
             </div>
-            <details class="crit-note"{% if c.current and c.current.note %} open{% endif %}><summary>Add a note</summary><input class="input" type="text" name="note_{{ c.id }}" value="{{ (c.current.note or '') if c.current else '' }}" aria-label="Note for {{ c.label }}"></details>
           </li>
           {% endfor %}
         </ul>

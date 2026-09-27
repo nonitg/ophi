@@ -10,7 +10,7 @@ from playwright.sync_api import sync_playwright
 base = sys.argv[1].rstrip("/")
 w = next((int(a.split("=")[1]) for a in sys.argv if a.startswith("--w=")), 390)
 paths = [a for a in sys.argv[2:] if not a.startswith("--")] or [
-    "/", "/cases/singh", "/cases/rosco", "/cases/tremblay", "/cases/whitfield", "/cases/whitfield/packet", "/look-back", "/settings"]
+    "/", "/cases/singh", "/cases/rosco", "/cases/tremblay", "/cases/whitfield", "/cases/whitfield/packet", "/look-back", "/settings", "/model"]
 
 FIND = """(w) => {
   const out = [];

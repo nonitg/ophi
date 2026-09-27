@@ -172,7 +172,8 @@ textarea.input { width: 100%; height: auto; padding: 8px 10px; line-height: 1.5;
 .tile.is-done .tile-foot { margin-top: 6px; }
 .tile-empty { padding: 14px 4px; font-size: 13px; color: var(--muted); text-align: center; border: 1px dashed var(--rule-strong); border-radius: 10px; }
 .tile-pre { display: flex; align-items: center; gap: 6px; margin-top: 6px; font-size: 12.5px; color: var(--muted); }
-.tile-risk .laya { border: 0; padding: 0; background: none; color: var(--muted); font-weight: 400; font-size: 12px; }
+.gap-effect .laya { width: auto; height: auto; margin-right: 6px; vertical-align: 0; }
+.tile-risk .laya, .gap-effect .laya { border: 0; padding: 0; background: none; color: var(--muted); font-weight: 400; font-size: 12px; }
 .tile-risk { display: flex; align-items: center; gap: 4px; white-space: nowrap; margin-top: 6px; font-size: 12px; color: var(--muted); }
 .more { display: inline-block; padding: 0 6px; border-radius: 999px; background: var(--stone); border: 1px solid var(--rule); font-size: 11.5px; color: var(--muted); font-weight: 500; vertical-align: 1px; }
 
@@ -297,7 +298,7 @@ textarea.input { width: 100%; height: auto; padding: 8px 10px; line-height: 1.5;
   color: var(--ink); font-size: 12px; font-weight: 600; line-height: 18px; text-decoration: none; white-space: nowrap; vertical-align: 1px; }
 a.laya:hover { border-color: var(--ink-soft); }
 .laya-spark { fill: currentColor; flex: none; }
-.laya-mark { width: 20px; height: 20px; padding: 0; justify-content: center; }
+.laya-mark { width: 22px; height: 22px; padding: 0; justify-content: center; border-color: var(--ink-soft); }
 .src-chart { display: inline-block; padding: 0 6px; border: 1px solid var(--rule); border-radius: 999px; color: var(--muted); font-size: 12px; font-weight: 500; line-height: 18px; white-space: nowrap; }
 .risk-levels .laya { margin-right: 2px; }
 .nav-laya { gap: 5px; }
@@ -316,13 +317,17 @@ a.laya:hover { border-color: var(--ink-soft); }
 .laya-cant { margin: 0; padding-left: 18px; display: grid; gap: 8px; font-size: 15px; color: var(--ink-soft); max-width: 64ch; }
 
 /* criteria form */
-.crit-group + .crit-group { margin-top: 6px; }
+.crit-group { justify-self: stretch; }
 .crit-group .gap-group { margin-top: 4px; }
-.ev { list-style: none; margin: 6px 0 0; padding: 0; display: grid; gap: 5px; font-size: 13.5px; color: var(--ink-soft); }
-.ev li { display: flex; align-items: baseline; gap: 8px; }
-.ev li > span:last-child { min-width: 0; }
-.ev-against > span:last-child { color: var(--person); }
-.ev-none { color: var(--muted); }
+.pre-ev { list-style: none; margin: 6px 0 0; padding: 0; display: grid; gap: 5px; font-size: 13.5px; color: var(--ink-soft); }
+.pre-ev li { display: flex; align-items: baseline; gap: 8px; }
+.pre-ev li > span:last-child { min-width: 0; }
+.pre-ev-against > span:last-child { color: var(--person); }
+.pre-ev-none { color: var(--muted); }
+/* The citation and the note toggle share a line until the note opens. */
+.crit-foot { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; margin-top: 6px; }
+.crit-foot .crit-meta { margin-top: 0; }
+.crit-foot .crit-note[open] { flex-basis: 100%; }
 .crit.is-pre .seg input:checked + span { background: var(--linen); color: var(--ink); }
 .crit-tools { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; justify-self: stretch; }
 #crit-form .crits { justify-self: stretch; }
@@ -332,7 +337,7 @@ a.laya:hover { border-color: var(--ink-soft); }
 .crit-label { font-weight: 500; }
 .crit-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; margin-top: 4px; font-size: 13px; color: var(--muted); }
 .crit-now { font-size: 13px; color: var(--muted); margin-top: 4px; }
-.crit-note { grid-column: 1 / -1; font-size: 13.5px; }
+.crit-note { font-size: 13.5px; }
 .crit-note[open] summary { margin-bottom: 6px; }
 .crit-note .input { width: 100%; min-height: 34px; font-size: 14px; }
 .seg { display: inline-flex; border: 1px solid var(--rule-strong); border-radius: var(--r-control); overflow: hidden; }
