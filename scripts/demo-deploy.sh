@@ -40,6 +40,12 @@ if [ -z "$skip_pms_check" ]; then
   fi
 fi
 
+# The deploy ships without torch and reads cases/demo/laya instead. Re-recording the snapshot above
+# rewrites the request text, which stales every plan silently, so check before shipping a blank card.
+PYTHONPATH=. .venv/bin/python scripts/demo-riskcard-check.py >/dev/null \
+  || { echo "error: demo fix plans are stale — rerun scripts/laya-demo-predict-recorded.sh" >&2; exit 1; }
+echo "fix plans match the charts"
+
 mkdir -p "$stage"
 rsync -a --delete --exclude .vercel --exclude __pycache__ --exclude "*.pyc" \
   --include "/ophi/***" --include "/packs/***" --include "/cases/***" --include "/mocks/***" \
