@@ -18,12 +18,12 @@
 
 <form class="plist-filters" method="get" action="{{ BASE }}/outcomes">
   {% if past.tab != 'all' %}<input type="hidden" name="status" value="{{ past.tab }}">{% endif %}
-  <label class="field"><span>Clinic</span>
+  {% if past.clinics | length > 1 %}<label class="field"><span>Clinic</span>
     <select class="input" name="clinic">
       <option value="">All clinics</option>
       {% for c in past.clinics %}<option value="{{ c }}"{% if past.filters.clinic == c %} selected{% endif %}>{{ c }}</option>{% endfor %}
     </select>
-  </label>
+  </label>{% endif %}
   <label class="field"><span>Tooth</span>
     <select class="input" name="tooth">
       <option value="">Any tooth</option>

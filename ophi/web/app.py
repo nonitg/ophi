@@ -269,7 +269,8 @@ def _case_page(request: Request, case_id: str, **extra):
     timing = present.timing(view, today)
     fx = present.fix_panel(view, rd, view.pack, gaps) if view.stage in workflow.CHART_STAGES else None
     if fx:  # past requests Sun Life decided on the same gap, under each step's Why
-        found = similar.for_steps(request.app.state.past, view.case, view.pack, [present.row_requirements(r) for r in fx["rows"]])
+        found = similar.for_steps(request.app.state.past, view.case, view.pack, [present.row_requirements(r) for r in fx["rows"]],
+                                  request.app.state.clinic)
         for r, like in zip(fx["rows"], found):
             r["past"] = like
     ml = present.ml_debug(view, rd)
@@ -606,11 +607,19 @@ def results(request: Request):
     return _render(request, "results.html", res=present.results(svc.queue(), svc.pack, report, recovered))
 
 
+def _own_rows(request: Request) -> list[dict]:
+    """Past requests this app may show one at a time: its clinic's, or every clinic's when it serves no single one.
+    A request names its patient's tooth, note and letter, so another clinic's is not the viewer's to read."""
+    rows = request.app.state.past.rows()
+    clinic = request.app.state.clinic
+    return [r for r in rows if r["clinic_id"] == clinic] if clinic else rows
+
+
 @router.get("/outcomes", response_class=HTMLResponse)
 def outcomes(request: Request, status: str = "all", clinic: str = "", tooth: str = "", reason: str = "", page: int = 1):
     from ophi.outcomes.report import build
     try:
-        rows = request.app.state.past.rows()
+        rows = _own_rows(request)
     except Exception as e:  # no outcomes database configured must not take the demo down
         log.warning("past outcomes unavailable: %s", e)
         return _render(request, "outcomes.html", past=None, report=None, unavailable="Past outcomes are unavailable.")
@@ -626,7 +635,7 @@ def outcomes(request: Request, status: str = "all", clinic: str = "", tooth: str
 @router.get("/past/{preauth_id}", response_class=HTMLResponse)
 def past_request(request: Request, preauth_id: str):
     try:
-        row = past_view.find(request.app.state.past.rows(), preauth_id)
+        row = past_view.find(_own_rows(request), preauth_id)
     except Exception as e:
         log.warning("past outcomes unavailable: %s", e)
         return _error(request, 503, "Past outcomes are unavailable", "The past requests could not be read. Try again shortly.")
@@ -774,8 +783,9 @@ def create_app(svc: CaseService | None = None, packets_dir: Path | None = None, 
     """`seed_demo` puts the demo cases at their places in the timeline on an empty store, on the first request.
     It defaults on for the demo's own service and off when a caller (a test) brings its own. `base_path`
     serves every screen under a prefix, for the demo proxied at ophi.app/<slug>. `live_ml` runs Laya and
-    LightGBM on every case page open; it defaults on locally and off for tests and the proxied demo, which
-    ship without the models and read the offline readouts instead. `auto_rules_check` re-checks the CDCP
+    LightGBM on every case page open; it defaults from OPHI_LIVE_ML (on unless "0", "false" or "off") for the
+    app's own service without a base path, and off for tests and the proxied demo, which ship without the
+    models and read the offline readouts instead. `auto_rules_check` re-checks the CDCP
     sources in the background when a page is visited and the last check is a week old; it defaults from
     OPHI_AUTO_RULES_CHECK (on unless "0", "false" or "off") for the app's own service without a base path, and off
     otherwise (tests, the proxied demo). `rules_env` points
@@ -786,7 +796,10 @@ def create_app(svc: CaseService | None = None, packets_dir: Path | None = None, 
     if isinstance(svc.repository, AbelDentPmsRepository) and svc.pms_claims is None:  # cases from the VM: so are their claims
         pms = svc.repository
         svc.pms_claims, svc.note_reader = (lambda: abeldent.list_predeterminations(pms.sql)), _note_reason
-    live = LiveScorer(svc.pack_for) if (own and not base if live_ml is None else live_ml) else None
+    if live_ml is None:
+        live_ml = (own and not base
+                   and os.environ.get("OPHI_LIVE_ML", "1").strip().lower() not in ("0", "false", "off", "no"))
+    live = LiveScorer(svc.pack_for) if live_ml else None
     past = past_store.Cached(store.connect)  # lazy: no database is touched until a page reads past requests
     if live:
         live.clinic_rate = lambda case: similar.clinic_denial_rate(past, store.connect, case)
@@ -805,6 +818,10 @@ def create_app(svc: CaseService | None = None, packets_dir: Path | None = None, 
     app.state.auto_rules = auto_rules_check
     app.state.rules_env = rules_env or auto.PackEnv()
     app.state.past = past
+    # One clinic's deployment sees only its own past requests one by one; unset (the demo) shows every clinic's.
+    app.state.clinic = os.environ.get("OPHI_CLINIC_ID", "").strip() or None
+    if app.state.clinic is None:
+        log.warning("OPHI_CLINIC_ID is not set: past requests from every clinic are readable one at a time")
     app.state.seed_demo = own if seed_demo is None else seed_demo
     app.state.seeded = False
     app.state.pms_synced_at = float("-inf")

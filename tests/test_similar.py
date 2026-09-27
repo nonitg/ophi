@@ -59,3 +59,20 @@ def test_case_page_links_past_requests_under_why(tmp_path, past):
     app.state.past = past
     html = TestClient(app).get("/cases/kowalchuk").text
     assert "Past requests like this:" in html and 'href="/past/PA-SYN-' in html and "?from=kowalchuk" in html
+
+
+def test_counts_stay_corpus_wide_when_chips_are_scoped_to_one_clinic(tmp_path, past):
+    case = _case(tmp_path)
+    [every] = similar.for_steps(past, case, default_pack(), [["radiograph_pa"]])
+    clinic = every["denied"][0]
+    owner = next(r["clinic_id"] for r in past.rows() if r["preauth_id"] == clinic["id"])
+    [mine] = similar.for_steps(past, case, default_pack(), [["radiograph_pa"]], owner)
+    assert (mine["n_resent"], mine["n_approved"], mine["n_denied"]) == (every["n_resent"], every["n_approved"], every["n_denied"])
+    ids = {x["id"] for x in mine["approved"] + mine["denied"]}
+    assert ids and all(r["clinic_id"] == owner for r in past.rows() if r["preauth_id"] in ids)
+
+
+def test_a_clinic_with_no_past_requests_still_sees_the_counts(tmp_path, past):
+    case = _case(tmp_path)
+    [like] = similar.for_steps(past, case, default_pack(), [["radiograph_pa"]], "SYN-P-NOBODY")
+    assert like["n_denied"] and not like["approved"] and not like["denied"]

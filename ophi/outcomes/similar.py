@@ -1,6 +1,9 @@
 """Past crown requests like this case, for one fix step: what Sun Life approved with the fix in place (resent after
 the fix first) and what it denied for the reason the fix addresses. Secondary evidence under a step's "Why".
 
+Counts come from every clinic's requests: an aggregate identifies no one and is the whole value of the corpus.
+The linked examples are the viewer's own clinic only, since each one opens an identifiable request.
+
 Nearest neighbour on the structured request (Gower distance over the training features), not text embeddings: a
 few hundred rows with the same fields the models read, so the ranking stays explainable and needs no vector index.
 """
@@ -69,7 +72,13 @@ def _example(row: dict) -> dict:
             "tooth": row["tooth_fdi"], "sent_on": row["submitted_on"], "resent_then_approved": fixed}
 
 
-def like(rows: list[dict], target: dict, requirement_ids: list[str], dmap: dict[str, list[str]]) -> dict | None:
+def _own(rows: list[dict], clinic: str | None) -> list[dict]:
+    """The examples a clinic may open: its own requests, or all of them when the app serves no single clinic."""
+    return [r for r in rows if r["clinic_id"] == clinic] if clinic else rows
+
+
+def like(rows: list[dict], target: dict, requirement_ids: list[str], dmap: dict[str, list[str]],
+         clinic: str | None = None) -> dict | None:
     """Both ends for one step. Approved: denied for this reason then approved on a resend, or approved with the
     requirement met. Denied: denied for a reason the step addresses and not fixed on a resend. Each side ranked
     the same kind of gap (an old film or none), same tooth class, then Gower distance (tooth, code, age band, film and
@@ -99,8 +108,8 @@ def like(rows: list[dict], target: dict, requirement_ids: list[str], dmap: dict[
     n = Counter(r["reason_code"] for r in denied)
     # The closest denial's reason first: for an old film, "X-ray over 12 months old" before "Missing X-ray".
     order = list(dict.fromkeys([r["reason_code"] for r in denied[:1]] + [c for c, _ in n.most_common()]))
-    return {"approved": [_example(r) for r in sorted(fixed + met, key=rank)[:SHOWN]],
-            "denied": [_example(r) for r in denied[:SHOWN]],
+    return {"approved": [_example(r) for r in _own(sorted(fixed + met, key=rank), clinic)[:SHOWN]],
+            "denied": [_example(r) for r in _own(denied, clinic)[:SHOWN]],
             "n_resent": len(fixed), "n_approved": len(fixed) + len(met), "n_denied": len(denied),
             "reasons": [{"reason": reason(c), "n": n[c]} for c in order]}
 
@@ -119,7 +128,8 @@ def clinic_denial_rate(past: Cached, connect, case: Case) -> float | None:
         return None
 
 
-def for_steps(past: Cached, case: Case, pack: RulePack, steps: list[list[str]]) -> list[dict | None]:
+def for_steps(past: Cached, case: Case, pack: RulePack, steps: list[list[str]],
+              clinic: str | None = None) -> list[dict | None]:
     """`like` for each step's requirement ids. With the outcomes database unavailable, nothing: the page still renders."""
     try:
         rows = past.rows()
@@ -127,4 +137,4 @@ def for_steps(past: Cached, case: Case, pack: RulePack, steps: list[list[str]]) 
         log.warning("similar past requests unavailable: %s", e)
         return [None] * len(steps)
     target, dmap = case_profile(case, pack), load_denial_map(pack)
-    return [like(rows, target, rids, dmap) if rids else None for rids in steps]
+    return [like(rows, target, rids, dmap, clinic) if rids else None for rids in steps]
