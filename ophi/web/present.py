@@ -312,6 +312,18 @@ def plain_why(why: str, rid: str | None, view: CaseView, pack: RulePack) -> str:
     return _plainer(why)
 
 
+def why_points(why: str) -> dict:
+    """A reason with several parts reads as a list, not one long sentence: the lead-in stays a sentence and
+    each part becomes a bullet."""
+    parts = [p for p in why.split("; ") if p]
+    if len(parts) < 2:
+        return {"intro": why, "points": []}
+    if ": " in parts[0]:
+        intro, first = parts[0].split(": ", 1)
+        return {"intro": intro + ":", "points": [first] + parts[1:]}
+    return {"intro": None, "points": parts}
+
+
 def plain_label(label: str) -> str:
     """An evidence label as staff say it: the engine writes 'PA of #37' and 'left BW'."""
     return _plainer(label)

@@ -53,7 +53,7 @@ STATIC_V = max(int(p.stat().st_mtime) for p in (HERE / "static").rglob("*") if p
 templates = Jinja2Templates(directory=str(HERE / "templates"))
 templates.env.globals.update(
     STATIC_V=STATIC_V, money=present.money, short_date=present.short_date, long_date=present.long_date,
-    full_date=present.full_date, day_heading=present.day_heading, sentence=present.sentence, plain_label=present.plain_label, local_time=present.local_time, days_until=present.days_until, in_days=present.in_days, plural=present.plural,
+    full_date=present.full_date, day_heading=present.day_heading, sentence=present.sentence, plain_label=present.plain_label, why_points=present.why_points, local_time=present.local_time, days_until=present.days_until, in_days=present.in_days, plural=present.plural,
     tooth_name=present.tooth_name, source_title=present.source_title, kb=present.kb, requirement_detail=present.requirement_detail, action_title=present.action_title,
     who_tag=present.who_tag, initials=present.initials, skipped_note=present.skipped_note, VERDICT_LABEL=present.VERDICT_LABEL, VERDICT_CLASS=present.VERDICT_CLASS,
     STATUS_LABEL=present.STATUS_LABEL, STATUS_CLASS=present.STATUS_CLASS, STATUS_NA=Status.NOT_APPLICABLE,

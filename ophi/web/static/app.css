@@ -248,6 +248,9 @@ textarea.input { width: 100%; height: auto; padding: 8px 10px; line-height: 1.5;
 .why summary:hover, .crit-note summary:hover { color: var(--ink); }
 .why[open] summary { margin-bottom: 6px; }
 .why p + p { margin-top: 6px; }
+.why-list { margin: 4px 0 0; padding-left: 18px; }
+.why-list li { margin-top: 3px; }
+.why p + .why-list { margin-top: 6px; }
 .stack { display: grid; gap: 16px; justify-items: start; }
 .stack > * { margin: 0; }
 .stack .field { width: 100%; max-width: 520px; }

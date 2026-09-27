@@ -104,17 +104,41 @@ def _solve_all(p: RequireAll, ctx: LeafContext, fired: dict[str, EscalationResul
 
 
 AWAITING = "awaiting the treating dentist's confirmation: "
+NOT_MET = " recorded that this criterion is not met: "
 
 
 def _join_details(details: list[str]) -> str:
-    """Seven 'awaiting confirmation' leaves read as one line, not seven."""
+    """Seven 'awaiting confirmation' leaves read as one line, not seven. Same for a dentist who marked
+    several criteria not met on one visit: name them once, then list the criteria."""
     awaiting = [d[len(AWAITING):] for d in details if d.startswith(AWAITING)]
     other = [d for d in details if not d.startswith(AWAITING)]
     if len(awaiting) > 1:
         other.append(f"awaiting the treating dentist's confirmation on {len(awaiting)} criteria: {'; '.join(awaiting)}")
     elif awaiting:
         other.append(AWAITING + awaiting[0])
-    return "; ".join(other)
+    return "; ".join(_collapse_not_met(other))
+
+
+def _collapse_not_met(details: list[str]) -> list[str]:
+    by_who: dict[str, list[str]] = {}
+    for d in details:
+        if NOT_MET in d:
+            who, label = d.split(NOT_MET, 1)
+            by_who.setdefault(who, []).append(label)
+    if not any(len(v) > 1 for v in by_who.values()):
+        return details
+    out, done = [], set()
+    for d in details:
+        if NOT_MET not in d:
+            out.append(d)
+            continue
+        who = d.split(NOT_MET, 1)[0]
+        if who in done:
+            continue
+        done.add(who)
+        labels = by_who[who]
+        out.append(f"{who} recorded that these criteria are not met: {'; '.join(labels)}" if len(labels) > 1 else d)
+    return out
 
 
 def _solve_one_of(p: OneOf, ctx: LeafContext, fired: dict[str, EscalationResult], pack: RulePack) -> Solved:

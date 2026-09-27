@@ -110,7 +110,9 @@
         </div>
         {% endif %}
         <details class="why"><summary>Why</summary>
-          <p>{{ it.why }}</p>
+          {% set w = why_points(it.why) %}
+          {% if w.intro %}<p>{{ w.intro }}</p>{% endif %}
+          {% if w.points %}<ul class="why-list">{% for pt in w.points %}<li>{{ pt }}</li>{% endfor %}</ul>{% endif %}
           {% if it.clause %}<p class="gap-rule">Required by {{ clause_chip(it.clause, pack) }}</p>{% endif %}
         </details>
       </li>

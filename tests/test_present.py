@@ -10,6 +10,7 @@ from ophi.demo import seed
 from ophi.service import CaseService, Store
 from ophi.casegen.dsl import build_case
 from ophi.engine.assess import check_schedule
+from ophi.engine.evaluate import _join_details
 from ophi.web import present
 from ophi.web.present import ACTORS
 
@@ -152,3 +153,17 @@ def test_a_crown_code_off_the_grid_cites_the_grid(svc):
     sched = check_schedule_for("27215", svc.pack)
     assert sched.clause.source == "grid"  # the list of codes needing preauthorization comes from Schedule B
     assert "not one of the 3 crown codes" in present._plain_schedule(sched, "27215", svc.pack)
+
+
+def test_several_criteria_the_dentist_marked_not_met_read_as_a_list():
+    """One dentist, one visit, two criteria: name them once and bullet the criteria."""
+    joined = _join_details(["Dr. Ackerman on 2026-09-27 recorded that this criterion is not met: Adequate ferrule (1.5 mm)",
+                            "Dr. Ackerman on 2026-09-27 recorded that this criterion is not met: Restoration margin at least 3 mm"])
+    assert joined.count("Dr. Ackerman") == 1 and "these criteria are not met" in joined
+    w = present.why_points(joined)
+    assert w["intro"].endswith("are not met:")
+    assert w["points"] == ["Adequate ferrule (1.5 mm)", "Restoration margin at least 3 mm"]
+
+
+def test_a_single_reason_stays_a_sentence():
+    assert present.why_points("The film was taken too long ago.") == {"intro": "The film was taken too long ago.", "points": []}
