@@ -262,6 +262,9 @@ class AbelDentPmsRepository:
         appointments = {r["pid"]: date.fromisoformat(r["day"]) for r in self.sql(NEXT_CROWN_APPOINTMENTS, None)}
         cases = {}
         for pid, chart in sorted(charts.items()):
+            # A patient the clinic marked inactive (or not a patient at all) is off the worklist, planned crown or not.
+            if chart["patient"]["inactive"] or chart["patient"]["non_patient"]:
+                continue
             crowns = [p for p in chart["planned_procedures"]["items"] if p["code"].startswith("27") and p["tooth_fdi"]]
             if crowns:  # an open plan item before one ABELDent already marked applied
                 first = next((p for p in crowns if p["status"] == "planned"), crowns[0])
