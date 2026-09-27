@@ -61,7 +61,7 @@
         {% if act.waiting %}<span class="tile-wait">Waiting on {{ act.waiting }}</span>
         {% elif c.stage != 'done' %}
         <span class="tile-act">{{ act.title }}{% if act.more %}&nbsp;<span class="more">+{{ act.more }} more</span>{% endif %}</span>
-        {% if act.payer %}<span class="tile-note payer" data-voice="payer">Sun Life {{ act.payer.outcome }} it {{ short_date(act.payer.on) }}</span>
+        {% if act.payer %}<span class="tile-note payer" data-voice="payer">Sun Life {{ act.payer.outcome }} it {{ short_date(act.payer.on) }}{% if act.payer.reason and act.payer.outcome == 'denied' %}: “{{ act.payer.reason|truncate(90) }}”{% endif %}</span>
         {% elif act.note %}<span class="tile-note">{{ act.note }}</span>{% endif %}
         {% if act.prefilled %}<span class="tile-pre">{{ laya('') }}{{ act.prefilled }} of {{ act.criteria }} pre-filled</span>{% endif %}
         {% endif %}

@@ -1,0 +1,9 @@
+-- Remove the fake Sun Life responses written by fake-sunlife-responses.sql.
+SET XACT_ABORT ON;
+BEGIN TRAN;
+DELETE FROM ClaimResult WHERE ClaimID BETWEEN 9001 AND 9099;
+DELETE FROM ClaimItem   WHERE ClaimID BETWEEN 9001 AND 9099;
+DELETE FROM Claim       WHERE ClaimID BETWEEN 9001 AND 9099;
+DELETE FROM NetLog      WHERE LogEventID BETWEEN 9101 AND 9199;
+COMMIT;
+SELECT (SELECT COUNT(*) FROM Claim WHERE ClaimID BETWEEN 9001 AND 9099) AS claims_left;

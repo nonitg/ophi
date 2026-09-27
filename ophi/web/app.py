@@ -16,17 +16,18 @@ import logging
 import os
 import shutil
 import threading
+import time
 import zipfile
 from contextlib import asynccontextmanager
 from datetime import UTC, date, datetime
 from pathlib import Path
 
-from fastapi import APIRouter, FastAPI, Form, Request
+from fastapi import APIRouter, FastAPI, File, Form, Request, UploadFile
 from fastapi.responses import FileResponse, HTMLResponse, RedirectResponse, Response
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
-from ophi import demo, fixes, workflow
+from ophi import demo, fixes, letters, workflow
 from ophi.engine.models import Status
 from ophi.outcomes import readout
 from ophi.outcomes.live import LiveScorer
@@ -34,6 +35,8 @@ from ophi.outcomes.weights import load as load_weights
 from ophi.packet.build import build_packet
 from ophi.packet.documents import narrative_ascii
 from ophi.packet.narrative import draft_narrative
+from ophi.sources import abeldent
+from ophi.sources.pms_repository import AbelDentPmsRepository
 from ophi.service import CaseService, CaseView, NarrativeInvalid, identity_tokens
 from ophi.verify.verifier import verify_packet
 from ophi.web import abeldent_api, present
@@ -60,12 +63,13 @@ DONE_MESSAGES = {
     "confirmed": "Chart note confirmed.", "rejected": "Chart note rejected.", "criteria": "Criteria recorded.",
     "saved": "Narrative saved.", "signed": "Packet signed.", "signed_test": "Test packet signed.", "sent": "Marked as sent.",
     "decision": "Sun Life's decision recorded.", "resubmit": "Resubmission started. The dentist reviews and signs the new request.",
-    "booked": "Marked as booked.", "followup": "Follow-up saved.", "undone": "Step taken back.",
+    "booked": "Marked as booked.", "asked": "Marked done. Sun Life's request is covered.", "followup": "Follow-up saved.", "undone": "Step taken back.",
     "skipped": "Gaps skipped for this test run.", "restored": "Gaps are back.",
     "fixed": "Fix applied.",
     "captured": "Taken. Ophi checked the chart again.", "chair_done": "Nothing left to take. The patient can go.",
 }
 _RESET_LOCK = threading.Lock()  # a double-submitted reset must not reseed twice at once
+PMS_SYNC_SECONDS = 30  # how stale the PMS's sent/decided steps may get: each sync is a round trip to the VM
 
 router = APIRouter()
 
@@ -80,7 +84,29 @@ def _svc(request: Request) -> CaseService:
             if not app.state.seeded:
                 demo.seed(app.state.svc)
                 app.state.seeded = True
+    _sync_pms(app)
     return app.state.svc
+
+
+def _sync_pms(app) -> None:
+    """Pull what the PMS knows about sent requests, at most every PMS_SYNC_SECONDS. A PMS that can't be reached
+    leaves the board as staff last recorded it."""
+    if app.state.svc.pms_claims is None or time.monotonic() - app.state.pms_synced_at < PMS_SYNC_SECONDS:
+        return
+    app.state.pms_synced_at = time.monotonic()
+    try:
+        app.state.svc.sync_from_pms()
+    except RuntimeError as e:  # chart_dump.VmSqlError: the VM is down or rejected the query
+        log.warning(f"PMS sync skipped: {e}")
+
+
+def _note_reason(text: str) -> str | None:
+    """Which denial reason Sun Life's note names, when Claude can say; otherwise staff pick it."""
+    try:
+        return letters.read_note(text).reason_key
+    except letters.LetterError as e:
+        log.warning(f"PMS sync: couldn't read Sun Life's note: {e}")
+        return None
 
 
 def _base(request: Request) -> str:
@@ -220,6 +246,10 @@ def worklist(request: Request):
 
 @router.get("/cases/{case_id}", response_class=HTMLResponse)
 def case_page(request: Request, case_id: str):
+    return _case_page(request, case_id)
+
+
+def _case_page(request: Request, case_id: str, **extra):
     view = _view(request, case_id)
     if view is None:
         return _error(request, 404, "Case not found", f"No case '{case_id}' in the demo set.")
@@ -243,7 +273,8 @@ def case_page(request: Request, case_id: str):
                    plan=present.dentist_panel(view, rd) if view.stage in (*workflow.CHART_STAGES, workflow.Stage.DENTIST) else None,
                    criteria=relevant, crit=present.criteria_groups(view, relevant), criteria_other=other, activity=present.activity(svc.store.audit_log(case_id)),
                    applicable=[r for r in view.assessment.requirements if r.applicable],
-                   not_applicable=[r for r in view.assessment.requirements if not r.applicable])
+                   not_applicable=[r for r in view.assessment.requirements if not r.applicable],
+                   reasons=workflow.REASONS, **extra)
 
 
 @router.post("/cases/{case_id}/assert")
@@ -337,8 +368,23 @@ def mark_submitted(request: Request, case_id: str, on: str = Form("")):
     return _done(request, f"/cases/{case_id}", "sent")
 
 
+@router.post("/cases/{case_id}/letter", response_class=HTMLResponse)
+async def read_letter(request: Request, case_id: str, letter: UploadFile = File(...)):
+    """Claude reads Sun Life's letter; the case page comes back with the decision form filled in for staff to check."""
+    if _view(request, case_id) is None:
+        return _error(request, 404, "Case not found", f"No case '{case_id}' in the demo set.")
+    data = await letter.read()
+    try:
+        reading = await asyncio.to_thread(letters.read_letter, data, letter.content_type or "")
+    except letters.LetterError as e:
+        return _case_page(request, case_id, letter_error=str(e))
+    _svc(request).audit(case_id, _actor(request).name, "read_letter", f"{letter.filename}: {reading.outcome}")
+    return _case_page(request, case_id, letter=reading)
+
+
 @router.post("/cases/{case_id}/decision")
-def record_decision(request: Request, case_id: str, outcome: str = Form(""), decided_on: str = Form(""), reason: str = Form("")):
+def record_decision(request: Request, case_id: str, outcome: str = Form(""), decided_on: str = Form(""), reason: str = Form(""),
+                    reason_key: str = Form("")):
     try:
         on = _form_date(decided_on)
     except BadDate as e:
@@ -346,7 +392,8 @@ def record_decision(request: Request, case_id: str, outcome: str = Form(""), dec
     if on is None or outcome not in ("approved", "denied"):
         return _error(request, 400, "Decision incomplete", "Choose Sun Life's decision and the date on it.")
     try:
-        _svc(request).record_decision(case_id, outcome, on, _form_text(reason), _actor(request).name)
+        _svc(request).record_decision(case_id, outcome, on, _form_text(reason), _actor(request).name,
+                                      reason_key=reason_key if outcome == "denied" and reason_key else None)
     except PermissionError as e:
         return _error(request, 409, "Not waiting on Sun Life", str(e).capitalize() + ".")
     except ValueError as e:
@@ -355,12 +402,23 @@ def record_decision(request: Request, case_id: str, outcome: str = Form(""), dec
 
 
 @router.post("/cases/{case_id}/resubmit")
-def start_resubmission(request: Request, case_id: str):
+def start_resubmission(request: Request, case_id: str, reason_key: str = Form("")):
     try:
-        _svc(request).start_resubmission(case_id, _actor(request).name)
+        _svc(request).start_resubmission(case_id, _actor(request).name, reason_key or None)
     except PermissionError as e:
         return _error(request, 409, "Nothing to resubmit", str(e).capitalize() + ".")
+    except ValueError as e:
+        return _error(request, 400, "Pick Sun Life's reason", str(e).capitalize() + ".")
     return _done(request, f"/cases/{case_id}", "resubmit")
+
+
+@router.post("/cases/{case_id}/ask/done")
+def resolve_ask(request: Request, case_id: str):
+    try:
+        _svc(request).resolve_ask(case_id, _actor(request).name)
+    except PermissionError as e:
+        return _error(request, 409, "Nothing open", str(e).capitalize() + ".")
+    return _done(request, f"/cases/{case_id}", "asked")
 
 
 @router.post("/cases/{case_id}/booked")
@@ -587,6 +645,7 @@ def reset(request: Request):
         shutil.rmtree(request.app.state.packets_dir, ignore_errors=True)
         if request.app.state.seed_demo:
             demo.seed(svc)
+        request.app.state.pms_synced_at = float("-inf")  # the reseeded cases take the PMS's steps on the next page
     return RedirectResponse(_home(request), status_code=303)
 
 
@@ -622,6 +681,9 @@ def create_app(svc: CaseService | None = None, packets_dir: Path | None = None, 
     base = (os.environ.get("OPHI_BASE_PATH", "") if base_path is None else base_path).rstrip("/")
     own = svc is None
     svc = svc or CaseService(weights=load_weights())
+    if own and not base and os.environ.get("OPHI_ABELDENT") == "1":  # lab: read sent requests from the ABELDent VM
+        pms = AbelDentPmsRepository()
+        svc.pms_claims, svc.note_reader = (lambda: abeldent.list_predeterminations(pms.sql)), _note_reason
     live = LiveScorer(svc.pack) if (own and not base if live_ml is None else live_ml) else None
 
     @asynccontextmanager
@@ -634,6 +696,7 @@ def create_app(svc: CaseService | None = None, packets_dir: Path | None = None, 
     app.state.live = live
     app.state.seed_demo = own if seed_demo is None else seed_demo
     app.state.seeded = False
+    app.state.pms_synced_at = float("-inf")
     app.state.svc = svc
     app.state.packets_dir = packets_dir or (app.state.svc.store.root / "packets")
     app.state.base_path = base

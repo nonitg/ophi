@@ -522,6 +522,8 @@ def card_action(view: CaseView, actor: Actor, today: date, order: list[str] | No
         out.update(title="Move the appointment, then resubmit" if late else "Resubmit, or ask for reconsideration", payer=_payer(st.decision))
     elif stage == Stage.DONE:
         out["title"] = "Crown booked"
+    if st.ask and not st.ask.done_by and stage == st.ask.stage:
+        out["title"] = f"Sun Life asked: {st.ask.title}"
     if st.attempts and stage in (*CHART_STAGES, Stage.DENTIST, Stage.SEND):
         out["note"] = out["note"] or "Resubmission"
     return out
@@ -539,6 +541,8 @@ def card(view: CaseView, actor: Actor, today: date, risk: dict | None = None, pr
         act.update(title=risk["next"], more=risk["more"])  # the plan's first fix, not the engine's
     if not mine and view.stage != Stage.DONE:
         act["waiting"] = who_label(OWNER[view.stage], actor, view.case.treatment.provider.name)
+        if view.stage == Stage.SUN_LIFE and view.pms and view.pms.answer_at == "paper":
+            act["waiting"] += "'s letter"  # the PMS will never see this answer: staff upload it
     return {"view": view, "case": view.case, "stage": view.stage, "timing": t, "action": act,
             "mine": mine, "advice": advice(view, t, today), "sort": (urgency, due), "risk": risk,
             "chair": chair_items(view, order) if in_chair(view) else None, "first": first_name(view)}
@@ -704,7 +708,8 @@ _ACTIVITY = {"apply_fix": ("applied a fix", "applied {n} fixes"), "assert": ("re
              "edit_narrative": ("edited the narrative",), "sign_off": ("signed the packet",), "download_packet": ("downloaded the packet",),
              "mark_submitted": ("marked it sent",), "record_decision": ("recorded Sun Life's decision",),
              "start_resubmission": ("started a resubmission",), "mark_booked": ("marked the crown booked",),
-             "undo": ("took back a step",), "recover_followup": ("logged a call-back",),
+             "undo": ("took back a step",), "read_letter": ("had Claude read Sun Life's letter",),
+             "resolve_ask": ("covered what Sun Life asked for",), "recover_followup": ("logged a call-back",),
              "test_skip": ("skipped the chart gaps for a test run",), "test_restore": ("restored the skipped gaps",),
              "demo_capture": ("marked a chair gap taken (demo)", "marked {n} chair gaps taken (demo)")}
 

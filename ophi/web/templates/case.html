@@ -32,6 +32,13 @@
 <p class="note note-warn">{{ st.sign_off.signed_by }}'s signature from {{ full_date(st.sign_off.signed_at.date()) }} no longer applies because the chart or an answer changed. The packet needs a new signature.</p>
 {% endif %}
 
+{% if st.ask and not st.ask.done_by and stage.value == st.ask.stage.value %}
+<div class="note note-warn ask">
+  <p><b>Sun Life asked: {{ st.ask.title }}.</b> Their last answer named it; do it before the request goes again.</p>
+  <form method="post" action="{{ BASE }}/cases/{{ cid }}/ask/done"><button class="btn btn-sm" type="submit">Done</button></form>
+</div>
+{% endif %}
+
 {% if st.attempts %}
 <div class="attempts">
   {% for x in st.attempts %}<p><b>Attempt {{ loop.index }}</b>, sent {{ full_date(x.submitted_on) }}. {{ payer_decision({'outcome': x.decision.outcome, 'on': x.decision.decided_on, 'reason': x.decision.reason}) }}</p>{% endfor %}
@@ -199,19 +206,28 @@
     {{ send_steps(view, case, cid, True) }}
 
   {% elif s.key == 'decision' %}
-    <p class="now-lead">{% if waiting %}Sun Life processes most requests within {{ TURNAROUND_DAYS }} days. {{ turnaround_source() }}{% else %}Check your CDAnet mailbox, then record what Sun Life decided.{% endif %}</p>
-    {% if waiting %}<details class="reveal"><summary class="btn btn-sm">Decision arrived? Record it</summary>{% endif %}
+    {% set paper = view.pms and view.pms.answer_at == 'paper' %}
+    <p class="now-lead">{% if paper %}Sun Life will answer this one by mail. When the letter comes, upload it.{% elif waiting %}Sun Life processes most requests within {{ TURNAROUND_DAYS }} days. {{ turnaround_source() }}{% else %}Check your CDAnet mailbox, then record what Sun Life decided.{% endif %}</p>
+    {% if view.pms %}<p class="pms-line">ABELDent: <b>{{ view.pms.status_label }}</b>{% if view.pms.carrier_ref %} · Sun Life's reference <span class="num">{{ view.pms.carrier_ref }}</span>{% endif %}</p>{% endif %}
+    <form method="post" action="{{ BASE }}/cases/{{ cid }}/letter" enctype="multipart/form-data" class="inline-form letter-form">
+      <label class="field"><span>Sun Life's letter (PDF or photo)</span><input class="input" type="file" name="letter" accept="application/pdf,image/png,image/jpeg,image/webp" required></label>
+      <button class="btn{% if paper %} btn-primary{% endif %}" type="submit">Read the letter</button>
+    </form>
+    {% if letter_error %}<p class="note note-warn">{{ letter_error }}</p>{% endif %}
+    {% if letter %}<p class="note">Claude read the letter{% if letter.outcome == 'unclear' %} but couldn't tell what Sun Life decided. Record it from the letter{% else %}. Check what it found against the letter, then record it{% endif %}.{% if letter.outcome == 'denied' and not letter.reason_key %} The letter doesn't say why Sun Life denied it.{% endif %}</p>{% endif %}
+    {% if waiting and not letter %}<details class="reveal"><summary class="btn btn-sm">Decision arrived? Record it</summary>{% endif %}
       <form method="post" action="{{ BASE }}/cases/{{ cid }}/decision" class="stack decision-form">
         <fieldset class="choice-cards" data-voice="payer" aria-label="Sun Life's decision">
           <legend class="sr">Sun Life's decision</legend>
-          <label><input type="radio" name="outcome" value="approved" required><span>Approved</span></label>
-          <label><input type="radio" name="outcome" value="denied"><span>Denied</span></label>
+          <label><input type="radio" name="outcome" value="approved" required{% if letter and letter.outcome == 'approved' %} checked{% endif %}><span>Approved</span></label>
+          <label><input type="radio" name="outcome" value="denied"{% if letter and letter.outcome == 'denied' %} checked{% endif %}><span>Denied</span></label>
         </fieldset>
-        <label class="field field-date"><span>Decision date</span><input class="input num" type="date" name="decided_on" value="{{ today.isoformat() }}" min="{{ st.submitted_on.isoformat() }}" max="{{ today.isoformat() }}" required></label>
-        <label class="field reason"><span>Sun Life's reason, word for word (optional)</span><textarea class="input" name="reason" rows="2"></textarea></label>
+        <label class="field field-date"><span>Decision date</span><input class="input num" type="date" name="decided_on" value="{{ (letter.decided_on if letter and letter.decided_on and st.submitted_on <= letter.decided_on <= today else today).isoformat() }}" min="{{ st.submitted_on.isoformat() }}" max="{{ today.isoformat() }}" required></label>
+        <label class="field reason"><span>Sun Life's reason, word for word (optional)</span><textarea class="input" name="reason" rows="2">{{ letter.reason or '' if letter else '' }}</textarea></label>
+        {% if letter and letter.reason_key %}<input type="hidden" name="reason_key" value="{{ letter.reason_key }}">{% endif %}
         <div class="btn-row"><button class="btn btn-primary" type="submit">Record decision</button></div>
       </form>
-    {% if waiting %}</details>{% endif %}
+    {% if waiting and not letter %}</details>{% endif %}
 
   {% elif s.key == 'book' %}
     <p class="now-lead">{{ payer_decision({'outcome': st.decision.outcome, 'on': st.decision.decided_on, 'reason': None}) }} Book the crown by <b>{{ full_date(s.valid_until) }}</b>.</p>
@@ -227,7 +243,16 @@
       <div class="option">
         <h3>Send a new request</h3>
         <p>{{ provider }} signs it again, then you send it.</p>
-        <form method="post" action="{{ BASE }}/cases/{{ cid }}/resubmit"><button class="btn btn-primary" type="submit">Start resubmission</button></form>
+        <form method="post" action="{{ BASE }}/cases/{{ cid }}/resubmit" class="stack">
+          <label class="field"><span>What Sun Life's reason points to</span>
+            <select class="input" name="reason_key" data-voice="payer">
+              <option value="">It doesn't say, or none of these</option>
+              {% for k, r in reasons.items() %}<option value="{{ k }}"{% if st.decision.reason_key == k %} selected{% endif %}>{{ r[0] }}{% if r[2] %}: {{ r[1]|lower }}{% endif %}</option>{% endfor %}
+            </select>
+          </label>
+          {% if st.decision.reason_key and reasons[st.decision.reason_key][2] %}<p class="small muted">Ophi read Sun Life's reason as this. The case goes to {{ STAGE_LABEL[reasons[st.decision.reason_key][2]] }} to do it.</p>{% endif %}
+          <div class="btn-row"><button class="btn btn-primary" type="submit">Start resubmission</button></div>
+        </form>
       </div>
       <div class="option">
         <h3>Ask for reconsideration</h3>

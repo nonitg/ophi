@@ -520,3 +520,8 @@ mark.q-rejected { background: none; text-decoration: line-through; color: var(--
   .fold:not([open]) { display: none; }
   body { font-size: 12px; }
 }
+
+/* Sun Life's answer: what the PMS shows, and what the last denial asked for */
+.pms-line { font-size: 13px; color: var(--muted); margin: 4px 0 12px; }
+.letter-form { margin-bottom: 12px; }
+.ask { display: flex; gap: 12px; align-items: center; justify-content: space-between; }

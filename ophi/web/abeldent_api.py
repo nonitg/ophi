@@ -38,6 +38,11 @@ def patient(pid: int):
     return found
 
 
+@router.get("/patients/{pid}/predeterminations", response_model=list[abeldent.Predetermination])
+def predeterminations(pid: int):
+    return _pms(abeldent.list_predeterminations, pid)
+
+
 @router.get("/appointments", response_model=list[abeldent.Appointment])
 def appointments(date: date):
     return _pms(abeldent.list_appointments, date)

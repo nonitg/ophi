@@ -1,0 +1,57 @@
+# Modelled on ABELDent Fictional Data patient 158 (lab VM) with a CDCP chart like nguyen's.
+# Sent from ABELDent 2026-09-10; Sun Life's electronic answer denies it for a missing periapical radiograph.
+id: yokoyama
+as_of: 2026-09-17
+patient: { id: "158", name: "Sumi Yokoyama", dob: 1975-01-15, sex: F, cdcp_client_id: "CDCP-5512-0158" }
+provider: { name: "Dr. Priya Lau", licence: "ON-48213" }
+treatment:
+  code: "27211"
+  description: "Crown, porcelain fused to metal"
+  tooth: 24
+  planned: 10d
+  fee_cents: 84500
+  appointment: 2026-10-06
+  lab_codes: ["99112"]
+dentition:
+  missing: [18, 28, 38, 48]
+  restored_surfaces: { 24: [M, O, D, B, L] }
+history:
+  - { code: "21225", tooth: 24, surfaces: [M, O, D, B, L], date: 2011-04-06, description: "Amalgam, 5 surfaces" }
+  - { code: "01202", date: 2026-06-23 }
+  - { code: "20111", tooth: 24, date: 2026-07-07, description: "Caries control, interim glass ionomer" }
+radiographs:
+  - { id: pa_24, view: PA, tooth: 24, date: 2026-06-23 }
+  - { id: bw_r, view: BW, side: right, teeth: [14, 15, 16, 17, 44, 45, 46, 47], date: 2026-06-23 }
+  - { id: bw_l, view: BW, side: left, teeth: [24, 25, 26, 27, 34, 35, 36, 37], date: 2026-06-23 }
+perio_charts:
+  - { id: perio_full, date: 2026-06-23, sites: 6, depth: 3, examiner: "M. Haddad RDH" }
+notes:
+  - id: note_0623
+    date: 2026-06-23
+    author: "Dr. Priya Lau"
+    type: "Exam"
+    teeth: [24]
+    text: >-
+      Recall exam. BW shows recurrent caries under the mesial and lingual margins of the old MODBL amalgam
+      on 24, lingual cusp undermined. Vital, no spontaneous pain. Plan: remove amalgam and caries, interim
+      glass ionomer, then PFM crown 24. Remainder of the dentition sound.
+  - id: note_0707
+    date: 2026-07-07
+    author: "Dr. Priya Lau"
+    type: "Treatment"
+    teeth: [24]
+    text: >-
+      24 amalgam and all recurrent caries removed, no pulp exposure, interim glass ionomer placed. Comfortable,
+      cold response normal. Next step PFM crown 24; no other treatment outstanding.
+tx_plans:
+  - { id: plan_24, date: 2026-07-07, pending: ["27211"], completed: ["21225", "01202", "20111"] }
+assertions:
+  - { criterion: no_active_perio, date: 2026-08-28 }
+  - { criterion: crown_root_ratio, date: 2026-08-28 }
+  - { criterion: no_furcation, date: 2026-08-28 }
+  - { criterion: margin_3mm, date: 2026-08-28 }
+  - { criterion: ferrule_1_5mm, date: 2026-08-28 }
+  - { criterion: mesiodistal_space, date: 2026-08-28 }
+  - { criterion: no_adjunctive_needed, date: 2026-08-28 }
+  - { criterion: extensively_restored, date: 2026-08-28, note: "Five continuous surfaces MODBL, now interim glass ionomer; non-endodontically treated" }
+  - { criterion: active_disease_addressed, date: 2026-08-28, note: "Recurrent caries on 24 removed at the July caries-control visit" }

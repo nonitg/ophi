@@ -104,6 +104,36 @@ def stage_of(assessment: Assessment, signed: bool, submitted_on: date | None, ou
     return Stage.DENTIST
 
 
+# Sun Life's denial reasons (the keys Laya's decision head uses, ophi.outcomes.laya_questions.REASON_KEYS): what
+# each one names, what it asks the clinic to do before sending again, and the column that does it. None: no new
+# request can fix it, so the patient is told and reconsideration is the only route.
+REASONS: dict[str, tuple[str, str | None, Stage | None]] = {
+    "missing_radiograph": ("A radiograph was missing", "Take a current periapical radiograph", Stage.PATIENT),
+    "stale_radiograph": ("The radiograph was too old", "Take a current radiograph", Stage.PATIENT),
+    "missing_perio_chart": ("The periodontal chart was missing", "Chart the periodontium, 6 sites per tooth", Stage.PATIENT),
+    "basic_treatment_pending": ("Basic treatment is still pending", "Finish the basic treatment first", Stage.PATIENT),
+    "endo_not_healed": ("The root canal hasn't healed", "Show the root canal has healed on a new film", Stage.PATIENT),
+    "insufficient_notes": ("The clinical notes were insufficient", "Add clinical notes that describe the tooth", Stage.PREPARE),
+    "invalid_lab_code": ("The lab code was invalid", "Correct the lab code", Stage.PREPARE),
+    "not_extensively_restored": ("Not extensively restored", "Document why the tooth needs a crown", Stage.DENTIST),
+    "insufficient_ferrule": ("Not enough ferrule", "Document the remaining tooth structure", Stage.DENTIST),
+    "perio_prognosis": ("The periodontal prognosis is poor", "Document the tooth's prognosis", Stage.DENTIST),
+    "need_not_met": ("The clinical need wasn't shown", "Document the clinical need", Stage.DENTIST),
+    "indication_not_covered": ("The reason for the crown isn't covered", "Document a covered indication", Stage.DENTIST),
+    "frequency_limit": ("A frequency limit applies", None, None),
+    "client_ineligible": ("The client isn't eligible", None, None),
+    "tooth_ineligible": ("This tooth isn't eligible", None, None),
+    "duplicate_request": ("A duplicate request", None, None),
+}
+
+
+def with_ask(stage: Stage, ask_stage: Stage | None) -> Stage:
+    """An open ask from Sun Life's denial pulls a reopened request back to the earliest column that can close it."""
+    if ask_stage is None or stage not in (*CHART_STAGES, Stage.DENTIST):
+        return stage
+    return min(stage, ask_stage, key=ORDER.index)
+
+
 def send_by(appointment: date | None) -> date | None:
     """The last day to send and still leave Sun Life its usual turnaround before the appointment."""
     return appointment - relativedelta(days=SUN_LIFE_TURNAROUND_DAYS) if appointment else None

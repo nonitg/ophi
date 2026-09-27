@@ -60,3 +60,10 @@ def test_vm_errors_surface_as_502_with_the_database_message(client, monkeypatch)
     monkeypatch.setattr("ophi.sources.abeldent.LIST_PROVIDERS", "SELECT nope FROM dnt")
     res = client.get("/api/abeldent/providers")
     assert res.status_code == 502 and res.json()["detail"] == "Invalid column name 'nope'."
+
+
+def test_predeterminations_carry_abeldents_status_label(client):
+    [row] = REPO.sql("SELECT COUNT(*) AS n FROM Claim WHERE IsPredetermination = 1 AND ClaimID > 0", None)
+    pids = [r["pid"] for r in REPO.sql("SELECT DISTINCT PatientID AS pid FROM Claim WHERE IsPredetermination = 1 AND ClaimID > 0", None)]
+    found = [p for pid in pids for p in client.get(f"/api/abeldent/patients/{pid}/predeterminations").json()]
+    assert len(found) == row["n"] and all(p["status_label"] and p["sent_on"] for p in found)

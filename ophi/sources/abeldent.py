@@ -1,4 +1,4 @@
-"""Read-only views of a live ABELDent's providers, patients and schedule.
+"""Read-only views of a live ABELDent's providers, patients, schedule and sent predeterminations.
 
 Queries run through `AbelDentPmsRepository.sql`, so the lab read-only rails apply and every value
 binds as an `@param`. Table semantics: docs/research/abeldent-schema.md ("Scheduling and patient tables").
@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from collections.abc import Callable
 from datetime import date
+from typing import Literal
 
 from pydantic import BaseModel
 
@@ -44,6 +45,28 @@ class Appointment(BaseModel):
     status_code: str
     status: str | None
     work: str
+
+
+AnswerAt = Literal["reviewing", "mailbox", "paper", "back", "rejected"]
+
+
+class Predetermination(BaseModel):
+    """A predetermination ABELDent sent, where Sun Life's answer is, and the answer when it came back electronically."""
+
+    claim_id: int
+    patient_id: int
+    code: str
+    tooth: int | None
+    sent_on: date
+    status: str  # Claim.Status letter
+    status_label: str  # ABELDent's own wording for the letter
+    answer_at: AnswerAt
+    carrier: str | None
+    carrier_ref: str | None  # Sun Life's number for this request, for phone follow-up
+    outcome: Literal["approved", "denied"] | None = None
+    decided_on: date | None = None
+    benefit_cents: int | None = None
+    reason: str | None = None  # Sun Life's note text, verbatim
 
 
 # '', '$' and '?' are ABELDent's placeholder provider rows, not people.
@@ -83,6 +106,31 @@ LEFT JOIN aps s ON s.apsid = a.astatus
 WHERE a.adate = @date AND a.apid > 0
 ORDER BY a.atime, a.achair"""
 
+# Claim.Status letters with ABELDent's labels (its ANetTransactionResultType resources) and where the answer is.
+CLAIM_STATUS: dict[str, tuple[str, AnswerAt]] = {
+    "S": ("Pred. Sent successfully", "reviewing"), "C": ("Received by Carrier", "reviewing"),
+    "N": ("Batched by Network", "mailbox"),
+    "Q": ("Pred. Sent, expect paper response", "paper"), "H": ("Held at Carrier, expect paper response", "paper"),
+    "B": ("Batched by Network, expect paper response", "paper"),
+    "P": ("Pred. Explanation of Benefits received", "back"), "A": ("Explanation of Benefits received", "back"),
+    "R": ("Rejected", "rejected"), "M": ("Rejected, must be sent manually", "rejected"),
+    "*": ("Rejected, could not be sent", "rejected"),
+}
+
+# One row per predetermination: its first line's planned procedure, and the network message its status came from.
+LIST_PREDETERMINATIONS = """
+SELECT c.ClaimID AS claim_id, c.PatientID AS patient_id, RTRIM(t.Code) AS code, t.ToothNum AS tooth,
+  CONVERT(varchar(10), c.BillingDate, 23) AS sent_on, RTRIM(c.Status) AS status,
+  NULLIF(RTRIM(c.CarrierClaimNumber), '') AS carrier_ref, RTRIM(i.insname) AS carrier,
+  CONVERT(varchar(10), n.Timestamp, 23) AS answered_on, n.ReceivedMessage AS received
+FROM Claim c
+JOIN ClaimItem ci ON ci.ClaimID = c.ClaimID AND ci.ClaimItemNumber = 1
+JOIN Transactions t ON t.TransID = ci.ServiceTransaction
+LEFT JOIN ins i ON i.inscoid = c.CarrierID
+LEFT JOIN NetLog n ON n.LogEventID = c.LogEventID
+WHERE c.IsPredetermination = 1 AND c.ClaimID > 0
+ORDER BY c.BillingDate DESC"""
+
 
 def list_providers(sql: Sql) -> list[Provider]:
     return [Provider(**r) for r in sql(LIST_PROVIDERS, None)]
@@ -99,3 +147,33 @@ def get_patient(sql: Sql, pid: int) -> Patient | None:
 
 def list_appointments(sql: Sql, day: date) -> list[Appointment]:
     return [Appointment(**r) for r in sql(LIST_APPOINTMENTS, {"date": day.isoformat()})]
+
+
+def parse_response(message: str | None) -> dict[str, list[str]]:
+    """A carrier response as CDAnet field id -> values in line order ("G26-2" is line 2 of G26).
+    Reads the lab's `id=value|...` form (lab/fixtures/fake-sunlife-responses.sql): the real wire layout isn't
+    public, so this is the one function to replace once a real response is on hand."""
+    fields: dict[str, list[str]] = {}
+    for part in (message or "").split("|"):
+        key, sep, value = part.partition("=")
+        if sep:
+            fields.setdefault(key.split("-")[0], []).append(value)
+    return fields
+
+
+def _predetermination(row: dict) -> Predetermination:
+    label, answer_at = CLAIM_STATUS.get(row["status"], (f"Status {row['status']}", "reviewing"))
+    decision = {}
+    if answer_at == "back":
+        f = parse_response(row["received"])
+        benefit = sum(int(v or 0) for v in f.get("G15", []))  # benefit per procedure, cents
+        decision = {"outcome": "approved" if benefit > 0 else "denied", "decided_on": row["answered_on"],
+                    "benefit_cents": benefit, "reason": " ".join(f.get("G26", [])) or next(iter(f.get("G07", [])), None)}
+    return Predetermination(**{k: row[k] for k in ("claim_id", "patient_id", "code", "tooth", "sent_on", "status",
+                                                    "carrier", "carrier_ref")},
+                            status_label=label, answer_at=answer_at, **decision)
+
+
+def list_predeterminations(sql: Sql, pid: int | None = None) -> list[Predetermination]:
+    rows = sql(LIST_PREDETERMINATIONS, None)
+    return [_predetermination(r) for r in rows if pid is None or r["patient_id"] == pid]

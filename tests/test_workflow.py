@@ -20,4 +20,4 @@ def test_demo_seed_puts_one_case_at_every_stage_after_sign_off(tmp_path):
     assert stages["singh"] == Stage.PATIENT and stages["tremblay"] == Stage.PREPARE and stages["whitfield"] == Stage.DENTIST
     assert (stages["fontaine"], stages["park"], stages["nguyen"], stages["marchand"]) == (Stage.SEND, Stage.SUN_LIFE, Stage.BOOK, Stage.RESUBMIT)
     seed(svc)  # a second run is a no-op on a store that already has history
-    assert len([e for e in svc.store.audit_log() if e.event == "sign_off"]) == 5
+    assert len([e for e in svc.store.audit_log() if e.event == "sign_off"]) == 8

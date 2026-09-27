@@ -36,7 +36,8 @@ from ophi.outcomes.weights import Weights
 from ophi.lookback import LookBackReport, run_lookback
 from ophi.rules.loader import default_pack
 from ophi.rules.schema import RulePack
-from ophi.workflow import Stage, chair_actions, chart_actions, documentation_gaps, stage_of, valid_until
+from ophi.sources.abeldent import Predetermination
+from ophi.workflow import REASONS, Stage, chair_actions, chart_actions, documentation_gaps, stage_of, valid_until, with_ask
 
 ROOT = Path(__file__).resolve().parents[1]
 CASES_DIR = ROOT / "cases" / "demo"
@@ -98,6 +99,7 @@ class Decision(BaseModel):
     outcome: Literal["approved", "denied"]
     decided_on: date
     reason: str | None = None
+    reason_key: str | None = None  # which of workflow.REASONS Sun Life's words name, as staff confirmed it
     recorded_by: str
     recorded_at: datetime
 
@@ -107,6 +109,16 @@ class Attempt(BaseModel):
 
     submitted_on: date
     decision: Decision
+
+
+class Ask(BaseModel):
+    """What Sun Life's denial asks for before the request goes again, and the column that does it."""
+
+    reason_key: str
+    title: str
+    stage: Stage
+    since: date
+    done_by: str | None = None
 
 
 class FirstCheck(BaseModel):
@@ -128,6 +140,8 @@ class CaseState(BaseModel):
     decision: Decision | None = None
     booked_on: date | None = None
     attempts: list[Attempt] = Field(default_factory=list)
+    ask: Ask | None = None
+    pms_synced: list[str] = Field(default_factory=list)  # "<claim id>:sent" / ":decision" steps already taken from the PMS
     first_check: FirstCheck | None = None
     test_skips: list[str] = Field(default_factory=list)  # requirement ids a test run treats as fixed
     captures: dict[str, date] = Field(default_factory=dict)  # demo: requirement id -> day the chair gap was taken
@@ -230,6 +244,7 @@ class CaseView(BaseModel):
     state: CaseState
     assessment: Assessment
     minutes_estimate: dict
+    pms: Predetermination | None = None  # the request as the PMS last showed it, once sent
 
     @property
     def signed(self) -> bool:
@@ -253,7 +268,8 @@ class CaseView(BaseModel):
     @property
     def stage(self) -> Stage:
         st = self.state
-        return stage_of(self.assessment, self.signed, st.submitted_on, st.decision.outcome if st.decision else None, st.booked_on)
+        s = stage_of(self.assessment, self.signed, st.submitted_on, st.decision.outcome if st.decision else None, st.booked_on)
+        return with_ask(s, st.ask.stage if st.ask and not st.ask.done_by else None)
 
 
 class CaseService:
@@ -265,11 +281,17 @@ class CaseService:
         repository=None,
         clock: Callable[[], datetime] | None = None,
         weights: Weights | None = None,
+        pms_claims: Callable[[], list[Predetermination]] | None = None,
+        note_reader: Callable[[str], str | None] | None = None,
     ) -> None:
+        """`pms_claims` reads the predeterminations the PMS sent; `note_reader` names the REASONS key in Sun Life's
+        note text. Both are optional: without them staff record every step by hand."""
         self.cases_dir = cases_dir
         self.store = store or Store()
         self.pack = pack or default_pack()
         self.weights = weights
+        self.pms_claims, self.note_reader = pms_claims, note_reader
+        self._pms: dict[str, Predetermination] = {}  # case id -> its predetermination at the last sync
         self.clock = clock or self._chart_clock
         self._chart_day: tuple[date, date] | None = None  # (real day it was computed, chart day)
         # Optional PMS repository abstraction; toggle-aware default.
@@ -332,7 +354,41 @@ class CaseService:
             st.first_check = FirstCheck(at=self.now(), gaps=[r.requirement_id for r in documentation_gaps(a)])
             self.store.record_first_check(case_id, st.first_check)
         return CaseView(case=case, base_case=base, proposals=proposals, state=st, assessment=a,
-                        minutes_estimate=self.minutes_estimate(case, a))
+                        minutes_estimate=self.minutes_estimate(case, a), pms=self._pms.get(case_id))
+
+    def sync_from_pms(self) -> None:
+        """Take what the PMS knows about each request: that it was sent, and Sun Life's electronic answer.
+        Each step is taken once per PMS claim, so staff can still undo it; an unsigned case is left alone."""
+        if self.pms_claims is None:
+            return
+        claims = self.pms_claims()
+        self._pms = {}
+        for cid in self.case_ids():
+            case = self.base_case(cid)
+            # The same patient, code and tooth: the PMS has no Ophi case id.
+            claim = next((c for c in claims if str(c.patient_id) == case.patient.patient_id
+                          and c.code == case.treatment.code and c.tooth == case.requested_tooth), None)
+            if claim is None:
+                continue
+            self._pms[cid] = claim
+            st = self.store.load(cid)
+            sent, decided = f"{claim.claim_id}:sent", f"{claim.claim_id}:decision"
+            if sent not in st.pms_synced and st.submitted_on is None and claim.answer_at != "rejected":
+                try:
+                    self.mark_submitted(cid, "ABELDent", claim.sent_on)
+                except (PermissionError, ValueError):
+                    continue  # not signed for this chart, or signed after ABELDent sent it
+                self._synced(cid, sent)
+            st = self.store.load(cid)
+            if claim.outcome and decided not in st.pms_synced and st.submitted_on == claim.sent_on and st.decision is None:
+                key = self.note_reader(claim.reason) if self.note_reader and claim.reason and claim.outcome == "denied" else None
+                self.record_decision(cid, claim.outcome, claim.decided_on, claim.reason, "ABELDent", reason_key=key)
+                self._synced(cid, decided)
+
+    def _synced(self, case_id: str, step: str) -> None:
+        st = self.store.load(case_id)
+        st.pms_synced.append(step)
+        self.store.save(case_id, st)
 
     def queue(self) -> list[CaseView]:
         views = [self.view(cid) for cid in self.case_ids()]
@@ -466,30 +522,48 @@ class CaseService:
         self.store.save(case_id, st)
         self.audit(case_id, by, "mark_submitted", f"sent to Sun Life on {on.isoformat()} through the PMS")
 
-    def record_decision(self, case_id: str, outcome: str, decided_on: date, reason: str | None, by: str) -> None:
+    def record_decision(self, case_id: str, outcome: str, decided_on: date, reason: str | None, by: str,
+                        reason_key: str | None = None) -> None:
         st = self.store.load(case_id)
         if st.submitted_on is None or st.decision is not None:
             raise PermissionError("a decision can only be recorded for a case waiting on Sun Life")
         if outcome not in ("approved", "denied"):
             raise ValueError(outcome)
+        if reason_key is not None and (reason_key not in REASONS or outcome != "denied"):
+            raise ValueError(f"no denial reason '{reason_key}'")
         self._not_future(decided_on, "the decision date")
         if decided_on < st.submitted_on:
             raise ValueError("the decision date is before the day it was sent")
         st.decision = Decision(outcome=outcome, decided_on=decided_on, reason=(reason or "").strip() or None,
-                               recorded_by=by, recorded_at=self.now())
+                               reason_key=reason_key, recorded_by=by, recorded_at=self.now())
         self.store.save(case_id, st)
         self.audit(case_id, by, "record_decision", f"Sun Life {outcome} on {decided_on.isoformat()}" + (f": {st.decision.reason}" if st.decision.reason else ""))
 
-    def start_resubmission(self, case_id: str, by: str) -> None:
+    def start_resubmission(self, case_id: str, by: str, reason_key: str | None = None) -> None:
         """A denied case starts over as a new request. The earlier attempt is kept; the old sign-off is not,
-        because the dentist attests to each request."""
+        because the dentist attests to each request. `reason_key` is what staff read Sun Life's reason as: when a
+        new request can fix it, the case goes back to the column that does."""
         st = self.store.load(case_id)
         if st.decision is None or st.decision.outcome != "denied" or st.submitted_on is None:
             raise PermissionError("only a denied request can be resubmitted")
-        st.attempts.append(Attempt(submitted_on=st.submitted_on, decision=st.decision))
+        if reason_key is not None and reason_key not in REASONS:
+            raise ValueError(f"no denial reason '{reason_key}'")
+        _, title, stage = REASONS.get(reason_key, (None, None, None))
+        st.attempts.append(Attempt(submitted_on=st.submitted_on, decision=st.decision.model_copy(update={"reason_key": reason_key})))
         st.sign_off, st.submitted_at, st.submitted_on, st.decision = None, None, None, None
+        st.ask = Ask(reason_key=reason_key, title=title, stage=stage, since=self.today()) if title else None
         self.store.save(case_id, st)
-        self.audit(case_id, by, "start_resubmission", f"attempt {len(st.attempts) + 1}")
+        self.audit(case_id, by, "start_resubmission", f"attempt {len(st.attempts) + 1}" + (f": {title}" if title else ""))
+
+    def resolve_ask(self, case_id: str, by: str) -> None:
+        """Staff did what Sun Life's denial asked for."""
+        st = self.store.load(case_id)
+        if st.ask is None or st.ask.done_by:
+            raise PermissionError("Sun Life asked for nothing that is still open")
+        st.ask.done_by = by
+        st.sign_off = None
+        self.store.save(case_id, st)
+        self.audit(case_id, by, "resolve_ask", st.ask.title)
 
     def mark_booked(self, case_id: str, on: date, by: str) -> None:
         st = self.store.load(case_id)
