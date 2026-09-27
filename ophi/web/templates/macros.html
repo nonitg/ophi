@@ -56,8 +56,15 @@ Crown on #{{ c.requested_tooth }} <span class="num">({{ c.treatment.code }})</sp
 {%- for t in list %}#{{ t }}{% if not loop.last %}, {% endif %}{% endfor -%}
 {%- endmacro %}
 
-{# A test run skipped chart gaps: say so wherever the case appears, and offer the way back while it can still change. #}
+{# A test run skipped chart gaps, or the demo marked chair gaps taken: say so wherever the case appears, and offer the
+   way back while it can still change. #}
 {% macro test_banner(view, cid) -%}
+{%- if view.state.captures and not view.state.sent %}
+<div class="test-run" role="note">
+  <p><b>Demo.</b> {{ plural(view.state.captures|length, 'chair gap was', 'chair gaps were') }} marked taken, with fictional readings.</p>
+  <form method="post" action="{{ BASE }}/cases/{{ cid }}/undo"><input type="hidden" name="step" value="capture"><button class="btn btn-sm" type="submit">Take back the last one</button></form>
+</div>
+{%- endif %}
 {%- if view.test_run %}
 <div class="test-run" role="note">
   <p><b>Test run.</b> {{ plural(view.state.test_skips|length, 'chart gap was', 'chart gaps were') }} skipped, so this packet can't be downloaded or sent.</p>

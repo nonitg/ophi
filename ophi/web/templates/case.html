@@ -8,7 +8,7 @@
 
 <header class="case-head">
   <div class="case-title"><h1>{{ case.patient.display_name }}</h1>{{ due(timing) }}</div>
-  <p class="case-tx">Crown on <b class="num">#{{ case.requested_tooth }}</b>, {{ tooth_name(case.requested_tooth) }}{% if timing.appt %} · Appointment {{ long_date(timing.appt) }}{% endif %}</p>
+  <p class="case-tx">Crown on <b class="num">#{{ case.requested_tooth }}</b>, {{ tooth_name(case.requested_tooth) }}{% if timing.appt %} · Crown appointment {{ long_date(timing.appt) }}{% endif %}</p>
 </header>
 
 {{ test_banner(view, cid) }}
@@ -46,21 +46,33 @@
     <h2 id="now-title">Waiting on {{ waiting }}</h2>
     {% if waiting != 'Sun Life' %}<form method="post" action="{{ BASE }}/actor"><button class="linkish" type="submit" name="actor" value="{{ 'dentist' if waiting == provider else 'coordinator' }}">View as {{ waiting }}</button></form>{% endif %}
     {% else %}
-    <h2 id="now-title">{{ {'decision': "Record Sun Life's decision", 'sign': 'Review and sign', 'chart': 'Fix the chart'}.get(s.key, s.title) }}</h2>
+    <h2 id="now-title">{{ {'decision': "Record Sun Life's decision", 'sign': 'Review and sign'}.get(s.key, s.title) }}</h2>
     {{ who(who_tag('coordinator' if s.key == 'decision' else s.who, actor, provider)) }}{# Sun Life decides; staff record it #}
     {% endif %}
   </div>
   {% if advice %}<p class="now-advice now-advice-{{ timing.tone or 'bad' }}">{{ advice }} {{ turnaround_source() }}</p>{% endif %}
 
   {% if s.key == 'chart' %}
-    {% if actor.is_dentist %}
-    <p class="now-lead">{{ ACTORS['coordinator'].name }} is fixing {{ plural(gaps|length, 'gap') }} in the chart.</p>
+    {% if gaps %}<p class="now-lead now-ophi">{{ who({'kind': 'ophi', 'mark': 'O', 'label': ''}) }}{{ gap_summary }}</p>{% endif %}
+    {% if actor.is_dentist and s.who == 'coordinator' %}
     <ul class="plain">{% for g in gaps %}<li>{{ g.title }}</li>{% endfor %}</ul>
     {% elif gaps %}
+    {% set chair_rows, desk_rows = gaps|selectattr('chair')|list, gaps|rejectattr('chair')|list %}
+    {% for group, rows in [('Needs the patient', chair_rows), ('At the desk', desk_rows)] if rows %}
+    {% if chair_rows and desk_rows %}<h3 class="gap-group">{{ group }}</h3>{% endif %}
+    {% if rows is sameas chair_rows and not chair_now %}<p class="gap-lead">Book one visit for {{ 'these' if rows|length > 1 else 'this' }}, or add it to a visit already booked.</p>{% endif %}
     <ul class="gaps">
-      {% for g in gaps %}{% set act = g.action %}
+      {% for g in rows %}{% set act = g.action %}
       <li class="gap">
-        <h3 class="gap-title">{{ g.title }}</h3>
+        <div class="gap-head">
+          <h3 class="gap-title">{{ g.title }}</h3>
+          {% if g.capturable %}
+          <form method="post" action="{{ BASE }}/cases/{{ cid }}/capture">
+            <input type="hidden" name="requirement_id" value="{{ act.unblocks[0] }}">
+            <button class="btn btn-sm btn-test" type="submit" title="Stands in for the film or chart reaching the PMS">Mark taken (demo)</button>
+          </form>
+          {% endif %}
+        </div>
         {% if g.hint %}<p class="gap-hint">{{ g.hint }}</p>{% endif %}
         {% if act.action_type == 'check_source' %}<p class="gap-hint gap-hint-muted">Your PMS didn't show Ophi this part of the chart. It may be there.</p>{% endif %}
         {% if g.proposal %}{% set pl = g.proposal.payload %}
@@ -80,6 +92,7 @@
       </li>
       {% endfor %}
     </ul>
+    {% endfor %}
     {% if steps|selectattr('key', 'equalto', 'criteria')|selectattr('state', 'equalto', 'open')|list %}<p class="now-foot">{{ provider }} can confirm the clinical criteria now, in parallel.</p>{% endif %}
     <div class="now-foot btn-row">
       {% if gaps|rejectattr('proposal')|list %}<span>Fixed in your PMS?</span><a class="btn btn-sm" href="{{ BASE }}/cases/{{ cid }}">Check the chart again</a>{% endif %}

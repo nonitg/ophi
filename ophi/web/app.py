@@ -56,6 +56,7 @@ DONE_MESSAGES = {
     "decision": "Sun Life's decision recorded.", "resubmit": "Resubmission started. The dentist reviews and signs the new request.",
     "booked": "Marked as booked.", "followup": "Follow-up saved.", "undone": "Step taken back.",
     "skipped": "Gaps skipped for this test run.", "restored": "Gaps are back.",
+    "captured": "Taken. Ophi checked the chart again.", "chair_done": "Nothing left to take. The patient can go.",
 }
 _RESET_LOCK = threading.Lock()  # a double-submitted reset must not reseed twice at once
 
@@ -210,7 +211,8 @@ def case_page(request: Request, case_id: str):
     return _render(request, "case.html", view=view, case=view.case, a=view.assessment, stage=view.stage,
                    steps=steps, now=now, waiting=present.waiting_on(now, actor, view.case.treatment.provider.name, timing),
                    next_case=present.next_up(svc.queue(), view, actor, today),
-                   stepper=present.stepper(view, actor), gaps=present.gap_rows(view), advisory=present.advisory(view),
+                   stepper=present.stepper(view, actor), gaps=present.gap_rows(view), gap_summary=present.gap_summary(view),
+                   chair_now=present.in_chair(view), advisory=present.advisory(view),
                    timing=timing, advice=present.advice(view, timing, today), evidence=present.evidence_panel(view),
                    criteria=relevant, criteria_other=other, activity=present.activity(svc.store.audit_log(case_id)),
                    applicable=[r for r in view.assessment.requirements if r.applicable],
@@ -340,6 +342,20 @@ def test_skip(request: Request, case_id: str):
     except PermissionError as e:
         return _error(request, 409, "Nothing to skip", str(e).capitalize() + ".")
     return _done(request, f"/cases/{case_id}", "skipped")
+
+
+@router.post("/cases/{case_id}/capture")
+def capture(request: Request, case_id: str, requirement_id: str = Form(""), back: str = Form("")):
+    """Demo: a clinician took a chair gap; the case moves on by itself once the chart shows it."""
+    svc = _svc(request)
+    try:
+        svc.record_capture(case_id, requirement_id, _actor(request).name)
+    except FileNotFoundError:
+        return _error(request, 404, "Case not found", f"No case '{case_id}' in the demo set.")
+    except PermissionError as e:
+        return _error(request, 409, "Nothing to take", str(e).capitalize() + ".")
+    left = svc.view(case_id).stage == workflow.Stage.PATIENT
+    return _done(request, "/" if back == "board" else f"/cases/{case_id}", "captured" if left else "chair_done")
 
 
 @router.post("/cases/{case_id}/test-restore")

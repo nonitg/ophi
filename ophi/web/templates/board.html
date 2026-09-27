@@ -1,12 +1,38 @@
 {% extends "base.html" %}
-{% from "macros.html" import due, turnaround_source %}
+{% from "macros.html" import due, turnaround_source, who %}
 {% block title %}Board — Ophi{% endblock %}
 {% block content %}
 <header class="board-head">
   <h1>{{ b.headline }}</h1>
+  <p class="board-fresh who-ophi"><span class="mono-mark" aria-hidden="true">O</span><span>Ophi checked {{ plural(b.checked, 'chart') }} against the CDCP rules just now</span></p>
 </header>
 
-{% if b.start %}{% set c = b.start %}
+{% if b.start and b.start.chair %}{% set c = b.start %}{% set visit = c.case.in_chair %}
+<section class="start start-chair" aria-label="In the chair now">
+  <div class="start-body">
+    <p class="start-who"><b>{{ c.case.patient.display_name }}</b> · Crown on #{{ c.case.requested_tooth }}</p>
+    <p class="start-title">Before {{ c.first }} leaves</p>
+    <p class="start-why">{{ due(c.timing) }} <span>{{ visit.operatory }}{% if visit.clinician %} with {{ visit.clinician }}{% endif %}</span></p>
+    <ul class="chair-list">
+      {% for i in c.chair[:3] %}
+      <li class="chair-item">
+        <span class="chair-what"><span class="chair-label">{{ sentence(i.label) }}</span>{% if i.role %} <span class="chair-role">{{ i.role }}</span>{% endif %}</span>
+        {% if i.hint %}<span class="chair-hint">{{ i.hint }}</span>{% endif %}
+        {% if i.capturable %}
+        <form method="post" action="{{ BASE }}/cases/{{ c.case.case_id }}/capture" class="chair-do">
+          <input type="hidden" name="requirement_id" value="{{ i.rid }}"><input type="hidden" name="back" value="board">
+          <button class="btn btn-sm btn-test" type="submit" title="Stands in for the film or chart reaching the PMS">Mark taken (demo)</button>
+        </form>
+        {% endif %}
+      </li>
+      {% endfor %}
+      {% if c.chair|length > 3 %}<li class="chair-more">+{{ c.chair|length - 3 }} more</li>{% endif %}
+    </ul>
+    <p class="chair-foot">{{ who({'kind': 'ophi', 'mark': 'O', 'label': ''}) }}Ophi checks each one as it reaches the chart, then moves {{ c.first }} to Dentist review.</p>
+  </div>
+  <a class="btn" href="{{ BASE }}/cases/{{ c.case.case_id }}">Open case</a>
+</section>
+{% elif b.start %}{% set c = b.start %}
 <section class="start" aria-label="Start here">
   <div class="start-body">
     <p class="start-who"><b>{{ c.case.patient.display_name }}</b> · Crown on #{{ c.case.requested_tooth }}</p>
@@ -28,11 +54,11 @@
     {% if col.cards %}
     <ul class="tiles">
       {% for c in col.cards %}{% set act = c.action %}
-      <li><a class="tile{% if c.mine %} is-mine{% endif %}{% if col.key == 'done' %} is-done{% endif %}" href="{{ BASE }}/cases/{{ c.case.case_id }}">
+      <li><a class="tile{% if c.mine %} is-mine{% endif %}{% if c.stage == 'done' %} is-done{% endif %}" href="{{ BASE }}/cases/{{ c.case.case_id }}">
         <span class="tile-name">{{ c.case.patient.display_name }}{% if c.view.test_run %} <span class="tag tag-test">Test</span>{% endif %}</span>
         <span class="tile-tx">Crown on #{{ c.case.requested_tooth }}</span>
         {% if act.waiting %}<span class="tile-wait">Waiting on {{ act.waiting }}</span>
-        {% elif col.key != 'done' %}
+        {% elif c.stage != 'done' %}
         <span class="tile-act">{{ act.title }}{% if act.more %}&nbsp;<span class="more">+{{ act.more }} more</span>{% endif %}</span>
         {% if act.payer %}<span class="tile-note payer" data-voice="payer">Sun Life {{ act.payer.outcome }} it {{ short_date(act.payer.on) }}</span>
         {% elif act.note %}<span class="tile-note">{{ act.note }}</span>{% endif %}

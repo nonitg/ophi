@@ -22,7 +22,7 @@ from typing import Literal
 
 from pydantic import BaseModel, Field, model_validator
 
-from ophi.casegen.dsl import load_case
+from ophi.casegen.dsl import CAPTURABLE, capture_artifacts, load_case
 from ophi.cdm.models import (
     ArtifactType, AssertionPayload, Case, ChartArtifact, ExtractedDetailPayload, Provenance,
 )
@@ -35,7 +35,7 @@ from ophi.outcomes.weights import Weights
 from ophi.lookback import LookBackReport, run_lookback
 from ophi.rules.loader import default_pack
 from ophi.rules.schema import RulePack
-from ophi.workflow import Stage, chart_actions, documentation_gaps, stage_of, valid_until
+from ophi.workflow import Stage, chair_actions, chart_actions, documentation_gaps, stage_of, valid_until
 
 ROOT = Path(__file__).resolve().parents[1]
 CASES_DIR = ROOT / "cases" / "demo"
@@ -128,6 +128,7 @@ class CaseState(BaseModel):
     attempts: list[Attempt] = Field(default_factory=list)
     first_check: FirstCheck | None = None
     test_skips: list[str] = Field(default_factory=list)  # requirement ids a test run treats as fixed
+    captures: dict[str, date] = Field(default_factory=dict)  # demo: requirement id -> day the chair gap was taken
 
     @model_validator(mode="after")
     def _sent_day_from_legacy_state(self) -> CaseState:
@@ -318,8 +319,9 @@ class CaseService:
         return datetime.combine(self._chart_day[1], real.time(), UTC)
 
     def view(self, case_id: str) -> CaseView:
-        base = self.base_case(case_id)
         st = self.store.load(case_id)
+        base = self.base_case(case_id)
+        base = base.with_artifacts(capture_artifacts(base, st.captures))  # demo captures reach the chart like any film
         proposals = [self._apply_confirmation(p, st) for p in propose_for_case(base)]
         user_assertions = [self._assertion_artifact(base, cid, a) for cid, a in st.assertions.items()]
         case = base.with_artifacts(proposals + user_assertions)
@@ -499,10 +501,26 @@ class CaseService:
         self.store.save(case_id, st)
         self.audit(case_id, by, "test_restore", "")
 
+    def record_capture(self, case_id: str, requirement_id: str, by: str) -> None:
+        """Demo: a clinician took the film or charted the perio while the patient was in the chair, and it reached
+        the chart. Stands in for the imaging bridge; the engine then judges it like any other evidence."""
+        v = self.view(case_id)
+        _not_sent(v.state)
+        if requirement_id not in CAPTURABLE or not any(requirement_id in x.unblocks for x in chair_actions(v.assessment)):
+            raise PermissionError(f"this case has no chair gap to take for {requirement_id}")
+        st = v.state
+        st.captures[requirement_id] = self.today()
+        st.sign_off = None
+        self.store.save(case_id, st)
+        self.audit(case_id, by, "demo_capture", requirement_id)
+
     def undo(self, case_id: str, step: str, by: str) -> None:
         """Take back the latest recorded step (a mis-tap at a busy front desk). Only the latest can go."""
         st = self.store.load(case_id)
-        if step == "booked" and st.booked_on:
+        if step == "capture" and st.captures and not st.sent:
+            st.captures.pop(list(st.captures)[-1])
+            st.sign_off = None
+        elif step == "booked" and st.booked_on:
             st.booked_on = None
         elif step == "decision" and st.decision and not st.booked_on:
             st.decision = None

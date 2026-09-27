@@ -118,6 +118,7 @@ def test_imaging_unknown_is_indeterminate_absent_confirmed_is_unsatisfied():
     assert a.verdict == Verdict.NEEDS_INPUT
     pa_action = next(x for x in a.actions if x.unblocks == ["radiograph_pa"])
     assert pa_action.action_type == "check_source" and pa_action.title.startswith("Check the imaging software")
+    assert not pa_action.needs_patient  # the film may already be in the imaging software: a desk check first
 
     d["assurance"] = {"imaging": "AbsentConfirmed"}
     a = assess_dict(d)
@@ -125,7 +126,7 @@ def test_imaging_unknown_is_indeterminate_absent_confirmed_is_unsatisfied():
     assert a.requirement("radiograph_bw").status == Status.UNSATISFIED
     assert a.verdict == Verdict.BLOCKED
     pa_action = next(x for x in a.actions if x.unblocks == ["radiograph_pa"])
-    assert pa_action.title == "Take a periapical of #46 at the Sep 27 appointment"
+    assert pa_action.title == "Take a periapical of #46" and pa_action.needs_patient
 
 
 # --- (d) PSR interim path and escalations --------------------------------------------------------

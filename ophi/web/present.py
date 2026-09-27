@@ -13,17 +13,19 @@ from datetime import date, datetime
 from zoneinfo import ZoneInfo
 
 from ophi.assertions import criteria
+from ophi.casegen.dsl import CAPTURABLE
 from ophi.cdm.models import (
     ArtifactType, AssertionPayload, Availability, ChartArtifact, ExtractedDetailPayload, NotePayload,
     PerioChartPayload, PSRPayload, RadiographPayload,
 )
 from ophi.dental import notation, sextants
 from ophi.engine.models import Action, Status, Verdict
+from ophi.lookback import DOCUMENT_REQUIREMENTS
 from ophi.rules.schema import RulePack
 from ophi.service import MANUAL_MINUTES_PER_PREAUTH, CaseView
 from ophi.workflow import (
-    ORDER, OWNER, SUN_LIFE_TURNAROUND_DAYS, Stage, chart_actions, criteria_can_start, pending_criteria, reconsider_by, send_by,
-    valid_until,
+    CHART_STAGES, ORDER, OWNER, SUN_LIFE_TURNAROUND_DAYS, Stage, chair_actions, chart_actions, criteria_can_start, desk_actions,
+    pending_criteria, reconsider_by, send_by, valid_until,
 )
 
 # --- actors ---------------------------------------------------------------------------------------
@@ -90,7 +92,8 @@ READY_VERDICTS = (Verdict.READY_TO_SUBMIT, Verdict.READY_WITH_RISKS)
 
 # Stages are named as the board's columns are, in the order the job happens.
 STAGE_LABEL: dict[Stage, str] = {
-    Stage.PREPARE: "Fix chart",
+    Stage.PATIENT: "Needs the patient",
+    Stage.PREPARE: "Paperwork",
     Stage.DENTIST: "Dentist review",
     Stage.SEND: "Ready to send",
     Stage.SUN_LIFE: "With Sun Life",
@@ -99,7 +102,7 @@ STAGE_LABEL: dict[Stage, str] = {
     Stage.DONE: "Booked",
     Stage.NOT_NEEDED: "No preauthorization needed",
 }
-PIPELINE = ORDER[:6]  # the six stages that hold open work
+PIPELINE = ORDER[:ORDER.index(Stage.DONE)]  # the stages that hold open work
 BOOK_SOON_DAYS = 30
 
 # --- formatting -----------------------------------------------------------------------------------
@@ -212,10 +215,55 @@ def _action_hint(view: CaseView, a: Action) -> str | None:
 
 
 def gap_rows(view: CaseView) -> list[dict]:
-    """The coordinator's chart work on a case, each with the requirement it settles and any quote to confirm."""
+    """The chart work on a case, each with the requirement it settles and any quote to confirm. Chair gaps first:
+    the visit takes longest to arrange."""
     return [{"action": act, "title": action_title(act), "hint": _action_hint(view, act), "requirement": _unblocked(view, act),
+             "chair": act.needs_patient, "capturable": act.needs_patient and bool(set(act.unblocks) & CAPTURABLE),
              "proposal": pending_proposal_for(view, act) if act.action_type == "confirm_extraction" else None}
-            for act in chart_actions(view.assessment)]
+            for act in chair_actions(view.assessment) + desk_actions(view.assessment)]
+
+
+# A chair gap as the chair team says it, and who there does it. Ontario: only a dentist orders X-rays and an
+# assistant or hygienist takes them; only a hygienist or the dentist probes (RCDSO, CDHO).
+CHAIR_SHORT = {"radiograph_pa": "PA X-ray of #{tooth}", "radiograph_bw": "bitewing X-rays", "perio_chart": "6-site perio chart",
+               "basic_treatment_complete": "basic treatment"}
+CHAIR_ROLE = {"radiograph_pa": "Assistant", "radiograph_bw": "Assistant", "perio_chart": "Hygienist",
+              "basic_treatment_complete": "Dentist"}
+
+
+def in_chair(view: CaseView) -> bool:
+    """The patient is in an operatory and the chart still needs them: the one moment a gap costs no extra visit."""
+    return view.case.in_chair is not None and view.stage == Stage.PATIENT
+
+
+def first_name(view: CaseView) -> str:
+    name = view.case.patient.display_name  # the PMS may store "LAST, FIRST"
+    return name.split(",")[1].split()[0].title() if "," in name else name.split()[0]
+
+
+def chair_items(view: CaseView) -> list[dict]:
+    """The chair gaps as one visit's checklist: what to take, who takes it, and what the chart has now."""
+    out = []
+    for act in chair_actions(view.assessment):
+        rid = act.unblocks[0]
+        out.append({"rid": rid, "label": CHAIR_SHORT.get(rid, action_title(act)).format(tooth=view.case.requested_tooth),
+                    "role": CHAIR_ROLE.get(rid), "hint": _action_hint(view, act), "capturable": rid in CAPTURABLE})
+    return out
+
+
+def gap_summary(view: CaseView) -> str:
+    """Ophi's finding in one line, split by who can close it, so it adds up to what's still undocumented."""
+    a = view.assessment
+    chair, desk = len(chair_actions(a)), len(desk_actions(a))
+    if chair and desk:
+        found = f"Ophi found {chair + desk} gaps: {chair} need the patient, {desk} at the desk."
+    elif chair:
+        found = f"Ophi found {plural(chair, 'gap')} that need{'s' if chair == 1 else ''} the patient."
+    else:
+        found = f"Ophi found {plural(desk, 'gap')} to fix at the desk."
+    dentist = sum(1 for r in a.requirements if r.applicable and r.status not in (Status.SATISFIED, Status.AT_RISK)
+                  and _awaiting_dentist_only(r))
+    return found + (f" {view.case.treatment.provider.name} confirms {dentist} more." if dentist else "")
 
 
 def _unblocked(view: CaseView, a: Action):
@@ -237,18 +285,21 @@ def timing(view: CaseView, today: date) -> dict:
     out: dict = {"appt": appt, "appt_in": days_until(appt, today), "late": False, "tone": "", "text": ""}
     if view.test_run:  # nothing is really due on a test run; its deadlines would compete with real work
         return out
+    if in_chair(view):  # now beats every date
+        out.update(tone="warn", text="In the chair now")
+        return out
     if appt and appt < today and stage not in (Stage.DONE, Stage.BOOK):
         out.update(tone="bad", late=True, text="Appointment passed")
         return out
-    if stage in (Stage.PREPARE, Stage.DENTIST, Stage.SEND, Stage.RESUBMIT):
+    if stage in (*CHART_STAGES, Stage.DENTIST, Stage.SEND, Stage.RESUBMIT):
         if not appt:
             out.update(text="No appointment")
             return out
         sb = send_by(appt)
         left = (sb - today).days
         out.update(send_by=sb, send_in=left, late=left < 0)
-        # Before sending, the dentist's signature is the gate; name the deadline for the step the case is on.
-        verb = "Sign" if stage == Stage.DENTIST else "Send"
+        # Before sending, the visit or the dentist's signature is the gate; name the deadline for the step the case is on.
+        verb = {Stage.PATIENT: "Visit needed", Stage.DENTIST: "Sign"}.get(stage, "Send")
         if left < 0:
             out.update(tone="bad", text=f"Late for {short_date(appt)} crown")
         else:
@@ -286,25 +337,27 @@ def _payer(d) -> dict | None:
 # --- board -----------------------------------------------------------------------------------------
 
 # The board's columns, in the order the job happens: key, title, the stages it holds, who has the case, and
-# what they do there (as "you ..." and as "<name> ...").
+# what they do there (as "you ..." and as "<name> ..."). Booked cases close out the last column.
 COLUMNS: list[tuple[str, str, tuple[Stage, ...], str | None, tuple[str, str]]] = [
-    ("prepare", "Fix chart", (Stage.PREPARE,), "coordinator", ("fix the chart", "fixes the chart")),
+    ("patient", "Needs the patient", (Stage.PATIENT,), "coordinator", ("book a visit", "books a visit")),
+    ("prepare", "Paperwork", (Stage.PREPARE,), "coordinator", ("fix it in the PMS", "fixes it")),
     ("dentist", "Dentist review", (Stage.DENTIST,), "dentist", ("sign", "signs")),
     ("send", "Ready to send", (Stage.SEND,), "coordinator", ("send from the PMS", "sends it")),
     ("sun_life", "With Sun Life", (Stage.SUN_LIFE,), "sun_life", ("", "decides")),
-    ("decision", "Decision back", (Stage.BOOK, Stage.RESUBMIT), "coordinator", ("book or resubmit", "books or resubmits")),
-    ("done", "Booked", (Stage.DONE,), None, ("", "")),
+    ("decision", "Decision back", (Stage.BOOK, Stage.RESUBMIT, Stage.DONE), "coordinator", ("book or resubmit", "books or resubmits")),
 ]
 COLUMN_OF: dict[Stage, str] = {s: key for key, _, stages, _, _ in COLUMNS for s in stages}
 
 
 def _can_confirm_early(view: CaseView) -> bool:
-    return view.stage == Stage.PREPARE and bool(pending_criteria(view.assessment)) and criteria_can_start(view.assessment)
+    return view.stage in CHART_STAGES and bool(pending_criteria(view.assessment)) and criteria_can_start(view.assessment)
 
 
 def _is_mine(view: CaseView, t: dict, actor: Actor) -> bool:
     """Whether the viewer has something to do on this case today."""
     stage = view.stage
+    if in_chair(view):
+        return True  # the dentist orders the film, the desk sees the patient before they go
     if actor.is_dentist:
         return stage == Stage.DENTIST or _can_confirm_early(view)
     return OWNER[stage] == "coordinator" or (stage == Stage.SUN_LIFE and t["late"])
@@ -316,14 +369,23 @@ def card_action(view: CaseView, actor: Actor, today: date) -> dict:
     provider = view.case.treatment.provider.name
     crit = pending_criteria(view.assessment)
     out: dict = {"title": "", "more": 0, "note": None, "payer": None, "waiting": None}
-    if stage == Stage.PREPARE:
+    if stage in CHART_STAGES and actor.is_dentist and _can_confirm_early(view) and not in_chair(view):
+        out["title"] = f"Confirm {plural(crit, 'clinical criterion', 'clinical criteria')}"
+    elif stage == Stage.PATIENT:
+        # One visit closes every chair gap, so the card names them together.
+        todo = ", ".join(i["label"] for i in chair_items(view))
+        appt = view.case.treatment.appointment_date
+        late = appt and send_by(appt) < today  # no visit can save that date: the crown moves first
+        visit = "Move the crown, then book a visit" if late else "Book a visit"
+        out["title"] = f"Before {first_name(view)} leaves: {todo}" if in_chair(view) else f"{visit}: {todo}"
+        desk = len(desk_actions(view.assessment))
+        if desk:
+            out["note"] = f"+{plural(desk, 'desk fix', 'desk fixes')}"
+    elif stage == Stage.PREPARE:
         work = chart_actions(view.assessment)
-        if actor.is_dentist and _can_confirm_early(view):
-            out.update(title=f"Confirm {plural(crit, 'clinical criterion', 'clinical criteria')}")
-        else:
-            out.update(title=action_title(work[0]) if work else "Check the procedure code", more=max(len(work) - 1, 0))
-            if _can_confirm_early(view):
-                out["note"] = f"{provider} can confirm criteria now"
+        out.update(title=action_title(work[0]) if work else "Check the procedure code", more=max(len(work) - 1, 0))
+        if _can_confirm_early(view):
+            out["note"] = f"{provider} can confirm criteria now"
     elif stage == Stage.DENTIST:
         out["title"] = f"Confirm {plural(crit, 'clinical criterion', 'clinical criteria')}" if crit else "Review and sign the packet"
     elif stage == Stage.SEND:
@@ -338,7 +400,7 @@ def card_action(view: CaseView, actor: Actor, today: date) -> dict:
         out.update(title="Move the appointment, then resubmit" if late else "Resubmit, or ask for reconsideration", payer=_payer(st.decision))
     elif stage == Stage.DONE:
         out["title"] = "Crown booked"
-    if st.attempts and stage in (Stage.PREPARE, Stage.DENTIST, Stage.SEND):
+    if st.attempts and stage in (*CHART_STAGES, Stage.DENTIST, Stage.SEND):
         out["note"] = out["note"] or "Resubmission"
     return out
 
@@ -348,12 +410,13 @@ def card(view: CaseView, actor: Actor, today: date) -> dict:
     # Late for the appointment first (a patient is affected), then Sun Life running past its usual turnaround,
     # then the nearest deadline (or the longest wait at Sun Life).
     due = t.get("send_by") or view.state.submitted_on or t["appt"] or date.max
-    urgency = 3 if view.test_run else (1 if view.stage == Stage.SUN_LIFE else 0) if t["late"] else 2
+    urgency = -1 if in_chair(view) else 3 if view.test_run else (1 if view.stage == Stage.SUN_LIFE else 0) if t["late"] else 2
     mine, act = _is_mine(view, t, actor), card_action(view, actor, today)
     if not mine and view.stage != Stage.DONE:
         act["waiting"] = who_label(OWNER[view.stage], actor, view.case.treatment.provider.name)
     return {"view": view, "case": view.case, "stage": view.stage, "timing": t, "action": act,
-            "mine": mine, "advice": advice(view, t, today), "sort": (urgency, due)}
+            "mine": mine, "advice": advice(view, t, today), "sort": (urgency, due),
+            "chair": chair_items(view) if in_chair(view) else None, "first": first_name(view)}
 
 
 def _mine_first(cards: list[dict]) -> list[dict]:
@@ -368,9 +431,9 @@ def board(views: list[CaseView], actor: Actor, today: date) -> dict:
     provider = views[0].case.treatment.provider.name if views else "the dentist"
     columns = []
     for key, label, stages, owner, (you_do, they_do) in COLUMNS:
-        cs = sorted((c for c in cards if c["stage"] in stages), key=lambda c: c["sort"])
-        if key == "done":
-            cs = cs[::-1]  # most recently booked first
+        cs = sorted((c for c in cards if c["stage"] in stages and c["stage"] != Stage.DONE), key=lambda c: c["sort"])
+        cs += sorted((c for c in cards if c["stage"] in stages and c["stage"] == Stage.DONE),  # finished: last, newest first
+                     key=lambda c: c["view"].state.booked_on, reverse=True)
         who = who_tag(owner, actor, provider) if owner else None
         job = f"{who['label']} {you_do if who['label'] == 'You' else they_do}" if who else they_do
         columns.append({"key": key, "label": label, "cards": cs, "who": who, "job": job,
@@ -382,7 +445,8 @@ def board(views: list[CaseView], actor: Actor, today: date) -> dict:
     else:
         headline = f"{plural(n, 'case needs', 'cases need')} you" if n else "Nothing needs you today"
     late = sum(1 for c in mine if c["timing"]["late"])
-    return {"today": today, "headline": headline, "late": late, "columns": columns, "start": mine[0] if mine else None}
+    return {"today": today, "headline": headline, "late": late, "columns": columns, "start": mine[0] if mine else None,
+            "checked": len(views)}
 
 
 def next_up(views: list[CaseView], current: CaseView, actor: Actor, today: date) -> dict | None:
@@ -422,13 +486,15 @@ def case_steps(view: CaseView) -> list[dict]:
     recorded = sum(1 for art in view.case.artifacts_of(ArtifactType.CLINICIAN_ASSERTION))
     steps = [{"key": "check", "title": "Ophi checked the chart", "who": "ophi", "state": "done", "summary": check}]
 
-    chart = state(Stage.PREPARE)
-    steps.append({"key": "chart", "title": "Fix chart gaps", "who": "coordinator", "state": chart,
+    chart = "current" if stage in CHART_STAGES else state(Stage.PREPARE)
+    # While the patient is still in the chair the dentist's team closes the gaps; after, the desk books a visit.
+    title = f"Before {first_name(view)} leaves" if in_chair(view) else "Book a visit" if stage == Stage.PATIENT else "Fix the paperwork"
+    steps.append({"key": "chart", "title": title, "who": "dentist" if in_chair(view) else "coordinator", "state": chart,
                   "summary": plural(len(work), "gap") + " to close" if work else
                   ("Check the procedure code" if chart == "current" else "No gaps left in the chart")})
 
     if crit:
-        early = stage == Stage.PREPARE and criteria_can_start(a)
+        early = stage in CHART_STAGES and criteria_can_start(a)
         crit_state = "current" if stage == Stage.DENTIST else ("open" if early else "upcoming")
         crit_summary = (f"{plural(crit, 'criterion', 'criteria')} to confirm" if crit_state != "upcoming"
                         else f"{plural(crit, 'criterion', 'criteria')}, once the films and perio chart are current")
@@ -478,7 +544,8 @@ def stepper(view: CaseView, actor: Actor) -> list[dict]:
         return []
     at = [key for key, *_ in COLUMNS].index(COLUMN_OF[view.stage])
     provider = view.case.treatment.provider.name
-    return [{"key": key, "label": label, "who": who_tag(owner, actor, provider) if owner else None,
+    chair = in_chair(view)
+    return [{"key": key, "label": label, "who": who_tag("dentist" if chair and key == "patient" else owner, actor, provider) if owner else None,
              "state": "done" if i < at or view.stage == Stage.DONE else ("current" if i == at else "upcoming")}
             for i, (key, label, _, owner, _) in enumerate(COLUMNS)]
 
@@ -489,7 +556,7 @@ def waiting_on(step: dict | None, actor: Actor, provider: str, t: dict) -> str |
         return None
     if step["key"] in ("criteria", "sign") and not actor.is_dentist:
         return provider
-    if step["key"] == "chart" and actor.is_dentist:
+    if step["key"] == "chart" and actor.is_dentist and step["who"] == "coordinator":
         return ACTORS["coordinator"].name
     if step["key"] == "decision" and not t["late"]:
         return "Sun Life"
@@ -510,7 +577,8 @@ _ACTIVITY = {"assert": ("recorded a criterion", "recorded {n} criteria"), "confi
              "mark_submitted": ("marked it sent",), "record_decision": ("recorded Sun Life's decision",),
              "start_resubmission": ("started a resubmission",), "mark_booked": ("marked the crown booked",),
              "undo": ("took back a step",), "recover_followup": ("logged a call-back",),
-             "test_skip": ("skipped the chart gaps for a test run",), "test_restore": ("restored the skipped gaps",)}
+             "test_skip": ("skipped the chart gaps for a test run",), "test_restore": ("restored the skipped gaps",),
+             "demo_capture": ("marked a chair gap taken (demo)", "marked {n} chair gaps taken (demo)")}
 
 
 def activity(events: list) -> list[dict]:
@@ -750,13 +818,18 @@ def results(views: list[CaseView], pack: RulePack, report, recovered: dict) -> d
     stages = [{"label": STAGE_LABEL[s], "count": sum(1 for v in views if v.stage == s),
                "dollars": sum(v.dollars_at_risk for v in views if v.stage == s)} for s in PIPELINE]
     labels = {r.id: r.label for r in pack.requirements}
-    caught: dict[str, int] = {}
+    chair = {r.id for r in pack.requirements if r.gap.needs_patient}
+    caught: dict[bool, dict[str, int]] = {True: {}, False: {}}  # needs the patient -> label -> times found
     cases_with_gaps = 0
     for v in views:
         gaps = v.state.first_check.gaps if v.state.first_check else []
         cases_with_gaps += bool(gaps)
         for rid in gaps:
-            caught[labels.get(rid, rid)] = caught.get(labels.get(rid, rid), 0) + 1
+            found = caught[rid in chair]
+            found[labels.get(rid, rid)] = found.get(labels.get(rid, rid), 0) + 1
+    # Past denials missing a film or perio chart: the gaps that cost the patient another visit.
+    chair_docs = {labels[rid] for rid in chair & DOCUMENT_REQUIREMENTS}
+    denied_for_chair = sum(1 for row in report.rows if row.decision == "denied" and chair_docs & set(row.gaps)) if report else 0
     sent = [v for v in views if v.state.submitted_on or v.state.attempts]
     # Every decision Sun Life has sent back, including those on earlier attempts, with the case's fee.
     decided = [(d.outcome, v.dollars_at_risk) for v in views
@@ -767,8 +840,11 @@ def results(views: list[CaseView], pack: RulePack, report, recovered: dict) -> d
     return {
         "in_progress": [s for s in stages if s["count"]],
         "in_progress_count": sum(s["count"] for s in stages), "in_progress_dollars": sum(s["dollars"] for s in stages),
-        "caught_total": sum(caught.values()), "caught_cases": cases_with_gaps,
-        "caught": sorted(caught.items(), key=lambda kv: (-kv[1], kv[0])),
+        "caught_total": sum(n for found in caught.values() for n in found.values()), "caught_cases": cases_with_gaps,
+        "caught_chair": sorted(caught[True].items(), key=lambda kv: (-kv[1], kv[0])),
+        "caught_desk": sorted(caught[False].items(), key=lambda kv: (-kv[1], kv[0])),
+        "taken_in_chair": sum(len(v.state.captures) for v in views if v.case.in_chair),
+        "denied_for_chair": denied_for_chair,
         "sent": len(sent), "sent_dollars": sum(v.dollars_at_risk for v in sent),
         "approved": len(approved), "approved_dollars": sum(approved),
         "denied": len(denied), "denied_dollars": sum(denied),

@@ -23,9 +23,11 @@
     <div>
       <p class="fact-v">Ophi found <b class="num">{{ plural(res.caught_total, 'missing or out-of-date document') }}</b> on {{ plural(res.caught_cases, 'case') }} before they reached Sun Life.</p>
       <p class="fact-more">Radiographs, periodontal charting and treatment plan details are the documents Health Canada names most often as missing from incomplete requests.</p>
-      {% if res.caught %}
-      <ul class="counts">{% for label, n in res.caught %}<li><span>{{ label }}</span><span class="num">{{ n }}</span></li>{% endfor %}</ul>
-      {% endif %}
+      {% if res.taken_in_chair %}<p class="fact-more"><b class="num">{{ res.taken_in_chair }}</b> {{ 'was' if res.taken_in_chair == 1 else 'were' }} taken while the patient was still in the chair.</p>{% endif %}
+      {% for title, rows in [('Needed the patient', res.caught_chair), ('At the desk', res.caught_desk)] if rows %}
+      <h3 class="counts-k">{{ title }}</h3>
+      <ul class="counts">{% for label, n in rows %}<li><span>{{ label }}</span><span class="num">{{ n }}</span></li>{% endfor %}</ul>
+      {% endfor %}
     </div>
   </section>
 
@@ -62,6 +64,7 @@
     <h2 class="fact-k">Last 12 months</h2>
     <div>
       <p class="fact-v">The clinic sent <b class="num">{{ rep.submitted }}</b> crown preauthorizations. <span data-voice="payer">Sun Life denied {{ rep.denied }}</span>, {{ money(rep.denied_dollars) }} of treatment; {{ rep.denied_with_doc_gap }} of those were missing a document CDCP requires, and {{ rep.never_resubmitted }} were never resubmitted.</p>
+      {% if res.denied_for_chair %}<p class="fact-more">{{ 'All %d'|format(res.denied_for_chair) if res.denied_for_chair == rep.denied_with_doc_gap else '%d of the %d'|format(res.denied_for_chair, rep.denied_with_doc_gap) }} were missing an X-ray or perio chart, which takes the patient back in the chair.</p>{% endif %}
       <details class="fold">
         <summary><span class="fold-title">Every request, with what was missing</span><span class="fold-sub">found again from the chart as it stood on the day each was sent, rule pack {{ rep.ruleset_version }}</span></summary>
         <div class="fold-body tbl-wrap">
