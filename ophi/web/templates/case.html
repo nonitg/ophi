@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% from "macros.html" import clause_chip, status_mark, who, payer_decision, teeth, due, turnaround_source, test_banner, send_steps, next_up, fold_summary, risk_block with context %}
+{% from "macros.html" import clause_chip, status_mark, who, payer_decision, teeth, due, turnaround_source, test_banner, send_steps, next_up, fold_summary, risk_block, laya, source_tag with context %}
 {% block title %}{{ case.patient.display_name }}, #{{ case.requested_tooth }} — Ophi{% endblock %}
 {% block content %}
 <div class="case">
@@ -141,36 +141,43 @@
     {% if actor.is_dentist %}
     {% if plan %}{{ risk_block(plan, after_label='After the fixes') }}{% endif %}
     {{ dentist_extras(plan) }}
+    <p class="now-lead now-ophi">{{ laya('') }}<span>{% if crit.prefilled %}Ophi pre-filled {{ crit.prefilled }} of {{ crit.open }} from the chart and Laya's reading of the note.{% if crit.call %} {{ crit.call }} need{{ 's' if crit.call == 1 }} your call.{% endif %}{% elif crit.open %}Nothing in the chart or note to pre-fill these from.{% else %}Every criterion is recorded.{% endif %}{% if s.state == 'open' %} {{ ACTORS['coordinator'].name }} is still fixing the chart; you can confirm now.{% endif %}</span></p>
     <form method="post" action="{{ BASE }}/cases/{{ cid }}/assert/bulk" id="crit-form" class="stack">
-      <div class="crit-tools">
-        <p class="now-lead">{% if s.state == 'open' %}{{ ACTORS['coordinator'].name }} is still fixing the chart. You can confirm these now.{% else %}Recorded under your name and licence.{% endif %}</p>
-        <button type="button" class="btn btn-sm" data-all-met>Set the rest to Met</button>
+      {% for g in crit.groups %}
+      <div class="crit-group crit-group-{{ g.key }}">
+        <h3 class="gap-group">{{ g.title }}{% if g.key != 'recorded' %} <span class="num muted">{{ g.rows|length }}</span>{% endif %}</h3>
+        {% if g.lead %}<p class="gap-lead">{{ g.lead }}</p>{% endif %}
+        <ul class="crits">
+          {% for c in g.rows %}{% set pre = c.pre %}{% set pick = c.current.value if c.current else (pre.suggest if pre else None) %}
+          <li class="crit{% if not c.current and pre and pre.suggest %} is-pre{% endif %}">
+            <div>
+              <div class="crit-label">{{ c.label }}</div>
+              {% if not c.current %}
+              <ul class="ev">
+                {% for e in pre.evidence if pre %}<li class="ev-{{ e.stance }}">{{ source_tag(e.source) }}<span>{{ e.text }}.</span></li>{% endfor %}
+                {% if c.odontogram and not (pre and pre.evidence|selectattr('source', 'equalto', 'chart')|list) %}<li>{{ source_tag('chart') }}<span>{{ c.odontogram }}.</span></li>{% endif %}
+                {% if not (pre and pre.evidence) and not c.odontogram %}<li class="ev-none"><span>Nothing in the chart or note bears on this{% if pre and pre.on_film %}. Judge it on the film{% endif %}.</span></li>{% endif %}
+              </ul>
+              {% endif %}
+              <div class="crit-meta">{{ clause_chip(c.clause, pack) }}{% if c.variant %}<span>{{ c.variant }}</span>{% endif %}</div>
+              {% if c.current %}<div class="crit-now">Recorded <span class="val val-{{ c.current.value }}">{{ c.current.value|replace('_', ' ')|capitalize }}</span> by {{ c.current.asserted_by }}, {{ full_date(c.current.asserted_at.date()) }}{% if c.current.note %}: “{{ c.current.note }}”{% endif %}</div>{% endif %}
+            </div>
+            <div class="seg" role="radiogroup" aria-label="{{ c.label }}">
+              {% for val, lab in [('met', 'Met'), ('not_met', 'Not met'), ('not_applicable', 'N/A')] %}
+              <label><input type="radio" name="value_{{ c.id }}" value="{{ val }}" {% if pick == val %}checked{% endif %}><span>{{ lab }}</span></label>
+              {% endfor %}
+            </div>
+            <details class="crit-note"{% if c.current and c.current.note %} open{% endif %}><summary>Add a note</summary><input class="input" type="text" name="note_{{ c.id }}" value="{{ (c.current.note or '') if c.current else '' }}" aria-label="Note for {{ c.label }}"></details>
+          </li>
+          {% endfor %}
+        </ul>
       </div>
-      <ul class="crits">
-        {% for c in criteria %}
-        <li class="crit"{% if c.odontogram %} data-needs-look{% endif %}>
-          <div>
-            <div class="crit-label">{{ c.label }}</div>
-            {% if c.odontogram %}<div class="crit-look num">{{ c.odontogram }}</div>{% endif %}
-            {% set rd = plan.reads.get(c.id) if plan else None %}
-            {% if rd %}<div class="crit-read read-{{ rd }}">{{ 'The note supports it' if rd == 'supports' else "The note doesn't show it" }}</div>{% endif %}
-            <div class="crit-meta">{{ clause_chip(c.clause, pack) }}{% if c.variant %}<span>{{ c.variant }}</span>{% endif %}</div>
-            {% if c.current %}<div class="crit-now">Recorded <span class="val val-{{ c.current.value }}">{{ c.current.value|replace('_', ' ')|capitalize }}</span> by {{ c.current.asserted_by }}, {{ full_date(c.current.asserted_at.date()) }}{% if c.current.note %}: “{{ c.current.note }}”{% endif %}</div>{% endif %}
-          </div>
-          <div class="seg" role="radiogroup" aria-label="{{ c.label }}">
-            {% for val, lab in [('met', 'Met'), ('not_met', 'Not met'), ('not_applicable', 'N/A')] %}
-            <label><input type="radio" name="value_{{ c.id }}" value="{{ val }}" {% if c.current and c.current.value == val %}checked{% endif %}><span>{{ lab }}</span></label>
-            {% endfor %}
-          </div>
-          <details class="crit-note"{% if c.current and c.current.note %} open{% endif %}><summary>Add a note</summary><input class="input" type="text" name="note_{{ c.id }}" value="{{ (c.current.note or '') if c.current else '' }}" aria-label="Note for {{ c.label }}"></details>
-        </li>
-        {% endfor %}
-      </ul>
-      <div class="btn-row"><button class="btn btn-primary" type="submit">Record answers</button>{% if view.signed %}<span class="small muted">Changing an answer voids your signature.</span>{% elif s.state == 'open' %}<span class="small muted">Recorded under your name and licence.</span>{% endif %}</div>
+      {% endfor %}
+      <div class="btn-row"><button class="btn btn-primary" type="submit">Confirm answers</button><span class="small muted">{% if view.signed %}Changing an answer voids your signature.{% else %}Recorded under your name and licence. Ophi's pre-fills count only once you confirm them.{% endif %}</span></div>
     </form>
     {% else %}
     {% set answered = criteria|selectattr('current')|list|length %}
-    <p class="now-lead">Clinical criteria: {{ answered }} of {{ criteria|length }} recorded. Then the signature.</p>
+    <p class="now-lead now-ophi">{{ laya('') }}<span>{% if crit.prefilled %}Ophi pre-filled {{ crit.prefilled }} of {{ crit.open }} criteria for {{ provider }} to confirm.{% else %}{{ provider }} confirms {{ plural(crit.open, 'criterion', 'criteria') }}.{% endif %}{% if answered %} {{ answered }} recorded.{% endif %} Then the signature.</span></p>
     {% endif %}
 
   {% elif s.key == 'sign' %}

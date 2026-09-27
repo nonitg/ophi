@@ -250,7 +250,7 @@ def test_actor_cookie_and_reset(client):
     as_dentist(client)
     client.post("/cases/tremblay/assert", data={"criterion_id": "ferrule_1_5mm", "value": "met"})
     assert client.post("/reset").status_code == 303
-    assert 'value="met" checked' not in client.get("/cases/tremblay").text
+    assert "Recorded <span" not in client.get("/cases/tremblay").text
     assert client.app.state.svc.store.audit_log() == []
 
 
@@ -297,7 +297,7 @@ def test_copy_law_in_ophi_voice(seeded):
     seeded.post("/cases/park/decision", data={"outcome": "approved", "decided_on": "2026-09-16", "reason": ""})
     pages = ["/", "/cases/kowalchuk", "/cases/singh", "/cases/deng", "/cases/rosco", "/cases/tremblay", "/cases/nguyen", "/cases/marchand",
              "/cases/park", "/cases/okafor",
-             "/cases/whitfield/packet", "/recover", "/results", "/settings"]
+             "/cases/whitfield/packet", "/recover", "/results", "/settings", "/model"]
     for actor in ("dentist", "coordinator"):
         seeded.cookies.set("actor", actor)
         for path in pages:
@@ -308,7 +308,7 @@ def test_copy_law_in_ophi_voice(seeded):
 
 def test_fix_chart_step_shows_denial_risk_and_applies_ophis_fixes(seeded):
     board = seeded.get("/").text
-    assert "Risk <b class=\"lvl lvl-high\">High</b>" in board
+    assert "Risk</span> <b class=\"lvl lvl-high\">High</b>" in board
     assert "Before Teresa leaves: PA X-ray of #46, 6-site perio chart" in board  # the plan's first fix leads, not the engine's
     page = seeded.get("/cases/deng").text
     assert "Denial risk" in page and "Replace lab code 99333 with 99113" in page and "Apply it" in page
@@ -333,3 +333,27 @@ def test_skip_gaps_to_test_moves_the_case_on_and_restore_brings_them_back(client
     assert 'tag-test">Test' in client.get("/").text
     assert client.post("/cases/singh/test-restore").status_code == 303
     assert "Test run." not in client.get("/cases/singh").text
+
+
+def test_dentist_confirms_ophis_pre_fills_in_one_submit(client):
+    as_dentist(client)
+    page = client.get("/cases/tremblay").text
+    assert "Ophi pre-filled 9 of 10" in page and "1 needs your call" in page
+    assert page.count('checked') == 9  # the suggestions are selected, not recorded
+    form = dict(re.findall(r'name="(value_\w+)" value="(\w+)" checked', page))
+    form["value_mesiodistal_space"] = "met"  # the one Ophi left to the dentist
+    form["value_ferrule_1_5mm"] = "not_met"  # and one they change
+    assert client.post("/cases/tremblay/assert/bulk", data=form).status_code == 303
+    log = [e.detail for e in client.app.state.svc.store.audit_log("tremblay")]
+    assert "margin_3mm=met, as Ophi pre-filled" in log
+    assert "ferrule_1_5mm=not_met, Ophi pre-filled met" in log
+    assert "mesiodistal_space=met" in log
+    assert "kept <b class=\"num\">8</b> of 9 pre-fills" in client.get("/model").text
+
+
+def test_laya_page_names_each_task_and_its_limits(client):
+    page = client.get("/model").text
+    for task in ("Reads the clinical note", "Estimates denial risk", "Ranks the fixes", "Pre-fills the dentist"):
+        assert task in page
+    assert "See X-rays" in page and "laya-cdcp 2026-09-26" in page
+

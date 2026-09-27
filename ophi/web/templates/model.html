@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% from "macros.html" import laya with context %}
+{% block title %}Laya — Ophi{% endblock %}
+{% block content %}
+<header class="head">
+  <h1 class="laya-h1">{{ laya('', link=False) }}Laya</h1>
+  <p class="lede">Ophi's model, trained on {{ LAYA.TRAINED_ON }} past crown decisions. It reads, estimates and suggests. People decide, sign and send.</p>
+</header>
+
+<div class="report">
+  <section class="fact">
+    <h2 class="fact-k">On your cases now</h2>
+    <ol class="laya-tasks">
+      {% for t in m.tasks %}
+      <li class="laya-task">
+        <div class="laya-task-head"><h3>{{ t.title }}</h3><span class="laya-count num">{{ t.count }}</span></div>
+        <p>{{ t.what }}</p>
+        {% if loop.first %}<details class="why"><summary>The 7 questions</summary><ul class="plain small laya-qs">{% for q in m.questions %}<li>{{ q }}</li>{% endfor %}</ul></details>{% endif %}
+        {% if t.example %}<a class="laya-see" href="{{ BASE }}/cases/{{ t.example.case_id }}">See it on {{ t.example.patient.display_name }}</a>{% endif %}
+      </li>
+      {% endfor %}
+    </ol>
+  </section>
+
+  <section class="fact">
+    <h2 class="fact-k">What it can't do</h2>
+    <ul class="laya-cant">
+      <li>Change a CDCP requirement or Ophi's result. The rule pack decides, and every fix cites a clause.</li>
+      <li>See X-rays. Criteria judged on a film are pre-filled from the note only, and name the film to check.</li>
+      <li>Record an answer. A pre-fill counts only once the dentist confirms it under their licence.</li>
+      <li>Write to your PMS, or send anything to Sun Life.</li>
+    </ul>
+  </section>
+
+  <section class="fact">
+    <h2 class="fact-k">How it learns</h2>
+    <div>
+      <p class="fact-v">Every decision you record from Sun Life, and every pre-fill the dentist keeps or changes, becomes a training example.</p>
+      <p class="fact-more">{% if m.kept or m.changed %}So far in this demo, {{ ACTORS['dentist'].name }} kept <b class="num">{{ m.kept }}</b> of {{ m.kept + m.changed }} pre-fills.{% else %}No pre-fills confirmed yet in this demo.{% endif %}</p>
+    </div>
+  </section>
+
+  <section class="fact">
+    <h2 class="fact-k">How it was tested</h2>
+    <div>
+      <p class="fact-v">On {{ LAYA.TEST_CLINICS }} clinics it never saw ({{ LAYA.TEST_REQUESTS }} requests).</p>
+      <ul class="counts">
+        {% for label, pct in LAYA.DENIED_BY_LEVEL %}<li><span>Rated <b class="lvl lvl-{{ label }}">{{ RISK_LABEL[label] }}</b>, then denied</span><span class="num">{{ pct }}%</span></li>{% endfor %}
+      </ul>
+      <p class="counts-k">How often a denied request ranks riskier than one Sun Life didn't deny (1.0 is perfect, 0.5 a coin flip)</p>
+      <ul class="counts">
+        {% for label, auc in LAYA.AUC %}<li><span>{{ label }}</span><span class="num">{{ '%.2f'|format(auc) }}</span></li>{% endfor %}
+      </ul>
+      <p class="fact-more">Right on "{{ LAYA.NOTE_ACCURACY.question }}" {{ LAYA.NOTE_ACCURACY.tuned }}% of the time, against {{ LAYA.NOTE_ACCURACY.untrained }}% before training. Also trained to name the reason behind a vague denial letter, but it's right only {{ LAYA.VAGUE_REASON_TOP1 }}% of the time, so Ophi doesn't show it.</p>
+      <p class="source">Synthetic training data: this shows the method works, not how Sun Life decides. Real decisions come before any clinic relies on it.{% if m.model %} Versions: <span class="mono">{{ m.model.values()|join('; ') }}</span>.{% endif %}</p>
+    </div>
+  </section>
+</div>
+{% endblock %}

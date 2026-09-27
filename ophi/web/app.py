@@ -25,7 +25,7 @@ from fastapi.templating import Jinja2Templates
 
 from ophi import demo, fixes, workflow
 from ophi.engine.models import Status
-from ophi.outcomes import readout
+from ophi.outcomes import model_card, readout
 from ophi.outcomes.weights import load as load_weights
 from ophi.packet.build import build_packet
 from ophi.packet.documents import narrative_ascii
@@ -45,7 +45,7 @@ templates.env.globals.update(
     tooth_name=present.tooth_name, source_title=present.source_title, kb=present.kb, requirement_detail=present.requirement_detail,
     who_tag=present.who_tag, initials=present.initials, VERDICT_LABEL=present.VERDICT_LABEL, VERDICT_CLASS=present.VERDICT_CLASS,
     STATUS_LABEL=present.STATUS_LABEL, STATUS_CLASS=present.STATUS_CLASS, STATUS_NA=Status.NOT_APPLICABLE,
-    STAGE_LABEL=present.STAGE_LABEL, FOLLOWUP_LABEL=present.FOLLOWUP_LABEL, ACTORS=ACTORS,
+    LAYA=model_card, STAGE_LABEL=present.STAGE_LABEL, FOLLOWUP_LABEL=present.FOLLOWUP_LABEL, ACTORS=ACTORS,
     TURNAROUND_DAYS=workflow.SUN_LIFE_TURNAROUND_DAYS, TURNAROUND_SOURCE=workflow.TURNAROUND_SOURCE,
     RECONSIDERATION_DAYS=workflow.RECONSIDERATION_DAYS, RISK_LABEL=present.RISK_LABEL,
 )
@@ -197,7 +197,9 @@ def worklist(request: Request):
     views = svc.queue()
     risks = {v.case.case_id: r for v in views if v.stage in workflow.CHART_STAGES
              and (r := present.board_risk(v, readout.load(v.case.case_id), svc.pack))}
-    return _render(request, "board.html", b=present.board(views, _actor(request), svc.today(), risks))
+    prefills = {v.case.case_id: n for v in views if v.stage in (*workflow.CHART_STAGES, workflow.Stage.DENTIST)
+                and (n := present.prefilled(v, present.pre_reads_for(v, svc.pack, readout.load(v.case.case_id))))}
+    return _render(request, "board.html", b=present.board(views, _actor(request), svc.today(), risks, prefills))
 
 
 # --- case -------------------------------------------------------------------------------------------
@@ -209,11 +211,11 @@ def case_page(request: Request, case_id: str):
     if view is None:
         return _error(request, 404, "Case not found", f"No case '{case_id}' in the demo set.")
     svc, actor, today = _svc(request), _actor(request), _svc(request).today()
-    relevant, other = present.assertion_rows(view, svc.pack)
+    rd, gaps = readout.load(case_id), present.gap_rows(view)
+    relevant, other = present.assertion_rows(view, svc.pack, present.pre_reads_for(view, svc.pack, rd))
     steps = present.case_steps(view)
     now = present.now_step(steps, actor)
     timing = present.timing(view, today)
-    rd, gaps = readout.load(case_id), present.gap_rows(view)
     fx = present.fix_panel(view, rd, svc.pack, gaps) if view.stage in workflow.CHART_STAGES else None
     return _render(request, "case.html", view=view, case=view.case, a=view.assessment, stage=view.stage,
                    steps=steps, now=now, waiting=present.waiting_on(now, actor, view.case.treatment.provider.name, timing),
@@ -223,7 +225,7 @@ def case_page(request: Request, case_id: str):
                    timing=timing, advice=present.advice(view, timing, today), evidence=present.evidence_panel(view),
                    fx=fx,
                    plan=present.dentist_panel(view, rd) if view.stage in (*workflow.CHART_STAGES, workflow.Stage.DENTIST) else None,
-                   criteria=relevant, criteria_other=other, activity=present.activity(svc.store.audit_log(case_id)),
+                   criteria=relevant, crit=present.criteria_groups(view, relevant), criteria_other=other, activity=present.activity(svc.store.audit_log(case_id)),
                    applicable=[r for r in view.assessment.requirements if r.applicable],
                    not_applicable=[r for r in view.assessment.requirements if not r.applicable])
 
@@ -252,15 +254,16 @@ async def bulk_assert(request: Request, case_id: str):
     if view is None:
         return _error(request, 404, "Case not found", f"No case '{case_id}' in the demo set.")
     actor, svc = _actor(request), _svc(request)
-    current = {r["id"]: r["current"] for r in present.assertion_rows(view, svc.pack)[0]}
+    rows = present.assertion_rows(view, svc.pack, present.pre_reads_for(view, svc.pack, readout.load(case_id)))[0]
     form = await request.form()
     items: list[dict] = []
-    for cid, cur in current.items():
+    for r in rows:
+        cid, cur = r["id"], r["current"]
         val = form.get(f"value_{cid}")
         note = (form.get(f"note_{cid}") or "").strip() or None
         if not val or (cur and cur.value == val and (cur.note or None) == note):
             continue
-        items.append({"criterion_id": cid, "value": val, "note": note})
+        items.append({"criterion_id": cid, "value": val, "note": note, "ophi": r["pre"].suggest if r["pre"] else None})
     if not items:
         return _done(request, f"/cases/{case_id}", "criteria")
     try:
@@ -516,6 +519,13 @@ def results(request: Request):
     except Exception as e:  # a broken retrospective must not take the report down
         return _error(request, 503, "Results are unavailable", _lookback_unavailable(e))
     return _render(request, "results.html", res=present.results(svc.queue(), svc.pack, report, recovered))
+
+
+@router.get("/model", response_class=HTMLResponse)
+def model_page(request: Request):
+    svc = _svc(request)
+    views = svc.queue()
+    return _render(request, "model.html", m=present.laya_page(views, svc.pack, {v.case.case_id: readout.load(v.case.case_id) for v in views}))
 
 
 @router.get("/outcomes", response_class=HTMLResponse)

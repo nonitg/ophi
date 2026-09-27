@@ -14,6 +14,7 @@ from zoneinfo import ZoneInfo
 
 from ophi import fixes
 from ophi.assertions import criteria
+from ophi.assertions.preread import PreRead, latest_pa, pre_reads
 from ophi.casegen.dsl import CAPTURABLE
 from ophi.cdm.models import (
     ArtifactType, AssertionPayload, Availability, ChartArtifact, ExtractedDetailPayload, NotePayload,
@@ -23,6 +24,7 @@ from ophi.dental import notation, sextants
 from ophi.engine.models import Action, Status, Verdict
 from ophi.lookback import DOCUMENT_REQUIREMENTS
 from ophi.outcomes.readout import Readout
+from ophi.outcomes.training_set import NOTE_QUESTIONS
 from ophi.rules.schema import RulePack
 from ophi.service import MANUAL_MINUTES_PER_PREAUTH, CaseView
 from ophi.workflow import (
@@ -281,18 +283,6 @@ def advisory(view: CaseView) -> list[Action]:
 # --- fix plan: what past decisions say to fix first (docs/plan/05-outcomes-learning.md §5) ---------------
 
 RISK_LABEL = {"low": "Low", "medium": "Medium", "high": "High"}
-# The dentist's criteria Laya's note questions bear on: (question, the answer that supports the criterion). A
-# "yes only" question supports on a yes and says nothing on a no (a lost cusp is one route to "extensively restored").
-NOTE_CRITERIA: dict[str, list[tuple[str, str]]] = {
-    "extensively_restored": [("extensively_restored", "yes"), ("structure_lost", "yes only")],
-    "endo_healed": [("endo_not_healed", "no")], "active_disease_addressed": [("pending_basic", "no")],
-    "no_furcation": [("poor_support", "no")], "crown_root_ratio": [("poor_support", "no")],
-    "margin_3mm": [("subgingival_margin", "no")], "ferrule_1_5mm": [("subgingival_margin", "no")],
-    "no_adjunctive_needed": [("subgingival_margin", "no")],
-}
-# The note backs a criterion when Laya is this sure of the supporting answer; it goes against one past the fixer's
-# own flag (ophi.outcomes.fixer.FLAG), so the page and the fixer's concerns agree.
-SURE, FLAG = 0.7, 0.5
 
 
 def plan_for(view: CaseView, readout: Readout | None) -> dict | None:
@@ -377,28 +367,15 @@ def _item(view: CaseView, pack: RulePack, gap: dict | None, fix: dict | None, ef
             "clause": (fix or {}).get("clause") or (req.clause if req else None)}
 
 
-def _note_read(answers: dict[str, float], questions: list[tuple[str, str]]) -> str | None:
-    """'not_shown' if any answer goes against the criterion, else 'supports' if one surely backs it, else None."""
-    backs = against = False
-    for q, supporting in questions:
-        if (p := answers.get(q)) is None:
-            continue
-        p_backs = 1 - p if supporting == "no" else p
-        backs |= p_backs >= SURE
-        against |= 1 - p_backs > FLAG and supporting != "yes only"
-    return "not_shown" if against else "supports" if backs else None
-
-
 def dentist_panel(view: CaseView, readout: Readout | None) -> dict | None:
-    """What the dentist needs from the plan: the risk left after the fixes and why, what the note shows for each
-    criterion, narrative drafts to approve, and clinical calls no requirement asks for yet."""
+    """What the dentist needs from the plan: the risk left after the fixes and why, narrative drafts to approve,
+    and clinical calls no requirement asks for yet."""
     plan = plan_for(view, readout)
     if not plan:
         return None
-    reads = {cid: r for cid, qs in NOTE_CRITERIA.items() if (r := _note_read(plan["note_answers"], qs))}
     asked = {rid for x in view.assessment.actions if x.action_type == "assert" for rid in x.unblocks}
     live = _still_open(plan, view)
-    return {**_levels(plan), "reads": reads,
+    return {**_levels(plan),
             "drafts": [f for f in live if f["kind"] == "draft" and (f.get("patch") or {}).get("narrative")],
             "decide": [f for f in live if (f["kind"] == "dentist" and f.get("requirement_id") not in asked)
                        or (f["kind"] == "task" and f["who"] == "dentist")]}
@@ -492,14 +469,15 @@ def _is_mine(view: CaseView, t: dict, actor: Actor) -> bool:
     return OWNER[stage] == "coordinator" or (stage == Stage.SUN_LIFE and t["late"])
 
 
-def card_action(view: CaseView, actor: Actor, today: date, order: list[str] | None = None) -> dict:
-    """The card's one line of work, plus at most one supporting line (`note`, or Sun Life's decision in `payer`)."""
+def card_action(view: CaseView, actor: Actor, today: date, order: list[str] | None = None, prefilled: int = 0) -> dict:
+    """The card's one line of work, plus at most one supporting line (`note`, or Sun Life's decision in `payer`).
+    On the dentist's criteria work, `prefilled` says how many Ophi already pre-filled."""
     stage, st = view.stage, view.state
     provider = view.case.treatment.provider.name
     crit = pending_criteria(view.assessment)
-    out: dict = {"title": "", "more": 0, "note": None, "payer": None, "waiting": None}
+    out: dict = {"title": "", "more": 0, "note": None, "payer": None, "waiting": None, "prefilled": 0}
     if stage in CHART_STAGES and actor.is_dentist and _can_confirm_early(view) and not in_chair(view):
-        out["title"] = f"Confirm {plural(crit, 'clinical criterion', 'clinical criteria')}"
+        out.update(title=f"Confirm {plural(crit, 'clinical criterion', 'clinical criteria')}", prefilled=prefilled)
     elif stage == Stage.PATIENT:
         # One visit closes every chair gap, so the card names them together.
         todo = ", ".join(i["label"] for i in chair_items(view, order))
@@ -517,6 +495,7 @@ def card_action(view: CaseView, actor: Actor, today: date, order: list[str] | No
             out["note"] = f"{provider} can confirm criteria now"
     elif stage == Stage.DENTIST:
         out["title"] = f"Confirm {plural(crit, 'clinical criterion', 'clinical criteria')}" if crit else "Review and sign the packet"
+        out["prefilled"] = prefilled if crit else 0
     elif stage == Stage.SEND:
         out["title"] = "Send the packet from your PMS"
     elif stage == Stage.SUN_LIFE:
@@ -534,14 +513,14 @@ def card_action(view: CaseView, actor: Actor, today: date, order: list[str] | No
     return out
 
 
-def card(view: CaseView, actor: Actor, today: date, risk: dict | None = None) -> dict:
+def card(view: CaseView, actor: Actor, today: date, risk: dict | None = None, prefilled: int = 0) -> dict:
     t = timing(view, today)
     # Late for the appointment first (a patient is affected), then Sun Life running past its usual turnaround,
     # then the nearest deadline (or the longest wait at Sun Life).
     due = t.get("send_by") or view.state.submitted_on or t["appt"] or date.max
     urgency = -1 if in_chair(view) else 3 if view.test_run else (1 if view.stage == Stage.SUN_LIFE else 0) if t["late"] else 2
     order = (risk or {}).get("order")
-    mine, act = _is_mine(view, t, actor), card_action(view, actor, today, order)
+    mine, act = _is_mine(view, t, actor), card_action(view, actor, today, order, prefilled)
     if risk and risk["next"] and view.stage == Stage.PREPARE and not (actor.is_dentist and _can_confirm_early(view)):
         act.update(title=risk["next"], more=risk["more"])  # the plan's first fix, not the engine's
     if not mine and view.stage != Stage.DONE:
@@ -556,11 +535,13 @@ def _mine_first(cards: list[dict]) -> list[dict]:
     return sorted((c for c in cards if c["mine"]), key=lambda c: c["sort"])
 
 
-def board(views: list[CaseView], actor: Actor, today: date, risks: dict[str, dict] | None = None) -> dict:
+def board(views: list[CaseView], actor: Actor, today: date, risks: dict[str, dict] | None = None,
+          prefills: dict[str, int] | None = None) -> dict:
     """Every preauthorization as a card in the column for the step it is on. Cards the viewer acts on are
     marked `mine`; the most urgent of them is `start`, the one thing to do first. `risks` is the fix plan per case
-    id (`board_risk`), for the cards that still have chart gaps."""
-    cards = [card(v, actor, today, (risks or {}).get(v.case.case_id)) for v in views if v.stage != Stage.NOT_NEEDED]
+    id (`board_risk`), for the cards that still have chart gaps; `prefills` the criteria Ophi pre-filled per case id."""
+    risks, prefills = risks or {}, prefills or {}
+    cards = [card(v, actor, today, risks.get(v.case.case_id), prefills.get(v.case.case_id, 0)) for v in views if v.stage != Stage.NOT_NEEDED]
     provider = views[0].case.treatment.provider.name if views else "the dentist"
     columns = []
     for key, label, stages, owner, (you_do, they_do) in COLUMNS:
@@ -579,7 +560,7 @@ def board(views: list[CaseView], actor: Actor, today: date, risks: dict[str, dic
         headline = f"{plural(n, 'case needs', 'cases need')} you" if n else "Nothing needs you today"
     late = sum(1 for c in mine if c["timing"]["late"])
     return {"today": today, "headline": headline, "late": late, "columns": columns, "start": mine[0] if mine else None,
-            "checked": len(views)}
+            "checked": len(views), "scored": len(risks), "prefilled": sum(prefills.values())}
 
 
 def next_up(views: list[CaseView], current: CaseView, actor: Actor, today: date) -> dict | None:
@@ -861,7 +842,12 @@ def _segments(text: str, proposals: list[ChartArtifact]) -> list[dict]:
 # --- clinician assertions -------------------------------------------------------------------------
 
 
-def assertion_rows(view: CaseView, pack: RulePack) -> tuple[list[dict], list[dict]]:
+def pre_reads_for(view: CaseView, pack: RulePack, readout: Readout | None) -> dict[str, PreRead]:
+    """Ophi's pre-read of each criterion the case asks for, with Laya's note answers while the note is the one it read."""
+    return pre_reads(view.case, pack, readout.note_answers(view.case) if readout else None)
+
+
+def assertion_rows(view: CaseView, pack: RulePack, pre: dict[str, PreRead] | None = None) -> tuple[list[dict], list[dict]]:
     """(relevant, other). Relevant = an applicable requirement asks for it, or it has already been answered."""
     case = view.case
     current: dict[str, AssertionPayload] = {}
@@ -874,10 +860,32 @@ def assertion_rows(view: CaseView, pack: RulePack) -> tuple[list[dict], list[dic
     for cid, crit in pack.assertion_criteria.items():
         ctx = criteria.criterion_context(case, pack, cid)
         row = {"id": cid, "label": crit.label, "clause": crit.clause, "current": current.get(cid),
-               "variant": ctx.variant_text, "odontogram": ctx.hint}
+               "variant": ctx.variant_text, "odontogram": ctx.hint, "pre": (pre or {}).get(cid)}
         (relevant if cid in wanted else other).append(row)
     relevant.sort(key=lambda r: r["current"] is not None)  # unanswered first
     return relevant, other
+
+
+def criteria_groups(view: CaseView, rows: list[dict]) -> dict:
+    """The dentist's criteria by what each needs from them: their own call first (Ophi couldn't pre-fill it, or the
+    evidence disagrees), then pre-fills from the chart and note, then pre-fills to check on the film, then recorded."""
+    open_rows = [r for r in rows if not r["current"]]
+    call = [r for r in open_rows if not (r["pre"] and r["pre"].suggest)]
+    filled = [r for r in open_rows if r not in call]
+    pa = latest_pa(view.case)
+    film = f"Check these on the PA of #{view.case.requested_tooth}, {short_date(pa)}" if pa else f"No PA of #{view.case.requested_tooth} on file to check these on"
+    groups = [("call", "Your call", None, call),
+              ("chart", "Pre-filled from the chart and note", None, [r for r in filled if not r["pre"].on_film]),
+              ("film", "Pre-filled from the note", film, [r for r in filled if r["pre"].on_film]),
+              ("recorded", "Recorded", None, [r for r in rows if r["current"]])]
+    return {"groups": [{"key": k, "title": t, "lead": lead, "rows": rs} for k, t, lead, rs in groups if rs],
+            "open": len(open_rows), "prefilled": len(filled), "call": len(call)}
+
+
+def prefilled(view: CaseView, pre: dict[str, PreRead]) -> int:
+    """Criteria still waiting on the dentist that Ophi has pre-filled."""
+    asked = {c for r in view.assessment.requirements if r.applicable for c in r.shortfall.missing_assertions}
+    return sum(1 for c in asked if (p := pre.get(c)) and p.suggest)
 
 
 # --- packet ---------------------------------------------------------------------------------------
@@ -985,3 +993,35 @@ def results(views: list[CaseView], pack: RulePack, report, recovered: dict) -> d
         "checked": checked, "hours": round(checked * MANUAL_MINUTES_PER_PREAUTH / 60, 1),
         "report": report, "recover": recovered,
     }
+
+
+# --- Laya: what the trained model does on these cases ----------------------------------------------
+
+
+def laya_page(views: list[CaseView], pack: RulePack, readouts: dict[str, Readout | None]) -> dict:
+    """Laya's work on the cases as they stand, each task with a case to see it on, and how often the dentist kept its
+    pre-fills: those confirmations are the labels real training data would come from."""
+    read = [v for v in views if (rd := readouts.get(v.case.case_id)) and rd.note_answers(v.case)]
+    scored = [v for v in views if v.stage in CHART_STAGES and plan_for(v, readouts.get(v.case.case_id))]
+    asked = [v for v in views if v.stage in (*CHART_STAGES, Stage.DENTIST) and pending_criteria(v.assessment)]
+    filled = {v.case.case_id: prefilled(v, pre_reads_for(v, pack, readouts.get(v.case.case_id))) for v in asked}
+    answers = [a for v in views for a in v.state.assertions.values() if a.get("ophi")]
+    tasks = [
+        {"title": "Reads the clinical note", "count": plural(len(read), "note") + " read", "example": _first_case(read),
+         "what": "Answers 7 questions the rules can't read from the chart's fields."},
+        {"title": "Estimates denial risk", "count": plural(len(scored), "case") + " scored", "example": _first_case(scored),
+         "what": "Weighs the rule check, film ages, pocket depths and its note answers against past decisions. "
+                 "Shown as Low, Medium or High, never a number."},
+        {"title": "Ranks the fixes", "count": plural(len(scored), "fix list") + " ordered", "example": _first_case(scored),
+         "what": "Re-scores the request with each fix made, so the fix that lowers denial risk most comes first."},
+        {"title": "Pre-fills the dentist's criteria", "example": _first_case([v for v in asked if filled[v.case.case_id]]),
+         "count": f"{sum(filled.values())} of {sum(pending_criteria(v.assessment) for v in asked)} pre-filled",
+         "what": "Suggests an answer where the chart and its note reading agree. Anything unclear or contradicting stays the dentist's call."},
+    ]
+    model = next((p.plan["model"] for rd in readouts.values() if rd for p in rd.plans), None)
+    return {"tasks": tasks, "questions": [q for q, _ in NOTE_QUESTIONS.values()], "model": model,
+            "kept": sum(a["ophi"] == a["value"] for a in answers), "changed": sum(a["ophi"] != a["value"] for a in answers)}
+
+
+def _first_case(views: list[CaseView]):
+    return views[0].case if views else None

@@ -118,7 +118,7 @@ class FirstCheck(BaseModel):
 
 
 class CaseState(BaseModel):
-    assertions: dict[str, dict] = Field(default_factory=dict)  # criterion_id -> {value, by, licence, at, note}
+    assertions: dict[str, dict] = Field(default_factory=dict)  # criterion_id -> {value, by, licence, at, note, ophi}
     confirmations: dict[str, dict] = Field(default_factory=dict)  # proposal artifact id -> {decision, by, at}
     narrative_edits: str | None = None
     fixes: dict[str, dict] = Field(default_factory=dict)  # requirement id -> {by, at, title}: Ophi's safe fixes staff applied
@@ -360,7 +360,8 @@ class CaseService:
     def assert_many(self, case_id: str, items: list[dict], by: str, licence: str | None, role: str = "dentist") -> int:
         """Record several clinician assertions in one store transaction.
 
-        items: list of {criterion_id, value, note}
+        items: list of {criterion_id, value, note, ophi}; `ophi` is what Ophi pre-filled, if anything, so whether the
+        dentist kept or changed it stays on record.
         Returns number recorded. Validation is per-item; unknown criteria or
         values raise and no state is written.
         """
@@ -380,11 +381,13 @@ class CaseService:
         now = self.now().isoformat()
         for it in items:
             cid = it["criterion_id"]
-            st.assertions[cid] = {"value": it["value"], "by": by, "licence": licence, "at": now, "note": it.get("note")}
+            st.assertions[cid] = {"value": it["value"], "by": by, "licence": licence, "at": now, "note": it.get("note"), "ophi": it.get("ophi")}
         st.sign_off = None
         self.store.save(case_id, st)
         for it in items:
-            self.audit(case_id, by, "assert", f"{it['criterion_id']}={it['value']}" + (f" ({it.get('note')})" if it.get("note") else ""))
+            ophi = it.get("ophi")
+            pre = "" if not ophi else ", as Ophi pre-filled" if ophi == it["value"] else f", Ophi pre-filled {ophi}"
+            self.audit(case_id, by, "assert", f"{it['criterion_id']}={it['value']}{pre}" + (f" ({it.get('note')})" if it.get("note") else ""))
         return len(items)
 
     def confirm_proposal(self, case_id: str, artifact_id: str, decision: str, by: str) -> None:

@@ -35,7 +35,7 @@ def test_the_plan_shown_is_the_one_made_for_the_chart_as_it_stands(svc):
     assert r.matching(changed) is None
 
 
-def test_dentist_sees_what_the_note_shows_for_each_criterion(svc):
+def test_the_dentist_sees_laya_pre_fill_only_what_the_note_and_chart_agree_on(svc):
     view = svc.view("tremblay")
     plan = {"model": {"laya": "test"}, "now": {"level": "high", "score": 0.8}, "after_fixes": None, "remaining": None, "drivers": [],
             "fixes": [{"id": "cracked", "kind": "dentist", "title": "Cracked tooth", "why": "", "requirement_id": None, "clause": None}],
@@ -45,8 +45,10 @@ def test_dentist_sees_what_the_note_shows_for_each_criterion(svc):
                  plans=[ScoredPlan(state="as_charted", text_sha256=fingerprint(text_for(view.case)), plan=plan)])
     p = present.dentist_panel(view, rd)
     assert p["now"]["label"] == "High"
-    assert p["reads"]["extensively_restored"] == "not_shown"  # a sure no outweighs the lost cusp
-    assert p["reads"]["endo_healed"] == "not_shown"
-    assert p["reads"]["no_furcation"] == p["reads"]["crown_root_ratio"] == p["reads"]["margin_3mm"] == "supports"
-    assert "active_disease_addressed" not in p["reads"]  # the note is unclear
     assert [f["title"] for f in p["decide"]] == ["Cracked tooth"]  # no requirement asks for it
+    pre = present.pre_reads_for(view, svc.pack, rd)
+    assert pre["extensively_restored"].suggest is None  # the odontogram meets it, but a sure no in the note leaves it to the dentist
+    assert pre["endo_healed"].suggest is None
+    assert pre["no_furcation"].suggest == pre["crown_root_ratio"].suggest == pre["margin_3mm"].suggest == "met"
+    assert pre["active_disease_addressed"].suggest == "met"  # the note is unclear; the chart plans nothing else
+    assert pre["margin_3mm"].on_film and not pre["no_furcation"].on_film

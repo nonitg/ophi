@@ -1,5 +1,5 @@
 // Small behaviours on top of server-rendered forms: actor switch, confirm on destructive forms,
-// unsaved-narrative warning, "Set unanswered to Met", and links that land inside a closed fold.
+// unsaved-narrative warning, pre-filled criteria, and links that land inside a closed fold.
 (function () {
   document.querySelectorAll("select[data-autosubmit]").forEach(function (sel) {
     sel.addEventListener("change", function () { sel.form.submit(); });
@@ -11,16 +11,9 @@
     });
   });
 
-  // The dentist still reviews and presses Record answers; this only fills the rows they left blank, and
-  // never a row where Ophi has a chart note for them to weigh (data-needs-look).
-  document.querySelectorAll("[data-all-met]").forEach(function (btn) {
-    btn.addEventListener("click", function () {
-      btn.closest("form").querySelectorAll(".crit:not([data-needs-look])").forEach(function (row) {
-        if (row.querySelector('input[type="radio"]:checked')) return;
-        var met = row.querySelector('input[type="radio"][value="met"]');
-        if (met) met.checked = true;
-      });
-    });
+  // A pre-filled answer looks like a suggestion until the dentist touches it; then it reads as theirs.
+  document.querySelectorAll(".crit.is-pre").forEach(function (row) {
+    row.addEventListener("change", function () { row.classList.remove("is-pre"); });
   });
 
   // Answers the dentist tapped but didn't record are lost on leaving; say so first.

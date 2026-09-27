@@ -1,10 +1,13 @@
 {% extends "base.html" %}
-{% from "macros.html" import due, turnaround_source, who %}
+{% from "macros.html" import due, turnaround_source, who, laya with context %}
 {% block title %}Board — Ophi{% endblock %}
 {% block content %}
 <header class="board-head">
   <h1>{{ b.headline }}</h1>
-  <p class="board-fresh who-ophi"><span class="mono-mark" aria-hidden="true">O</span><span>Ophi checked {{ plural(b.checked, 'chart') }} against the CDCP rules just now</span></p>
+  <div class="board-fresh-all">
+    <p class="board-fresh who-ophi"><span class="mono-mark" aria-hidden="true">O</span><span>Ophi checked {{ plural(b.checked, 'chart') }} against the CDCP rules just now</span></p>
+    {% if b.scored or b.prefilled %}<p class="board-fresh">{{ laya() }}<span>{% if b.scored %}ranked the fixes on {{ plural(b.scored, 'case') }}{% endif %}{% if b.scored and b.prefilled %} and {% endif %}{% if b.prefilled %}pre-filled {{ plural(b.prefilled, 'clinical criterion', 'clinical criteria') }}{% endif %}</span></p>{% endif %}
+  </div>
 </header>
 
 {% if b.start and b.start.chair %}{% set c = b.start %}{% set visit = c.case.in_chair %}
@@ -62,8 +65,9 @@
         <span class="tile-act">{{ act.title }}{% if act.more %}&nbsp;<span class="more">+{{ act.more }} more</span>{% endif %}</span>
         {% if act.payer %}<span class="tile-note payer" data-voice="payer">Sun Life {{ act.payer.outcome }} it {{ short_date(act.payer.on) }}</span>
         {% elif act.note %}<span class="tile-note">{{ act.note }}</span>{% endif %}
+        {% if act.prefilled %}<span class="tile-pre">{{ laya(link=False) }} pre-filled {{ act.prefilled }}</span>{% endif %}
         {% endif %}
-        {% if c.risk %}<span class="tile-risk">Risk <b class="lvl lvl-{{ c.risk.now }}">{{ RISK_LABEL[c.risk.now] }}</b>{% if c.risk.after %} <span aria-label="after fixes">→</span> <b class="lvl lvl-{{ c.risk.after }}">{{ RISK_LABEL[c.risk.after] }}</b>{% endif %}</span>{% endif %}
+        {% if c.risk %}<span class="tile-risk">{{ laya('Risk', link=False) }} <b class="lvl lvl-{{ c.risk.now }}">{{ RISK_LABEL[c.risk.now] }}</b>{% if c.risk.after %} <span aria-label="after fixes">→</span> <b class="lvl lvl-{{ c.risk.after }}">{{ RISK_LABEL[c.risk.after] }}</b>{% endif %}</span>{% endif %}
         {% if c.timing.text %}<span class="tile-foot">{{ due(c.timing) }}</span>{% endif %}
       </a></li>
       {% endfor %}

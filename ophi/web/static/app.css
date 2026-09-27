@@ -114,6 +114,7 @@ textarea.input { width: 100%; height: auto; padding: 8px 10px; line-height: 1.5;
 /* --- board: one column per step, one card per case ------------------------------------------------ */
 .board-head { margin-bottom: 20px; display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 24px; }
 .board-head h1 { font-size: 28px; font-weight: 500; letter-spacing: -.02em; line-height: 1.15; }
+.board-fresh-all { display: grid; gap: 4px; justify-items: end; }
 .board-fresh { display: flex; align-items: center; gap: 7px; font-size: 13px; color: var(--muted); }
 .board-fresh .mono-mark, .chair-foot .mono-mark { width: 18px; height: 18px; font-size: 9px; }
 
@@ -170,6 +171,8 @@ textarea.input { width: 100%; height: auto; padding: 8px 10px; line-height: 1.5;
 .tile-foot { margin-top: 10px; }
 .tile.is-done .tile-foot { margin-top: 6px; }
 .tile-empty { padding: 14px 4px; font-size: 13px; color: var(--muted); text-align: center; border: 1px dashed var(--rule-strong); border-radius: 10px; }
+.tile-pre { display: flex; align-items: center; gap: 6px; margin-top: 6px; font-size: 12.5px; color: var(--muted); }
+.tile-risk .laya { border: 0; padding: 0; background: none; color: var(--muted); font-weight: 400; font-size: 12px; }
 .tile-risk { display: flex; align-items: center; gap: 4px; white-space: nowrap; margin-top: 6px; font-size: 12px; color: var(--muted); }
 .more { display: inline-block; padding: 0 6px; border-radius: 999px; background: var(--stone); border: 1px solid var(--rule); font-size: 11.5px; color: var(--muted); font-weight: 500; vertical-align: 1px; }
 
@@ -241,7 +244,6 @@ textarea.input { width: 100%; height: auto; padding: 8px 10px; line-height: 1.5;
 .stack .field { width: 100%; max-width: 520px; }
 .gap-below { margin-bottom: 18px; }
 .mt-6 { margin-top: 6px; } .mt-12 { margin-top: 12px; } .mt-18 { margin-top: 18px; }
-.crit-look { margin-top: 4px; font-size: 13px; color: var(--person); }
 
 /* chart gaps inside the step */
 .gaps { list-style: none; padding: 0; display: grid; gap: 10px; }
@@ -277,9 +279,6 @@ textarea.input { width: 100%; height: auto; padding: 8px 10px; line-height: 1.5;
 .effect-none { color: var(--muted); font-weight: 400; }
 .autofix-k { display: flex; align-items: center; gap: 6px; font-weight: 560; }
 .autofix-done { font-size: 13.5px; color: var(--done); }
-.crit-read { margin-top: 4px; font-size: 13px; }
-.read-supports { color: var(--done); }
-.read-not_shown { color: var(--person); }
 .proposal { padding: 12px 14px; border-radius: var(--r-control); background: var(--stone); }
 .proposal-quote { margin: 0 0 10px; font-size: 15px; color: var(--ink); }
 .proposal-ask { font-size: 13.5px; color: var(--ink-soft); margin-right: 4px; }
@@ -293,7 +292,38 @@ textarea.input { width: 100%; height: auto; padding: 8px 10px; line-height: 1.5;
 .chip-pop q { color: var(--ink-soft); }
 .chip-also { color: var(--muted); }
 
+/* Laya, the trained model: a spark on everything it produced. Ink, not a status colour. */
+.laya { display: inline-flex; align-items: center; gap: 4px; padding: 0 7px 0 5px; border: 1px solid var(--rule-strong); border-radius: 999px; background: var(--paper);
+  color: var(--ink); font-size: 12px; font-weight: 600; line-height: 18px; text-decoration: none; white-space: nowrap; vertical-align: 1px; }
+a.laya:hover { border-color: var(--ink-soft); }
+.laya-spark { fill: currentColor; flex: none; }
+.laya-mark { width: 20px; height: 20px; padding: 0; justify-content: center; }
+.src-chart { display: inline-block; padding: 0 6px; border: 1px solid var(--rule); border-radius: 999px; color: var(--muted); font-size: 12px; font-weight: 500; line-height: 18px; white-space: nowrap; }
+.risk-levels .laya { margin-right: 2px; }
+.nav-laya { gap: 5px; }
+.laya-h1 { display: flex; align-items: center; gap: 12px; }
+.laya-h1 .laya-mark { width: 32px; height: 32px; }
+.laya-h1 .laya-spark { width: 16px; height: 16px; }
+.laya-tasks { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; counter-reset: task; }
+.laya-task { padding: 14px 0; border-bottom: 1px solid var(--rule); display: grid; gap: 4px; }
+.laya-task:first-child { padding-top: 2px; }
+.laya-task-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 16px; }
+.laya-task h3 { font-size: 16px; font-weight: 560; }
+.laya-count { font-size: 13px; color: var(--muted); }
+.laya-task p { font-size: 14.5px; color: var(--ink-soft); max-width: 62ch; }
+.laya-see { font-size: 13.5px; width: max-content; }
+.laya-qs { margin-top: 6px; }
+.laya-cant { margin: 0; padding-left: 18px; display: grid; gap: 8px; font-size: 15px; color: var(--ink-soft); max-width: 64ch; }
+
 /* criteria form */
+.crit-group + .crit-group { margin-top: 6px; }
+.crit-group .gap-group { margin-top: 4px; }
+.ev { list-style: none; margin: 6px 0 0; padding: 0; display: grid; gap: 5px; font-size: 13.5px; color: var(--ink-soft); }
+.ev li { display: flex; align-items: baseline; gap: 8px; }
+.ev li > span:last-child { min-width: 0; }
+.ev-against > span:last-child { color: var(--person); }
+.ev-none { color: var(--muted); }
+.crit.is-pre .seg input:checked + span { background: var(--linen); color: var(--ink); }
 .crit-tools { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; justify-self: stretch; }
 #crit-form .crits { justify-self: stretch; }
 .crits { list-style: none; padding: 0; background: var(--paper); border-radius: var(--r-control); border: 1px solid var(--rule); }
