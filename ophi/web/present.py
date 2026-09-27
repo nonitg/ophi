@@ -475,7 +475,7 @@ def card_action(view: CaseView, actor: Actor, today: date, order: list[str] | No
     stage, st = view.stage, view.state
     provider = view.case.treatment.provider.name
     crit = pending_criteria(view.assessment)
-    out: dict = {"title": "", "more": 0, "note": None, "payer": None, "waiting": None, "prefilled": 0}
+    out: dict = {"title": "", "more": 0, "note": None, "payer": None, "waiting": None, "prefilled": 0, "criteria": crit}
     if stage in CHART_STAGES and actor.is_dentist and _can_confirm_early(view) and not in_chair(view):
         out.update(title=f"Confirm {plural(crit, 'clinical criterion', 'clinical criteria')}", prefilled=prefilled)
     elif stage == Stage.PATIENT:
@@ -873,7 +873,8 @@ def criteria_groups(view: CaseView, rows: list[dict]) -> dict:
     call = [r for r in open_rows if not (r["pre"] and r["pre"].suggest)]
     filled = [r for r in open_rows if r not in call]
     pa = latest_pa(view.case)
-    film = f"Check these on the PA of #{view.case.requested_tooth}, {short_date(pa)}" if pa else f"No PA of #{view.case.requested_tooth} on file to check these on"
+    film = (f"Look at the PA of #{view.case.requested_tooth} ({short_date(pa)}), then confirm these. Laya reads notes, not films." if pa
+            else f"No PA of #{view.case.requested_tooth} on file. Laya reads notes, not films.")
     groups = [("call", "Your call", None, call),
               ("chart", "Pre-filled from the chart and note", None, [r for r in filled if not r["pre"].on_film]),
               ("film", "Pre-filled from the note", film, [r for r in filled if r["pre"].on_film]),

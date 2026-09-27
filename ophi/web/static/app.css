@@ -48,7 +48,7 @@ q { quotes: "“" "”"; }
 .brand { display: block; color: var(--ink); line-height: 0; }
 .brand svg { height: 19px; width: auto; }
 .nav { display: flex; gap: 22px; height: 100%; }
-.nav a { display: flex; align-items: center; height: 100%; color: var(--muted); text-decoration: none; font-weight: 500; box-shadow: inset 0 -2px 0 transparent; }
+.nav a { display: flex; align-items: center; height: 100%; white-space: nowrap; color: var(--muted); text-decoration: none; font-weight: 500; box-shadow: inset 0 -2px 0 transparent; }
 .nav a:hover { color: var(--ink); }
 .nav a[aria-current="page"] { color: var(--ink); box-shadow: inset 0 -2px 0 var(--ink); }
 .me { margin-left: auto; display: flex; align-items: center; gap: 4px; padding: 3px; border-radius: 999px; background: var(--stone); border: 1px solid var(--rule); }
@@ -172,8 +172,8 @@ textarea.input { width: 100%; height: auto; padding: 8px 10px; line-height: 1.5;
 .tile.is-done .tile-foot { margin-top: 6px; }
 .tile-empty { padding: 14px 4px; font-size: 13px; color: var(--muted); text-align: center; border: 1px dashed var(--rule-strong); border-radius: 10px; }
 .tile-pre { display: flex; align-items: center; gap: 6px; margin-top: 6px; font-size: 12.5px; color: var(--muted); }
-.gap-effect .laya { width: auto; height: auto; margin-right: 6px; vertical-align: 0; }
-.tile-risk .laya, .gap-effect .laya { border: 0; padding: 0; background: none; color: var(--muted); font-weight: 400; font-size: 12px; }
+.gap-effect .laya, .tile-pre .laya { width: auto; height: auto; margin-right: 6px; vertical-align: 0; }
+.tile-risk .laya, .gap-effect .laya, .tile-pre .laya { border: 0; padding: 0; background: none; color: var(--muted); font-weight: 400; font-size: 12px; }
 .tile-risk { display: flex; align-items: center; gap: 4px; white-space: nowrap; margin-top: 6px; font-size: 12px; color: var(--muted); }
 .more { display: inline-block; padding: 0 6px; border-radius: 999px; background: var(--stone); border: 1px solid var(--rule); font-size: 11.5px; color: var(--muted); font-weight: 500; vertical-align: 1px; }
 
@@ -328,7 +328,14 @@ a.laya:hover { border-color: var(--ink-soft); }
 .crit-foot { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; margin-top: 6px; }
 .crit-foot .crit-meta { margin-top: 0; }
 .crit-foot .crit-note[open] { flex-basis: 100%; }
-.crit.is-pre .seg input:checked + span { background: var(--linen); color: var(--ink); }
+/* A suggestion is dashed until the dentist touches it or confirms it; then it reads as their answer. */
+.crit-pick { display: grid; gap: 4px; justify-items: end; }
+.crit.is-pre .seg input:checked + span { background: var(--paper); color: var(--ink); outline: 1.5px dashed var(--ink-soft); outline-offset: -4px; }
+.crit-sugg { font-size: 12px; color: var(--muted); }
+.crit:not(.is-pre) .crit-sugg { display: none; }
+.crit-look { color: var(--ink); font-weight: 500; }
+.crit-submit { justify-self: stretch; position: sticky; bottom: 0; z-index: 5; margin: 0 -24px -22px; padding: 14px 24px; background: var(--linen); border-top: 1px solid var(--rule-strong); border-radius: 0 0 var(--r-panel) var(--r-panel); }
+.now-ophi:has(.laya-mark) { align-items: flex-start; }
 .crit-tools { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; justify-self: stretch; }
 #crit-form .crits { justify-self: stretch; }
 .crits { list-style: none; padding: 0; background: var(--paper); border-radius: var(--r-control); border: 1px solid var(--rule); }
@@ -502,7 +509,7 @@ mark.q-rejected { background: none; text-decoration: line-through; color: var(--
 @media (max-width: 860px) {
   :root { --gutter: 16px; }
   .bar-in { gap: 18px; height: auto; min-height: 56px; flex-wrap: wrap; padding-top: 8px; padding-bottom: 0; }
-  .nav { order: 3; width: 100%; height: 40px; gap: 18px; }
+  .nav { order: 3; width: 100%; height: 40px; gap: 14px; font-size: 14px; }
   .me > span { display: none; }
   .page { padding-top: 22px; }
   .head h1, .case-head h1 { font-size: 26px; }
@@ -521,6 +528,8 @@ mark.q-rejected { background: none; text-decoration: line-through; color: var(--
   .now { padding: 18px 16px; }
   .options, .ev-grid { grid-template-columns: minmax(0, 1fr); }
   .crit { grid-template-columns: minmax(0, 1fr); }
+  .crit-pick { justify-items: stretch; }
+  .crit-submit { margin: 0 -16px -18px; padding: 12px 16px; }
   .seg { display: flex; }
   .seg label { flex: 1; }
   .seg span { padding: 11px 8px; text-align: center; }

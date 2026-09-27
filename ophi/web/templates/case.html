@@ -141,12 +141,12 @@
     {% if actor.is_dentist %}
     {% if plan %}{{ risk_block(plan, after_label='After the fixes') }}{% endif %}
     {{ dentist_extras(plan) }}
-    <p class="now-lead now-ophi">{{ laya('') }}<span>{% if crit.prefilled %}Ophi pre-filled {{ crit.prefilled }} of {{ crit.open }} from the chart and Laya's reading of the note.{% if crit.call %} {{ crit.call }} need{{ 's' if crit.call == 1 }} your call.{% endif %}{% elif crit.open %}Nothing in the chart or note to pre-fill these from.{% else %}Every criterion is recorded.{% endif %}{% if s.state == 'open' %} {{ ACTORS['coordinator'].name }} is still fixing the chart; you can confirm now.{% endif %}</span></p>
+    <p class="now-lead now-ophi">{{ laya('') }}<span>{% if crit.call %}<b>{{ crit.call }} need{{ 's' if crit.call == 1 }} your call.</b> {% endif %}{% if crit.prefilled %}Laya pre-filled {{ 'the other ' if crit.call else 'all ' }}{{ crit.prefilled }} from the chart and the note.{% elif not crit.open %}Every criterion is recorded.{% endif %}{% if s.state == 'open' %} You can confirm while {{ ACTORS['coordinator'].name }} finishes the chart.{% endif %}</span></p>
     <form method="post" action="{{ BASE }}/cases/{{ cid }}/assert/bulk" id="crit-form" class="stack">
       {% for g in crit.groups %}
       <div class="crit-group crit-group-{{ g.key }}">
         <h3 class="gap-group">{{ g.title }}{% if g.key != 'recorded' %} <span class="num muted">{{ g.rows|length }}</span>{% endif %}</h3>
-        {% if g.lead %}<p class="gap-lead">{{ g.lead }}</p>{% endif %}
+        {% if g.lead %}<p class="gap-lead crit-look">{{ g.lead }}</p>{% endif %}
         <ul class="crits">
           {% for c in g.rows %}{% set pre = c.pre %}{% set pick = c.current.value if c.current else (pre.suggest if pre else None) %}
           <li class="crit{% if not c.current and pre and pre.suggest %} is-pre{% endif %}">
@@ -166,17 +166,23 @@
                 <details class="crit-note"{% if c.current and c.current.note %} open{% endif %}><summary>Add a note</summary><input class="input" type="text" name="note_{{ c.id }}" value="{{ (c.current.note or '') if c.current else '' }}" aria-label="Note for {{ c.label }}"></details>
               </div>
             </div>
-            <div class="seg" role="radiogroup" aria-label="{{ c.label }}">
-              {% for val, lab in [('met', 'Met'), ('not_met', 'Not met'), ('not_applicable', 'N/A')] %}
-              <label><input type="radio" name="value_{{ c.id }}" value="{{ val }}" {% if pick == val %}checked{% endif %}><span>{{ lab }}</span></label>
-              {% endfor %}
+            <div class="crit-pick">
+              <div class="seg" role="radiogroup" aria-label="{{ c.label }}">
+                {% for val, lab in [('met', 'Met'), ('not_met', 'Not met'), ('not_applicable', 'N/A')] %}
+                <label><input type="radio" name="value_{{ c.id }}" value="{{ val }}" {% if pick == val %}checked{% endif %}><span>{{ lab }}</span></label>
+                {% endfor %}
+              </div>
+              {% if not c.current and pre and pre.suggest %}<span class="crit-sugg">Suggested by Laya</span>{% endif %}
             </div>
           </li>
           {% endfor %}
         </ul>
       </div>
       {% endfor %}
-      <div class="btn-row"><button class="btn btn-primary" type="submit">Confirm answers</button><span class="small muted">{% if view.signed %}Changing an answer voids your signature.{% else %}Recorded under your name and licence. Ophi's pre-fills count only once you confirm them.{% endif %}</span></div>
+      <div class="btn-row crit-submit">
+        <button class="btn btn-primary" type="submit" data-crit-count>{% if crit.prefilled %}Confirm {{ plural(crit.prefilled, 'answer') }}{% else %}Confirm answers{% endif %}</button>
+        <span class="small muted" data-crit-left>{% if crit.call %}{{ plural(crit.call, 'criterion still needs', 'criteria still need') }} your answer. {% endif %}{% if view.signed %}Changing an answer voids your signature.{% else %}Recorded under your name and licence.{% endif %}</span>
+      </div>
     </form>
     {% else %}
     {% set answered = criteria|selectattr('current')|list|length %}

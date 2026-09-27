@@ -12,7 +12,7 @@ with a "Set the rest to Met" button that ticked rows without weighing the chart.
 
 | Before | Now |
 |---|---|
-| Dentist answers every criterion from scratch | Ophi **pre-fills** a criterion when the chart and Laya's reading of the note back it and nothing contradicts it. Rows group into **Your call**, **Pre-filled from the chart and note**, **Pre-filled from the note** (with "Check these on the PA of #24, May 14"), then **Recorded**. One **Confirm answers** records them |
+| Dentist answers every criterion from scratch | Ophi **pre-fills** a criterion when the chart and Laya's reading of the note back it and nothing contradicts it. Rows group into **Your call**, **Pre-filled from the chart and note**, **Pre-filled from the note** (with "Look at the PA of #24 (May 14), then confirm these"), then **Recorded**. One **Confirm N answers** records them |
 | "Set the rest to Met" | Removed. Pre-fills are evidence-backed, and a contradiction always goes to Your call |
 | "The note supports it" on some rows | Each row lists its evidence, tagged **Chart** or **✦ Laya** |
 | Model = `Models: laya-cdcp … risk-tree …` footnote | A **✦ Laya** chip on every model output: denial risk, fix ranking, pre-fills, board cards. It links to the new **Laya** page (nav), which lists the model's four tasks with live counts, what it can't do, how it learns, and how it was tested |
@@ -38,9 +38,12 @@ with a "Set the rest to Met" button that ticked rows without weighing the chart.
    criteria are still pre-filled. Laya read the whole request when scoring; reusing its answers for an unchanged note
    is an approximation, acceptable because the dentist checks the film-judged rows on the new film anyway.
 6. **Every confirmation is a label.** The store keeps what Ophi pre-filled next to the dentist's answer, and the
-   audit log says "as Ophi pre-filled" or "Ophi pre-filled met". The Laya page shows how many pre-fills the dentist
+   audit log says "as Laya pre-filled" or "Laya pre-filled met". The Laya page shows how many pre-fills the dentist
    kept. That agreement is the label real data would train on (`../outcomes-explainer.md` §6.2).
-7. **One ink spark, no new colour.** Colour still means status. The spark is the widely used AI mark, and the chip
+7. **A suggestion looks like one.** A pre-filled answer has a dashed outline and "Suggested by Laya" until the dentist
+   touches or confirms it. The confirm bar sticks to the bottom of the screen and counts what it will record and what's
+   still open. (From a fresh-eyes critique of the first build.)
+8. **One ink spark, no new colour.** Colour still means status. The spark is the widely used AI mark, and the chip
    links to the page that explains it, so nothing needs a legend.
 
 ## Verified

@@ -70,7 +70,7 @@ with sync_playwright() as p:
     assert page.locator(".crit.is-pre input:checked").count() > 0, "Ophi pre-fills what the chart and note agree on"
     for i in range(calls.count()):  # the dentist answers what Ophi left to her, and confirms the rest
         calls.nth(i).locator('label:has-text("Met")').first.click()
-    page.get_by_role("button", name="Confirm answers").click()
+    page.locator("[data-crit-count]").click()
     expect(page.locator(".done-note")).to_have_text("Criteria recorded.")
     shot(page, "tremblay-criteria-recorded")
 
@@ -129,7 +129,7 @@ with sync_playwright() as p:
     calls = page.locator(".crit-group-call .crit")
     for i in range(calls.count()):
         calls.nth(i).locator('label:has-text("Met")').first.click()
-    page.get_by_role("button", name="Confirm answers").click()
+    page.locator("[data-crit-count]").click()
     page.get_by_role("link", name="Review and sign").first.click()
     expect(page.locator(".test-run")).to_be_visible()
     page.get_by_role("button", name="Sign test run as Dr. Priya Lau (ON-48213)").click()

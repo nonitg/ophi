@@ -4,7 +4,7 @@
 {% block content %}
 <header class="head">
   <h1 class="laya-h1">{{ laya('', link=False) }}Laya</h1>
-  <p class="lede">Ophi's model, trained on {{ LAYA.TRAINED_ON }} past crown decisions. It reads, estimates and suggests. People decide, sign and send.</p>
+  <p class="lede">Ophi's model, trained so far on {{ LAYA.TRAINED_ON }} synthetic crown decisions. It reads, estimates and suggests. People decide, sign and send.</p>
 </header>
 
 <div class="report">
@@ -35,7 +35,8 @@
   <section class="fact">
     <h2 class="fact-k">How it learns</h2>
     <div>
-      <p class="fact-v">Every decision you record from Sun Life, and every pre-fill the dentist keeps or changes, becomes a training example.</p>
+      <p class="fact-v">Every decision you record from Sun Life, and every pre-fill the dentist keeps or changes, becomes a training example, with patient identifiers removed.</p>
+      <p class="fact-more">Laya runs on Ophi's own hardware in Canada, so notes never go to an outside AI service.</p>
       <p class="fact-more">{% if m.kept or m.changed %}So far in this demo, {{ ACTORS['dentist'].name }} kept <b class="num">{{ m.kept }}</b> of {{ m.kept + m.changed }} pre-fills.{% else %}No pre-fills confirmed yet in this demo.{% endif %}</p>
     </div>
   </section>
@@ -47,12 +48,10 @@
       <ul class="counts">
         {% for label, pct in LAYA.DENIED_BY_LEVEL %}<li><span>Rated <b class="lvl lvl-{{ label }}">{{ RISK_LABEL[label] }}</b>, then denied</span><span class="num">{{ pct }}%</span></li>{% endfor %}
       </ul>
-      <p class="counts-k">How often a denied request ranks riskier than one Sun Life didn't deny (1.0 is perfect, 0.5 a coin flip)</p>
-      <ul class="counts">
-        {% for label, auc in LAYA.AUC %}<li><span>{{ label }}</span><span class="num">{{ '%.2f'|format(auc) }}</span></li>{% endfor %}
-      </ul>
+      <p class="fact-more">Adding Laya's reading of the note made the risk ranking better than the rules and chart values alone.</p>
       <p class="fact-more">Right on "{{ LAYA.NOTE_ACCURACY.question }}" {{ LAYA.NOTE_ACCURACY.tuned }}% of the time, against {{ LAYA.NOTE_ACCURACY.untrained }}% before training. Also trained to name the reason behind a vague denial letter, but it's right only {{ LAYA.VAGUE_REASON_TOP1 }}% of the time, so Ophi doesn't show it.</p>
-      <p class="source">Synthetic training data: this shows the method works, not how Sun Life decides. Real decisions come before any clinic relies on it.{% if m.model %} Versions: <span class="mono">{{ m.model.values()|join('; ') }}</span>.{% endif %}</p>
+      <p class="source">Synthetic training data: this shows the method works, not how Sun Life decides. Real decisions come before any clinic relies on it.</p>
+      {% if m.model %}<details class="why"><summary>Details</summary><p class="small muted">Ranking score on held-out clinics (AUC, where 0.5 is a coin flip): {% for label, auc in LAYA.AUC %}{{ label|lower }} {{ '%.2f'|format(auc) }}{{ ', ' if not loop.last }}{% endfor %}. Versions: <span class="mono">{{ m.model.values()|join('; ') }}</span>.</p></details>{% endif %}
     </div>
   </section>
 </div>

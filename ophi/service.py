@@ -386,7 +386,7 @@ class CaseService:
         self.store.save(case_id, st)
         for it in items:
             ophi = it.get("ophi")
-            pre = "" if not ophi else ", as Ophi pre-filled" if ophi == it["value"] else f", Ophi pre-filled {ophi}"
+            pre = "" if not ophi else ", as Laya pre-filled" if ophi == it["value"] else f", Laya pre-filled {ophi}"
             self.audit(case_id, by, "assert", f"{it['criterion_id']}={it['value']}{pre}" + (f" ({it.get('note')})" if it.get("note") else ""))
         return len(items)
 

@@ -16,6 +16,20 @@
     row.addEventListener("change", function () { row.classList.remove("is-pre"); });
   });
 
+  // The confirm button says how many answers it will record, and the line beside it how many are still open.
+  var critForm = document.getElementById("crit-form"), countBtn = document.querySelector("[data-crit-count]");
+  if (critForm && countBtn) {
+    var left = document.querySelector("[data-crit-left]"), tail = left ? left.textContent.replace(/^.*your answer\. /, "") : "";
+    critForm.addEventListener("change", function () {
+      var rows = critForm.querySelectorAll(".crit-group:not(.crit-group-recorded) .crit");
+      var answered = 0;
+      rows.forEach(function (r) { if (r.querySelector("input[type=radio]:checked")) answered++; });
+      var open = rows.length - answered;
+      countBtn.textContent = answered ? "Confirm " + answered + (answered === 1 ? " answer" : " answers") : "Confirm answers";
+      if (left) left.textContent = (open ? open + (open === 1 ? " criterion still needs" : " criteria still need") + " your answer. " : "") + tail;
+    });
+  }
+
   // Answers the dentist tapped but didn't record are lost on leaving; say so first.
   var crit = document.getElementById("crit-form");
   if (crit) {
