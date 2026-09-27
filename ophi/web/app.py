@@ -104,13 +104,19 @@ def _sync_pms(app) -> None:
         log.warning(f"PMS sync skipped: {e}")
 
 
+_unread: dict[str, str] = {}  # Sun Life's words -> why the reader couldn't name them, so the card says so
+
+
 def _note_reason(text: str) -> str | None:
     """Which denial reason Sun Life's note names, when Gemini can say; otherwise staff pick it."""
     try:
-        return letters.read_note(text).reason_key
+        key = letters.read_note(text).reason_key
     except letters.LetterError as e:
         log.warning(f"PMS sync: couldn't read Sun Life's note: {e}")
+        _unread[text] = str(e)
         return None
+    _unread.pop(text, None)
+    return key
 
 
 def _base(request: Request) -> str:
@@ -325,6 +331,8 @@ def _case_ctx(request: Request, view: CaseView, rd) -> dict:
     fx = present.fix_panel(view, rd, view.pack, gaps) if view.stage in workflow.CHART_STAGES else None
     ml = present.ml_debug(view, rd)
     log.info(present.ml_report(ml))
+    d = view.state.decision
+    unread = _unread.get(d.reason) if d and d.reason and not d.reason_key else None
     return dict(view=view, case=view.case, a=view.assessment, stage=view.stage,
                 steps=steps, now=now, waiting=present.waiting_on(now, actor, view.case.treatment.provider.name, timing),
                 next_case=present.next_up(svc.queue(), view, actor, today),
@@ -336,7 +344,7 @@ def _case_ctx(request: Request, view: CaseView, rd) -> dict:
                 criteria=relevant, crit=present.criteria_groups(view, relevant), criteria_other=other, activity=present.activity(svc.store.audit_log(case_id)),
                 applicable=[r for r in view.assessment.requirements if r.applicable],
                 not_applicable=[r for r in view.assessment.requirements if not r.applicable],
-                reasons=workflow.REASONS,
+                reasons=workflow.REASONS, reason_unread=unread,
                 # A callable, not a value: the reason can come from the letter just read (`proposed`) or
                 # from the recorded decision, and only the template knows which it is showing.
                 denial_for=lambda key: why_denied.explain_denial(view.assessment, key, view.pack))

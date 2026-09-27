@@ -4,6 +4,7 @@ from __future__ import annotations
 import json
 from datetime import date, datetime
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 from fastapi.testclient import TestClient
@@ -84,6 +85,50 @@ def test_resubmission_goes_to_the_column_the_reason_names_and_the_old_claim_stay
     assert v.stage == Stage.PATIENT and v.state.submitted_on is None
     svc.resolve_ask(YOKOYAMA, "Kim Osei")
     assert svc.view(YOKOYAMA).state.ask.done_by == "Kim Osei"
+
+
+def _quota_error(quota_id: str, retry_delay: str | None):
+    from google.genai import errors
+    details = [{"@type": "type.googleapis.com/google.rpc.QuotaFailure", "violations": [{"quotaId": quota_id}]}]
+    if retry_delay:
+        details.append({"@type": "type.googleapis.com/google.rpc.RetryInfo", "retryDelay": retry_delay})
+    return errors.ClientError(429, {"error": {"message": "quota", "details": details}})
+
+
+def _reader_raising(*errs):
+    """A Gemini stub that raises each error in turn, then answers."""
+    pending = list(errs)
+
+    def generate_content(model, contents, config):
+        if pending:
+            raise pending.pop(0)
+        return SimpleNamespace(parsed=letters.LetterReading(outcome="denied", reason_key="missing_radiograph"))
+
+    return lambda: SimpleNamespace(models=SimpleNamespace(generate_content=generate_content))
+
+
+def test_a_short_throttle_is_waited_out(monkeypatch):
+    """A burst throttle clears in a second or two: the read should wait rather than send staff to the picker."""
+    slept = []
+    monkeypatch.setattr(letters.time, "sleep", slept.append)
+    throttle = _quota_error("GenerateRequestsPerMinutePerProjectPerModel-FreeTier", "2s")
+    monkeypatch.setattr(letters, "_gemini_client", _reader_raising(throttle, throttle))
+    assert letters.read_note("Predetermination not approved.").reason_key == "missing_radiograph"
+    assert slept == [2.0, 2.0]
+
+
+def test_daily_cap_tells_staff_to_pick_the_reason_themselves(monkeypatch):
+    monkeypatch.setattr(letters.time, "sleep", lambda s: None)
+    err = _quota_error("GenerateRequestsPerDayPerProjectPerModel-FreeTier", "48s")
+    assert letters._daily_cap(err) and letters._retry_after(err) is None
+
+    def always_capped(model, contents, config):
+        raise err
+
+    monkeypatch.setattr(letters, "_gemini_client", lambda: SimpleNamespace(models=SimpleNamespace(generate_content=always_capped)))
+    with pytest.raises(letters.LetterError) as e:
+        letters.read_note("Predetermination not approved.")
+    assert str(e.value) == letters.DAILY_CAP
 
 
 def test_read_letter_passes_the_file_through_and_rejects_other_types():

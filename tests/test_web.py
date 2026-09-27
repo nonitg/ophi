@@ -229,6 +229,20 @@ def test_resubmit_keeps_the_denied_attempt(seeded):
     assert "Attempt 1" in page and "Denied as per the plan criteria." in page
 
 
+def test_resubmit_card_says_when_the_reader_was_unreachable(tmp_path, monkeypatch):
+    """A reader that can't be reached is not the same as a denial with no nameable reason: staff are told which."""
+    from ophi import letters
+    from ophi.web import app as web_app
+    monkeypatch.setattr(letters, "read_note", lambda text: (_ for _ in ()).throw(letters.LetterError("Gemini couldn't read the letter (429).")))
+    monkeypatch.setattr(web_app, "_unread", {})
+    svc = CaseService(store=Store(tmp_path / "state"))
+    app = create_app(auto_rules_check=False, svc=svc, packets_dir=tmp_path / "packets", seed_demo=True)
+    with TestClient(app, follow_redirects=False) as c:
+        page = c.get("/cases/marchand").text
+    assert "Ophi couldn't name Sun Life's reason on its own." in page
+    assert "Gemini couldn&#39;t read the letter (429)." in page
+
+
 def test_recover_call_list_records_a_follow_up(seeded):
     page = seeded.get("/recover").text
     assert "never resubmitted" in page

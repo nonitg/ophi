@@ -7,6 +7,7 @@ was trained to predict a reason from the chart, not to read letters.
 
 from __future__ import annotations
 
+import time
 from collections.abc import Callable
 from datetime import date
 from typing import Literal
@@ -37,6 +38,8 @@ Reasons: {"; ".join(f"{k} = {v[0]}" for k, v in REASONS.items())}."""
 
 NO_KEY = "Ophi can't reach Gemini: set GEMINI_API_KEY for the server."
 UNREADABLE = "Gemini couldn't read the letter. Record the decision by hand."
+# The free tier's 20 reads a day, spent. Waiting inside the request won't clear it, so say so and let staff move on.
+DAILY_CAP = "Gemini's reads for today are used up. Pick the reason yourself, or try again tomorrow."
 
 
 class LetterReading(BaseModel):
@@ -68,6 +71,50 @@ def _gemini_client():
     return _client
 
 
+# A burst throttle clears in a second or two and is worth waiting out; the free tier's daily cap is not, and
+# retrying it only spends what quota is left. Gemini says which through RetryInfo and QuotaFailure, so honour that.
+RETRY_UNDER_SECONDS = 5.0
+RETRIES = 2
+
+
+def _error_details(err) -> list[dict]:
+    return (err.details or {}).get("error", {}).get("details", []) if isinstance(err.details, dict) else []
+
+
+def _daily_cap(err) -> bool:
+    """Whether the 429 is the per-day request cap, which no amount of waiting inside one request will clear."""
+    return any(v.get("quotaId", "").startswith("GenerateRequestsPerDay")
+               for d in _error_details(err) if d.get("@type", "").endswith("QuotaFailure")
+               for v in d.get("violations", []))
+
+
+def _retry_after(err) -> float | None:
+    """How long to wait before trying again, when waiting is worth it. None when it isn't."""
+    if _daily_cap(err):
+        return None
+    for d in _error_details(err):
+        if d.get("@type", "").endswith("RetryInfo") and (delay := str(d.get("retryDelay", ""))).endswith("s"):
+            try:
+                return float(delay[:-1])
+            except ValueError:
+                return None
+    return 1.0  # throttled without a delay named: one short wait is still worth a try
+
+
+def _call(contents, config):
+    """One read, waiting out a short throttle. A daily cap or a long delay comes straight back to the desk."""
+    from google.genai import errors
+
+    for attempt in range(RETRIES + 1):
+        try:
+            return _gemini_client().models.generate_content(model=MODEL, contents=contents, config=config)
+        except (errors.ClientError, errors.ServerError) as e:
+            wait = _retry_after(e) if e.code in (429, 500, 502, 503, 504) else None
+            if wait is None or wait > RETRY_UNDER_SECONDS or attempt == RETRIES:
+                raise
+            time.sleep(wait)
+
+
 def gemini_reader(parts: list[Part]) -> LetterReading:
     import httpx
     from google.genai import errors, types
@@ -76,12 +123,14 @@ def gemini_reader(parts: list[Part]) -> LetterReading:
     config = types.GenerateContentConfig(system_instruction=SYSTEM, response_mime_type="application/json",
                                          response_schema=LetterReading)
     try:
-        res = _gemini_client().models.generate_content(model=MODEL, contents=contents, config=config)
+        res = _call(contents, config)
     except ValueError as e:  # the SDK found no key at all
         raise LetterError(NO_KEY) from e
     except errors.ClientError as e:
         if e.code in (401, 403):
             raise LetterError(NO_KEY) from e
+        if e.code == 429 and _daily_cap(e):
+            raise LetterError(DAILY_CAP) from e
         raise LetterError(f"Gemini couldn't read the letter ({e.code}). Try again, or record the decision by hand.") from e
     except errors.ServerError as e:
         raise LetterError(f"Gemini couldn't read the letter ({e.code}). Try again, or record the decision by hand.") from e

@@ -208,7 +208,8 @@
         <h3>Send a new request</h3>
         <p>{{ provider }} signs it again, then you send it.</p>
         {% set key = proposed.reason_key if proposed else st.decision.reason_key %}
-        {% if reason_error %}<p class="note note-warn">{{ reason_error }}</p>{% endif %}
+        {% if reason_error %}<p class="note note-warn">{{ reason_error }}</p>
+        {% elif not key and reason_unread %}<p class="note note-warn">Ophi couldn't name Sun Life's reason on its own. {{ reason_unread }}</p>{% endif %}
         {% if proposed and not proposed.reason_key %}<p class="note note-warn">Ophi couldn't tell which reason Sun Life's words name. Pick it below.</p>{% endif %}
         {% if not key %}
         <form method="post" action="{{ BASE }}/cases/{{ cid }}/reason" enctype="multipart/form-data" class="stack letter-form">
