@@ -2,7 +2,7 @@
 # April 2026 replacement for retired 99333.
 id: park
 as_of: 2026-09-14
-patient: { id: "7318", name: "Min-jun Park", dob: 1990-02-19, sex: M, cdcp_client_id: "CDCP-6608-4127" }
+patient: { id: "7318", name: "Min-jun Park", dob: 1990-02-19, sex: M, cdcp_client_id: "CDCP-6608-4127", phone: "647-555-0129", email: "minjun.park@example.ca" }
 provider: { name: "Dr. Priya Lau", licence: "ON-48213" }
 treatment:
   code: "27301"

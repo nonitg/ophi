@@ -73,7 +73,8 @@ def chart_to_dsl(chart: dict, crown: dict, *, case_id: str, as_of: date, provide
     d = {
         "id": case_id, "as_of": as_of, "clinic": clinic, "source": source,
         "patient": {"id": str(p["pid"]), "name": f"{p.get('given', '')} {p.get('surname', '')}".strip().title(),
-                    "dob": p.get("dob"), "sex": p.get("gender"), "cdcp_client_id": cdcp.get("certificate") if cdcp else None},
+                    "dob": p.get("dob"), "sex": p.get("gender"), "cdcp_client_id": cdcp.get("certificate") if cdcp else None,
+                    "phone": p.get("phone") or p.get("mobile"), "email": p.get("email")},
         "provider": {"name": names.get(dentist, f"Dentist {dentist}".strip()), "licence": None},
         "treatment": {"code": crown["code"], "description": crown.get("description"), "tooth": crown["tooth_fdi"],
                       "planned": crown.get("date"), "fee_cents": round(crown["fee"] * 100) if crown.get("fee") else None,

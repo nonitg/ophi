@@ -5,10 +5,8 @@
 # Usage: ./scripts/demo-abeldent.sh  — or:  make demo-abeldent. Demo files instead: scripts/demo-real.sh
 # Laya + LightGBM run on every case page by default; OPHI_LIVE_ML=0 skips them (fast start, no fix plan).
 set -euo pipefail
-ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-set -a; [ -f "$ROOT/.env" ] && . "$ROOT/.env"; set +a
 export USE_ABELDENT_PMS=true
-export OPHI_VAR_DIR="${OPHI_VAR_DIR:-$ROOT/var/abeldent}"
+. "$(dirname "$0")/demo-env.sh"
 HOST="${HOST:-127.0.0.1}"
 PORT="${PORT:-8765}"
 "$ROOT/lab/vm/vm" sql "SELECT 1 AS one" >/dev/null || { echo "ABELDent VM unreachable: lab/vm/vm status" >&2; exit 1; }

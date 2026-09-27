@@ -2,7 +2,7 @@
 # section is Unknown — the driver cannot see radiographs. Absent and unseen must read differently.
 id: rosco
 as_of: 2026-09-17
-patient: { id: "33", name: "Patrica Rosco", dob: 1968-02-14, sex: F }
+patient: { id: "33", name: "Patrica Rosco", dob: 1968-02-14, sex: F, phone: "613-555-0122" }
 provider: { name: "Dr. Priya Lau", licence: "ON-48213" }
 treatment:
   code: "27211"

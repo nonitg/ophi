@@ -16,6 +16,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 from ophi.sources.abeldent import LIST_APPOINTMENTS, LIST_PROVIDERS, SEARCH_PATIENTS, list_predeterminations
+from ophi.sources.fictional_contact import scrub_chart, scrub_sql_rows
 from ophi.sources.pms_lookback import PmsLookBack
 from ophi.sources.pms_repository import AbelDentPmsRepository, sql_key
 
@@ -66,8 +67,9 @@ def main() -> None:
     out.write_text(json.dumps({
         "recorded_at": datetime.now(UTC).isoformat(timespec="seconds"),
         "planned_pids": planned,
-        "charts": {str(pid): chart for pid, chart in sorted(rec.charts.items())},
-        "sql": list(rec.sql_rows.values()),
+        "charts": {str(pid): scrub_chart(chart) for pid, chart in sorted(rec.charts.items())},
+        "sql": [e | {"rows": scrub_sql_rows(e["rows"]) if e["query"] == SEARCH_PATIENTS else e["rows"]}
+                for e in rec.sql_rows.values()],
     }, indent=1, default=str))
     print(f"wrote {out} ({out.stat().st_size / 1e6:.1f} MB, {len(rec.charts)} charts, {len(rec.sql_rows)} queries)")
 

@@ -1,6 +1,6 @@
 # Demo script: about three minutes, driven live
 
-Start: `make demo`, open http://127.0.0.1:8765, click **Start over** in the demo banner, and view as **Kim Osei**
+Start: `make demo`, open http://127.0.0.1:8765, and view as **Kim Osei**
 (front desk). The demo clock is fixed at Thursday Sep 17, 2026. Every patient is fictional.
 
 The story in one line: *a crown request is cheapest to complete while the patient is still in the chair, and Ophi
@@ -79,7 +79,7 @@ Open **Results**.
 > "Ophi doesn't predict Sun Life, and it doesn't send. It makes sure what goes out is complete, and that the patient
 > doesn't have to come back for it."
 
-If anything goes wrong mid-demo, **Start over** in the banner resets every case.
+If anything goes wrong mid-demo, `make reset` puts every case back where it started (re-seeds the demo's ABELDent rows too); reload the board about 30s later.
 
 ## Cases and what each shows
 

@@ -2,7 +2,7 @@
 # so every dated item is also current as of 2026-09-17.
 id: marchand
 as_of: 2026-08-26
-patient: { id: "8463", name: "Luc Marchand", dob: 1962-03-27, sex: M, cdcp_client_id: "CDCP-4730-2618" }
+patient: { id: "8463", name: "Luc Marchand", dob: 1962-03-27, sex: M, cdcp_client_id: "CDCP-4730-2618", phone: "514-555-0188", email: "luc.marchand@example.ca" }
 provider: { name: "Dr. Priya Lau", licence: "ON-48213" }
 treatment:
   code: "27211"

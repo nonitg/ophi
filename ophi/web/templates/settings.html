@@ -46,10 +46,8 @@
 
     <div class="panel">
       <h2>Demo data</h2>
-      <p class="small muted" style="margin-bottom:12px">Puts every demo case back where it started and clears the audit log.</p>
-      <form method="post" action="{{ BASE }}/reset" data-confirm="Reset the demo? Every answer, signature, decision and follow-up is deleted, and the audit log is cleared.">
-        <button class="btn btn-danger" type="submit">Reset demo</button>
-      </form>
+      <p class="small muted">Run <code>make reset</code> to put every case back where it started: the demo's
+        ABELDent rows are re-seeded and every answer, signature, decision and audit line is cleared.</p>
     </div>
   </section>
 

@@ -2,7 +2,7 @@
 # cleared with caries control before the crown request, so basic treatment is complete.
 id: nguyen
 as_of: 2026-09-01
-patient: { id: "3907", name: "Linh Nguyen", dob: 1966-12-05, sex: F, cdcp_client_id: "CDCP-8153-0496" }
+patient: { id: "3907", name: "Linh Nguyen", dob: 1966-12-05, sex: F, cdcp_client_id: "CDCP-8153-0496", phone: "778-555-0195", email: "linh.nguyen@example.ca" }
 provider: { name: "Dr. Priya Lau", licence: "ON-48213" }
 treatment:
   code: "27211"

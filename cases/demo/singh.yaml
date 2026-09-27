@@ -2,7 +2,7 @@
 id: singh
 as_of: 2026-09-17
 clinic: Fictional Dental Centre
-patient: { id: "1042", name: "Amrit Singh", dob: 1979-03-22, sex: M, cdcp_client_id: "CDCP-4419-2201" }
+patient: { id: "1042", name: "Amrit Singh", dob: 1979-03-22, sex: M, cdcp_client_id: "CDCP-4419-2201", phone: "416-555-0142", email: "amrit.singh@example.ca" }
 provider: { name: "Dr. Priya Lau", licence: "ON-48213" }
 treatment:
   code: "27211"

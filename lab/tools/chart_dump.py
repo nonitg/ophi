@@ -35,6 +35,8 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 from perio_decode import UNIVERSAL_TO_FDI, decode, summarise  # noqa: E402
 
+from ophi.sources.fictional_contact import scrub_chart  # noqa: E402
+
 VM = HERE.parent / "vm" / "vm"
 FDI_TO_UNIVERSAL = {fdi: i + 1 for i, fdi in enumerate(UNIVERSAL_TO_FDI)}
 
@@ -130,8 +132,12 @@ def fetch(pids):
     P = in_list(pids)
     out = {}
     out["pat"] = sql(
-        f"SELECT pid, plname, pfname, {d('pbirth')}, pgender, pdentist, pinactive, pnonpatient, "
-        f"{d('plastckp')}, pstatus FROM pat WHERE pid IN ({P})")
+        f"SELECT p.pid, p.plname, p.pfname, {d('p.pbirth', 'pbirth')}, p.pgender, p.pdentist, p.pinactive, "
+        f"p.pnonpatient, {d('p.plastckp', 'plastckp')}, p.pstatus, "
+        # Contact lives across two tables: the home number on pat, mobile and email on inf (ophi/sources/abeldent.py:83).
+        f"NULLIF(RTRIM(p.pphone), '') AS pphone, NULLIF(RTRIM(i.infmobile), '') AS infmobile, "
+        f"NULLIF(RTRIM(i.infemail), '') AS infemail "
+        f"FROM pat p LEFT JOIN inf i ON i.infpid = p.pid WHERE p.pid IN ({P})")
     out["tx"] = sql(
         f"SELECT x.TransID, {d('x.Date', 'Date')}, x.patID, x.ChartNum, x.Grp, x.ToothNum, x.ProvID, "
         f"x.Code, x.ChartCode, x.Descr, x.Billed, x.Surfaces, x.Deleted, x.PlanNum, x.MatID, x.Phase, "
@@ -254,6 +260,7 @@ def patient_section(pid, pat):
         "pid": pid, "surname": pat["plname"], "given": pat["pfname"], "dob": pat["pbirth"],
         "gender": (pat["pgender"] or "").strip(), "dentist": (pat["pdentist"] or "").strip(),
         "inactive": pat["pinactive"], "non_patient": pat["pnonpatient"],
+        "phone": pat.get("pphone") or pat.get("infmobile"), "email": pat.get("infemail"),
         "source_assurance": assurance("present", "pat row"),
     }
 
@@ -599,7 +606,7 @@ def main():
         if not case:
             print(f"{pid:>4} (no pat row)")
             continue
-        (outdir / f"{pid}.json").write_text(json.dumps(case, indent=2, default=str) + "\n")
+        (outdir / f"{pid}.json").write_text(json.dumps(scrub_chart(case), indent=2, default=str) + "\n")
         print(summary_line(pid, case))
     print(f"\n{len(pids)} patients -> {outdir}")
 

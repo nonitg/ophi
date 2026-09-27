@@ -57,7 +57,8 @@ def build_case(d: dict, default_id: str) -> Case:
 
     p = d["patient"]
     patient = Patient(patient_id=str(p.get("id", default_id)), display_name=p["name"], dob=resolve_date(p.get("dob"), as_of),
-                      sex=p.get("sex"), cdcp_client_id=p.get("cdcp_client_id"))
+                      sex=p.get("sex"), cdcp_client_id=p.get("cdcp_client_id"),
+                      phone=p.get("phone"), email=p.get("email"))
     prov = d.get("provider", {"name": "Dr. Lau", "licence": "ON-00000"})
     provider = Practitioner(name=prov["name"], licence=prov.get("licence"))
 

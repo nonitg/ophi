@@ -231,6 +231,10 @@ class Patient(BaseModel):
     dob: date | None = None
     sex: str | None = None
     cdcp_client_id: str | None = None
+    # How the desk reaches the patient. Read from the PMS so staff don't go back to it to book; never in the
+    # packet, never sent to a model.
+    phone: str | None = None
+    email: str | None = None
 
     def age_on(self, on: date) -> int | None:
         if self.dob is None:

@@ -223,6 +223,8 @@ textarea.input { width: 100%; height: auto; padding: 8px 10px; line-height: 1.5;
 .now-advice { padding: 10px 14px; border-radius: var(--r-control); background: var(--gap-tint); border: 1px solid var(--gap-line); color: #7a1a14; font-size: 14.5px; }
 .now-advice-warn { background: var(--person-tint); border-color: var(--person-line); color: #5e3a00; }
 .now-lead { font-size: 15px; max-width: 68ch; text-wrap: pretty; }
+.contact { font-size: 15px; margin-top: 6px; }
+.contact a { font-weight: 600; }
 .now-foot { font-size: 13.5px; color: var(--ink-soft); }
 .now-foot.btn-row { gap: 8px 12px; }
 .reveal > summary { list-style: none; width: max-content; }

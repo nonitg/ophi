@@ -103,3 +103,11 @@ recording in a running process will not rebuild the report. Restart, or re-recor
 `pms/chart_dump_102.json` — 3-unit bridge (22-25, 67211+62502) with missing teeth, no perio.
 
 Compare to real dumps: `fixtures/abeldent/fictional/5.json`, `33.json`, etc.
+
+## Patient contact is substituted
+
+The VM's sample patients carry phone numbers and four emails at real-world domains. `snapshot.json` and
+`fixtures/abeldent/fictional/` keep a fictional stand-in instead (`905-555-xxxx`, `example.ca`), keyed by
+patient id so it is stable across re-recordings -- see `ophi/sources/fictional_contact.py`. A live read is
+untouched: the desk needs the number that reaches the patient. Absence stays absence, so a patient with no
+email on file still reads as one.

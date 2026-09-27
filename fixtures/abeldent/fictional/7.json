@@ -19,6 +19,8 @@
     "dentist": "T",
     "inactive": false,
     "non_patient": false,
+    "phone": "905-555-0007",
+    "email": "lenny.jones@example.ca",
     "source_assurance": {
       "status": "present",
       "detail": "pat row"

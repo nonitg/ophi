@@ -1,7 +1,7 @@
 # Fully documented and asserted. The one that should read READY_TO_SUBMIT.
 id: whitfield
 as_of: 2026-09-17
-patient: { id: "4481", name: "Dana Whitfield", dob: 1988-01-30, sex: F, cdcp_client_id: "CDCP-9021-3364" }
+patient: { id: "4481", name: "Dana Whitfield", dob: 1988-01-30, sex: F, cdcp_client_id: "CDCP-9021-3364", phone: "905-555-0167", email: "dana.whitfield@example.ca" }
 provider: { name: "Dr. Priya Lau", licence: "ON-48213" }
 treatment:
   code: "27211"

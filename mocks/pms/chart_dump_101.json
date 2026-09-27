@@ -2,7 +2,7 @@
   "source": {
     "pms": "ABELDent",
     "version": "15.1.0 Freemium",
-    "dataset": "Mock Data (CA) — matches fictional fixture shape",
+    "dataset": "Mock Data (CA) \u2014 matches fictional fixture shape",
     "notation": {
       "Transactions.ToothNum": "FDI",
       "tdi.itooth": "FDI",
@@ -19,7 +19,12 @@
     "dentist": "T",
     "inactive": false,
     "non_patient": false,
-    "source_assurance": { "status": "present", "detail": "pat row" }
+    "phone": "416-555-0101",
+    "email": "sophie.tremblay@example.ca",
+    "source_assurance": {
+      "status": "present",
+      "detail": "pat row"
+    }
   },
   "coverage": {
     "items": [
@@ -28,7 +33,7 @@
         "plan_id": "CDCP-ON-2026",
         "plan_name": "Canadian Dental Care Plan",
         "carrier_id": "CDCP",
-        "carrier_name": "Sun Life — CDCP Administrator",
+        "carrier_name": "Sun Life \u2014 CDCP Administrator",
         "carrier_supports_multipage_preds": true,
         "certificate": "CDCP-00101",
         "group": "CDCP-GRP-ON",
@@ -39,7 +44,10 @@
         "inherited_from_subscriber": false
       }
     ],
-    "source_assurance": { "status": "present", "detail": "ixi joined to nsp (plan) and ins (carrier)." }
+    "source_assurance": {
+      "status": "present",
+      "detail": "ixi joined to nsp (plan) and ins (carrier)."
+    }
   },
   "planned_procedures": {
     "items": [
@@ -62,7 +70,11 @@
         "appt": 1,
         "applied": 0,
         "plan_num": 7,
-        "plan": { "date": "2026-08-15", "description": "crn #16", "state": 1 },
+        "plan": {
+          "date": "2026-08-15",
+          "description": "crn #16",
+          "state": 1
+        },
         "status": "planned",
         "financial_mirror": {
           "itrid": 99999998,
@@ -83,7 +95,10 @@
         "financial_mirror_match": "code_tooth"
       }
     ],
-    "source_assurance": { "status": "present", "detail": "Transactions WHERE Type='P' (all Deleted values, see deleted_raw), joined to Plans on PlanNum." }
+    "source_assurance": {
+      "status": "present",
+      "detail": "Transactions WHERE Type='P' (all Deleted values, see deleted_raw), joined to Plans on PlanNum."
+    }
   },
   "completed_procedures": {
     "items": [
@@ -164,15 +179,51 @@
         "financial_mirror_match": "code_tooth_date"
       }
     ],
-    "source_assurance": { "status": "present", "detail": "Transactions WHERE Type=' ' AND Code<>'' AND Deleted=0. financial_mirror is the tdi row (itype='') with the same code and tooth." }
+    "source_assurance": {
+      "status": "present",
+      "detail": "Transactions WHERE Type=' ' AND Code<>'' AND Deleted=0. financial_mirror is the tdi row (itype='') with the same code and tooth."
+    }
   },
   "odontogram_conditions": {
     "items": [
-      { "trans_id": 8101, "date": "2026-02-10", "chart_code": 100, "description": "Existing Condition", "tooth_fdi": 16, "surfaces": "MOD", "material": "AM", "chart_num": 1, "deleted_raw": 0 },
-      { "trans_id": 8102, "date": "2026-02-10", "chart_code": 104, "description": "Missing", "tooth_fdi": 18, "surfaces": null, "material": null, "chart_num": 1, "deleted_raw": 0 },
-      { "trans_id": 8103, "date": "2026-02-10", "chart_code": 104, "description": "Missing", "tooth_fdi": 28, "surfaces": null, "material": null, "chart_num": 1, "deleted_raw": 0 }
+      {
+        "trans_id": 8101,
+        "date": "2026-02-10",
+        "chart_code": 100,
+        "description": "Existing Condition",
+        "tooth_fdi": 16,
+        "surfaces": "MOD",
+        "material": "AM",
+        "chart_num": 1,
+        "deleted_raw": 0
+      },
+      {
+        "trans_id": 8102,
+        "date": "2026-02-10",
+        "chart_code": 104,
+        "description": "Missing",
+        "tooth_fdi": 18,
+        "surfaces": null,
+        "material": null,
+        "chart_num": 1,
+        "deleted_raw": 0
+      },
+      {
+        "trans_id": 8103,
+        "date": "2026-02-10",
+        "chart_code": 104,
+        "description": "Missing",
+        "tooth_fdi": 28,
+        "surfaces": null,
+        "material": null,
+        "chart_num": 1,
+        "deleted_raw": 0
+      }
     ],
-    "source_assurance": { "status": "present", "detail": "Transactions WHERE Type=' ' AND Code is empty: odontogram markings by ChartCode." }
+    "source_assurance": {
+      "status": "present",
+      "detail": "Transactions WHERE Type=' ' AND Code is empty: odontogram markings by ChartCode."
+    }
   },
   "other_ledger_rows": [],
   "perio_exams": {
@@ -185,34 +236,90 @@
         "pocket": {
           "point_count": 168,
           "sites_total": 192,
-          "teeth_no_value_fdi": [18, 28, 38, 48],
+          "teeth_no_value_fdi": [
+            18,
+            28,
+            38,
+            48
+          ],
           "value_min": 1,
           "value_max": 5,
           "by_tooth_fdi": {
-            "16": [3, 2, 3, 3, 2, 3],
-            "46": [5, 3, 5, 4, 3, 4]
+            "16": [
+              3,
+              2,
+              3,
+              3,
+              2,
+              3
+            ],
+            "46": [
+              5,
+              3,
+              5,
+              4,
+              3,
+              4
+            ]
           },
-          "sites_5mm_plus": ["46:DB", "46:MB"]
+          "sites_5mm_plus": [
+            "46:DB",
+            "46:MB"
+          ]
         },
-        "bleeding": { "point_count": 42, "sites_total": 192, "value_min": 0, "value_max": 1 },
+        "bleeding": {
+          "point_count": 42,
+          "sites_total": 192,
+          "value_min": 0,
+          "value_max": 1
+        },
         "point_count": 168,
         "extent": "full_mouth"
       }
     ],
-    "source_assurance": { "status": "present", "detail": "Perio table, positional byte arrays decoded per site." }
+    "source_assurance": {
+      "status": "present",
+      "detail": "Perio table, positional byte arrays decoded per site."
+    }
   },
   "clinical_notes": {
     "items": [
-      { "date": "2026-08-01", "chart_num": 3, "chart_date": "2026-08-01", "chart_certified": null, "key_type": 1, "note_type": 1, "ref_number": 1, "tooth_fdi": 16, "operator": "T", "signed_off": null, "text": "[Date]01/Aug/2026 [Type]Exam [Tooth]16\n16 MOD amalgam fractured, recurrent decay mesial. Crown recommended. PA taken — margins visible." }
+      {
+        "date": "2026-08-01",
+        "chart_num": 3,
+        "chart_date": "2026-08-01",
+        "chart_certified": null,
+        "key_type": 1,
+        "note_type": 1,
+        "ref_number": 1,
+        "tooth_fdi": 16,
+        "operator": "T",
+        "signed_off": null,
+        "text": "[Date]01/Aug/2026 [Type]Exam [Tooth]16\n16 MOD amalgam fractured, recurrent decay mesial. Crown recommended. PA taken \u2014 margins visible."
+      }
     ],
     "excluded_deleted_or_superseded": 0,
-    "source_assurance": { "status": "present", "detail": "Notes WHERE IsDeleted=0 AND IsLatest=1, joined to Charts on KeyNumber=ChartNum." }
+    "source_assurance": {
+      "status": "present",
+      "detail": "Notes WHERE IsDeleted=0 AND IsLatest=1, joined to Charts on KeyNumber=ChartNum."
+    }
   },
   "imaging": {
     "items": [],
     "procedure_events": [
-      { "trans_id": 8001, "date": "2026-02-10", "code": "02142", "description": "Two Bitewings", "tooth_fdi": null, "provider": "T", "chart_num": 1 }
+      {
+        "trans_id": 8001,
+        "date": "2026-02-10",
+        "code": "02142",
+        "description": "Two Bitewings",
+        "tooth_fdi": null,
+        "provider": "T",
+        "chart_num": 1
+      }
     ],
-    "source_assurance": { "status": "indeterminate", "detail": "items: imaging tables are readable but hold zero rows database-wide. procedure_events: charted Transactions rows with ChartCode 242." }
+    "source_assurance": {
+      "status": "indeterminate",
+      "detail": "items: imaging tables are readable but hold zero rows database-wide. procedure_events: charted Transactions rows with ChartCode 242."
+    }
   }
 }

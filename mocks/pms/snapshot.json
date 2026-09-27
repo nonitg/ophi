@@ -1,5 +1,5 @@
 {
- "recorded_at": "2026-09-27T08:52:13+00:00",
+ "recorded_at": "2026-09-27T10:43:10+00:00",
  "planned_pids": [
   5,
   6,
@@ -50,6 +50,8 @@
     "dentist": "T",
     "inactive": false,
     "non_patient": false,
+    "phone": "905-555-0005",
+    "email": null,
     "source_assurance": {
      "status": "present",
      "detail": "pat row"
@@ -690,7 +692,7 @@
       "duplicate_of": null
      },
      {
-      "trans_id": 1500,
+      "trans_id": 1533,
       "date": "2026-08-20",
       "code": "02111",
       "description": "Single Periapical Film",
@@ -714,7 +716,7 @@
       "duplicate_of": null
      },
      {
-      "trans_id": 1501,
+      "trans_id": 1534,
       "date": "2026-08-20",
       "code": "02144",
       "description": "Four Bitewings",
@@ -4368,7 +4370,7 @@
       "chart_num": 1
      },
      {
-      "trans_id": 1500,
+      "trans_id": 1533,
       "date": "2026-08-20",
       "code": "02111",
       "description": "Single Periapical Film",
@@ -4377,7 +4379,7 @@
       "chart_num": 3
      },
      {
-      "trans_id": 1501,
+      "trans_id": 1534,
       "date": "2026-08-20",
       "code": "02144",
       "description": "Four Bitewings",
@@ -4413,6 +4415,8 @@
     "dentist": "T",
     "inactive": false,
     "non_patient": false,
+    "phone": "905-555-0006",
+    "email": null,
     "source_assurance": {
      "status": "present",
      "detail": "pat row"
@@ -4616,7 +4620,7 @@
       "duplicate_of": null
      },
      {
-      "trans_id": 1502,
+      "trans_id": 1535,
       "date": "2026-08-20",
       "code": "02111",
       "description": "Single Periapical Film",
@@ -4640,7 +4644,7 @@
       "duplicate_of": null
      },
      {
-      "trans_id": 1503,
+      "trans_id": 1536,
       "date": "2026-08-20",
       "code": "02144",
       "description": "Four Bitewings",
@@ -8067,7 +8071,7 @@
     "items": [],
     "procedure_events": [
      {
-      "trans_id": 1502,
+      "trans_id": 1535,
       "date": "2026-08-20",
       "code": "02111",
       "description": "Single Periapical Film",
@@ -8076,7 +8080,7 @@
       "chart_num": 3
      },
      {
-      "trans_id": 1503,
+      "trans_id": 1536,
       "date": "2026-08-20",
       "code": "02144",
       "description": "Four Bitewings",
@@ -8112,6 +8116,8 @@
     "dentist": "T",
     "inactive": false,
     "non_patient": false,
+    "phone": "905-555-0007",
+    "email": "lenny.jones@example.ca",
     "source_assurance": {
      "status": "present",
      "detail": "pat row"
@@ -8359,7 +8365,7 @@
       "duplicate_of": null
      },
      {
-      "trans_id": 1510,
+      "trans_id": 1543,
       "date": "2026-08-20",
       "code": "02111",
       "description": "Single Periapical Film",
@@ -8383,7 +8389,7 @@
       "duplicate_of": null
      },
      {
-      "trans_id": 1511,
+      "trans_id": 1544,
       "date": "2026-08-20",
       "code": "02144",
       "description": "Four Bitewings",
@@ -10143,7 +10149,7 @@
     "items": [],
     "procedure_events": [
      {
-      "trans_id": 1510,
+      "trans_id": 1543,
       "date": "2026-08-20",
       "code": "02111",
       "description": "Single Periapical Film",
@@ -10152,7 +10158,7 @@
       "chart_num": 4
      },
      {
-      "trans_id": 1511,
+      "trans_id": 1544,
       "date": "2026-08-20",
       "code": "02144",
       "description": "Four Bitewings",
@@ -10188,6 +10194,8 @@
     "dentist": "K",
     "inactive": false,
     "non_patient": false,
+    "phone": "905-555-0008",
+    "email": null,
     "source_assurance": {
      "status": "present",
      "detail": "pat row"
@@ -10395,7 +10403,7 @@
       "duplicate_of": null
      },
      {
-      "trans_id": 1518,
+      "trans_id": 1551,
       "date": "2026-08-20",
       "code": "02111",
       "description": "Single Periapical Film",
@@ -10419,7 +10427,7 @@
       "duplicate_of": null
      },
      {
-      "trans_id": 1519,
+      "trans_id": 1552,
       "date": "2026-08-20",
       "code": "02144",
       "description": "Four Bitewings",
@@ -17547,7 +17555,7 @@
       "chart_num": 2
      },
      {
-      "trans_id": 1518,
+      "trans_id": 1551,
       "date": "2026-08-20",
       "code": "02111",
       "description": "Single Periapical Film",
@@ -17556,7 +17564,7 @@
       "chart_num": 4
      },
      {
-      "trans_id": 1519,
+      "trans_id": 1552,
       "date": "2026-08-20",
       "code": "02144",
       "description": "Four Bitewings",
@@ -17592,6 +17600,8 @@
     "dentist": "T",
     "inactive": false,
     "non_patient": false,
+    "phone": "905-555-0009",
+    "email": null,
     "source_assurance": {
      "status": "present",
      "detail": "pat row"
@@ -18415,7 +18425,7 @@
       "duplicate_of": null
      },
      {
-      "trans_id": 1520,
+      "trans_id": 1553,
       "date": "2026-08-20",
       "code": "02111",
       "description": "Single Periapical Film",
@@ -18439,7 +18449,7 @@
       "duplicate_of": null
      },
      {
-      "trans_id": 1521,
+      "trans_id": 1554,
       "date": "2026-08-20",
       "code": "02144",
       "description": "Four Bitewings",
@@ -18686,7 +18696,7 @@
       "chart_num": 1
      },
      {
-      "trans_id": 1520,
+      "trans_id": 1553,
       "date": "2026-08-20",
       "code": "02111",
       "description": "Single Periapical Film",
@@ -18695,7 +18705,7 @@
       "chart_num": 8
      },
      {
-      "trans_id": 1521,
+      "trans_id": 1554,
       "date": "2026-08-20",
       "code": "02144",
       "description": "Four Bitewings",
@@ -18731,6 +18741,8 @@
     "dentist": "T",
     "inactive": false,
     "non_patient": false,
+    "phone": "905-555-0033",
+    "email": "patrica.rosco@example.ca",
     "source_assurance": {
      "status": "present",
      "detail": "pat row"
@@ -19003,7 +19015,7 @@
       "duplicate_of": null
      },
      {
-      "trans_id": 1504,
+      "trans_id": 1537,
       "date": "2026-08-20",
       "code": "02111",
       "description": "Single Periapical Film",
@@ -19027,7 +19039,7 @@
       "duplicate_of": null
      },
      {
-      "trans_id": 1505,
+      "trans_id": 1538,
       "date": "2026-08-20",
       "code": "02144",
       "description": "Four Bitewings",
@@ -20810,7 +20822,7 @@
     "items": [],
     "procedure_events": [
      {
-      "trans_id": 1504,
+      "trans_id": 1537,
       "date": "2026-08-20",
       "code": "02111",
       "description": "Single Periapical Film",
@@ -20819,7 +20831,7 @@
       "chart_num": 3
      },
      {
-      "trans_id": 1505,
+      "trans_id": 1538,
       "date": "2026-08-20",
       "code": "02144",
       "description": "Four Bitewings",
@@ -20855,6 +20867,8 @@
     "dentist": "T",
     "inactive": false,
     "non_patient": false,
+    "phone": "905-555-0056",
+    "email": null,
     "source_assurance": {
      "status": "present",
      "detail": "pat row"
@@ -22478,7 +22492,7 @@
       "duplicate_of": null
      },
      {
-      "trans_id": 1512,
+      "trans_id": 1545,
       "date": "2026-08-20",
       "code": "02111",
       "description": "Single Periapical Film",
@@ -22502,7 +22516,7 @@
       "duplicate_of": null
      },
      {
-      "trans_id": 1513,
+      "trans_id": 1546,
       "date": "2026-08-20",
       "code": "02144",
       "description": "Four Bitewings",
@@ -28109,7 +28123,7 @@
       "chart_num": 1
      },
      {
-      "trans_id": 1512,
+      "trans_id": 1545,
       "date": "2026-08-20",
       "code": "02111",
       "description": "Single Periapical Film",
@@ -28118,7 +28132,7 @@
       "chart_num": 8
      },
      {
-      "trans_id": 1513,
+      "trans_id": 1546,
       "date": "2026-08-20",
       "code": "02144",
       "description": "Four Bitewings",
@@ -28154,6 +28168,8 @@
     "dentist": "T",
     "inactive": false,
     "non_patient": false,
+    "phone": "905-555-0060",
+    "email": "betty.martin@example.ca",
     "source_assurance": {
      "status": "present",
      "detail": "pat row"
@@ -28410,7 +28426,7 @@
       "duplicate_of": null
      },
      {
-      "trans_id": 1506,
+      "trans_id": 1539,
       "date": "2026-08-20",
       "code": "02111",
       "description": "Single Periapical Film",
@@ -28434,7 +28450,7 @@
       "duplicate_of": null
      },
      {
-      "trans_id": 1507,
+      "trans_id": 1540,
       "date": "2026-08-20",
       "code": "02144",
       "description": "Four Bitewings",
@@ -31982,7 +31998,7 @@
       "chart_num": 3
      },
      {
-      "trans_id": 1506,
+      "trans_id": 1539,
       "date": "2026-08-20",
       "code": "02111",
       "description": "Single Periapical Film",
@@ -31991,7 +32007,7 @@
       "chart_num": 5
      },
      {
-      "trans_id": 1507,
+      "trans_id": 1540,
       "date": "2026-08-20",
       "code": "02144",
       "description": "Four Bitewings",
@@ -32027,6 +32043,8 @@
     "dentist": "K",
     "inactive": false,
     "non_patient": false,
+    "phone": "905-555-0105",
+    "email": "kevin.lewis@example.ca",
     "source_assurance": {
      "status": "present",
      "detail": "pat row"
@@ -32191,6 +32209,8 @@
     "dentist": "T",
     "inactive": false,
     "non_patient": false,
+    "phone": "905-555-0147",
+    "email": null,
     "source_assurance": {
      "status": "present",
      "detail": "pat row"
@@ -32355,6 +32375,8 @@
     "dentist": "T",
     "inactive": false,
     "non_patient": false,
+    "phone": "905-555-0153",
+    "email": null,
     "source_assurance": {
      "status": "present",
      "detail": "pat row"
@@ -39585,6 +39607,8 @@
     "dentist": "T",
     "inactive": false,
     "non_patient": false,
+    "phone": "905-555-0154",
+    "email": null,
     "source_assurance": {
      "status": "present",
      "detail": "pat row"
@@ -46271,6 +46295,8 @@
     "dentist": "T",
     "inactive": false,
     "non_patient": false,
+    "phone": "905-555-0155",
+    "email": null,
     "source_assurance": {
      "status": "present",
      "detail": "pat row"
@@ -53538,6 +53564,8 @@
     "dentist": "T",
     "inactive": false,
     "non_patient": false,
+    "phone": "905-555-0156",
+    "email": null,
     "source_assurance": {
      "status": "present",
      "detail": "pat row"
@@ -60381,6 +60409,8 @@
     "dentist": "T",
     "inactive": false,
     "non_patient": false,
+    "phone": "905-555-0157",
+    "email": null,
     "source_assurance": {
      "status": "present",
      "detail": "pat row"
@@ -67477,6 +67507,8 @@
     "dentist": "T",
     "inactive": false,
     "non_patient": false,
+    "phone": "905-555-0158",
+    "email": null,
     "source_assurance": {
      "status": "present",
      "detail": "pat row"
@@ -68976,7 +69008,7 @@
       "duplicate_of": null
      },
      {
-      "trans_id": 1524,
+      "trans_id": 1557,
       "date": "2026-08-20",
       "code": "02111",
       "description": "Single Periapical Film",
@@ -69000,7 +69032,7 @@
       "duplicate_of": null
      },
      {
-      "trans_id": 1525,
+      "trans_id": 1558,
       "date": "2026-08-20",
       "code": "02144",
       "description": "Four Bitewings",
@@ -74586,7 +74618,7 @@
       "chart_num": 6
      },
      {
-      "trans_id": 1524,
+      "trans_id": 1557,
       "date": "2026-08-20",
       "code": "02111",
       "description": "Single Periapical Film",
@@ -74595,7 +74627,7 @@
       "chart_num": 8
      },
      {
-      "trans_id": 1525,
+      "trans_id": 1558,
       "date": "2026-08-20",
       "code": "02144",
       "description": "Four Bitewings",
@@ -74631,6 +74663,8 @@
     "dentist": "T",
     "inactive": false,
     "non_patient": false,
+    "phone": "905-555-0159",
+    "email": null,
     "source_assurance": {
      "status": "present",
      "detail": "pat row"
@@ -81256,6 +81290,8 @@
     "dentist": "T",
     "inactive": false,
     "non_patient": false,
+    "phone": "905-555-0160",
+    "email": null,
     "source_assurance": {
      "status": "present",
      "detail": "pat row"
@@ -82688,7 +82724,7 @@
       "duplicate_of": null
      },
      {
-      "trans_id": 1526,
+      "trans_id": 1559,
       "date": "2026-08-20",
       "code": "02111",
       "description": "Single Periapical Film",
@@ -82712,7 +82748,7 @@
       "duplicate_of": null
      },
      {
-      "trans_id": 1527,
+      "trans_id": 1560,
       "date": "2026-08-20",
       "code": "02144",
       "description": "Four Bitewings",
@@ -90031,7 +90067,7 @@
       "chart_num": 8
      },
      {
-      "trans_id": 1526,
+      "trans_id": 1559,
       "date": "2026-08-20",
       "code": "02111",
       "description": "Single Periapical Film",
@@ -90040,7 +90076,7 @@
       "chart_num": 9
      },
      {
-      "trans_id": 1527,
+      "trans_id": 1560,
       "date": "2026-08-20",
       "code": "02144",
       "description": "Four Bitewings",
@@ -90076,6 +90112,8 @@
     "dentist": "T",
     "inactive": false,
     "non_patient": false,
+    "phone": "905-555-0161",
+    "email": null,
     "source_assurance": {
      "status": "present",
      "detail": "pat row"
@@ -97203,6 +97241,8 @@
     "dentist": "T",
     "inactive": false,
     "non_patient": false,
+    "phone": "905-555-0162",
+    "email": null,
     "source_assurance": {
      "status": "present",
      "detail": "pat row"
@@ -98650,7 +98690,7 @@
       "duplicate_of": null
      },
      {
-      "trans_id": 1528,
+      "trans_id": 1561,
       "date": "2026-08-20",
       "code": "02111",
       "description": "Single Periapical Film",
@@ -98674,7 +98714,7 @@
       "duplicate_of": null
      },
      {
-      "trans_id": 1529,
+      "trans_id": 1562,
       "date": "2026-08-20",
       "code": "02144",
       "description": "Four Bitewings",
@@ -103934,7 +103974,7 @@
       "chart_num": 1
      },
      {
-      "trans_id": 1528,
+      "trans_id": 1561,
       "date": "2026-08-20",
       "code": "02111",
       "description": "Single Periapical Film",
@@ -103943,7 +103983,7 @@
       "chart_num": 7
      },
      {
-      "trans_id": 1529,
+      "trans_id": 1562,
       "date": "2026-08-20",
       "code": "02144",
       "description": "Four Bitewings",
@@ -103979,6 +104019,8 @@
     "dentist": "T",
     "inactive": false,
     "non_patient": false,
+    "phone": "905-555-0163",
+    "email": null,
     "source_assurance": {
      "status": "present",
      "detail": "pat row"
@@ -105526,7 +105568,7 @@
       "duplicate_of": null
      },
      {
-      "trans_id": 1516,
+      "trans_id": 1549,
       "date": "2026-08-20",
       "code": "02111",
       "description": "Single Periapical Film",
@@ -105550,7 +105592,7 @@
       "duplicate_of": null
      },
      {
-      "trans_id": 1517,
+      "trans_id": 1550,
       "date": "2026-08-20",
       "code": "02144",
       "description": "Four Bitewings",
@@ -112741,7 +112783,7 @@
       "chart_num": 8
      },
      {
-      "trans_id": 1516,
+      "trans_id": 1549,
       "date": "2026-08-20",
       "code": "02111",
       "description": "Single Periapical Film",
@@ -112750,7 +112792,7 @@
       "chart_num": 9
      },
      {
-      "trans_id": 1517,
+      "trans_id": 1550,
       "date": "2026-08-20",
       "code": "02144",
       "description": "Four Bitewings",
@@ -112786,6 +112828,8 @@
     "dentist": "T",
     "inactive": false,
     "non_patient": false,
+    "phone": "905-555-0164",
+    "email": null,
     "source_assurance": {
      "status": "present",
      "detail": "pat row"
@@ -114120,7 +114164,7 @@
       "duplicate_of": null
      },
      {
-      "trans_id": 1530,
+      "trans_id": 1563,
       "date": "2026-08-20",
       "code": "02111",
       "description": "Single Periapical Film",
@@ -114144,7 +114188,7 @@
       "duplicate_of": null
      },
      {
-      "trans_id": 1531,
+      "trans_id": 1564,
       "date": "2026-08-20",
       "code": "02144",
       "description": "Four Bitewings",
@@ -121160,7 +121204,7 @@
       "chart_num": 1
      },
      {
-      "trans_id": 1530,
+      "trans_id": 1563,
       "date": "2026-08-20",
       "code": "02111",
       "description": "Single Periapical Film",
@@ -121169,7 +121213,7 @@
       "chart_num": 8
      },
      {
-      "trans_id": 1531,
+      "trans_id": 1564,
       "date": "2026-08-20",
       "code": "02144",
       "description": "Four Bitewings",
@@ -121205,6 +121249,8 @@
     "dentist": "T",
     "inactive": false,
     "non_patient": false,
+    "phone": "905-555-0165",
+    "email": null,
     "source_assurance": {
      "status": "present",
      "detail": "pat row"
@@ -123122,7 +123168,7 @@
       "duplicate_of": null
      },
      {
-      "trans_id": 1514,
+      "trans_id": 1547,
       "date": "2026-08-20",
       "code": "02111",
       "description": "Single Periapical Film",
@@ -123146,7 +123192,7 @@
       "duplicate_of": null
      },
      {
-      "trans_id": 1515,
+      "trans_id": 1548,
       "date": "2026-08-20",
       "code": "02144",
       "description": "Four Bitewings",
@@ -130216,7 +130262,7 @@
       "chart_num": 1
      },
      {
-      "trans_id": 1514,
+      "trans_id": 1547,
       "date": "2026-08-20",
       "code": "02111",
       "description": "Single Periapical Film",
@@ -130225,7 +130271,7 @@
       "chart_num": 7
      },
      {
-      "trans_id": 1515,
+      "trans_id": 1548,
       "date": "2026-08-20",
       "code": "02144",
       "description": "Four Bitewings",
@@ -130261,6 +130307,8 @@
     "dentist": "T",
     "inactive": false,
     "non_patient": false,
+    "phone": null,
+    "email": null,
     "source_assurance": {
      "status": "present",
      "detail": "pat row"
@@ -131533,7 +131581,7 @@
       "duplicate_of": null
      },
      {
-      "trans_id": 1522,
+      "trans_id": 1555,
       "date": "2026-08-20",
       "code": "02111",
       "description": "Single Periapical Film",
@@ -131557,7 +131605,7 @@
       "duplicate_of": null
      },
      {
-      "trans_id": 1523,
+      "trans_id": 1556,
       "date": "2026-08-20",
       "code": "02144",
       "description": "Four Bitewings",
@@ -135376,7 +135424,7 @@
       "chart_num": 1
      },
      {
-      "trans_id": 1522,
+      "trans_id": 1555,
       "date": "2026-08-20",
       "code": "02111",
       "description": "Single Periapical Film",
@@ -135385,7 +135433,7 @@
       "chart_num": 8
      },
      {
-      "trans_id": 1523,
+      "trans_id": 1556,
       "date": "2026-08-20",
       "code": "02144",
       "description": "Four Bitewings",
@@ -135421,6 +135469,8 @@
     "dentist": "T",
     "inactive": false,
     "non_patient": false,
+    "phone": "905-555-0168",
+    "email": null,
     "source_assurance": {
      "status": "present",
      "detail": "pat row"
@@ -135452,7 +135502,7 @@
    "planned_procedures": {
     "items": [
      {
-      "trans_id": 1499,
+      "trans_id": 1532,
       "date": "2026-08-20",
       "code": "27211",
       "description": "Porcelain/Ceramic/Polymer Glass Fused Metal Based Crown",
@@ -135488,7 +135538,7 @@
    "completed_procedures": {
     "items": [
      {
-      "trans_id": 1508,
+      "trans_id": 1541,
       "date": "2026-08-20",
       "code": "02111",
       "description": "Single Periapical Film",
@@ -135512,7 +135562,7 @@
       "duplicate_of": null
      },
      {
-      "trans_id": 1509,
+      "trans_id": 1542,
       "date": "2026-08-20",
       "code": "02144",
       "description": "Four Bitewings",
@@ -137230,7 +137280,7 @@
     "items": [],
     "procedure_events": [
      {
-      "trans_id": 1508,
+      "trans_id": 1541,
       "date": "2026-08-20",
       "code": "02111",
       "description": "Single Periapical Film",
@@ -137239,7 +137289,7 @@
       "chart_num": 1
      },
      {
-      "trans_id": 1509,
+      "trans_id": 1542,
       "date": "2026-08-20",
       "code": "02144",
       "description": "Four Bitewings",
@@ -137275,6 +137325,8 @@
     "dentist": "T",
     "inactive": false,
     "non_patient": false,
+    "phone": null,
+    "email": null,
     "source_assurance": {
      "status": "present",
      "detail": "pat row"
@@ -137850,7 +137902,7 @@
    "params": null,
    "rows": [
     {
-     "u": "2026-09-27T01:50:24.920"
+     "u": "2026-09-27T03:42:13.647"
     }
    ]
   },
@@ -137859,7 +137911,7 @@
    "params": null,
    "rows": [
     {
-     "charts": "2026-09-27T01:50:24.920",
+     "charts": "2026-09-27T03:42:14.690",
      "claims": 9004
     }
    ]
@@ -137910,7 +137962,7 @@
      "first_name": "TAYLOR",
      "birth_date": "1974-07-13",
      "gender": "M",
-     "phone": "9052715900",
+     "phone": "905-555-0159",
      "mobile": null,
      "email": null,
      "dentist_id": "T",
@@ -137922,7 +137974,7 @@
      "first_name": "ERIN",
      "birth_date": "1992-07-29",
      "gender": "F",
-     "phone": "9056345555",
+     "phone": "905-555-0053",
      "mobile": null,
      "email": null,
      "dentist_id": "T",
@@ -137934,7 +137986,7 @@
      "first_name": "HOLLY",
      "birth_date": "1959-09-07",
      "gender": "F",
-     "phone": "9056345555",
+     "phone": "905-555-0051",
      "mobile": null,
      "email": null,
      "dentist_id": "T",
@@ -137946,9 +137998,9 @@
      "first_name": "RICHARD",
      "birth_date": "1957-01-05",
      "gender": "M",
-     "phone": "9056345555",
+     "phone": "905-555-0050",
      "mobile": null,
-     "email": "Richard@cob.com",
+     "email": "richard.andrews@example.ca",
      "dentist_id": "T",
      "inactive": false
     },
@@ -137958,7 +138010,7 @@
      "first_name": "WAYNE",
      "birth_date": "1988-11-01",
      "gender": "F",
-     "phone": "9056345555",
+     "phone": "905-555-0052",
      "mobile": null,
      "email": null,
      "dentist_id": "T",
@@ -137970,7 +138022,7 @@
      "first_name": "JOSEPH",
      "birth_date": "1989-12-22",
      "gender": "M",
-     "phone": "9056371147",
+     "phone": "905-555-0096",
      "mobile": null,
      "email": null,
      "dentist_id": "K",
@@ -137982,7 +138034,7 @@
      "first_name": "ALLISON",
      "birth_date": "1992-09-01",
      "gender": "F",
-     "phone": "9056371147",
+     "phone": "905-555-0095",
      "mobile": null,
      "email": null,
      "dentist_id": "K",
@@ -137994,7 +138046,7 @@
      "first_name": "FRANKLIN",
      "birth_date": "1960-12-29",
      "gender": "M",
-     "phone": "9056371147",
+     "phone": "905-555-0094",
      "mobile": null,
      "email": null,
      "dentist_id": "K",
@@ -138006,7 +138058,7 @@
      "first_name": "HELENE",
      "birth_date": "1961-12-01",
      "gender": "F",
-     "phone": "9056371147",
+     "phone": "905-555-0093",
      "mobile": null,
      "email": null,
      "dentist_id": "K",
@@ -138018,7 +138070,7 @@
      "first_name": "ZOE",
      "birth_date": "1988-06-10",
      "gender": "F",
-     "phone": "9056371147",
+     "phone": "905-555-0097",
      "mobile": null,
      "email": null,
      "dentist_id": "K",
@@ -138030,7 +138082,7 @@
      "first_name": "JOSEPH",
      "birth_date": "1954-08-02",
      "gender": "M",
-     "phone": "9058325248",
+     "phone": "905-555-0114",
      "mobile": null,
      "email": null,
      "dentist_id": "T",
@@ -138042,8 +138094,8 @@
      "first_name": "RICK",
      "birth_date": "1965-09-23",
      "gender": "M",
-     "phone": "9057960832",
-     "mobile": "9055337107",
+     "phone": "905-555-0156",
+     "mobile": "905-555-0156",
      "email": null,
      "dentist_id": "T",
      "inactive": false
@@ -138054,7 +138106,7 @@
      "first_name": "JOSEPH",
      "birth_date": "1957-04-30",
      "gender": "M",
-     "phone": "9056312908",
+     "phone": "905-555-0150",
      "mobile": null,
      "email": null,
      "dentist_id": "T",
@@ -138066,7 +138118,7 @@
      "first_name": "ELLIE",
      "birth_date": "1947-12-03",
      "gender": "F",
-     "phone": "9053315060",
+     "phone": "905-555-0092",
      "mobile": null,
      "email": null,
      "dentist_id": "K",
@@ -138078,7 +138130,7 @@
      "first_name": "LLOYD",
      "birth_date": "1946-02-08",
      "gender": "M",
-     "phone": "9053315060",
+     "phone": "905-555-0071",
      "mobile": null,
      "email": null,
      "dentist_id": "K",
@@ -138090,7 +138142,7 @@
      "first_name": "BARBARA",
      "birth_date": "1989-09-30",
      "gender": "F",
-     "phone": "9056331122",
+     "phone": "905-555-0004",
      "mobile": null,
      "email": null,
      "dentist_id": "T",
@@ -138102,7 +138154,7 @@
      "first_name": "JOSEPHINE",
      "birth_date": "1987-04-27",
      "gender": "F",
-     "phone": "9056331122",
+     "phone": "905-555-0003",
      "mobile": null,
      "email": null,
      "dentist_id": "T",
@@ -138114,7 +138166,7 @@
      "first_name": "MELINDA",
      "birth_date": "1984-03-24",
      "gender": "F",
-     "phone": "9050000000",
+     "phone": "905-555-0153",
      "mobile": null,
      "email": null,
      "dentist_id": "T",
@@ -138126,9 +138178,9 @@
      "first_name": "RONALD",
      "birth_date": "1967-04-30",
      "gender": "M",
-     "phone": "9056331122",
+     "phone": "905-555-0001",
      "mobile": null,
-     "email": "zwillard@yahoo.ca",
+     "email": "ronald.brown@example.ca",
      "dentist_id": "T",
      "inactive": false
     },
@@ -138138,7 +138190,7 @@
      "first_name": "TERESA",
      "birth_date": "1970-04-10",
      "gender": "F",
-     "phone": "9056331122",
+     "phone": "905-555-0002",
      "mobile": null,
      "email": null,
      "dentist_id": "T",
@@ -138150,7 +138202,7 @@
      "first_name": "NORMA",
      "birth_date": "1940-12-22",
      "gender": "F",
-     "phone": "9056390101",
+     "phone": "905-555-0005",
      "mobile": null,
      "email": null,
      "dentist_id": "T",
@@ -138162,7 +138214,7 @@
      "first_name": "RALPH",
      "birth_date": "1944-06-28",
      "gender": "M",
-     "phone": "9055250362",
+     "phone": "905-555-0044",
      "mobile": null,
      "email": null,
      "dentist_id": "T",
@@ -138174,7 +138226,7 @@
      "first_name": "ROBIN",
      "birth_date": "1946-02-19",
      "gender": "F",
-     "phone": "9055250362",
+     "phone": "905-555-0045",
      "mobile": null,
      "email": null,
      "dentist_id": "T",
@@ -138186,8 +138238,8 @@
      "first_name": "MATHEW",
      "birth_date": "1969-03-20",
      "gender": "M",
-     "phone": "9059397893",
-     "mobile": "6475497807",
+     "phone": "905-555-0160",
+     "mobile": "905-555-0160",
      "email": null,
      "dentist_id": "T",
      "inactive": false
@@ -138198,7 +138250,7 @@
      "first_name": "JEFFERY",
      "birth_date": "1921-02-08",
      "gender": "M",
-     "phone": "9053353456",
+     "phone": "905-555-0076",
      "mobile": null,
      "email": null,
      "dentist_id": "K",
@@ -138210,7 +138262,7 @@
      "first_name": "MARY",
      "birth_date": "1923-07-01",
      "gender": "F",
-     "phone": "9053353456",
+     "phone": "905-555-0077",
      "mobile": null,
      "email": null,
      "dentist_id": "K",
@@ -138222,7 +138274,7 @@
      "first_name": "GARY",
      "birth_date": "1966-12-23",
      "gender": "M",
-     "phone": "9056371833",
+     "phone": "905-555-0078",
      "mobile": null,
      "email": null,
      "dentist_id": "K",
@@ -138234,7 +138286,7 @@
      "first_name": "JULIE",
      "birth_date": "1999-01-19",
      "gender": "F",
-     "phone": "9056371833",
+     "phone": "905-555-0080",
      "mobile": null,
      "email": null,
      "dentist_id": "K",
@@ -138246,7 +138298,7 @@
      "first_name": "KATIE",
      "birth_date": "1995-10-20",
      "gender": "F",
-     "phone": "9056371833",
+     "phone": "905-555-0081",
      "mobile": null,
      "email": null,
      "dentist_id": "K",
@@ -138258,7 +138310,7 @@
      "first_name": "LORI",
      "birth_date": "1988-03-07",
      "gender": "F",
-     "phone": "9056371833",
+     "phone": "905-555-0082",
      "mobile": null,
      "email": null,
      "dentist_id": "K",
@@ -138270,7 +138322,7 @@
      "first_name": "MELANIE",
      "birth_date": "1967-09-14",
      "gender": "F",
-     "phone": "9056371833",
+     "phone": "905-555-0079",
      "mobile": null,
      "email": null,
      "dentist_id": "K",
@@ -138282,7 +138334,7 @@
      "first_name": "EVELYN",
      "birth_date": "1942-12-22",
      "gender": "F",
-     "phone": "9056890613",
+     "phone": "905-555-0017",
      "mobile": null,
      "email": null,
      "dentist_id": "K",
@@ -138294,7 +138346,7 @@
      "first_name": "GEORGE",
      "birth_date": "1940-11-16",
      "gender": "M",
-     "phone": "9056890613",
+     "phone": "905-555-0016",
      "mobile": null,
      "email": null,
      "dentist_id": "K",
@@ -138306,9 +138358,9 @@
      "first_name": "NEVILLE",
      "birth_date": "1980-11-07",
      "gender": "M",
-     "phone": "9056341272",
+     "phone": "905-555-0083",
      "mobile": null,
-     "email": "Neville@AOL.com",
+     "email": "neville.delaney@example.ca",
      "dentist_id": "K",
      "inactive": false
     },
@@ -138318,7 +138370,7 @@
      "first_name": "ALAN",
      "birth_date": "1985-03-12",
      "gender": "M",
-     "phone": "9056890013",
+     "phone": "905-555-0091",
      "mobile": null,
      "email": null,
      "dentist_id": "K",
@@ -138330,7 +138382,7 @@
      "first_name": "ELIZABETH",
      "birth_date": "1995-10-18",
      "gender": "F",
-     "phone": "9056890013",
+     "phone": "905-555-0090",
      "mobile": null,
      "email": null,
      "dentist_id": "K",
@@ -138342,7 +138394,7 @@
      "first_name": "ETHAN",
      "birth_date": "1990-11-16",
      "gender": "M",
-     "phone": "9056890013",
+     "phone": "905-555-0087",
      "mobile": null,
      "email": null,
      "dentist_id": "K",
@@ -138354,7 +138406,7 @@
      "first_name": "HELEN",
      "birth_date": "1958-09-05",
      "gender": "F",
-     "phone": "9056890013",
+     "phone": "905-555-0086",
      "mobile": null,
      "email": null,
      "dentist_id": "K",
@@ -138366,7 +138418,7 @@
      "first_name": "KATE",
      "birth_date": "1991-08-10",
      "gender": "F",
-     "phone": "9056890013",
+     "phone": "905-555-0088",
      "mobile": null,
      "email": null,
      "dentist_id": "K",
@@ -138378,9 +138430,9 @@
      "first_name": "NELSON",
      "birth_date": "1957-04-28",
      "gender": "M",
-     "phone": "9056890013",
+     "phone": "905-555-0085",
      "mobile": null,
-     "email": "Rocket88@aol.ca",
+     "email": "nelson.douglas@example.ca",
      "dentist_id": "K",
      "inactive": false
     },
@@ -138390,7 +138442,7 @@
      "first_name": "TOM",
      "birth_date": "1993-04-30",
      "gender": "M",
-     "phone": "9056890013",
+     "phone": "905-555-0089",
      "mobile": null,
      "email": null,
      "dentist_id": "K",
@@ -138414,7 +138466,7 @@
      "first_name": "ANDREW",
      "birth_date": "1961-05-30",
      "gender": "M",
-     "phone": "9053331984",
+     "phone": "905-555-0062",
      "mobile": null,
      "email": null,
      "dentist_id": "K",
@@ -138426,7 +138478,7 @@
      "first_name": "ANGELA",
      "birth_date": "1986-07-30",
      "gender": "F",
-     "phone": "9053331984",
+     "phone": "905-555-0066",
      "mobile": null,
      "email": null,
      "dentist_id": "K",
@@ -138438,7 +138490,7 @@
      "first_name": "DEE",
      "birth_date": "1963-04-30",
      "gender": "F",
-     "phone": "9053331984",
+     "phone": "905-555-0063",
      "mobile": null,
      "email": null,
      "dentist_id": "K",
@@ -138450,7 +138502,7 @@
      "first_name": "DERRICK",
      "birth_date": "1990-07-01",
      "gender": "F",
-     "phone": "9053331984",
+     "phone": "905-555-0065",
      "mobile": null,
      "email": null,
      "dentist_id": "K",
@@ -138462,7 +138514,7 @@
      "first_name": "JEANNIE",
      "birth_date": "1989-04-17",
      "gender": "F",
-     "phone": "9053331984",
+     "phone": "905-555-0064",
      "mobile": null,
      "email": null,
      "dentist_id": "K",
@@ -138474,7 +138526,7 @@
      "first_name": "DOROTHY",
      "birth_date": "1954-12-30",
      "gender": "F",
-     "phone": "9059055742",
+     "phone": "905-555-0027",
      "mobile": null,
      "email": null,
      "dentist_id": "K",
@@ -138486,7 +138538,7 @@
      "first_name": "GORDON",
      "birth_date": "1952-10-18",
      "gender": "M",
-     "phone": "9059055742",
+     "phone": "905-555-0026",
      "mobile": null,
      "email": null,
      "dentist_id": "K",
@@ -138498,7 +138550,7 @@
      "first_name": "DIANA",
      "birth_date": "1957-04-30",
      "gender": "F",
-     "phone": "9056321016",
+     "phone": "905-555-0039",
      "mobile": null,
      "email": null,
      "dentist_id": "K",

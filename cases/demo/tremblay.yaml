@@ -1,7 +1,7 @@
 # Documentation complete; the only thing open is the dentist's assertions. Plan details live in a note.
 id: tremblay
 as_of: 2026-09-17
-patient: { id: "3377", name: "Yves Tremblay", dob: 1970-07-15, sex: M, cdcp_client_id: "CDCP-1187-5540" }
+patient: { id: "3377", name: "Yves Tremblay", dob: 1970-07-15, sex: M, cdcp_client_id: "CDCP-1187-5540", phone: "418-555-0113", email: "yves.tremblay@example.ca" }
 provider: { name: "Dr. Priya Lau", licence: "ON-48213" }
 treatment:
   code: "27201"

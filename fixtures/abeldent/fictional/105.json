@@ -19,6 +19,8 @@
     "dentist": "K",
     "inactive": false,
     "non_patient": false,
+    "phone": "905-555-0105",
+    "email": "kevin.lewis@example.ca",
     "source_assurance": {
       "status": "present",
       "detail": "pat row"

@@ -3,7 +3,7 @@
 # lab code, and pending basic treatment on another tooth.
 id: deng
 as_of: 2026-09-17
-patient: { id: "5190", name: "Mei Deng", dob: 1955-04-09, sex: F, cdcp_client_id: "CDCP-3302-8811" }
+patient: { id: "5190", name: "Mei Deng", dob: 1955-04-09, sex: F, cdcp_client_id: "CDCP-3302-8811", phone: "604-555-0108", email: "mei.deng@example.ca" }
 provider: { name: "Dr. Priya Lau", licence: "ON-48213" }
 treatment:
   code: "27211"

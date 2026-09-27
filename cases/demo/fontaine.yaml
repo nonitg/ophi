@@ -1,7 +1,7 @@
 # Fully documented and asserted. Upper premolar whose palatal cusp sheared off under a large old amalgam.
 id: fontaine
 as_of: 2026-09-16
-patient: { id: "6152", name: "Claire Fontaine", dob: 1984-05-11, sex: F, cdcp_client_id: "CDCP-5274-1839" }
+patient: { id: "6152", name: "Claire Fontaine", dob: 1984-05-11, sex: F, cdcp_client_id: "CDCP-5274-1839", phone: "450-555-0176", email: "claire.fontaine@example.ca" }
 provider: { name: "Dr. Priya Lau", licence: "ON-48213" }
 treatment:
   code: "27211"

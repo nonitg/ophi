@@ -48,5 +48,5 @@ demo-mock:        ## run the web app on the recorded PMS, no VM (USE_MOCK_PMS_AP
 demo-abeldent:    ## run the web app on live ABELDent VM data (USE_ABELDENT_PMS=true)
 	./scripts/demo-abeldent.sh
 
-reset:            ## wipe demo state (assertions, sign-offs, audit log)
-	rm -rf var/
+reset:            ## put the demo back to its opening state (ABELDent rows, answers, sign-offs, audit log)
+	./scripts/reset-demo.sh

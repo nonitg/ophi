@@ -19,6 +19,8 @@
     "dentist": "T",
     "inactive": false,
     "non_patient": false,
+    "phone": "905-555-0147",
+    "email": null,
     "source_assurance": {
       "status": "present",
       "detail": "pat row"

@@ -87,7 +87,6 @@ def test_base_path_serves_every_screen_and_link_under_the_prefix(tmp_path):
     assert c.get("/demo-x/look-back").headers["location"] == "/demo-x/results#before"
     r = c.post("/demo-x/cases/tremblay/assert", data={"criterion_id": "ferrule_1_5mm", "value": "met"})
     assert r.headers["location"] == "/demo-x/cases/tremblay?done=criteria"
-    assert c.post("/demo-x/reset").headers["location"] == "/demo-x"
 
 
 def test_public_demo_does_not_expose_the_live_pms_api(tmp_path):
@@ -201,6 +200,19 @@ def test_record_decision_then_book(seeded):
     assert "Crown booked for" in seeded.get("/cases/park").text
 
 
+def test_approved_case_shows_how_to_reach_the_patient(seeded):
+    """The desk books from Ophi, so the chart's phone and email are on the step that calls."""
+    assert "555-0129" not in seeded.get("/cases/park").text  # not before there is a call to make
+    seeded.post("/cases/park/decision", data={"outcome": "approved", "decided_on": "2026-09-16", "reason": ""})
+    html = seeded.get("/cases/park").text
+    assert 'href="tel:6475550129"' in html and "647-555-0129" in html
+    assert "minjun.park@example.ca" in html
+
+
+def test_contact_stays_out_of_the_packet(seeded):
+    assert "555-0167" not in seeded.get("/cases/whitfield/packet").text
+
+
 def test_decision_needs_an_outcome_and_a_date(seeded):
     assert seeded.post("/cases/park/decision", data={"outcome": "", "decided_on": ""}).status_code == 400
 
@@ -244,15 +256,10 @@ def test_assessment_json(client):
     assert r.json()["verdict"] == "BLOCKED"
 
 
-def test_actor_cookie_and_reset(client):
+def test_actor_cookie(client):
     r = client.post("/actor", data={"actor": "dentist"}, headers={"referer": "/cases/singh"})
     assert r.status_code == 303 and r.headers["location"] == "/cases/singh"
     assert "actor=dentist" in r.headers["set-cookie"]
-    as_dentist(client)
-    client.post("/cases/tremblay/assert", data={"criterion_id": "ferrule_1_5mm", "value": "met"})
-    assert client.post("/reset").status_code == 303
-    assert "Recorded <span" not in client.get("/cases/tremblay").text
-    assert client.app.state.svc.store.audit_log() == []
 
 
 class _OphiVoice(HTMLParser):

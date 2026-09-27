@@ -3,7 +3,7 @@
 # case its fix plan was made from (cases/demo/laya/kowalchuk.json); only the visit's facts differ.
 id: kowalchuk
 as_of: 2026-09-17
-patient: { id: "2210", name: "Teresa Kowalchuk", dob: 1961-11-02, sex: F, cdcp_client_id: "CDCP-7730-0918" }
+patient: { id: "2210", name: "Teresa Kowalchuk", dob: 1961-11-02, sex: F, cdcp_client_id: "CDCP-7730-0918", phone: "204-555-0131", email: "teresa.kowalchuk@example.ca" }
 provider: { name: "Dr. Priya Lau", licence: "ON-48213" }
 in_chair: { op: "Op 2", with: "M. Haddad RDH" }
 treatment:

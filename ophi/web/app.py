@@ -14,7 +14,6 @@ import io
 import json
 import logging
 import os
-import shutil
 import threading
 import time
 import zipfile
@@ -73,7 +72,7 @@ DONE_MESSAGES = {
     "rules_checking": "Checking CDCP sources. Reload in a minute.", "rules_busy": "A check is already running. Reload in a minute.",
     "captured": "Taken. Ophi checked the chart again.", "chair_done": "Nothing left to take. The patient can go.",
 }
-_RESET_LOCK = threading.Lock()  # a double-submitted reset must not reseed twice at once
+_SEED_LOCK = threading.Lock()  # concurrent first requests must not seed the demo twice
 PMS_SYNC_SECONDS = 30  # how stale the PMS's sent/decided steps may get: each sync is a round trip to the VM
 
 router = APIRouter()
@@ -85,7 +84,7 @@ router = APIRouter()
 def _svc(request: Request) -> CaseService:
     app = request.app
     if app.state.seed_demo and not app.state.seeded:  # first request, not startup: serverless hosts may skip startup
-        with _RESET_LOCK:
+        with _SEED_LOCK:
             if not app.state.seeded:
                 demo.seed(app.state.svc)
                 app.state.seeded = True
@@ -785,18 +784,6 @@ def audit_csv(request: Request):
         w.writerow([e.at.isoformat(), e.case_id, e.actor, e.event, e.detail])
     return Response(buf.getvalue(), media_type="text/csv",
                     headers={"Content-Disposition": f'attachment; filename="ophi-audit-{datetime.now(UTC):%Y%m%d}.csv"'})
-
-
-@router.post("/reset")
-def reset(request: Request):
-    svc = _svc(request)
-    with _RESET_LOCK:
-        svc.reset()
-        shutil.rmtree(request.app.state.packets_dir, ignore_errors=True)
-        if request.app.state.seed_demo:
-            demo.seed(svc)
-        request.app.state.pms_synced_at = float("-inf")  # the reseeded cases take the PMS's steps on the next page
-    return RedirectResponse(_home(request), status_code=303)
 
 
 # --- api & actor ---------------------------------------------------------------------------------------

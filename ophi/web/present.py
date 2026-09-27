@@ -852,6 +852,15 @@ def skipped_note(a) -> str:
     return f", {n} skipped for the test run" if n else ""
 
 
+def contact(patient) -> dict | None:
+    """How to reach the patient, for the one step that calls them. Read from the PMS at the moment it is shown,
+    so the desk doesn't go back to the PMS to book; it is never written to the packet or sent to a model."""
+    if not (patient.phone or patient.email):
+        return None
+    return {"phone": patient.phone, "email": patient.email,
+            "tel": re.sub(r"[^\d+]", "", patient.phone) if patient.phone else None}
+
+
 def case_steps(view: CaseView) -> list[dict]:
     """The case's life as a sequence. Each step names who does it; the current one opens. Criteria can be
     confirmed while chart work is still open, so that step can be open alongside the current one."""
@@ -921,7 +930,8 @@ def case_steps(view: CaseView) -> list[dict]:
                       "state": "done" if stage == Stage.DONE else ("current" if stage == Stage.BOOK else "upcoming"),
                       "summary": f"Booked for {long_date(st.booked_on)}" if st.booked_on else
                       ("Call the patient" if stage == Stage.BOOK else "After Sun Life's decision"),
-                      "valid_until": valid_until(st.decision.decided_on) if st.decision else None})
+                      "valid_until": valid_until(st.decision.decided_on) if st.decision else None,
+                      "contact": contact(view.case.patient) if stage == Stage.BOOK else None})
     latest = "booked" if st.booked_on else ("decision" if st.decision else ("sent" if st.submitted_on else None))
     for n, s in enumerate(steps, start=1):
         s["n"] = n

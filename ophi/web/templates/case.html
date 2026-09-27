@@ -233,6 +233,12 @@
 
   {% elif s.key == 'book' %}
     <p class="now-lead">{{ payer_decision({'outcome': st.decision.outcome, 'on': st.decision.decided_on, 'reason': None}) }} Book the crown by <b>{{ full_date(s.valid_until) }}</b>.</p>
+    {% if s.contact %}
+    <p class="contact">Reach {{ case.patient.display_name.split()[0] }} at
+      {% if s.contact.phone %}<a href="tel:{{ s.contact.tel }}" class="num">{{ s.contact.phone }}</a>{% endif %}
+      {%- if s.contact.phone and s.contact.email %} or {% endif %}
+      {%- if s.contact.email %}<a href="mailto:{{ s.contact.email }}">{{ s.contact.email }}</a>{% endif %}<span class="muted">, from the chart.</span></p>
+    {% endif %}
     <form class="inline-form" method="post" action="{{ BASE }}/cases/{{ cid }}/booked">
       <label class="field"><span>Crown appointment</span><input class="input num" type="date" name="on" value="{{ t.appointment_date.isoformat() if t.appointment_date else '' }}" min="{{ today.isoformat() }}" max="{{ s.valid_until.isoformat() }}" required></label>
       <button class="btn btn-primary" type="submit">Mark as booked</button>

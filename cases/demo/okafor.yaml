@@ -2,7 +2,7 @@
 # requirement is met; ceramic crown with no lab code, as in tremblay.
 id: okafor
 as_of: 2026-09-08
-patient: { id: "5824", name: "Chidi Okafor", dob: 1972-08-03, sex: M, cdcp_client_id: "CDCP-2945-7061" }
+patient: { id: "5824", name: "Chidi Okafor", dob: 1972-08-03, sex: M, cdcp_client_id: "CDCP-2945-7061", phone: "289-555-0154", email: "chidi.okafor@example.ca" }
 provider: { name: "Dr. Priya Lau", licence: "ON-48213" }
 treatment:
   code: "27201"

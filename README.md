@@ -50,7 +50,7 @@ make test                                   # unit, property and golden-corpus t
 make eval                                   # every case in cases/ against its golden verdict; false-ready gate
 make assess CASE=cases/demo/singh.yaml      # one case, on the terminal
 make packet CASE=cases/demo/whitfield.yaml  # build a packet into out/ and run the independent verifier
-make reset                                  # wipe demo state (assertions, sign-offs, audit log)
+make reset                                  # put the demo back to its opening state (ABELDent rows, answers, sign-offs, audit log)
 make demo-real                               # demo with real cases (USE_MOCK_PMS_API off)
 make demo-mock                               # demo with dummy fixtures (USE_MOCK_PMS_API=true)
 ```
