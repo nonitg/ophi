@@ -73,10 +73,11 @@ def _vm_error(text):
     return m.group(1) if m else (text.splitlines()[0][:400] if text else "empty response from vm sql")
 
 
-def sql(query, params=None, vm=VM):
-    """Run one SELECT against the ABELDent database and return rows as dicts.
-    `@name` placeholders bind from `params`, so values never enter the SQL text."""
-    args = [str(vm), "sql", query, "", "json"] + ([json.dumps(params)] if params else [])
+def sql(query, params=None, vm=VM, mode="read"):
+    """Run one query against the ABELDent database and return the last result set's rows as dicts.
+    `@name` placeholders bind from `params`, so values never enter the SQL text.
+    mode: read (default), write (lab test data only) or dry-run (write, then roll back)."""
+    args = [str(vm), "sql", query, "", "json", json.dumps(params or {}), mode]
     r = subprocess.run(args, capture_output=True, text=True)
     body = r.stdout.strip()
     # utm transport folds guest errors into stdout with exit 0; ssh reports them on stderr + exit code

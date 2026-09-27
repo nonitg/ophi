@@ -137,14 +137,18 @@ schtasks /create /tn OphiShot /ru \$u /it /f /sc once /st 00:00 /tr \$shot
 'registered for ' + \$u"
   ;;
 
-# Read-only SQL against the ABELDent database.
-# Usage: vm sql "<query with @name>" [db] [json|csv|table] ['{"name": value}']
+# SQL against the ABELDent database; read-only unless mode is write (lab test data) or dry-run.
+# Usage: vm sql "<query with @name>" [db] [json|csv|table] ['{"name": value}'] [read|write|dry-run]
 sql)
-  q="${1:?usage: vm sql \"<query>\" [database] [json|csv|table] [params-json]}"
+  q="${1:?usage: vm sql \"<query>\" [database] [json|csv|table] [params-json] [read|write|dry-run]}"
   db="${2:-master}"; as="${3:-table}"
   q_b64="$(printf '%s' "$q" | base64 | tr -d '\n')"
   args="-Database $db -As $as"
   [ -n "${4:-}" ] && args+=" -ParamsB64 $(printf '%s' "$4" | base64 | tr -d '\n')"
+  case "${5:-read}" in
+    read) ;; write) args+=" -AllowWrite" ;; dry-run) args+=" -DryRun" ;;
+    *) die "sql mode must be read, write or dry-run" ;;
+  esac
   # Must run as the logged-on user — LocalDB instances are per-user. Over ssh we already are.
   if [ "$VM_TRANSPORT" = ssh ]; then
     printf '%s' "$q_b64" | g_cmd "powershell -NoProfile -ExecutionPolicy Bypass -File $GUEST_DIR\\q.ps1 -QueryB64 stdin $args"
@@ -210,8 +214,8 @@ help|*)
 vm <command>
 
   exec '<powershell>'   run PowerShell in the guest (as SYSTEM), print output
-  sql '<query>' [db] [json|csv|table] ['{"name": value}']
-                        read-only query against the ABELDent database; @name params bind
+  sql '<query>' [db] [json|csv|table] ['{"name": value}'] [read|write|dry-run]
+                        query ABELDent; @name params bind; read-only unless write/dry-run
   sync                  push lab/vm/guest/*.ps1 into C:\ophi
   push <local> <guest>  copy a file in
   get <guestpath>       print a guest file to stdout

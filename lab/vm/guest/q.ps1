@@ -1,6 +1,7 @@
 # Read-only SQL query runner for the lab VM. Lives in C:\ophi on the guest.
 # Deliberately mirrors the plan's ReadOnlySqlExecutor rule: the lab tooling refuses to write
 # to the vendor database, so the safety rail gets exercised before the real agent exists.
+# -AllowWrite is for seeding lab test data only; -DryRun runs a write then rolls it back.
 # Query and named params (JSON object) arrive base64 UTF-8 so they survive ssh/cmd quoting.
 param(
     [Parameter(Mandatory = $true)][string]$QueryB64,
@@ -9,7 +10,8 @@ param(
     [int]$Timeout = 120,
     [ValidateSet('json', 'csv', 'table')][string]$As = 'json',
     [string]$ParamsB64 = '',
-    [switch]$AllowWrite
+    [switch]$AllowWrite,
+    [switch]$DryRun
 )
 
 $ErrorActionPreference = 'Stop'
@@ -20,7 +22,7 @@ $ProgressPreference = 'SilentlyContinue'
 if ($QueryB64 -eq 'stdin') { $QueryB64 = [Console]::In.ReadToEnd().Trim() }
 $Query = [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String($QueryB64))
 
-if (-not $AllowWrite) {
+if (-not ($AllowWrite -or $DryRun)) {
     # Rail 1: no write/DDL/proc keyword anywhere in the text once string literals and comments are
     # removed. Word boundaries keep column names like Deleted or DatePosted legal. INTO blocks
     # SELECT ... INTO; WITH-prefixed DML and leading comments no longer slip past a line-start check.
@@ -71,7 +73,7 @@ $cn = New-Object System.Data.SqlClient.SqlConnection $cs
 $cn.Open()
 # Rail 2: everything runs inside a transaction that is always rolled back, so even a query that
 # slips past rail 1 leaves the vendor database exactly as it was.
-$tx = if ($AllowWrite) { $null } else { $cn.BeginTransaction() }
+$tx = if ($AllowWrite -and -not $DryRun) { $null } else { $cn.BeginTransaction() }
 try {
     $cmd = $cn.CreateCommand()
     $cmd.Transaction = $tx
