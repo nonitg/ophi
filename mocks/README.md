@@ -97,6 +97,19 @@ Queries the recording does not hold answer with no rows (the lab-only patient se
 The change-stamp queries are recorded too, so `PmsLookBack`'s cache sees a stamp that never moves: editing a
 recording in a running process will not rebuild the report. Restart, or re-record.
 
+## Walk-through patients (`pms/walkthrough/*.yaml`)
+
+Patients a presenter walks through live on the deployed board, which the VM doesn't hold: casegen files dated
+relative to today (`as_of: 0d`, `+24d` for a booked visit), loaded next to the recorded charts. Re-recording the
+snapshot keeps them; `recorded-pms-check.py` leaves them out. `patel.yaml` (Jinay Patel, in the chair) is the pitch.
+
+```bash
+scripts/laya-demo-predict-recorded.sh                        # GPU box: score its fix plans (the deploy refuses without them)
+.venv/bin/python scripts/walkthrough-check.py --walk         # what Ophi finds at each click
+scripts/demo-deployed-serve.sh                               # the app as Vercel runs it, on :8802
+.venv/bin/python scripts/walkthrough-flow.py http://127.0.0.1:8802/demo-4ajsmu out/walk   # chair -> booked, screenshotted
+```
+
 ## Full chart fixtures
 
 `pms/chart_dump_101.json` — single crown (16, 27211) with bitewing history, perio full-mouth, one PA.
