@@ -284,13 +284,40 @@ def case_page(request: Request, case_id: str):
 
 
 def _case_page(request: Request, case_id: str, **extra):
+    """The case page. On a plain load it never runs the models: the now-section arrives from /now once they have.
+
+    A re-render carrying transient state (a pasted reason, a form error) has nowhere to hand that to a later
+    GET, so it waits for the plan and renders the section inline."""
     view = _view(request, case_id)
     if view is None:
         return _error(request, 404, "Case not found", f"No case '{case_id}' in the demo set.")
+    live = request.app.state.live
+    rd = live.cached(view.case) if live else readout.load(case_id)  # live never falls back to an offline plan
+    if rd is None and extra and live:
+        rd = live.latest(view.case)
+    if rd is None and live:
+        live.warm_cases([view.case])  # the fetch that follows finds it scored, or waits on this same pass
+    return _render(request, "case.html", plan_pending=rd is None and live is not None,
+                   **_case_ctx(request, view, rd), **extra)
+
+
+@router.get("/cases/{case_id}/now", response_class=HTMLResponse)
+def case_now(request: Request, case_id: str):
+    """The case page's now-section on its own, scored. The page fetches this after it has rendered."""
+    view = _view(request, case_id)
+    if view is None:
+        return _error(request, 404, "Case not found", f"No case '{case_id}' in the demo set.")
+    live = request.app.state.live
+    rd = live.latest(view.case) if live else readout.load(case_id)
+    return _render(request, "_now.html", **_case_ctx(request, view, rd))
+
+
+def _case_ctx(request: Request, view: CaseView, rd) -> dict:
+    """Everything both the case page and its now-section read. `rd` is None until the models have scored."""
+    case_id = view.case.case_id
     svc, actor = _svc(request), _actor(request, case_id)
     today = svc.today()
-    live = request.app.state.live
-    rd, gaps = live.latest(view.case) if live else readout.load(case_id), present.gap_rows(view)
+    gaps = present.gap_rows(view)
     relevant, other = present.assertion_rows(view, view.pack, present.pre_reads_for(view, view.pack, rd))
     steps = present.case_steps(view)
     now = present.now_step(steps, actor)
@@ -298,18 +325,18 @@ def _case_page(request: Request, case_id: str, **extra):
     fx = present.fix_panel(view, rd, view.pack, gaps) if view.stage in workflow.CHART_STAGES else None
     ml = present.ml_debug(view, rd)
     log.info(present.ml_report(ml))
-    return _render(request, "case.html", view=view, case=view.case, a=view.assessment, stage=view.stage,
-                   steps=steps, now=now, waiting=present.waiting_on(now, actor, view.case.treatment.provider.name, timing),
-                   next_case=present.next_up(svc.queue(), view, actor, today),
-                   stepper=present.stepper(view, actor), gaps=gaps,
-                   advisory=present.advisory(view),
-                   timing=timing, advice=present.advice(view, timing, today), evidence=present.evidence_panel(view),
-                   fx=fx, ml=ml,
-                   plan=present.dentist_panel(view, rd) if view.stage in (*workflow.CHART_STAGES, workflow.Stage.DENTIST) else None,
-                   criteria=relevant, crit=present.criteria_groups(view, relevant), criteria_other=other, activity=present.activity(svc.store.audit_log(case_id)),
-                   applicable=[r for r in view.assessment.requirements if r.applicable],
-                   not_applicable=[r for r in view.assessment.requirements if not r.applicable],
-                   reasons=workflow.REASONS, **extra)
+    return dict(view=view, case=view.case, a=view.assessment, stage=view.stage,
+                steps=steps, now=now, waiting=present.waiting_on(now, actor, view.case.treatment.provider.name, timing),
+                next_case=present.next_up(svc.queue(), view, actor, today),
+                stepper=present.stepper(view, actor), gaps=gaps,
+                advisory=present.advisory(view),
+                timing=timing, advice=present.advice(view, timing, today), evidence=present.evidence_panel(view),
+                fx=fx, ml=ml,
+                plan=present.dentist_panel(view, rd) if view.stage in (*workflow.CHART_STAGES, workflow.Stage.DENTIST) else None,
+                criteria=relevant, crit=present.criteria_groups(view, relevant), criteria_other=other, activity=present.activity(svc.store.audit_log(case_id)),
+                applicable=[r for r in view.assessment.requirements if r.applicable],
+                not_applicable=[r for r in view.assessment.requirements if not r.applicable],
+                reasons=workflow.REASONS)
 
 
 @router.post("/cases/{case_id}/assert")

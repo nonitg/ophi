@@ -242,6 +242,20 @@ textarea.input { width: 100%; height: auto; padding: 8px 10px; line-height: 1.5;
 .tag.tag-test { display: inline-block; padding: 0 6px; border: 1px dashed var(--ink-soft); border-radius: 999px; background: none; color: var(--ink-soft); font-size: 11px; font-weight: 600; letter-spacing: .02em; vertical-align: 2px; }
 .now .note { background: rgba(255,255,255,.6); }
 .now-undo { padding-top: 2px; }
+
+/* The plan's models take seconds on a cold case; the page arrives first and this stands in for it. */
+.now-skel > * + * { margin-top: 12px; }
+.now-skel-bar { height: 13px; border-radius: 999px; background: var(--rule); }
+.now-skel-bar.is-title { height: 19px; width: 42%; }
+.now-skel-card { padding: 14px 16px; border-radius: var(--r-control); background: var(--paper); border: 1px solid var(--rule); }
+.now-skel-card > * + * { margin-top: 10px; }
+.now-skel [data-w="short"] { width: 34%; }
+.now-skel [data-w="mid"] { width: 62%; }
+.now-skel [data-w="long"] { width: 88%; }
+.now-skel-bar { animation: skel-pulse 1.4s ease-in-out infinite; }
+.now-skel-card:nth-child(3) .now-skel-bar { animation-delay: .18s; }
+@keyframes skel-pulse { 50% { opacity: .45; } }
+.now-skel-note { font-size: 13.5px; color: var(--ink-soft); }
 .why { font-size: 14px; color: var(--ink-soft); }
 .why summary, .crit-note summary { display: flex; align-items: center; gap: 7px; list-style: none; cursor: pointer; width: max-content; color: var(--muted); font-size: 13.5px; }
 .why summary::-webkit-details-marker, .crit-note summary::-webkit-details-marker { display: none; }

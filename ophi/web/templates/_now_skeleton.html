@@ -1,0 +1,18 @@
+{# Stands in for the now-section while the models score this case; app.js swaps in /cases/{id}/now. #}
+<section class="now" id="now" aria-labelledby="now-title" data-now-src="{{ BASE }}/cases/{{ case.case_id }}/now">
+  <div class="now-head"><h2 id="now-title">Working out what this case needs</h2></div>
+  <div class="now-skel" aria-hidden="true">
+    <div class="now-skel-bar is-title"></div>
+    <div class="now-skel-card">
+      <div class="now-skel-bar" data-w="mid"></div>
+      <div class="now-skel-bar" data-w="long"></div>
+      <div class="now-skel-bar" data-w="short"></div>
+    </div>
+    <div class="now-skel-card">
+      <div class="now-skel-bar" data-w="short"></div>
+      <div class="now-skel-bar" data-w="long"></div>
+    </div>
+  </div>
+  <p class="now-skel-note" role="status">Checking the chart against the rule pack. The rest of the case is ready below.</p>
+  <noscript><p class="now-skel-note"><a href="{{ BASE }}/cases/{{ case.case_id }}/now">Load what this case needs</a></p></noscript>
+</section>

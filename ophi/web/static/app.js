@@ -1,6 +1,9 @@
 // Small behaviours on top of server-rendered forms: actor switch, confirm on destructive forms,
 // unsaved-narrative warning, pre-filled criteria, and links that land inside a closed fold.
+// The plan panel arrives after the page, so its behaviours bind per root, not once at load.
 (function () {
+  // Bound over a root so the deferred plan panel gets the same behaviours as a server-rendered one.
+  window.ophiBindNow = function (root) {
   document.querySelectorAll("select[data-autosubmit]").forEach(function (sel) {
     sel.addEventListener("change", function () { sel.form.submit(); });
   });
@@ -13,7 +16,9 @@
     sync();
   });
 
-  document.querySelectorAll("form[data-confirm]").forEach(function (form) {
+  root.querySelectorAll("form[data-confirm]").forEach(function (form) {
+    if (form.dataset.bound) return;
+    form.dataset.bound = "1";
     form.addEventListener("submit", function (e) {
       if (!window.confirm(form.getAttribute("data-confirm"))) e.preventDefault();
     });
@@ -21,16 +26,16 @@
 
   // A pre-filled answer looks like a suggestion until the dentist touches it; then it reads as theirs.
   // Click, not change: tapping the suggested option leaves the radio as it was, so only a click says they took it.
-  document.querySelectorAll(".crit.is-pre").forEach(function (row) {
+  root.querySelectorAll(".crit.is-pre").forEach(function (row) {
     row.addEventListener("click", function (e) {
       if (e.target.closest(".seg")) row.classList.remove("is-pre");
     });
   });
 
   // The confirm button says how many answers it will record, and the line beside it how many are still open.
-  var critForm = document.getElementById("crit-form"), countBtn = document.querySelector("[data-crit-count]");
+  var critForm = root.querySelector("#crit-form"), countBtn = root.querySelector("[data-crit-count]");
   if (critForm && countBtn) {
-    var left = document.querySelector("[data-crit-left]"), tail = left ? left.textContent.replace(/^.*your answer\. /, "") : "";
+    var left = root.querySelector("[data-crit-left]"), tail = left ? left.textContent.replace(/^.*your answer\. /, "") : "";
     critForm.addEventListener("change", function () {
       var rows = critForm.querySelectorAll(".crit-group:not(.crit-group-recorded) .crit");
       var answered = 0;
@@ -42,7 +47,7 @@
   }
 
   // Answers the dentist tapped but didn't record are lost on leaving; say so first.
-  var crit = document.getElementById("crit-form");
+  var crit = root.querySelector("#crit-form");
   if (crit) {
     var changed = false;
     crit.addEventListener("change", function () { changed = true; });
@@ -51,6 +56,9 @@
       if (changed) { e.preventDefault(); e.returnValue = ""; }
     });
   }
+  };
+
+  window.ophiBindNow(document);
 
   // The confirmation after a write is a toast: it says what happened, then gets out of the way.
   var note = document.querySelector(".done-note");
@@ -91,8 +99,35 @@
   }
   window.addEventListener("hashchange", reveal);
   reveal();
-  // Dev aid: the case page's Laya + LightGBM output, printed to the browser console.
-  var ml = document.getElementById("ml-debug");
+  dumpMl(document);
+})();
+
+// The plan the models score is fetched after the page, so a cold case opens now and fills in.
+(function () {
+  var skel = document.querySelector("[data-now-src]");
+  if (!skel) return;
+  fetch(skel.getAttribute("data-now-src"), { headers: { "X-Requested-With": "fetch" } })
+    .then(function (r) { if (!r.ok) throw new Error(r.status); return r.text(); })
+    .then(function (html) {
+      var holder = document.createElement("div");
+      holder.innerHTML = html;
+      var now = holder.querySelector("#now");
+      if (!now) throw new Error("no section");
+      skel.replaceWith(now);
+      window.ophiBindNow(now);
+      dumpMl(holder);  // the ml-debug json sits beside the section, not inside it
+      if (location.hash === "#now") now.scrollIntoView({ block: "start" });
+    })
+    .catch(function () {
+      var note = skel.querySelector(".now-skel-note");
+      var src = skel.getAttribute("data-now-src");
+      if (note) note.innerHTML = 'Could not work out what this case needs. <a href="' + src + '">Try again</a>.';
+    });
+})();
+
+// Dev aid: the case page's Laya + LightGBM output, printed to the browser console.
+function dumpMl(root) {
+  var ml = root.querySelector("#ml-debug");
   if (ml) {
     var m = JSON.parse(ml.textContent);
     console.group("Ophi ML — " + m.case_id + " (scored " + (m.scored_on || "never") + ")");
@@ -117,4 +152,4 @@
     console.log("Raw:", m);
     console.groupEnd();
   }
-})();
+}
