@@ -19,14 +19,14 @@ def test_the_chart_alone_pre_fills_what_it_records_and_flags_what_it_contradicts
     assert pre["no_active_perio"].suggest == "met"  # 3 mm, no bleeding at #46
     assert pre["active_disease_addressed"].suggest == "met"
     er = pre["extensively_restored"]
-    assert er.suggest is None and er.against[0].text.startswith("Odontogram: MODB restored on #46, 4 of the 5")
+    assert er.suggest is None and er.against[0].text.startswith("Tooth chart: #46 is already filled on 4 sides (M, O, D, B); this tooth needs 5")
     assert pre["margin_3mm"].suggest is None  # judged on the film, and without the note there is nothing to go on
 
 
 def test_pending_treatment_in_the_plan_leaves_active_disease_to_the_dentist(svc):
     pre = pre_reads(svc.view("deng").case, svc.pack, note=None)
     assert pre["active_disease_addressed"].suggest is None
-    assert pre["active_disease_addressed"].against[0].text == "The plan still lists 21212 #47"
+    assert pre["active_disease_addressed"].against[0].text == "The treatment plan still has 21212 #47 waiting to be done"
 
 
 def test_laya_note_answers_outlive_a_new_film(svc):

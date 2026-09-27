@@ -38,11 +38,11 @@ READS = {
     "endo_healed": [("endo_not_healed", True)],
     "basic_treatment_complete": [("pending_basic", True)],
 }
-CONCERN = {"extensively_restored": "doesn't show the tooth is extensively restored",
-           "subgingival_margin": "mentions a margin below the gum or crown lengthening",
-           "poor_support": "mentions furcation or poor bone support",
-           "endo_not_healed": "suggests the root canal is recent or not yet healed",
-           "pending_basic": "mentions fillings or scaling still to do"}
+CONCERN = {"extensively_restored": "doesn't say the tooth is already heavily filled",
+           "subgingival_margin": "says the filling edge sits under the gum, or that gum surgery is needed first",
+           "poor_support": "says the bone or gum holding the tooth is a problem",
+           "endo_not_healed": "says the root canal is recent or still healing",
+           "pending_basic": "says fillings or cleanings are still to do"}
 # Note questions where "no" is the concern; for the rest, "yes" is.
 CONCERN_WHEN_NO = {"extensively_restored", "structure_lost"}
 # Exports never carry the CDCP client ID (hashed on ingest), so the claim form is checked on the real Case.

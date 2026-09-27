@@ -30,9 +30,10 @@ NOTE_CRITERIA: dict[str, list[tuple[str, str]]] = {
     "margin_3mm": [("subgingival_margin", "no")], "ferrule_1_5mm": [("subgingival_margin", "no")],
     "no_adjunctive_needed": [("subgingival_margin", "no")],
 }
-BACKS = {"extensively_restored": "describes an extensively restored tooth", "structure_lost": "describes a lost cusp or incisal edge",
-         "endo_not_healed": "raises no healing concern", "pending_basic": "mentions no fillings or scaling still to do",
-         "poor_support": "raises no furcation or bone-support concern", "subgingival_margin": "raises no margin or crown-lengthening concern"}
+BACKS = {"extensively_restored": "says the tooth is already heavily filled", "structure_lost": "says part of the tooth has broken away",
+         "endo_not_healed": "does not say the root canal is still healing", "pending_basic": "says no fillings or cleanings are still to do",
+         "poor_support": "does not say the bone or gum holding the tooth is a problem",
+         "subgingival_margin": "does not say the filling edge sits under the gum"}
 # Judged on the radiograph, which Ophi can't read: the dentist glances at the film before confirming.
 ON_FILM = {"crown_root_ratio", "margin_3mm", "ferrule_1_5mm", "no_adjunctive_needed", "mesiodistal_space", "endo_healed"}
 
@@ -102,16 +103,16 @@ def _chart(case: Case, criterion_id: str) -> list[Evidence]:
         pending = [h for h in case.procedure_history if h.status == "planned" and h.code != case.treatment.code]
         if pending:
             listed = ", ".join(f"{h.code}{' #' + str(h.tooth_fdi) if h.tooth_fdi else ''}" for h in pending)
-            return [Evidence(source="chart", text=f"The plan still lists {listed}", stance="against")]
-        return [Evidence(source="chart", text="No other treatment planned in the chart", stance="supports")]
+            return [Evidence(source="chart", text=f"The treatment plan still has {listed} waiting to be done", stance="against")]
+        return [Evidence(source="chart", text="The treatment plan has nothing else waiting to be done", stance="supports")]
     if criterion_id == "no_active_perio" and (site := _perio_at(case)):
         return [_perio_evidence(site)]
     if criterion_id == "no_furcation":
         if single_rooted(t):
-            return [Evidence(source="chart", text=f"#{t} is single-rooted, so furcation doesn't apply", stance="supports")]
+            return [Evidence(source="chart", text=f"#{t} has only one root, so there is no split between roots to check", stance="supports")]
         if (site := _perio_at(case)) and site.furcation is not None:
-            return [Evidence(source="chart", text=f"Perio chart: furcation grade {site.furcation} at #{t}", stance="against") if site.furcation
-                    else Evidence(source="chart", text=f"Perio chart: no furcation at #{t}", stance="supports")]
+            return [Evidence(source="chart", text=f"Gum chart: bone loss has reached the split between the roots of #{t} (furcation grade {site.furcation})", stance="against") if site.furcation
+                    else Evidence(source="chart", text=f"Gum chart: no bone loss where the roots of #{t} split apart", stance="supports")]
     if criterion_id == "endo_healed":
         return _endo(case)
     if criterion_id == "third_molar_in_occlusion":
@@ -125,14 +126,15 @@ def _restored(case: Case) -> list[Evidence]:
     surfaces = set(case.dentition.restored_surfaces.get(t, []))
     if not surfaces:
         return []
-    shown = f"Odontogram: {''.join(sorted(surfaces, key='MIODBLF'.find))} restored on #{t}"
+    shown = f"Tooth chart: #{t} is already filled on {len(surfaces)} sides ({', '.join(sorted(surfaces, key='MIODBLF'.find))})"
     if variant == "posterior_non_endo":
-        return [Evidence(source="chart", text=f"{shown}, {len(surfaces)} of the 5 surfaces required", stance="supports" if len(surfaces) >= 5 else "against")]
+        return [Evidence(source="chart", text=f"{shown}; this tooth needs 5 to count as heavily filled",
+                         stance="supports" if len(surfaces) >= 5 else "against")]
     ridges = {"M", "D"} <= surfaces
     if variant == "posterior_endo" and ridges and len(surfaces) >= 3:
-        return [Evidence(source="chart", text=f"{shown}, across both marginal ridges", stance="supports")]
+        return [Evidence(source="chart", text=f"{shown}, including both edges that meet the neighbouring teeth", stance="supports")]
     if variant == "anterior" and ridges and "I" in surfaces:
-        return [Evidence(source="chart", text=f"{shown}, incisal edge and both contacts", stance="supports")]
+        return [Evidence(source="chart", text=f"{shown}, including the biting edge and both sides that meet the neighbouring teeth", stance="supports")]
     return []  # short of the surface route, a lost cusp may still meet it: the note or the dentist decides
 
 
@@ -153,7 +155,10 @@ def _perio_evidence(site: SiteDepths) -> Evidence:
     deepest = max(d for d, _ in depths)
     unstable = deepest >= 5 or any(d >= 4 and b for d, b in depths)
     bleeds = any(b for _, b in depths)
-    text = f"Perio chart: deepest pocket {deepest} mm at #{site.tooth_fdi}, {'bleeding on probing' if bleeds else 'no bleeding'}"
+    # Plain reading of the numbers, so a new coordinator sees what they mean without knowing the thresholds.
+    reading = "the gum there is not healthy enough yet" if unstable else "the gum there is healthy"
+    text = (f"Gum chart: the deepest gap between gum and tooth at #{site.tooth_fdi} is {deepest} mm and it "
+            f"{'bleeds when measured' if bleeds else 'does not bleed'} - {reading}")
     return Evidence(source="chart", text=text, stance="against" if unstable else "supports")
 
 
@@ -164,9 +169,9 @@ def _endo(case: Case) -> list[Evidence]:
         return []
     done, pa = max(rct), latest_pa(case)
     if not pa or pa <= done:
-        return [Evidence(source="chart", text=f"No PA of #{t} since the root canal on {done:%b %-d, %Y}", stance="against")]
+        return [Evidence(source="chart", text=f"No x-ray of #{t} has been taken since its root canal on {done:%b %-d, %Y}", stance="against")]
     months = (pa.year - done.year) * 12 + pa.month - done.month
-    return [Evidence(source="chart", text=f"PA of #{t} taken {months} months after the root canal", stance="supports")]
+    return [Evidence(source="chart", text=f"An x-ray of #{t} was taken {months} months after its root canal", stance="supports")]
 
 
 def _third_molar(case: Case) -> Evidence:
@@ -176,6 +181,6 @@ def _third_molar(case: Case) -> Evidence:
     opposing = {1: 4, 2: 3, 3: 2, 4: 1}[q]
     opposed = any(case.dentition.state(opposing * 10 + p) != ToothState.MISSING for p in (6, 7, 8))
     if first_second_missing and opposed:
-        return Evidence(source="chart", text=f"Odontogram: #{q}6 and #{q}7 missing, an opposing molar present", stance="supports")
-    return Evidence(source="chart", text=f"Odontogram: #{q}6 {case.dentition.state(q * 10 + 6).value}, #{q}7 {case.dentition.state(q * 10 + 7).value}",
+        return Evidence(source="chart", text=f"Tooth chart: #{q}6 and #{q}7 are both missing, and there is a molar in the opposite jaw for #{t} to bite against", stance="supports")
+    return Evidence(source="chart", text=f"Tooth chart: #{q}6 is {case.dentition.state(q * 10 + 6).value}, #{q}7 is {case.dentition.state(q * 10 + 7).value}",
                     stance="against")
