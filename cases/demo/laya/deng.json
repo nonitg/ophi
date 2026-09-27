@@ -5,6 +5,7 @@
   {
    "state": "as_charted",
    "text_sha256": "c37c0d116ee6d61b4162046af22cd6cf03f53cc747d7907ca79f506fe2bfae10",
+   "note_sha256": "11c657e3f9f791118d7c46d066e5ca934a0bc9220dc89f7fcf37658af66516ab",
    "plan": {
     "request_id": "deng",
     "as_of": "2026-09-17",
@@ -211,6 +212,7 @@
   {
    "state": "safe_fixes",
    "text_sha256": "704a14a4a55391e626b21cfa90c9096551a557b2b4017649a50e9bc6b9e905b6",
+   "note_sha256": "11c657e3f9f791118d7c46d066e5ca934a0bc9220dc89f7fcf37658af66516ab",
    "plan": {
     "request_id": "deng",
     "as_of": "2026-09-17",

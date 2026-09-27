@@ -14,7 +14,7 @@ from ophi import fixes
 from ophi.engine.assess import assess
 from ophi.outcomes.case_export import to_export
 from ophi.outcomes.fixer import plan_fixes
-from ophi.outcomes.readout import READOUT_DIR, Readout, ScoredPlan, fingerprint, text_for
+from ophi.outcomes.readout import READOUT_DIR, Readout, ScoredPlan, fingerprint, note_fingerprint, text_for
 from ophi.outcomes.risk import RiskModel
 from ophi.rules.loader import default_pack
 from ophi.service import CaseService
@@ -33,7 +33,7 @@ def main():
         case = svc.base_case(cid)
         safe = fixes.open_on(assess(case, pack))
         states = [("as_charted", case)] + ([("safe_fixes", fixes.apply(case, safe, pack))] if safe else [])
-        plans = [ScoredPlan(state=s, text_sha256=fingerprint(text_for(c)),
+        plans = [ScoredPlan(state=s, text_sha256=fingerprint(text_for(c)), note_sha256=note_fingerprint(c),
                             plan=plan_fixes(to_export(c), c.as_of, pack, model, request_id=cid).model_dump(mode="json"))
                  for s, c in states]
         (READOUT_DIR / f"{cid}.json").write_text(Readout(case_id=cid, scored_on=date.today(), plans=plans).model_dump_json(indent=1) + "\n")

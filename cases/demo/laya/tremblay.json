@@ -5,6 +5,7 @@
   {
    "state": "as_charted",
    "text_sha256": "5183c62a66953ab3a868c67270ef33a73b136a9ce0b9af3a710d71a67b5ad59a",
+   "note_sha256": "214bf3b228c5769d99ce9f604a854b5716cef90c221d8b154a8883d4d1df2d69",
    "plan": {
     "request_id": "tremblay",
     "as_of": "2026-09-17",

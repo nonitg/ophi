@@ -5,6 +5,7 @@
   {
    "state": "as_charted",
    "text_sha256": "b15bc3387f4dee8adef2cacacc77f85dccdf535692c2ba0aca48c443322be935",
+   "note_sha256": "0e3dea7670180b70ce80909b7dbc63bf77002ecba1203d874ace3fd57aa4531e",
    "plan": {
     "request_id": "kowalchuk",
     "as_of": "2026-09-17",

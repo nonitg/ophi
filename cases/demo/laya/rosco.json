@@ -5,6 +5,7 @@
   {
    "state": "as_charted",
    "text_sha256": "e4522a784a0dd55ebdf748b9659befa9d1f9f63ea00c709b81b55cd251fe702e",
+   "note_sha256": "ca471a08ecdb153a8be4ed6be499a9873f6e775624884753833274a30842e22b",
    "plan": {
     "request_id": "rosco",
     "as_of": "2026-09-17",

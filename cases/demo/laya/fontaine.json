@@ -5,6 +5,7 @@
   {
    "state": "as_charted",
    "text_sha256": "e1c82d3aa47daf00d209ccadf5b86099a99df5511d21e48ef3bda1f6f8e32b86",
+   "note_sha256": "fbe009aa35aef1315545100d634f51ecaee9112d2ac1a465cf0475c2766458bb",
    "plan": {
     "request_id": "fontaine",
     "as_of": "2026-09-16",

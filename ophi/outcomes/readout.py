@@ -30,9 +30,14 @@ def fingerprint(text: str) -> str:
     return hashlib.sha256(text.encode()).hexdigest()
 
 
+def note_fingerprint(case: Case) -> str:
+    return fingerprint(to_export(case)["clinical_notes"])
+
+
 class ScoredPlan(BaseModel):
     state: str  # as_charted | safe_fixes
     text_sha256: str
+    note_sha256: str | None = None  # the clinical note alone: what Laya's note answers are about
     plan: dict  # the fixer's FixPlan as JSON: now, after_fixes, remaining, fixes, note_answers, drivers, model
 
 
@@ -45,6 +50,14 @@ class Readout(BaseModel):
         """The plan for the chart as it is now, or None when it changed after the plan was made."""
         sha = fingerprint(text_for(case))
         return next((p.plan for p in self.plans if p.text_sha256 == sha), None)
+
+    def note_answers(self, case: Case) -> dict[str, float] | None:
+        """Laya's answers about the note, while the note is the one it read. A new film or perio chart changes the
+        request, and so the plan, but not what the note says."""
+        if plan := self.matching(case):
+            return plan["note_answers"]
+        sha = note_fingerprint(case)
+        return next((p.plan["note_answers"] for p in self.plans if p.note_sha256 == sha), None)
 
 
 def load(case_id: str, root: Path = READOUT_DIR) -> Readout | None:

@@ -5,6 +5,7 @@
   {
    "state": "as_charted",
    "text_sha256": "baf8277061467313147af81c744887da58f25b8e5bb2b5d2d37533ee0fc2ac9f",
+   "note_sha256": "4d1df5736347f2be55bc500a791e5603280c867a52fbb6fabffa7e2dc1fb11f8",
    "plan": {
     "request_id": "okafor",
     "as_of": "2026-09-08",

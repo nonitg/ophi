@@ -5,6 +5,7 @@
   {
    "state": "as_charted",
    "text_sha256": "519cb98be37f5e8da3952d6ebc16c477a5fae35c57f9abd9d688541ddcd6c158",
+   "note_sha256": "6dff9e6c77c07c1ee7c477c5433d9bdfc9c94c1ee765362a5cbe000b5e4d7186",
    "plan": {
     "request_id": "marchand",
     "as_of": "2026-08-26",

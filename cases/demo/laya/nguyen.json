@@ -5,6 +5,7 @@
   {
    "state": "as_charted",
    "text_sha256": "9c19afae13060559375e11f0043394b514dcc7f03d0ce9b3298c251c836f0557",
+   "note_sha256": "09ae8f2c7e75d9a0328b2f93e915b57c24f096ede22dc3262e1470073b8cb2a8",
    "plan": {
     "request_id": "nguyen",
     "as_of": "2026-09-01",

@@ -5,6 +5,7 @@
   {
    "state": "as_charted",
    "text_sha256": "355e4f9409edf0afc101f726317857433dd6c7b0fd7173c8f601eac2a9c274ca",
+   "note_sha256": "9e27e76f31b98c386c36f672af98635009ed88b414e0e11e101a54cb998f1c72",
    "plan": {
     "request_id": "singh",
     "as_of": "2026-09-17",

@@ -5,6 +5,7 @@
   {
    "state": "as_charted",
    "text_sha256": "f96425ac56e54032956ce87cbe4806afb65e2d72f1c5cd3f037fdd4d8d47dd4e",
+   "note_sha256": "b5a43efe7e6c219c70185c20e943a668ed02128646fb2b9d7e3748097f6ba1ed",
    "plan": {
     "request_id": "whitfield",
     "as_of": "2026-09-17",
