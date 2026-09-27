@@ -19,7 +19,6 @@
       <a href="{{ HOME }}" {% if path == '/' or path.startswith('/cases') %}aria-current="page"{% endif %}>Board</a>
       <a href="{{ BASE }}/recover" {% if path.startswith('/recover') %}aria-current="page"{% endif %}>Past denials</a>
       <a href="{{ BASE }}/results" {% if path.startswith('/results') %}aria-current="page"{% endif %}>Results</a>
-      <a href="{{ BASE }}/model" class="nav-laya" {% if path.startswith('/model') %}aria-current="page"{% endif %}><svg class="laya-spark" width="11" height="11" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 .5c.6 3.9 3.2 6.6 7.5 7.5-4.3.9-6.9 3.6-7.5 7.5C7.4 11.6 4.8 8.9.5 8 4.8 7.1 7.4 4.4 8 .5z"/></svg>Laya</a>
       <a href="{{ BASE }}/settings" {% if path.startswith('/settings') or path == '/outcomes' %}aria-current="page"{% endif %}>Settings</a>
     </nav>
     <form class="me" method="post" action="{{ BASE }}/actor" aria-label="View as">

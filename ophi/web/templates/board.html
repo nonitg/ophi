@@ -63,9 +63,9 @@
         <span class="tile-act">{{ act.title }}{% if act.more %}&nbsp;<span class="more">+{{ act.more }} more</span>{% endif %}</span>
         {% if act.payer %}<span class="tile-note payer" data-voice="payer">Sun Life {{ act.payer.outcome }} it {{ short_date(act.payer.on) }}</span>
         {% elif act.note %}<span class="tile-note">{{ act.note }}</span>{% endif %}
-        {% if act.prefilled %}<span class="tile-pre">{{ laya('', link=False) }}{{ act.prefilled }} of {{ act.criteria }} pre-filled</span>{% endif %}
+        {% if act.prefilled %}<span class="tile-pre">{{ laya('') }}{{ act.prefilled }} of {{ act.criteria }} pre-filled</span>{% endif %}
         {% endif %}
-        {% if c.risk %}<span class="tile-risk">{{ laya('Risk', link=False) }} <b class="lvl lvl-{{ c.risk.now }}">{{ RISK_LABEL[c.risk.now] }}</b>{% if c.risk.after %} <span aria-label="after fixes">→</span> <b class="lvl lvl-{{ c.risk.after }}">{{ RISK_LABEL[c.risk.after] }}</b>{% endif %}</span>{% endif %}
+        {% if c.risk %}<span class="tile-risk">{{ laya('Risk') }} <b class="lvl lvl-{{ c.risk.now }}">{{ RISK_LABEL[c.risk.now] }}</b>{% if c.risk.after %} <span aria-label="after fixes">→</span> <b class="lvl lvl-{{ c.risk.after }}">{{ RISK_LABEL[c.risk.after] }}</b>{% endif %}</span>{% endif %}
         {% if c.timing.text %}<span class="tile-foot">{{ due(c.timing) }}</span>{% endif %}
       </a></li>
       {% endfor %}

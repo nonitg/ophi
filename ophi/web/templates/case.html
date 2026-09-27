@@ -89,7 +89,7 @@
           {% endif %}
         </div>
         {% if it.auto %}<p class="gap-effect">Ophi makes this change when you press Apply it.</p>{% endif %}
-        {% if it.effect in ('most', 'some') %}<p class="gap-effect effect-{{ it.effect }}">{{ laya('', link=False) }}{{ {'most': 'Lowers denial risk the most', 'some': 'Lowers denial risk a little'}[it.effect] }}</p>{% endif %}
+        {% if it.effect in ('most', 'some') %}<p class="gap-effect effect-{{ it.effect }}">{{ laya('') }}{{ {'most': 'Lowers denial risk the most', 'some': 'Lowers denial risk a little'}[it.effect] }}</p>{% endif %}
         {% if it.concern == 'timing' %}<p class="gap-effect">Do this first, then send.</p>{% endif %}
         {% if g and g.hint %}<p class="gap-hint">{{ g.hint }}</p>{% endif %}
         {% if g and g.proposal %}{% set pl = g.proposal.payload %}

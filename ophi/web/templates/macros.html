@@ -35,13 +35,13 @@
 
 {# Laya, Ophi's trained model. The spark marks everything it produced, so its part is never mistaken for a rule or a
    person's answer; it links to what Laya does and can't do. #}
-{% macro laya(label='Laya', link=True) -%}
-<{{ 'a href="' ~ BASE ~ '/model"' if link else 'span' }} class="laya{% if not label %} laya-mark{% endif %}"{% if not label %} aria-label="Laya"{% endif %}><svg class="laya-spark" width="11" height="11" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 .5c.6 3.9 3.2 6.6 7.5 7.5-4.3.9-6.9 3.6-7.5 7.5C7.4 11.6 4.8 8.9.5 8 4.8 7.1 7.4 4.4 8 .5z"/></svg>{{ label }}</{{ 'a' if link else 'span' }}>
+{% macro laya(label='Laya') -%}
+<span class="laya{% if not label %} laya-mark{% endif %}"{% if not label %} aria-label="Laya"{% endif %}><svg class="laya-spark" width="11" height="11" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 .5c.6 3.9 3.2 6.6 7.5 7.5-4.3.9-6.9 3.6-7.5 7.5C7.4 11.6 4.8 8.9.5 8 4.8 7.1 7.4 4.4 8 .5z"/></svg>{{ label }}</span>
 {%- endmacro %}
 
 {# Where one piece of a pre-read came from: the chart (Ophi's rules) or Laya's reading of the note. #}
 {% macro source_tag(src) -%}
-{%- if src == 'note' %}{{ laya(link=False) }}{% else %}<span class="src-chart">Chart</span>{% endif -%}
+{%- if src == 'note' %}{{ laya() }}{% else %}<span class="src-chart">Chart</span>{% endif -%}
 {%- endmacro %}
 
 {# Sun Life's decision, in Sun Life's voice. data-voice marks text that is not Ophi's (the copy-law test skips it). #}

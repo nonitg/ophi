@@ -297,7 +297,7 @@ def test_copy_law_in_ophi_voice(seeded):
     seeded.post("/cases/park/decision", data={"outcome": "approved", "decided_on": "2026-09-16", "reason": ""})
     pages = ["/", "/cases/kowalchuk", "/cases/singh", "/cases/deng", "/cases/rosco", "/cases/tremblay", "/cases/nguyen", "/cases/marchand",
              "/cases/park", "/cases/okafor",
-             "/cases/whitfield/packet", "/recover", "/results", "/settings", "/model"]
+             "/cases/whitfield/packet", "/recover", "/results", "/settings"]
     for actor in ("dentist", "coordinator"):
         seeded.cookies.set("actor", actor)
         for path in pages:
@@ -349,14 +349,6 @@ def test_dentist_confirms_ophis_pre_fills_in_one_submit(client):
     assert "margin_3mm=met, as Laya pre-filled" in log
     assert "ferrule_1_5mm=not_met, Laya pre-filled met" in log
     assert "mesiodistal_space=met" in log
-    assert "kept <b class=\"num\">8</b> of 9 pre-fills" in client.get("/model").text
-
-
-def test_laya_page_names_each_task_and_its_limits(client):
-    page = client.get("/model").text
-    for task in ("Reads the clinical note", "Estimates denial risk", "Ranks the fixes", "Pre-fills the dentist"):
-        assert task in page
-    assert "See X-rays" in page and "laya-cdcp 2026-09-26" in page
 
 
 def test_case_page_carries_ml_output_for_console(client):

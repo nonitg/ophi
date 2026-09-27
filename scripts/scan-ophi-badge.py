@@ -14,7 +14,7 @@ BADGE = re.compile(r'class="mono-mark"[^>]*>O<')
 
 with TestClient(app) as c:
     board = c.get("/").text
-    paths = ["/", "/settings", "/outcomes", "/model"] + sorted(set(re.findall(r'href="(/cases/[^"/]+)"', board)))
+    paths = ["/", "/settings", "/outcomes"] + sorted(set(re.findall(r'href="(/cases/[^"/]+)"', board)))
     for actor in ("coordinator", "dentist"):
         c.cookies.set("actor", actor)
         for p in paths:

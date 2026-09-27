@@ -28,7 +28,7 @@ from fastapi.templating import Jinja2Templates
 
 from ophi import demo, fixes, workflow
 from ophi.engine.models import Status
-from ophi.outcomes import model_card, readout
+from ophi.outcomes import readout
 from ophi.outcomes.live import LiveScorer
 from ophi.outcomes.weights import load as load_weights
 from ophi.packet.build import build_packet
@@ -50,7 +50,7 @@ templates.env.globals.update(
     tooth_name=present.tooth_name, source_title=present.source_title, kb=present.kb, requirement_detail=present.requirement_detail, action_title=present.action_title,
     who_tag=present.who_tag, initials=present.initials, VERDICT_LABEL=present.VERDICT_LABEL, VERDICT_CLASS=present.VERDICT_CLASS,
     STATUS_LABEL=present.STATUS_LABEL, STATUS_CLASS=present.STATUS_CLASS, STATUS_NA=Status.NOT_APPLICABLE,
-    LAYA=model_card, STAGE_LABEL=present.STAGE_LABEL, FOLLOWUP_LABEL=present.FOLLOWUP_LABEL, ACTORS=ACTORS,
+    STAGE_LABEL=present.STAGE_LABEL, FOLLOWUP_LABEL=present.FOLLOWUP_LABEL, ACTORS=ACTORS,
     TURNAROUND_DAYS=workflow.SUN_LIFE_TURNAROUND_DAYS, TURNAROUND_SOURCE=workflow.TURNAROUND_SOURCE,
     RECONSIDERATION_DAYS=workflow.RECONSIDERATION_DAYS, RISK_LABEL=present.RISK_LABEL,
 )
@@ -535,13 +535,6 @@ def results(request: Request):
     except Exception as e:  # a broken retrospective must not take the report down
         return _error(request, 503, "Results are unavailable", _lookback_unavailable(e))
     return _render(request, "results.html", res=present.results(svc.queue(), svc.pack, report, recovered))
-
-
-@router.get("/model", response_class=HTMLResponse)
-def model_page(request: Request):
-    svc = _svc(request)
-    views = svc.queue()
-    return _render(request, "model.html", m=present.laya_page(views, svc.pack, {v.case.case_id: _known_readout(request, v.case) for v in views}))
 
 
 @router.get("/outcomes", response_class=HTMLResponse)
