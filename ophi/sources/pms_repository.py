@@ -323,6 +323,9 @@ def _in_list(pids: list[int]) -> str:
 # ---------------------------------------------------------------------------
 
 DEFAULT_SNAPSHOT = DEFAULT_MOCKS_DIR / "pms" / "snapshot.json"
+# Patients a presenter walks through live, which the recording doesn't hold. Casegen files dated relative to today,
+# so the walk-through starts fresh on any day, and re-recording the snapshot never drops them.
+DEFAULT_WALKTHROUGH = DEFAULT_MOCKS_DIR / "pms" / "walkthrough"
 
 
 def sql_key(query: str, params: dict | None) -> str:
@@ -338,14 +341,19 @@ class RecordedPmsRepository(AbelDentPmsRepository):
     recording holds can be answered; anything else comes back empty, as a page whose data was never recorded.
     """
 
-    def __init__(self, snapshot: Path | None = None, **kwargs) -> None:
+    def __init__(self, snapshot: Path | None = None, walkthrough: Path | None = DEFAULT_WALKTHROUGH, **kwargs) -> None:
         super().__init__(**kwargs)
         self.snapshot_path = Path(snapshot) if snapshot else DEFAULT_SNAPSHOT
+        self.walkthrough_dir = Path(walkthrough) if walkthrough else None  # None: the recording alone, as the VM has it
         data = json.loads(self.snapshot_path.read_text())
         self.recorded_at = data.get("recorded_at")
         self._planned = [int(p) for p in data.get("planned_pids", [])]
         self._charts = {int(pid): chart for pid, chart in data.get("charts", {}).items()}
         self._sql = {sql_key(e["query"], e.get("params")): e["rows"] for e in data.get("sql", [])}
+
+    def _pull(self) -> dict[str, Case]:
+        extra = sorted(self.walkthrough_dir.glob("*.yaml")) if self.walkthrough_dir else []
+        return super()._pull() | {p.stem: load_case(p) for p in extra}
 
     def sql(self, query: str, params: dict | None = None) -> list[dict]:
         key = sql_key(query, params)

@@ -1,21 +1,27 @@
 """The fix plan for each demo case, made offline by scripts/laya-demo-predict.py into cases/demo/laya/<case_id>.json.
 
-The app never loads a model. Each file holds a plan for the case as charted and, when Ophi has safe fixes to
-make, one for the chart with them made; the app shows the plan whose request text matches the chart as it
-stands now. Nothing here changes a requirement or a verdict (docs/plan/05-outcomes-learning.md §0).
+The app never loads a model. Each file holds a plan for the case as charted, one with Ophi's safe fixes made, and
+one for each set of chair gaps the demo can take; the app shows the plan whose request text matches the chart as
+it stands now. Nothing here changes a requirement or a verdict (docs/plan/05-outcomes-learning.md §0).
 """
 
 from __future__ import annotations
 
 import hashlib
 from datetime import date
+from itertools import combinations
 from pathlib import Path
 
 from pydantic import BaseModel
 
+from ophi import fixes
+from ophi.casegen.dsl import CAPTURABLE, capture_artifacts
 from ophi.cdm.models import Case
+from ophi.engine.assess import assess
 from ophi.outcomes.case_export import to_export
 from ophi.outcomes.training_set import VAGUE, Example, request_text
+from ophi.rules.schema import RulePack
+from ophi.workflow import chair_actions
 
 READOUT_DIR = Path(__file__).resolve().parents[2] / "cases" / "demo" / "laya"
 
@@ -34,8 +40,23 @@ def note_fingerprint(case: Case) -> str:
     return fingerprint(to_export(case)["clinical_notes"])
 
 
+def demo_states(case: Case, pack: RulePack) -> list[tuple[str, Case]]:
+    """Every chart staff can reach on the demo's buttons, to score ahead: each set of chair gaps taken (stamped on the
+    chart's day, as the service stamps them), each with and without Ophi's safe fixes."""
+    takeable = sorted({rid for x in chair_actions(assess(case, pack)) for rid in x.unblocks if rid in CAPTURABLE})
+    out = []
+    for n in range(len(takeable) + 1):
+        for taken in combinations(takeable, n):
+            c = case.with_artifacts(capture_artifacts(case, dict.fromkeys(taken, case.as_of))) if taken else case
+            prefix = "taken:" + "+".join(taken) + "+" if taken else ""
+            out.append((prefix.rstrip("+") or "as_charted", c))
+            if safe := fixes.open_on(assess(c, pack)):
+                out.append((prefix + "safe_fixes", fixes.apply(c, safe, pack)))
+    return out
+
+
 class ScoredPlan(BaseModel):
-    state: str  # as_charted | safe_fixes
+    state: str  # as_charted | safe_fixes | taken:<chair gaps>[+safe_fixes]
     text_sha256: str
     note_sha256: str | None = None  # the clinical note alone: what Laya's note answers are about
     plan: dict  # the fixer's FixPlan as JSON: now, after_fixes, remaining, fixes, note_answers, drivers, model

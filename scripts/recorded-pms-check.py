@@ -18,7 +18,7 @@ def summary(repo) -> dict:
 
 
 def main() -> None:
-    live, rec = summary(AbelDentPmsRepository()), summary(RecordedPmsRepository())
+    live, rec = summary(AbelDentPmsRepository()), summary(RecordedPmsRepository(walkthrough=None))  # the VM has no walk-through patients
     ok = True
     for key in live:
         if live[key] == rec[key]:

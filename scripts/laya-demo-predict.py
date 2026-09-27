@@ -2,7 +2,8 @@
 for the case page, so the app shows it without loading torch.
 
 Each case gets a plan as charted and, when Ophi has safe fixes to make (ophi.fixes), one for the chart with them
-made, so the page still has a plan after staff click Apply.
+made, so the page still has a plan after staff click Apply. A case with chair gaps the demo can take ("Mark taken
+(demo)") also gets one for each set of them taken, so the risk card follows a live walk-through.
 
 Run after retraining: .venv/bin/python scripts/laya-demo-predict.py [--models var/models]
 """
@@ -10,11 +11,9 @@ import argparse
 from datetime import date
 from pathlib import Path
 
-from ophi import fixes
-from ophi.engine.assess import assess
 from ophi.outcomes.case_export import to_export
 from ophi.outcomes.fixer import plan_fixes
-from ophi.outcomes.readout import READOUT_DIR, Readout, ScoredPlan, fingerprint, note_fingerprint, text_for
+from ophi.outcomes.readout import READOUT_DIR, Readout, ScoredPlan, demo_states, fingerprint, note_fingerprint, text_for
 from ophi.outcomes.risk import RiskModel
 from ophi.service import CaseService
 
@@ -31,8 +30,7 @@ def main():
     for cid in svc.case_ids():
         case = svc.base_case(cid)
         pack = svc.pack_for(case)  # date-of-service pack, as the app scores it
-        safe = fixes.open_on(assess(case, pack))
-        states = [("as_charted", case)] + ([("safe_fixes", fixes.apply(case, safe, pack))] if safe else [])
+        states = demo_states(case, pack)
         plans = [ScoredPlan(state=s, text_sha256=fingerprint(text_for(c)), note_sha256=note_fingerprint(c),
                             plan=plan_fixes(to_export(c), c.as_of, pack, model, request_id=cid).model_dump(mode="json"))
                  for s, c in states]

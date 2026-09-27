@@ -1,7 +1,8 @@
 """casegen — a compact YAML dialect for authoring cases. The SME writes
 `radiograph: {view: PA, tooth: 46, age: 364d}`, not raw CDM JSON.
 
-Ages are relative to `as_of` so a case stays valid forever. Absolute dates are accepted too.
+Ages are relative to `as_of` so a case stays valid forever (`+21d` is after it, for a booked visit). Absolute dates
+are accepted too.
 """
 
 from __future__ import annotations
@@ -21,11 +22,11 @@ from ophi.cdm.models import (
 )
 from ophi.dental import notation, sextants
 
-_AGE = re.compile(r"^(\d+)\s*(d|days?|m|mo|months?|y|years?)$")
+_AGE = re.compile(r"^(\+?)(\d+)\s*(d|days?|m|mo|months?|y|years?)$")
 
 
 def resolve_date(v, as_of: date) -> date | None:
-    """`364d`, `13m`, `2y` (before as_of), an ISO date, or None."""
+    """`364d`, `13m`, `2y` (before as_of), `+21d` (after it), an ISO date, or None."""
     if v is None:
         return None
     if isinstance(v, date):
@@ -34,7 +35,7 @@ def resolve_date(v, as_of: date) -> date | None:
     m = _AGE.match(s)
     if not m:
         return date.fromisoformat(s)
-    n, unit = int(m.group(1)), m.group(2)[0]
+    n, unit = (-1 if m.group(1) else 1) * int(m.group(2)), m.group(3)[0]
     if unit == "d":
         return as_of - timedelta(days=n)
     if unit == "m":

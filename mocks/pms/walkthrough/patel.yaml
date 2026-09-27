@@ -1,0 +1,51 @@
+# Live walk-through: Jinay Patel, 18, in the chair now with cold sensitivity and pain on biting. Dr. Ackerman planned a
+# ceramic crown on #36 at today's exam. What Ophi should find, and the click that closes each:
+#   in the chair  PA of #36 is 14 months old; last complete perio chart 15 months: "Mark taken (demo)" on each
+#   paperwork     lab code 99222 retired Apr 2026: "Apply"; plan details only in the note: confirm the quote
+#   dentist       criteria pre-filled from the chart and Laya's reading of the note: confirm, then sign the packet
+# Every date is relative to today, so the walk-through starts fresh on any day. Its fix plans (cases/demo/laya/patel.json)
+# are scored on these exact facts: change a film, the perio, a lab code or the note and rerun
+# scripts/laya-demo-predict-recorded.sh.
+id: patel
+as_of: 0d
+clinic: "ABELDent lab (Fictional Data)"
+patient: { id: "9001", name: "Jinay Patel", dob: 2008-05-19, sex: M, cdcp_client_id: "CDCP-4418-2093", phone: "905-555-0190", email: "jinay.patel@example.ca" }
+provider: { name: "Dr. Terry Ackerman" }
+in_chair: { op: "Op 3", with: "R. Chen RDH" }
+treatment:
+  code: "27201"
+  description: "Porcelain/Ceramic/Polymer Glass Crown"
+  tooth: 36
+  planned: 0d
+  appointment: +24d
+  fee_cents: 88415
+  lab_codes: ["99222"]
+dentition:
+  missing: [18, 28, 38, 48]
+  restored_surfaces: { 36: [M, O, D, B, L], 46: [O], 25: [M, O] }
+history:
+  - { code: "01103", date: 5y, description: "Exam & Diagnosis Complete Permanent Dentition" }
+  - { code: "23325", tooth: 36, surfaces: [M, O, D, B, L], date: 3y, description: "Composite, permanent molar, 5 surfaces" }
+  - { code: "23321", tooth: 46, surfaces: [O], date: 2y, description: "Composite, permanent molar, 1 surface" }
+  - { code: "11112", date: 150d, description: "Scaling, 2 units" }
+  - { code: "23322", tooth: 25, surfaces: [M, O], date: 150d, description: "Composite, permanent premolar, 2 surfaces" }
+  - { code: "01204", date: 0d, description: "Specific examination" }
+radiographs:
+  - { id: pano, view: PANO, date: 3y }
+  - { id: pa_36, view: PA, tooth: 36, date: 425d }
+  - { id: bw_r, view: BW, side: right, teeth: [14, 15, 16, 17, 44, 45, 46, 47], date: 150d }
+  - { id: bw_l, view: BW, side: left, teeth: [24, 25, 26, 27, 34, 35, 36, 37], date: 150d }
+perio_charts:
+  - { id: perio_full, date: 460d, sites: 6, depth: 2, examiner: "R. Chen RDH" }
+notes:
+  - id: note_exam
+    age: 0d
+    author: "Dr. Terry Ackerman"
+    type: "Exam"
+    teeth: [36]
+    text: >-
+      CC: sensitivity to cold and sharp pain on biting, lower left, 3 weeks. 36: large MODBL composite (2023),
+      distolingual cusp fractured, recurrent caries at the distal margin. Cold test sharp but resolves in seconds, not
+      lingering. Percussion negative, no periapical radiolucency. Margins supragingival. Not restorable with a direct
+      filling. Plan: ceramic crown 36. All other restorative and scaling complete; perio stable. Discussed CDCP
+      predetermination; patient consents.

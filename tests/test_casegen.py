@@ -19,6 +19,7 @@ AS_OF = date(2026, 9, 17)
     ("2y", date(2024, 9, 17)),
     ("10 days", AS_OF - timedelta(days=10)),
     ("3 months", date(2026, 6, 17)),
+    ("+21d", AS_OF + timedelta(days=21)),
     ("2026-01-05", date(2026, 1, 5)),
     (date(2025, 12, 31), date(2025, 12, 31)),
     (None, None),

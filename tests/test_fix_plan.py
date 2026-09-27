@@ -9,7 +9,7 @@ import pytest
 
 from ophi import fixes
 from ophi.outcomes import readout
-from ophi.outcomes.readout import Readout, ScoredPlan, fingerprint, text_for
+from ophi.outcomes.readout import Readout, ScoredPlan, demo_states, fingerprint, text_for
 from ophi.service import CaseService, Store
 from ophi.web import present
 
@@ -33,6 +33,14 @@ def test_the_plan_shown_is_the_one_made_for_the_chart_as_it_stands(svc):
     assert r.matching(fixes.apply(base, ["lab_codes_current"], svc.pack)) is r.plans[1].plan  # after staff click Apply
     changed = base.model_copy(update={"as_of": date(2026, 10, 1)})
     assert r.matching(changed) is None
+
+
+def test_every_chart_the_demo_buttons_reach_is_scored_ahead(svc):
+    base = svc.base_case("kowalchuk")
+    scored = {fingerprint(text_for(c)) for _, c in demo_states(base, svc.pack_for(base))}
+    for rid in ("radiograph_pa", "perio_chart"):  # Mark taken (demo), as the chair does it
+        svc.record_capture("kowalchuk", rid, "M. Haddad RDH")
+        assert fingerprint(text_for(svc.view("kowalchuk").case)) in scored
 
 
 def test_the_dentist_sees_laya_pre_fill_only_what_the_note_and_chart_agree_on(svc):
