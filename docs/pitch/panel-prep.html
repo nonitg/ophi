@@ -1,0 +1,274 @@
+<title>Ophi Panel Prep</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;1,6..72,400&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&display=swap">
+<style>
+:root{
+  --ground:#f4f2e9; --panel:#e4e7d9; --ink:#193a30; --soft:#4d6158; --rule:#cfd3c2;
+  --accent:#ad4a24; --accent-ink:#fff; --warn:#a34a1c; --warn-bg:#f7e2d6; --ok:#2f6b4f;
+  --serif:"Newsreader",Georgia,"Times New Roman",serif;
+  --sans:"DM Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --ground:#122a23; --panel:#1b3a31; --ink:#eeecdf; --soft:#aebbb2; --rule:#2d4d43;
+    --accent:#ef865b; --accent-ink:#1a120d; --warn:#f3a57f; --warn-bg:#3a2a20; --ok:#8fcaa9;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --ground:#122a23; --panel:#1b3a31; --ink:#eeecdf; --soft:#aebbb2; --rule:#2d4d43;
+  --accent:#ef865b; --accent-ink:#1a120d; --warn:#f3a57f; --warn-bg:#3a2a20; --ok:#8fcaa9;
+}
+*{box-sizing:border-box}
+body{background:var(--ground);color:var(--ink);font:16px/1.55 var(--sans);padding-inline:16px;padding-block:32px 64px}
+.wrap{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:48px}
+h1,h2{font-family:var(--serif);font-weight:400;text-wrap:balance;margin:0}
+h1{font-size:clamp(2.2rem,6vw,3.2rem);line-height:1.05}
+h1 .dot{color:var(--accent)}
+h2{font-size:1.75rem;line-height:1.15}
+p{margin:0}
+.eyebrow{font-size:.75rem;letter-spacing:.09em;text-transform:uppercase;color:var(--soft);font-weight:600}
+.lede{color:var(--soft);max-width:62ch}
+header{display:flex;flex-direction:column;gap:14px}
+section{display:flex;flex-direction:column;gap:16px}
+.section-head{display:flex;flex-direction:column;gap:6px;border-top:1px solid var(--rule);padding-top:20px}
+
+/* the pitch you say when asked "so what is it?" */
+.pitch{background:var(--panel);border-radius:6px;padding:22px 24px;font-family:var(--serif);font-size:1.3rem;line-height:1.4}
+.pitch small{display:block;font-family:var(--sans);font-size:.8rem;color:var(--soft);margin-top:10px}
+
+/* rules */
+.rules{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.rules li{display:grid;grid-template-columns:2rem 1fr;gap:8px;align-items:baseline}
+.rules b{font-family:var(--serif);font-weight:400;font-size:1.3rem;color:var(--accent)}
+
+/* numbers */
+.nums{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+.nums td{padding:9px 0;border-bottom:1px solid var(--rule);vertical-align:top}
+.nums td:first-child{font-weight:600;white-space:nowrap;padding-right:18px;width:1%}
+.nums .src{display:block;font-size:.8rem;color:var(--soft)}
+.tablebox{overflow-x:auto}
+
+/* questions */
+.filters{display:flex;flex-wrap:wrap;gap:8px}
+.filters button{font:500 .85rem var(--sans);color:var(--ink);background:transparent;border:1px solid var(--rule);border-radius:99px;padding:6px 14px;cursor:pointer}
+.filters button[aria-pressed="true"]{background:var(--ink);color:var(--ground);border-color:var(--ink)}
+.filters button:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.tools{display:flex;flex-wrap:wrap;gap:8px;justify-content:space-between;align-items:center}
+.tools .link{font:500 .85rem var(--sans);background:none;border:0;color:var(--soft);text-decoration:underline;cursor:pointer;padding:4px 0}
+.qs{display:flex;flex-direction:column}
+details{border-bottom:1px solid var(--rule)}
+summary{cursor:pointer;list-style:none;display:grid;grid-template-columns:1fr auto;gap:12px;align-items:baseline;padding:14px 0}
+summary::-webkit-details-marker{display:none}
+summary .q{font-family:var(--serif);font-size:1.2rem;line-height:1.3}
+summary .tag{font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;color:var(--soft);white-space:nowrap}
+.hot summary .tag{color:var(--accent);font-weight:600}
+.a{display:flex;flex-direction:column;gap:10px;padding:0 0 18px;max-width:64ch}
+.a .say{font-size:1rem}
+.a .say::before{content:"Say  ";font-weight:600;font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--ok)}
+.a .avoid{font-size:.9rem;background:var(--warn-bg);color:var(--ink);border-radius:4px;padding:8px 12px}
+.a .avoid::before{content:"Don't  ";font-weight:600;font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--warn)}
+.a .who{font-size:.8rem;color:var(--soft)}
+
+/* blanks */
+.blanks{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.blanks li{border:1px dashed var(--warn);border-radius:6px;padding:12px 14px}
+.blanks li strong{display:block}
+.blanks li span{color:var(--soft);font-size:.9rem}
+footer{font-size:.8rem;color:var(--soft)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+<header>
+  <span class="eyebrow">Ophi · investor panel · Q&amp;A drill</span>
+  <h1>Walk in ready for the hard questions<span class="dot">.</span></h1>
+  <p class="lede">Tap a question, answer it out loud, then open it to check. Red-tagged questions are the ones a panel is most likely to push on. Every answer leads with one sentence you can say in under 10 seconds.</p>
+</header>
+
+<section>
+  <div class="section-head">
+    <span class="eyebrow">When they say "so what is it?"</span>
+    <h2>The 20-second answer</h2>
+  </div>
+  <div class="pitch">Canada is paying for 7.5 million people's dental care, but fewer than half of preauthorization requests get approved, and Health Canada says the top reason is incomplete paperwork. Ophi checks the patient's chart against the rules while the patient is still in the chair, so clinics send it complete the first time and the patient gets treated.
+    <small>Say it slowly. Stop after "treated." Let them ask the next question.</small>
+  </div>
+</section>
+
+<section>
+  <div class="section-head">
+    <span class="eyebrow">How to answer anything</span>
+    <h2>Five rules</h2>
+  </div>
+  <ol class="rules">
+    <li><b>1</b><span>Answer first, in one sentence. Then one piece of proof. Then stop talking.</span></li>
+    <li><b>2</b><span>"We don't know yet, and here's how we'll find out by December" beats a guess. Panels test honesty more than knowledge.</span></li>
+    <li><b>3</b><span>Never say Ophi gets requests approved or raises approval rates. Say it makes them complete. Sun Life decides.</span></li>
+    <li><b>4</b><span>Say "simulated" and "fictional" when you talk about the model or the demo. Nobody should leave thinking you have real patient data.</span></li>
+    <li><b>5</b><span>One person answers each question. The other adds at most one sentence, or nothing.</span></li>
+  </ol>
+</section>
+
+<section>
+  <div class="section-head">
+    <span class="eyebrow">Know these cold</span>
+    <h2>Numbers to memorise</h2>
+  </div>
+  <div class="tablebox">
+  <table class="nums">
+    <tr><td>7.5M</td><td>Canadians enrolled in CDCP<span class="src">canada.ca, Aug 31 2026</span></td></tr>
+    <tr><td>46%</td><td>of complete preauth requests approved (crowns about 37%)<span class="src">Health Canada via Oral Health Group, Mar–May 2026</span></td></tr>
+    <tr><td>~1.9M</td><td>preauth requests a year, about 2 a week per clinic<span class="src">480k in one quarter, times 4</span></td></tr>
+    <tr><td>~20%</td><td>of submissions arrive incomplete<span class="src">Health Canada and Sun Life</span></td></tr>
+    <tr><td>$884</td><td>what one CDCP crown is worth to an Ontario clinic<span class="src">Sun Life Ontario grid 2026, before lab fee</span></td></tr>
+    <tr><td>$199/mo</td><td>our price. One extra crown every 4 months pays for it</td></tr>
+    <tr><td>17,857</td><td>dental clinics in Canada<span class="src">ISED 2025</span></td></tr>
+    <tr><td>$42.6M/yr</td><td>market for crowns-and-CDCP alone at $199/mo</td></tr>
+    <tr><td>$12.6B</td><td>dental claims paid by private insurers in 2024: the bigger market<span class="src">CLHIA 2025</span></td></tr>
+    <tr><td>2 clinics</td><td>booked demos. 40 cases and 2 design partners by December</td></tr>
+  </table>
+  </div>
+</section>
+
+<section>
+  <div class="section-head">
+    <span class="eyebrow">The drill</span>
+    <h2>Questions they'll ask</h2>
+  </div>
+  <div class="tools">
+    <div class="filters" role="group" aria-label="Filter questions">
+      <button type="button" data-f="all" aria-pressed="true">All</button>
+      <button type="button" data-f="hot" aria-pressed="false">Hardest</button>
+      <button type="button" data-f="problem" aria-pressed="false">Problem</button>
+      <button type="button" data-f="market" aria-pressed="false">Market</button>
+      <button type="button" data-f="compete" aria-pressed="false">Competition</button>
+      <button type="button" data-f="biz" aria-pressed="false">Business</button>
+      <button type="button" data-f="team" aria-pressed="false">Team</button>
+    </div>
+    <button type="button" class="link" id="toggle-all">Open all</button>
+  </div>
+  <div class="qs" id="qs"></div>
+</section>
+
+<section>
+  <div class="section-head">
+    <span class="eyebrow">Decide these before you walk in</span>
+    <h2>Blanks only you can fill</h2>
+    <p class="lede">These came up in the research as undecided. A panel will ask. Agree on one answer between you so you don't contradict each other.</p>
+  </div>
+  <ul class="blanks">
+    <li><strong>What are you asking for?</strong><span>An amount, or "no raise yet, we want your feedback and intros to DSOs." Pick one sentence.</span></li>
+    <li><strong>What would you do with money?</strong><span>Three uses, in order. For example: first PMS integration, design-partner pilots, one hire.</span></li>
+    <li><strong>Are you both full-time?</strong><span>If not, say when you will be and what triggers it.</span></li>
+    <li><strong>Launch date and first paid PMS</strong><span>Research points at ClearDent or Open Dental because they have real APIs.</span></li>
+  </ul>
+</section>
+
+<footer>Numbers and risks come from the team's research notes in docs/research and the pitch script. Demo patients are fictional; model results are on simulated data.</footer>
+</div>
+
+<script>
+const Q = [
+ // ---------- problem ----------
+ {c:"problem hot", q:"Is this a real problem, or do clinics shrug it off?",
+  say:"It's real at the level of money, not minutes. Sending a request takes a few minutes, so a clinic will tell you it's not hard. What hurts is the 54% that come back denied: the crown doesn't happen, the patient waits, and the fix goes to the back of the queue. That's why we lead with lost treatment, not saved time.",
+  avoid:"Pitch this as a time-saver. The staff-time math is only about $1,200 per clinic a year, and a sharp investor will know it.", who:"Nonit"},
+ {c:"problem hot", q:"How many of those denials can you actually prevent?",
+  say:"We don't know yet, and it's the most important number in the company. Health Canada blames both incomplete paperwork and strict clinical criteria, and hasn't published the split. So we're reviewing 40 real Ontario denials for free. If one in five was preventable, we go national. If it's under 8%, we rethink.",
+  avoid:"Make up a percentage. Saying you have a clear go/stop bar makes you look rigorous, not weak.", who:"Nonit"},
+ {c:"problem", q:"Why doesn't the clinic just use a checklist?",
+  say:"The checklist is one page. The hard part is finding the proof in a messy chart: is the x-ray of the right tooth, is it under 12 months old, is the gum chart complete. And the guide changed twice in ten months. Ophi does the hunting and keeps the rules current.",
+  who:"Jinay"},
+ {c:"problem", q:"Who feels this pain most: dentist, staff, or patient?",
+  say:"The patient waits for treatment, the front-desk staff do the chasing, and the dentist-owner loses the revenue and carries the liability. We sell to the owner and office manager together, and the staff are the daily users.",
+  who:"Nonit"},
+
+ // ---------- market ----------
+ {c:"market hot", q:"$42 million a year isn't venture scale. Why should we care?",
+  say:"Agreed, crowns on CDCP is the wedge, not the company. The same engine reads any chart against any payer's rules. Private insurers paid $12.6 billion in dental claims in 2024, and they also require predeterminations with x-rays for crowns. Then every claim before it's sent, and audits of claims already paid.",
+  avoid:"Defend $42M as big enough. Concede it fast and move to the expansion.", who:"Nonit"},
+ {c:"market hot", q:"What if Alberta or Quebec opts out of CDCP, or the government changes?",
+  say:"That's why CDCP is one set of rules plugged into our engine, not the product itself. Alberta gave notice in 2024 and still hasn't left, with 306,000 people enrolled. If a province runs its own plan, that's a new rule set to add, and a new payer to sell into.",
+  who:"Nonit"},
+ {c:"market", q:"Can this work outside Canada?",
+  say:"Not quickly, and we won't pretend otherwise. The US runs on a different claims system, and players there already exist. Our advantage is being built for Canada's rules and Canada's practice software. Canada first, and deep.",
+  avoid:"Promise a US launch. The research says the Canadian rails don't transfer.", who:"Nonit"},
+ {c:"market", q:"Why now?",
+  say:"CDCP only started in 2024 and is now at 7.5 million people, so every clinic suddenly has a new payer with stricter rules than private insurance. The rules keep changing, and insurers are auditing dentists more than ever. Clinics need a record that proves why each request was made.",
+  who:"Jinay"},
+
+ // ---------- competition ----------
+ {c:"compete hot", q:"Why won't Sun Life or Health Canada just fix this themselves?",
+  say:"They might add better checks when a request arrives, and that would still tell the clinic after the patient left. We catch it while the patient is in the chair, and the clinic still has to find the evidence in its own chart. Sun Life's job is to decide, not to prepare the clinic's paperwork. And if they want to work with us, that's a conversation we want early.",
+  avoid:"Say they can't or won't. It's the most likely way this business gets squeezed. Show you've thought about it.", who:"Nonit"},
+ {c:"compete hot", q:"Smilepass and Cleer already sell insurance tools to Canadian clinics. Why not them?",
+  say:"They check whether a patient is covered and track requests. Neither reads the chart to prove the tooth meets the rules and build the packet. That's our lane. Longer term they could be partners or acquirers, and we'd be glad to have that conversation.",
+  avoid:"Say you have no competitors. You do, and knowing them by name is a point in your favour.", who:"Nonit"},
+ {c:"compete hot", q:"What stops someone copying you in a month?",
+  say:"The rules are public, so anyone can copy those. The decisions aren't. Every request Ophi checks and every answer that comes back becomes a labelled example tied to the exact chart that was sent. Plus reading each practice software's database takes real work, and clinics hate switching tools once one works.",
+  avoid:"Claim the moat exists today. You have no real decisions yet. Say it starts with the 40-denial review.", who:"Jinay"},
+ {c:"compete", q:"Isn't this what killed Olive AI?",
+  say:"Olive raised $900 million and promised to automate everything at once. We're doing the opposite: one treatment, one payer, one measurable result, and a human sends every request. We only claim what a written rule supports.",
+  who:"Nonit"},
+
+ // ---------- business ----------
+ {c:"biz hot", q:"How do you sell to 18,000 small clinics without going broke?",
+  say:"We don't sell one clinic at a time for long. Dental groups like dentalcorp and 123Dentist run over a thousand clinics between them and tend to buy tools rather than build. Practice software vendors are the second channel. Single clinics now are for learning and proof.",
+  who:"Nonit"},
+ {c:"biz", q:"Why would a clinic pay $199 a month?",
+  say:"One CDCP crown is worth about $884 to an Ontario clinic. If Ophi helps one more crown happen every four months, it's paid for. On top of that, it finds old denials nobody resubmitted. In our demo clinic that was over $11,000 of crowns sitting on the table.",
+  avoid:"Present the $11,000 as a real clinic's number. It's the fictional demo clinic.", who:"Nonit"},
+ {c:"biz", q:"What traction do you have?",
+  say:"Two clinics have booked demos. We have a working product that reads a real practice software database. Next is reviewing 40 real denials and signing two design partners by December.",
+  avoid:"Stretch it. No customers, pilots or revenue yet. Say so plainly, then say the plan.", who:"Nonit"},
+ {c:"biz hot", q:"Does the AI actually work?",
+  say:"The rule checks are not guesswork: every finding points to a specific rule and a specific chart entry, and a person reviews it. The AI pre-fills the dentist's answers and ranks fixes, and the dentist confirms. The models are trained on simulated data today. Real accuracy is exactly what the design-partner pilots will measure.",
+  avoid:"Quote accuracy numbers from the demo as if they're real-world.", who:"Jinay"},
+ {c:"biz", q:"What about patient privacy and liability if you get it wrong?",
+  say:"Ophi only reads the chart, it never changes it, and data stays in Canada. It never sends anything to Sun Life. Staff review and send from the software they already use, so the dentist stays in charge. It also leaves a clear record of why each request was made, which helps them in an audit.",
+  who:"Jinay"},
+
+ // ---------- team ----------
+ {c:"team hot", q:"Why are you two the right people?",
+  say:"Nonit has spent two years building software for Canadian clinics, so knows how they work and buy. Jinay builds the part that reads the practice software directly, the hardest piece to copy, and led software for a world-championship robotics team. Between us we can build it and sell it.",
+  who:"Both, one line each"},
+ {c:"team", q:"Neither of you is a dentist. How do you know what clinics need?",
+  say:"Every rule we check comes straight from the CDCP guide, clause by clause. We surveyed dentists and office staff and we're about to review real denials with clinics. A dental advisor is a gap we want to fill, and the design partners are how we'll find one.",
+  who:"Nonit"},
+ {c:"team", q:"What's the biggest risk to this company?",
+  say:"That most denials are about the tooth, not the paperwork, so there's less to fix than we think. That's why our first test measures exactly that before we scale.",
+  avoid:"Say 'execution'. Naming the real risk yourself earns trust.", who:"Nonit"},
+];
+
+const list = document.getElementById("qs");
+Q.forEach((x, i) => {
+  const d = document.createElement("details");
+  d.className = x.c; d.id = "q" + i;
+  const hot = x.c.includes("hot");
+  const cat = x.c.split(" ")[0];
+  const label = {problem:"Problem",market:"Market",compete:"Competition",biz:"Business",team:"Team"}[cat];
+  d.innerHTML =
+    `<summary><span class="q"></span><span class="tag">${hot ? "Hard · " : ""}${label}</span></summary>
+     <div class="a"><p class="say"></p>${x.avoid ? '<p class="avoid"></p>' : ""}<p class="who">Suggested speaker: ${x.who}</p></div>`;
+  d.querySelector(".q").textContent = x.q;
+  d.querySelector(".say").textContent = x.say;
+  if (x.avoid) d.querySelector(".avoid").textContent = x.avoid;
+  list.appendChild(d);
+});
+
+document.querySelectorAll(".filters button").forEach(b => b.addEventListener("click", () => {
+  document.querySelectorAll(".filters button").forEach(o => o.setAttribute("aria-pressed", o === b));
+  const f = b.dataset.f;
+  list.querySelectorAll("details").forEach(d => { d.hidden = f !== "all" && !d.classList.contains(f); });
+}));
+
+const toggle = document.getElementById("toggle-all");
+toggle.addEventListener("click", () => {
+  const open = toggle.textContent === "Open all";
+  list.querySelectorAll("details").forEach(d => d.open = open);
+  toggle.textContent = open ? "Close all" : "Open all";
+});
+</script>
