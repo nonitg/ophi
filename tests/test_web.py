@@ -286,7 +286,7 @@ def test_copy_law_in_ophi_voice(seeded):
     as_dentist(seeded)
     seeded.post("/cases/park/decision", data={"outcome": "approved", "decided_on": "2026-09-16", "reason": ""})
     pages = ["/", "/cases/singh", "/cases/deng", "/cases/rosco", "/cases/tremblay", "/cases/nguyen", "/cases/marchand", "/cases/park", "/cases/okafor",
-             "/cases/whitfield/packet", "/recover", "/results", "/settings"]
+             "/cases/whitfield/packet", "/recover", "/results", "/settings", "/past/PA-SYN-300017?from=deng"]
     for actor in ("dentist", "coordinator"):
         seeded.cookies.set("actor", actor)
         for path in pages:
@@ -319,3 +319,16 @@ def test_skip_gaps_to_test_moves_the_case_on_and_restore_brings_them_back(client
     assert 'tag-test">Test' in client.get("/").text
     assert client.post("/cases/singh/test-restore").status_code == 303
     assert "Test run." not in client.get("/cases/singh").text
+
+
+def test_each_fix_links_past_requests_denied_for_it(client):
+    r = client.get("/cases/deng")
+    assert re.search(r"<b>Retired lab fee code</b> · \d+ past denials", r.text)
+    link = re.search(r'href="(/past/PA-SYN-\d+\?from=deng)"', r.text).group(1)
+    page = client.get(link)
+    assert page.status_code == 200
+    assert 'href="/cases/deng"' in page.text and "Sun Life denied it" in page.text
+
+
+def test_unknown_past_request_is_404(client):
+    assert client.get("/past/PA-NOPE").status_code == 404

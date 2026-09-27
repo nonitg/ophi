@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Past request, #{{ p.tooth }} — Ophi{% endblock %}
+{% block content %}
+<div class="past-page">
+{% if from_case %}<a class="back" href="{{ BASE }}/cases/{{ from_case.case_id }}">{{ from_case.patient.display_name }}</a>{% else %}<a class="back" href="{{ HOME }}">Board</a>{% endif %}
+
+<header class="case-head">
+  <div>
+    <h1>Past crown on <span class="num">#{{ p.tooth }}</span></h1>
+    <p class="case-tx">{% if p.tooth %}{{ tooth_name(p.tooth)|capitalize }} · {% endif %}Sent {{ full_date(p.sent_on) }} · Patient aged {{ p.age_band|replace('-', '–') }}</p>
+  </div>
+</header>
+
+<section class="now past-why" aria-labelledby="why-title">
+  {% if p.outcome == 'denied' %}
+  <p class="past-big" id="why-title">{{ p.reason }}</p>
+  <p class="payer" data-voice="payer">Sun Life denied it{% if p.decided_on %} on {{ full_date(p.decided_on) }}{% endif %}{% if p.letter %}: <q class="payer-quote">{{ p.letter }}</q>{% else %}.{% endif %}</p>
+  {% if p.wanted %}<p class="now-lead">Sun Life wanted: <b>{{ p.wanted|join(', ') }}</b></p>{% endif %}
+  {% else %}
+  <p class="past-big payer" id="why-title" data-voice="payer">Sun Life approved it{% if p.decided_on %} on {{ full_date(p.decided_on) }}{% endif %}.</p>
+  {% endif %}
+</section>
+
+{% set r = p.resend %}
+{% if r %}
+<section class="past-then">
+  <h2>Resent {{ full_date(r.on) }}</h2>
+  {% if r.changes %}<ul class="past-changes">{% for c in r.changes %}<li>{{ c }}</li>{% endfor %}</ul>{% endif %}
+  {% if r.new_note %}<blockquote class="proposal-quote">“{{ r.new_note }}”</blockquote>{% endif %}
+  <p class="payer" data-voice="payer">{% if r.outcome == 'approved' %}Sun Life approved it.{% else %}Sun Life denied it again{% if r.letter %}: <q class="payer-quote">{{ r.letter }}</q>{% else %}.{% endif %}{% endif %}</p>
+</section>
+{% endif %}
+
+<div class="folds">
+  <details class="fold" open>
+    <summary><span class="fold-title">What the clinic sent</span><span class="fold-sub">{{ plural(p.attachments|length, 'document') }}</span></summary>
+    <div class="fold-body">
+      <dl class="kv">
+        <dt>Treatment</dt><dd><span class="num">{{ p.code }}</span> {{ p.description or 'Crown' }}</dd>
+        <dt>Lab</dt><dd class="num">{{ p.lab_codes|join(', ') if p.lab_codes else 'None' }}</dd>
+        <dt>Documents</dt><dd>{% for a in p.attachments %}{{ a.name }}{% if a.count > 1 %} ×{{ a.count }}{% endif %}{% if a.on %} <span class="muted num">{{ full_date(a.on) }}</span>{% endif %}{% if not loop.last %}<br>{% endif %}{% else %}None{% endfor %}</dd>
+        {% if p.note %}<dt>Clinical note</dt><dd>“{{ p.note }}”</dd>{% endif %}
+        {% if p.narrative %}<dt>Narrative</dt><dd>“{{ p.narrative }}”</dd>{% endif %}
+      </dl>
+    </div>
+  </details>
+</div>
+<p class="source">Past request <span class="num">{{ p.id }}</span>, from the crown outcomes data set.</p>
+</div>
+{% endblock %}

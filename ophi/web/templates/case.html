@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% from "macros.html" import clause_chip, status_mark, who, payer_decision, teeth, due, turnaround_source, test_banner, send_steps, next_up, fold_summary, risk_block with context %}
+{% from "past_macros.html" import past_denials with context %}
 {% block title %}{{ case.patient.display_name }}, #{{ case.requested_tooth }} — Ophi{% endblock %}
 {% block content %}
 <div class="case">
@@ -84,6 +85,7 @@
         {% if it.effect %}<p class="gap-effect effect-{{ it.effect }}">{{ {'most': 'Lowers denial risk the most', 'some': 'Lowers denial risk a little', 'none': 'No clear effect on denial risk in past decisions. Still required by CDCP.'}[it.effect] }}</p>
         {% elif fx.risk and not it.auto %}<p class="gap-effect effect-none">Not scored against past decisions. Still required by CDCP.</p>{% endif %}
         {% if g and g.hint %}<p class="gap-hint">{{ g.hint }}</p>{% endif %}
+        {% if g %}{{ past_denials(g.past, cid) }}{% endif %}
         {% if g and g.action.action_type == 'check_source' %}<p class="gap-hint gap-hint-muted">Your PMS didn't show Ophi this part of the chart. It may be there.</p>{% endif %}
         {% if g and g.proposal %}{% set pl = g.proposal.payload %}
         <div class="proposal">

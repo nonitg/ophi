@@ -1,0 +1,9 @@
+{# Past requests Sun Life denied for the reason this fix addresses. Import `with context` for BASE. #}
+{% macro past_denials(groups, cid) -%}
+{% for grp in groups %}
+<div class="past">
+  <span class="past-k"><b>{{ grp.reason }}</b> · {{ plural(grp.count, 'past denial') }}</span>
+  {% for x in grp.examples %}<a class="past-link" href="{{ BASE }}/past/{{ x.id }}?from={{ cid }}">{% if x.tooth %}<span class="num">#{{ x.tooth }}</span>, {% endif %}{{ x.sent_on.strftime('%b %Y') }}</a>{% endfor %}
+</div>
+{% endfor %}
+{%- endmacro %}

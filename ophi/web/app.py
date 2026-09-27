@@ -25,7 +25,7 @@ from fastapi.templating import Jinja2Templates
 
 from ophi import demo, fixes, workflow
 from ophi.engine.models import Status
-from ophi.outcomes import readout
+from ophi.outcomes import past, readout
 from ophi.outcomes.weights import load as load_weights
 from ophi.packet.build import build_packet
 from ophi.packet.documents import narrative_ascii
@@ -213,6 +213,8 @@ def case_page(request: Request, case_id: str):
     now = present.now_step(steps, actor)
     timing = present.timing(view, today)
     rd, gaps = readout.load(case_id), present.gap_rows(view)
+    for g in gaps:
+        g["past"] = past.denied_like(svc.pack, g["action"].unblocks, view.case.treatment.code, view.case.requested_tooth)
     fx = present.fix_panel(view, rd, svc.pack, gaps) if view.stage == workflow.Stage.PREPARE else None
     return _render(request, "case.html", view=view, case=view.case, a=view.assessment, stage=view.stage,
                    steps=steps, now=now, waiting=present.waiting_on(now, actor, view.case.treatment.provider.name, timing),
@@ -510,6 +512,16 @@ def outcomes(request: Request):
     except Exception as e:  # no outcomes database configured must not take the demo down
         return _render(request, "outcomes.html", report=None, unavailable=f"Past outcomes are unavailable: {e}")
     return _render(request, "outcomes.html", report=report, unavailable=None)
+
+
+@router.get("/past/{preauth_id}", response_class=HTMLResponse)
+def past_request(request: Request, preauth_id: str):
+    p = past.detail(preauth_id)
+    if p is None:
+        return _error(request, 404, "Past request not found", f"No past request '{preauth_id}' in the outcomes data set.")
+    svc, from_id = _svc(request), request.query_params.get("from")
+    from_case = svc.base_case(from_id) if from_id in svc.case_ids() else None  # the case whose fix linked here
+    return _render(request, "past.html", p=p, from_case=from_case)
 
 
 @router.get("/look-back")
