@@ -104,7 +104,15 @@ requirements:
       require_all:
         - { fact: client_identifiers_present }
         - { provided_by_packet: true }
-    gap: { title: Record the client's CDCP identifier and date of birth for the claim form, action_type: chart_entry, effort: chart_entry }
+    gap:
+      title: Add the client's CDCP identifier and date of birth to the patient record in the PMS
+      why: >-
+        The claim form carries the client's CDCP number and date of birth. Ophi reads both from the patient
+        record and cannot derive them from the chart. The number is on the client's CDCP letter and belongs on
+        the patient's CDCP coverage (a Sun Life plan numbered 333333); enter it in the PMS, since the claim is
+        sent from there, then check the chart again.
+      action_type: chart_entry
+      effort: chart_entry
 
   - id: tx_plan_details
     label: Treatment plan details — all relevant completed and pending treatment

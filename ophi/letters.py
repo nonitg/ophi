@@ -16,8 +16,10 @@ from pydantic import BaseModel
 from ophi.workflow import REASONS
 
 # An alias, not a pinned name: Google retires pinned models (gemini-2.5-pro went 404 mid-2026) and a retired
-# model means no letter can be read until someone edits this file.
-MODEL = "gemini-pro-latest"
+# model means no letter can be read until someone edits this file. Flash, not pro: the pro alias resolves to a model
+# the free tier can't call at all (every read came back 429). Free tier allows 20 flash reads a day -- scripts/
+# gemini-quota-check.py names the exhausted quota when reads start failing.
+MODEL = "gemini-flash-latest"
 IMAGE_TYPES = {"image/png", "image/jpeg", "image/webp", "image/gif"}
 MEDIA_TYPES = {"application/pdf", *IMAGE_TYPES}
 

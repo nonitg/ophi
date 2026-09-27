@@ -192,6 +192,12 @@ def _action_for(r: RequirementResult, req: Requirement, case: Case) -> Action:
         if sf.undated:
             return Action(rank=0, blocking=True, effort="confirm_in_app", action_type="establish_date",
                           title=f"Establish the capture date of the {sf.undated[0]}", why=why, unblocks=[r.requirement_id])
+        if sf.missing:
+            # The record was read and the field is empty, so the pack's gap already names the entry that closes
+            # it: staff work, not another look at the source.
+            return Action(rank=0, blocking=True, effort=req.gap.effort, action_type=req.gap.action_type,
+                          title=_fill(req.gap.title, case), why=f"{why}. {req.gap.why or ''}".strip(),
+                          unblocks=[r.requirement_id], needs_patient=req.gap.needs_patient)
         return Action(rank=0, blocking=True, effort="confirm_in_app", action_type="resolve_unknown",
                       title=f"Cannot verify: {req.label}", why=why, unblocks=[r.requirement_id])
     title = _fill(r.near_miss_title or req.gap.title, case)

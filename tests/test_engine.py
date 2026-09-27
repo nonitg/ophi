@@ -335,6 +335,16 @@ def test_age_gate_turns_on_the_18th_birthday():
     assert assess_dict(d).requirement("client_age").status == Status.INDETERMINATE
 
 
+def test_an_empty_field_on_the_record_reads_as_the_entry_that_closes_it():
+    """No CDCP number on the patient record is a chart entry staff make in the PMS, not an unverifiable source."""
+    d = ready_dict()
+    d["patient"]["cdcp_client_id"] = None
+    a = assess_dict(d)
+    act = next(x for x in a.actions if x.unblocks == ["claim_form"])
+    assert act.action_type == "chart_entry" and act.title.startswith("Add the client's CDCP identifier")
+    assert "CDCP client ID not on the patient record" in act.why and "enter it in the PMS" in act.why
+
+
 def test_history_unknown_makes_frequency_indeterminate_not_blocked():
     d = ready_dict()
     d["assurance"] = {"procedure_history": "Unknown"}

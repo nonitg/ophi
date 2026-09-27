@@ -55,11 +55,12 @@ def _family(f: Fact) -> str:
 
 
 def _client_identifiers_present(f: Fact, case: Case, pack: RulePack) -> LeafResult:
-    """The claim form needs the client's CDCP identifier and date of birth; Ophi cannot invent them."""
+    """The claim form needs the client's CDCP identifier and date of birth; Ophi cannot invent them, and only
+    the PMS patient record closes the gap, since the claim is sent from there."""
     missing = [x for x, v in (("CDCP client ID", case.patient.cdcp_client_id), ("date of birth", case.patient.dob)) if not v]
     if missing:
         return LeafResult(status=Status.INDETERMINATE, shortfall=Shortfall(missing=missing),
-                          detail=f"{' and '.join(missing)} not on file; the claim form cannot be completed")
+                          detail=f"{' and '.join(missing)} not on the patient record; the claim form cannot be completed")
     return LeafResult(status=Status.SATISFIED, detail="client identifiers on file (CDCP client ID, date of birth)")
 
 
