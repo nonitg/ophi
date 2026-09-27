@@ -425,8 +425,7 @@ class CaseService:
                 self._synced(cid, sent)
             st = self.store.load(cid)
             if claim.outcome and decided not in st.pms_synced and st.submitted_on == claim.sent_on and st.decision is None:
-                key = self.note_reader(claim.reason) if self.note_reader and claim.reason and claim.outcome == "denied" else None
-                self.record_decision(cid, claim.outcome, claim.decided_on, claim.reason, "ABELDent", reason_key=key)
+                self.record_decision(cid, claim.outcome, claim.decided_on, claim.reason, "ABELDent")
                 self._synced(cid, decided)
 
     def _synced(self, case_id: str, step: str) -> None:
@@ -574,12 +573,18 @@ class CaseService:
             raise PermissionError("a decision can only be recorded for a case waiting on Sun Life")
         if outcome not in ("approved", "denied"):
             raise ValueError(outcome)
+        reason = (reason or "").strip() or None
+        if outcome == "denied" and reason and reason_key is None and self.note_reader:
+            # Nobody classifies a denial by hand: the reader names it from Sun Life's own words, wherever they came
+            # from -- an EOB note, a letter Gemini read, or text staff pasted. A reason it can't name stays unnamed.
+            named = self.note_reader(reason)
+            reason_key = named if named in REASONS else None
         if reason_key is not None and (reason_key not in REASONS or outcome != "denied"):
             raise ValueError(f"no denial reason '{reason_key}'")
         self._not_future(decided_on, "the decision date")
         if decided_on < st.submitted_on:
             raise ValueError("the decision date is before the day it was sent")
-        st.decision = Decision(outcome=outcome, decided_on=decided_on, reason=(reason or "").strip() or None,
+        st.decision = Decision(outcome=outcome, decided_on=decided_on, reason=reason,
                                reason_key=reason_key, recorded_by=by, recorded_at=self.now())
         self.store.save(case_id, st)
         self.audit(case_id, by, "record_decision", f"Sun Life {outcome} on {decided_on.isoformat()}" + (f": {st.decision.reason}" if st.decision.reason else ""))

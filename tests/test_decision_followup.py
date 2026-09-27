@@ -114,3 +114,26 @@ def test_uploaded_letter_prefills_the_decision_then_records_it(svc, tmp_path, mo
     assert svc.view(CHERSKI).state.decision.reason_key == "insufficient_ferrule"
     client.post(f"/cases/{CHERSKI}/resubmit", data={"reason_key": "insufficient_ferrule"})
     assert svc.view(CHERSKI).state.ask.stage == Stage.DENTIST
+
+
+def test_typed_reason_is_classified_without_staff_picking_it(svc, tmp_path, monkeypatch):
+    """Staff paste Sun Life's words; Gemini names the reason, so the resubmit card has nothing to choose."""
+    svc.sync_from_pms()
+    svc.note_reader = lambda text: "insufficient_ferrule"
+    client = TestClient(create_app(auto_rules_check=False, svc=svc, packets_dir=tmp_path / "packets"), follow_redirects=False)
+    client.post(f"/cases/{CHERSKI}/decision", data={"outcome": "denied", "decided_on": "2026-09-17",
+                                                    "reason": "Less than 1.5 mm of sound tooth structure remains."})
+    assert svc.view(CHERSKI).state.decision.reason_key == "insufficient_ferrule"
+    assert "Ophi read Sun Life's reason as <b>not enough ferrule</b>" in client.get(f"/cases/{CHERSKI}").text
+
+
+def test_resubmit_card_reads_the_reason_from_a_dropped_letter(svc, tmp_path, monkeypatch):
+    svc.sync_from_pms()
+    svc.note_reader = lambda text: None  # Sun Life named no reason Ophi can act on
+    client = TestClient(create_app(auto_rules_check=False, svc=svc, packets_dir=tmp_path / "packets"), follow_redirects=False)
+    client.post(f"/cases/{CHERSKI}/decision", data={"outcome": "denied", "decided_on": "2026-09-17", "reason": "As per the plan criteria."})
+    monkeypatch.setattr(letters, "read_letter", lambda data, media_type: letters.LetterReading(outcome="denied", reason_key="perio_prognosis"))
+    r = client.post(f"/cases/{CHERSKI}/reason", files={"letter": ("letter.pdf", b"%PDF", "application/pdf")})
+    assert r.status_code == 200 and "the periodontal prognosis is poor" in r.text
+    client.post(f"/cases/{CHERSKI}/resubmit", data={"reason_key": "perio_prognosis"})
+    assert svc.view(CHERSKI).state.ask.stage == Stage.DENTIST

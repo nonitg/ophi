@@ -251,14 +251,28 @@
       <div class="option">
         <h3>Send a new request</h3>
         <p>{{ provider }} signs it again, then you send it.</p>
+        {% set key = proposed.reason_key if proposed else st.decision.reason_key %}
+        {% if reason_error %}<p class="note note-warn">{{ reason_error }}</p>{% endif %}
+        {% if proposed and not proposed.reason_key %}<p class="note note-warn">Ophi couldn't tell which reason Sun Life's words name. Pick it below.</p>{% endif %}
+        {% if not key %}
+        <form method="post" action="{{ BASE }}/cases/{{ cid }}/reason" enctype="multipart/form-data" class="stack letter-form">
+          <label class="field"><span>Sun Life's letter (PDF or photo)</span><input class="input" type="file" name="letter" accept="application/pdf,image/png,image/jpeg,image/webp"></label>
+          <label class="field reason"><span>Or Sun Life's message, word for word</span><textarea class="input" name="text" rows="3" data-voice="payer">{{ st.decision.reason or '' }}</textarea></label>
+          <div class="btn-row"><button class="btn" type="submit">Read Sun Life's reason</button></div>
+        </form>
+        {% endif %}
         <form method="post" action="{{ BASE }}/cases/{{ cid }}/resubmit" class="stack">
-          <label class="field"><span>What Sun Life's reason points to</span>
-            <select class="input" name="reason_key" data-voice="payer">
-              <option value="">It doesn't say, or none of these</option>
-              {% for k, r in reasons.items() %}<option value="{{ k }}"{% if st.decision.reason_key == k %} selected{% endif %}>{{ r[0] }}{% if r[2] %}: {{ r[1]|lower }}{% endif %}</option>{% endfor %}
-            </select>
-          </label>
-          {% if st.decision.reason_key and reasons[st.decision.reason_key][2] %}<p class="small muted">Ophi read Sun Life's reason as this. The case goes to {{ STAGE_LABEL[reasons[st.decision.reason_key][2]] }} to do it.</p>{% endif %}
+          {% if key %}
+          <p class="note">Ophi read Sun Life's reason as <b>{{ reasons[key][0]|lower }}</b>.{% if reasons[key][2] %} The case goes to {{ STAGE_LABEL[reasons[key][2]] }} to {{ reasons[key][1]|lower }}.{% endif %}</p>
+          {% endif %}
+          <details class="reveal"><summary class="btn btn-sm">{% if key %}Not what the letter says?{% else %}Pick the reason yourself{% endif %}</summary>
+            <label class="field"><span>What Sun Life's reason points to</span>
+              <select class="input" name="reason_key" data-voice="payer">
+                <option value="">It doesn't say, or none of these</option>
+                {% for k, r in reasons.items() %}<option value="{{ k }}"{% if key == k %} selected{% endif %}>{{ r[0] }}{% if r[2] %}: {{ r[1]|lower }}{% endif %}</option>{% endfor %}
+              </select>
+            </label>
+          </details>
           <div class="btn-row"><button class="btn btn-primary" type="submit">Start resubmission</button></div>
         </form>
       </div>
