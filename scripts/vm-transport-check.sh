@@ -17,6 +17,6 @@ step "UTF-8";           $VM sql "SELECT N'Gagné Côté' AS name" '' json
 step "0 and 1 rows";    $VM sql "SELECT pid FROM pat WHERE pid = -1" '' json; $VM sql "SELECT 1 AS one" '' json
 step "write refused";   $VM sql "UPDATE pat SET plname = plname WHERE pid = -1" '' json; echo "exit=$?"
 step "bad SQL errors";  $VM sql "SELECT nope FROM pat" '' json; echo "exit=$?"
-step "long query (>8191 chars, over stdin)"
+step "long query (>8191 chars, pushed as a guest file)"
 long="SELECT COUNT(*) AS n FROM pat WHERE pid IN ($(seq -s, 1 5000))"
 echo "query bytes: ${#long}"; $VM sql "$long" '' json

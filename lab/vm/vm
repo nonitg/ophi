@@ -151,7 +151,14 @@ sql)
   esac
   # Must run as the logged-on user — LocalDB instances are per-user. Over ssh we already are.
   if [ "$VM_TRANSPORT" = ssh ]; then
-    printf '%s' "$q_b64" | g_cmd "powershell -NoProfile -ExecutionPolicy Bypass -File $GUEST_DIR\\q.ps1 -QueryB64 stdin $args"
+    # cmd.exe caps a command line at 8191 chars, and piping a large stdin into powershell over ssh hangs
+    # intermittently, so a long query travels as a guest file instead
+    if [ ${#q_b64} -gt 6000 ]; then
+      qf="$GUEST_DIR\\out\\q-$$-$RANDOM.b64"
+      printf '%s' "$q_b64" | g_push "$qf" || die "could not push the query to $qf"
+      q_b64="file:$qf"
+    fi
+    g_cmd "powershell -NoProfile -ExecutionPolicy Bypass -File $GUEST_DIR\\q.ps1 -QueryB64 $q_b64 $args" < /dev/null
   else
     user_exec "& $GUEST_DIR\\q.ps1 -QueryB64 $q_b64 $args"
   fi

@@ -18,8 +18,12 @@ $ErrorActionPreference = 'Stop'
 $ProgressPreference = 'SilentlyContinue'
 # Patient names carry accents (French-Canadian); the console's default code page would mangle them
 [Console]::OutputEncoding = [Text.Encoding]::UTF8
-# 'stdin' reads the base64 from stdin: the ssh transport's cmd.exe caps a command line at 8191 chars
-if ($QueryB64 -eq 'stdin') { $QueryB64 = [Console]::In.ReadToEnd().Trim() }
+# 'file:<path>' reads the base64 from a file the host pushed (queries too long for a command line)
+if ($QueryB64 -like 'file:*') {
+    $qf = $QueryB64.Substring(5)
+    $QueryB64 = (Get-Content -Raw $qf).Trim()
+    Remove-Item $qf
+}
 $Query = [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String($QueryB64))
 
 if (-not ($AllowWrite -or $DryRun)) {
