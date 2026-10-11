@@ -34,7 +34,7 @@ ml = ["laya>=0.3.20", "torch>=2.4", "lightgbm>=4.5", "scikit-learn>=1.5"]
 ophi = "ophi.cli:main"
 
 [tool.setuptools.packages.find]
-include = ["ophi*"]
+include = ["ophi*", "abeldent*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

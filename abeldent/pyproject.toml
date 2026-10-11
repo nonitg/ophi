@@ -1,0 +1,16 @@
+# This directory on its own, for repos that need ABELDent reads without the rest of ophi (ophi-phone).
+# colombus itself picks the package up through the root pyproject.
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "abeldent"
+version = "0.1.0"
+description = "Read-only ABELDent queries and the lab VM transport"
+requires-python = ">=3.12"
+dependencies = ["pydantic>=2.7"]
+
+[tool.setuptools]
+packages = ["abeldent"]
+package-dir = { "abeldent" = "." }
