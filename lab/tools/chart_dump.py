@@ -26,7 +26,6 @@ Usage:
 import argparse
 import json
 import re
-import subprocess
 import sys
 from collections import defaultdict
 from pathlib import Path
@@ -35,6 +34,8 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 from perio_decode import UNIVERSAL_TO_FDI, decode, summarise  # noqa: E402
 
+from abeldent.transport import VmSqlError  # noqa: E402,F401  (re-exported: abeldent_seed imports it from here)
+from abeldent.transport import sql as _transport_sql  # noqa: E402
 from ophi.sources.fictional_contact import scrub_chart  # noqa: E402
 
 VM = HERE.parent / "vm" / "vm"
@@ -64,34 +65,9 @@ GRP_NOTE = ("bridge_group is Transactions.Grp: 0/null for single units; for brid
             "starting at 1 form one bridge; Grp is not a shared bridge id.")
 
 
-class VmSqlError(RuntimeError):
-    """The VM or the database rejected a query: unreachable VM, refused write, bad SQL."""
-
-
-def _vm_error(text):
-    """The database's own message, not PowerShell's wrapper around it."""
-    text = text.strip()
-    m = re.search(r'argument\(s\): "(.+?)"\s*$', text, re.M)  # SqlException via DataAdapter.Fill
-    return m.group(1) if m else (text.splitlines()[0][:400] if text else "empty response from vm sql")
-
-
 def sql(query, params=None, vm=VM, mode="read"):
-    """Run one query against the ABELDent database and return the last result set's rows as dicts.
-    `@name` placeholders bind from `params`, so values never enter the SQL text.
-    mode: read (default), write (lab test data only) or dry-run (write, then roll back)."""
-    args = [str(vm), "sql", query, "", "json", json.dumps(params or {}), mode]
-    r = subprocess.run(args, capture_output=True, text=True)
-    body = r.stdout.strip()
-    # utm transport folds guest errors into stdout with exit 0; ssh reports them on stderr + exit code
-    if r.returncode or not body or body.startswith("REFUSED") or "Exception" in body[:200]:
-        raise VmSqlError(_vm_error(r.stderr if r.returncode and r.stderr.strip() else body))
-    try:
-        data = json.loads(body)
-    except json.JSONDecodeError:
-        raise VmSqlError(f"non-JSON from vm sql: {body[:300]}")
-    if isinstance(data, dict):  # older q.ps1 shapes: {value,Count} wrapper or a bare single row
-        data = data["value"] if "value" in data and "Count" in data else [data]
-    return data
+    """`abeldent.transport.sql` against this checkout's VM bridge; see there."""
+    return _transport_sql(query, params, vm=vm, mode=mode)
 
 
 def d(col, alias=None):

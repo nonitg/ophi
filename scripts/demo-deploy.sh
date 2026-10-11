@@ -48,7 +48,7 @@ echo "fix plans match the charts"
 
 mkdir -p "$stage"
 rsync -a --delete --exclude .vercel --exclude __pycache__ --exclude "*.pyc" \
-  --include "/ophi/***" --include "/packs/***" --include "/cases/***" --include "/mocks/***" \
+  --include "/ophi/***" --include "/abeldent/***" --include "/packs/***" --include "/cases/***" --include "/mocks/***" \
   --include "/pyproject.toml" --include "/uv.lock" --exclude "*" ./ "$stage/"
 
 echo "3.13" > "$stage/.python-version"  # the version the test suite runs on
