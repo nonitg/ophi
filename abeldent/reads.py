@@ -48,7 +48,19 @@ class Appointment(BaseModel):
     work: str
 
 
-AnswerAt = Literal["reviewing", "mailbox", "paper", "back", "rejected"]
+class ChairTime(BaseModel):
+    """A span the scheduler holds: a patient booking, or a block (lunch, hold) when patient_id <= 0."""
+
+    id: str | None
+    patient_id: int
+    date: date
+    start: str
+    duration_minutes: int
+    chair: str
+    provider_id: str | None
+
+
+AnswerAt =Literal["reviewing", "mailbox", "paper", "back", "rejected"]
 
 
 class Predetermination(BaseModel):
@@ -95,20 +107,49 @@ ORDER BY p.plname, p.pfname"""
 GET_PATIENT = f"""
 SELECT {_PATIENT_COLUMNS} FROM pat p LEFT JOIN inf i ON i.infpid = p.pid WHERE p.pid = @pid"""
 
+# Identity check on a call: date of birth narrows to a handful, the caller's name picks among them.
+PATIENTS_BORN_ON = f"""
+SELECT {_PATIENT_COLUMNS}
+FROM pat p LEFT JOIN inf i ON i.infpid = p.pid
+WHERE p.pnonpatient = 0 AND CONVERT(date, p.pbirth) = CONVERT(date, @dob, 23)"""
+
+# The scheduler grid in minutes; also the unit of apt.atimereq.
+SCHEDULER_UNIT = "SELECT TOP 1 sunitmins AS mins FROM sys WHERE sunitmins > 1"
+
 # atime is a time of day on the 1899-12-30 zero date; atimereq counts scheduler units (sys.sunitmins).
 # apid <= 0 rows are blocks (lunch, holds), not patient bookings.
-LIST_APPOINTMENTS = """
+_APPOINTMENTS_FROM = f"""
 SELECT CAST(a.aidentifier AS varchar(36)) AS id, a.apid AS patient_id,
   RTRIM(p.pfname) + ' ' + RTRIM(p.plname) AS patient_name,
   CONVERT(varchar(10), a.adate, 23) AS date, CONVERT(char(5), a.atime, 108) AS start,
   a.atimereq * u.mins AS duration_minutes, RTRIM(a.achair) AS chair, RTRIM(a.adid) AS provider_id,
   a.astatus AS status_code, RTRIM(s.apsdesc) AS status, RTRIM(a.apwork) AS work
 FROM apt a
-CROSS JOIN (SELECT TOP 1 sunitmins AS mins FROM sys WHERE sunitmins > 1) u
+CROSS JOIN ({SCHEDULER_UNIT}) u
 LEFT JOIN pat p ON p.pid = a.apid
-LEFT JOIN aps s ON s.apsid = a.astatus
+LEFT JOIN aps s ON s.apsid = a.astatus"""
+
+LIST_APPOINTMENTS = f"""{_APPOINTMENTS_FROM}
 WHERE a.adate = @date AND a.apid > 0
 ORDER BY a.atime, a.achair"""
+
+# A patient's bookings from a day on.
+PATIENT_APPOINTMENTS = f"""{_APPOINTMENTS_FROM}
+WHERE a.apid = @pid AND a.adate >= @from_date
+ORDER BY a.adate, a.atime"""
+
+GET_APPOINTMENT = f"""{_APPOINTMENTS_FROM}
+WHERE a.aidentifier = @id AND a.apid > 0"""
+
+# Every span the scheduler holds over a date range, blocks included: what makes a chair unavailable.
+LIST_CHAIR_TIME = f"""
+SELECT CAST(a.aidentifier AS varchar(36)) AS id, a.apid AS patient_id,
+  CONVERT(varchar(10), a.adate, 23) AS date, CONVERT(char(5), a.atime, 108) AS start,
+  a.atimereq * u.mins AS duration_minutes, RTRIM(a.achair) AS chair, NULLIF(RTRIM(a.adid), '') AS provider_id
+FROM apt a
+CROSS JOIN ({SCHEDULER_UNIT}) u
+WHERE a.adate BETWEEN @first AND @last
+ORDER BY a.adate, a.atime, a.achair"""
 
 # Claim.Status letters with ABELDent's labels (its ANetTransactionResultType resources) and where the answer is.
 CLAIM_STATUS: dict[str, tuple[str, AnswerAt]] = {
@@ -158,6 +199,28 @@ def get_patient(sql: Sql, pid: int) -> Patient | None:
 
 def list_appointments(sql: Sql, day: date) -> list[Appointment]:
     return [Appointment(**r) for r in sql(LIST_APPOINTMENTS, {"date": day.isoformat()})]
+
+
+def patients_born_on(sql: Sql, dob: date) -> list[Patient]:
+    return [Patient(**r) for r in sql(PATIENTS_BORN_ON, {"dob": dob.isoformat()})]
+
+
+def scheduler_unit_minutes(sql: Sql) -> int:
+    return int(sql(SCHEDULER_UNIT, None)[0]["mins"])
+
+
+def patient_appointments(sql: Sql, pid: int, from_date: date) -> list[Appointment]:
+    return [Appointment(**r) for r in sql(PATIENT_APPOINTMENTS, {"pid": pid, "from_date": from_date.isoformat()})]
+
+
+def get_appointment(sql: Sql, appointment_id: str) -> Appointment | None:
+    """`appointment_id` must be a GUID string: the database rejects anything else as a query error."""
+    rows = sql(GET_APPOINTMENT, {"id": appointment_id})
+    return Appointment(**rows[0]) if rows else None
+
+
+def list_chair_time(sql: Sql, first: date, last: date) -> list[ChairTime]:
+    return [ChairTime(**r) for r in sql(LIST_CHAIR_TIME, {"first": first.isoformat(), "last": last.isoformat()})]
 
 
 def parse_response(message: str | None) -> dict[str, list[str]]:
