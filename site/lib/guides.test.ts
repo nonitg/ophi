@@ -21,9 +21,9 @@ describe("guides", () => {
 
   it("covers the target search terms across titles and descriptions", () => {
     const text = guides.map((g) => `${g.title} ${g.description}`.toLowerCase()).join(" ");
-    expect(text).toContain("preauthoriz");
+    expect(text).toContain("voice agent");
     expect(text).toContain("clinic");
-    expect(text).toContain("cdcp");
+    expect(text).toContain("missed call");
   });
 
   it("only links guides that exist", () => {

@@ -23,10 +23,10 @@ export function InfoPanel({ kind }: { kind: "why" | "privacy" }) {
           {/* Close sits on the heading's first line, so the title starts the panel. On phones it floats, so only that line yields to it. */}
           <button type="button" className="absolute top-[42px] right-[30px] grid size-10 place-items-center rounded-full border border-[#b6c3a8] bg-transparent [transition:background_.2s,rotate_.35s_var(--ease-out)] hover:rotate-90 hover:bg-sage phone:static phone:float-right phone:-mt-1 phone:-mr-1.5 phone:ml-2 xray:border-pill-line" aria-label="Close" onClick={() => dialog.current?.close()}><Icon name="close" className="size-[17px]" /></button>
           {isWhy ? <>
-            <h2 id={titleId} className={title}>Care takes people.<br /><em>Paperwork takes time.</em></h2>
-            <p className={text}>For some treatments, clinics need approval before the Canadian Dental Care Plan will pay. Someone has to gather the records, explain the treatment, and put the details together.</p>
-            <div className="mt-7 border-y border-line py-[23px]"><span className="font-serif text-[56px] leading-none tracking-[-2px] phone:text-[49px]">≈480,000</span><p className="mt-2.5 text-[13px] leading-[1.7]">complete requests for treatment preauthorization<br />in just three months.</p><span className="mt-2.5 block text-[11px] text-muted">March 1 – May 31, 2026</span></div>
-            <p className={text}>Ophi is starting with the work behind those requests. We’re early, and we’ll share more when it’s ready.</p>
+            <h2 id={titleId} className={title}>Your phone rings.<br /><em>Is anyone there?</em></h2>
+            <p className={text}>Dental clinics miss up to 30% of incoming calls. Every unanswered call is a patient who may book somewhere else — and a lifetime of visits that goes with them.</p>
+            <div className="mt-7 border-y border-line py-[23px]"><span className="font-serif text-[56px] leading-none tracking-[-2px] phone:text-[49px]">$15,000+</span><p className="mt-2.5 text-[13px] leading-[1.7]">estimated lifetime value of a single<br />dental patient, lost in one missed call.</p><span className="mt-2.5 block text-[11px] text-muted">Industry average · varies by practice</span></div>
+            <p className={text}>Ophi answers every call — during the day when your team is busy, and after hours when no one’s there. It books and reschedules appointments directly in your system, and emails your team so nothing is missed.</p>
             <a className="mt-7 inline-flex min-h-8 items-center rounded-full bg-sage px-3.5 py-[5px] text-[11px] leading-[1.5] transition-[background] duration-200 hover:bg-tag-hover" href={copy.source.href} target="_blank" rel="noopener noreferrer">{copy.source.label}<span className="sr-only"> (opens in a new tab)</span></a>
           </> : <>
             <h2 id={titleId} className={title}>Committed to<br /><em>100% transparency</em></h2>

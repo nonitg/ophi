@@ -4,9 +4,9 @@ import { JsonLd } from "@/components/json-ld";
 import { guides } from "@/lib/guides";
 
 export const metadata: Metadata = {
-  title: "Ophi: guides for dental clinics and preauthorization",
+  title: "Ophi: guides for dental clinics",
   description:
-    "Ophi’s guides on dental preauthorization for Canadian dental clinics — CDCP treatment preauthorization, wait times, and less paperwork.",
+    "Ophi’s guides on AI voice agents, missed calls, and patient communication for dental clinics.",
   alternates: { canonical: "/guides" },
 };
 
@@ -22,7 +22,7 @@ export default function GuidesIndex() {
       </nav>
       <h1 className="text-[34px] leading-[1.1] tracking-[-1.2px] sm:text-[42px]">Guides for dental clinics</h1>
       <p className="mt-4 max-w-[54ch] text-[15px] leading-[1.7] text-muted">
-        A few short guides on the paperwork dental clinics handle most — preauthorization, the CDCP, and how the process works.
+        Short guides on the calls dental clinics miss, how AI voice agents work, and what it means for your practice.
       </p>
       <ul className="mt-10 grid gap-4">
         {guides.map((g) => (
@@ -35,10 +35,10 @@ export default function GuidesIndex() {
         ))}
       </ul>
       <p className="mt-10 text-[13px] leading-[1.7] text-muted">
-        Staying ahead of preauthorization paperwork?{" "}
+        Want every patient call answered?{" "}
         <Link href="/#join" className="text-ink underline decoration-pill-line underline-offset-4 hover:decoration-ink">Join the Ophi waitlist</Link>.
       </p>
-      <JsonLd data={{ "@context": "https://schema.org", "@type": "CollectionPage", name: "Ophi: guides for dental clinics and preauthorization", url: "https://ophi.app/guides" }} />
+      <JsonLd data={{ "@context": "https://schema.org", "@type": "CollectionPage", name: "Ophi: guides for dental clinics", url: "https://ophi.app/guides" }} />
       <JsonLd data={{ "@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: [
         { "@type": "ListItem", position: 1, name: "Ophi", item: "https://ophi.app/" },
         { "@type": "ListItem", position: 2, name: "Guides", item: "https://ophi.app/guides" },

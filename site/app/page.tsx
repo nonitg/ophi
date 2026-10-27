@@ -26,9 +26,9 @@ export default function Page() {
               overlap, as superimposed structures do on a radiograph. The density filter reads a solid highlight as mass
               and buries the glyphs, so filtered type selects faintly (here and on the footer wordmark). */}
           <h1 id="poster-title" className="poster-title pointer-events-none absolute inset-[20px_0_0] z-2 flex flex-col justify-between text-[length:clamp(96px,11.2vw,174px)] leading-[.98] tracking-[-.065em] tablet:text-[11.6vw] phone:inset-[3px_0_0] phone:text-[length:clamp(64px,15.4vw,105px)] phone:leading-none phone:tracking-[-.06em] small:text-[60px] motion-safe:animate-[arrive_.75s_ease-out_both] xray:mix-blend-screen xray:[filter:url(#xray-density)] xray:selection:bg-[#e6ece32e] xray:supports-[mix-blend-mode:plus-lighter]:mix-blend-plus-lighter">
-            <span className="block pt-4.5 phone:pt-0">Good care.</span>
-            {/* “Less” over “paperwork.” at every phone width; the X-ray note sits beside “Less” (tooth-scene.tsx). */}
-            <em className="block self-end pb-[3px] text-[.98em] tracking-[-.065em] phone:w-min phone:max-w-full phone:self-start phone:pb-0 phone:text-[.86em] phone:leading-[.99]">Less paperwork.</em>
+            <span className="block pt-4.5 phone:pt-0">Patient calls.</span>
+            {/* "Always" over "answered." at every phone width; the X-ray note sits beside "Always" (tooth-scene.tsx). */}
+            <em className="block self-end pb-[3px] text-[.98em] tracking-[-.065em] phone:w-min phone:max-w-full phone:self-start phone:pb-0 phone:text-[.86em] phone:leading-[.99]">Always answered.</em>
           </h1>
           <div className="sculpture absolute -top-[8%] -right-[2%] z-1 h-[103%] w-[53%] wide:-top-[5%] wide:w-[55%] tablet:-top-[4%] tablet:h-[105%] tablet:w-[55%] phone:top-[6%] phone:right-0 phone:h-[88%] phone:w-full phablet:top-[5%] phablet:right-0 phablet:w-[84%] small:top-[8%] motion-safe:animate-[arrive_1s_.08s_ease-out_both]">
             <div className="pointer-events-none absolute top-1/4 left-[14%] h-[51%] w-[75%] -rotate-31 rounded-[50%] border border-[#c1ccb5] phone:left-[10%] phone:h-1/2 phone:w-[80%] xray:border-[#e6ece333]" aria-hidden="true" />
@@ -41,13 +41,13 @@ export default function Page() {
         <div className="entry-row my-9 grid grid-cols-[minmax(0,1fr)_minmax(0,490px)] grid-rows-[auto_auto] gap-x-[6%] rounded-[36px] bg-sage p-11 tablet:grid-cols-[minmax(0,1fr)_minmax(0,440px)] phone:mt-0 phone:mb-8 phone:flex phone:flex-col phone:gap-[30px] phone:rounded-none phone:bg-transparent phone:p-0">
           <div className="introduction row-span-2 grid grid-rows-subgrid phone:flex phone:flex-col phone:gap-4.5">
             {/* Short lines end on a pair of words, not one (text-pretty on phones, here and below). */}
-            <p className="max-w-[400px] pt-0.5 text-[17px] leading-[1.6] text-[#55624e] tablet:text-[15px] phone:max-w-[340px] phone:pt-0 phone:text-[16px] phone:leading-[1.55] phone:text-pretty xray:text-[#c3cfc4]">We’re building for dental teams who’d rather spend their time on people.</p>
+            <p className="max-w-[400px] pt-0.5 text-[17px] leading-[1.6] text-[#55624e] tablet:text-[15px] phone:max-w-[340px] phone:pt-0 phone:text-[16px] phone:leading-[1.55] phone:text-pretty xray:text-[#c3cfc4]">We're building an AI voice agent for dental clinics, so your team never misses a patient call again.</p>
             <div className="introduction-actions flex min-h-[58px] items-center self-start phone:min-h-0"><InfoPanel kind="why" /></div>
           </div>
           <section id="join" className="signup row-span-2 grid grid-rows-subgrid phone:block phone:rounded-[28px] phone:bg-sage phone:px-5 phone:pt-[26px] phone:pb-6" aria-labelledby="signup-title">
             <div className="signup-head">
               <h2 id="signup-title" className="text-[28px] leading-[1.15] tracking-[-.7px] phone:text-[25px] small:text-[23px]">Be here from the beginning.</h2>
-              <p className="signup-note mt-2.5 mb-4.5 text-[13px] leading-[1.6] text-muted phone:text-pretty">Get occasional updates and hear when Ophi is ready.</p>
+              <p className="signup-note mt-2.5 mb-4.5 text-[13px] leading-[1.6] text-muted phone:text-pretty">Get occasional updates and hear when Ophi is answering calls.</p>
             </div>
             <WaitlistForm />
           </section>

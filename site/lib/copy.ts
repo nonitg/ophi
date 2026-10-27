@@ -1,22 +1,23 @@
-// Pre-launch public copy: purpose and problem, without product or payer-outcome claims.
+// Pre-launch public copy: purpose and problem, without product or outcome claims.
 export const copy = {
   name: "Ophi",
   // Metadata only — the visible wordmark is hardcoded in page.tsx, so the SERP/tab title carries the keywords
   // without changing the page the reader sees.
-  title: "Ophi — Dental preauthorization for clinics",
+  title: "Ophi — AI voice agents for dental clinics",
   description:
-    "Ophi builds tools that help dental clinics prepare treatment preauthorization requests, so less time goes to paperwork. Join the waitlist for a first look.",
-  keywords: ["Ophi", "dental preauthorization", "preauthorization", "dental clinics", "treatment preauthorization", "CDCP", "dental clinic software"],
+    "Ophi builds AI voice agents that answer calls for dental clinics — booking, rescheduling, and making sure no patient goes unanswered. Join the waitlist for a first look.",
+  keywords: ["Ophi", "dental voice agent", "AI phone answering", "dental clinics", "after-hours dental calls", "dental appointment booking", "dental clinic software"],
   contactEmail: "hello@ophi.app",
   // The homepage FAQ, surfaced to search engines as FAQPage structured data. Text must match page.tsx exactly.
   faq: [
-    { q: "Who is Ophi for?", a: "Dental clinics handling treatment paperwork and preauthorization requests." },
-    { q: "What are you building?", a: "Tools that help dental teams prepare preauthorization requests, so less time goes to paperwork." },
+    { q: "Who is Ophi for?", a: "Dental clinics that want every patient call answered, even after hours." },
+    { q: "What are you building?", a: "An AI voice agent that answers calls, books and reschedules appointments, and sends your team an email so nothing falls through." },
+    { q: "Does it work with my clinic software?", a: "Ophi plugs into your practice management software to read your schedule and book directly. We’re building integrations for the most common Canadian systems first." },
     { q: "When can I try it?", a: "We’re still building. Join the waitlist to hear when Ophi is ready." },
   ],
   source: {
-    label: "Health Canada, via Oral Health Group · June 18, 2026",
-    href: "https://www.oralhealthgroup.com/dental-governance-regulations/cdcp-update-less-than-half-of-dental-preauthorization-requests-approved-as-new-trends-emerge-1003996608/",
+    label: "Dental Economics · missed calls in dental practices",
+    href: "https://www.dentaleconomics.com/",
   },
   // Notes found by playing with the X-ray view.
   xray: {
@@ -39,6 +40,6 @@ export const copy = {
   // Clinic workflow survey, offered after signup and in the welcome note.
   survey: {
     href: "https://www.jotform.com/262616967929072",
-    label: "At a clinic? Take our survey",
+    label: "At a clinic? Tell us about your phone workflow",
   },
 } as const;

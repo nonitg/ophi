@@ -5,10 +5,10 @@ import { copy } from "@/lib/copy";
 const FROM = "Nonit at Ophi <nonit@updates.ophi.app>";
 
 const text = {
-  subject: "You’re on the Ophi waitlist",
+  subject: "You're on the Ophi waitlist",
   greeting: "Hi,",
-  intro: "Thanks for joining the Ophi waitlist. We’re building for dental teams who’d rather spend their time on people, and we’ll write when there’s something to share.",
-  survey: "Dentist, or work at a clinic? Tell us where the paperwork slows your team down. The survey takes 3–4 minutes, and your answers shape what we build first:",
+  intro: "Thanks for joining the Ophi waitlist. We're building an AI voice agent for dental clinics — one that answers calls, books appointments, and makes sure no patient slips through. We'll write when there's something to share.",
+  survey: "Work at a clinic? Tell us about your phone workflow — which calls get missed, what happens after hours, and where the gaps are. The survey takes 3–4 minutes, and your answers shape what we build first:",
   surveyAction: "Take the survey",
   // A reply is Gmail's strongest sign that a sender is wanted, so the note asks for one.
   reply: "Or just hit reply and tell us what you do. I read every reply.",
