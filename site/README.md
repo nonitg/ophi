@@ -1,9 +1,18 @@
 # Ophi public site
 
-The pre-launch site for **Ophi**, at **https://ophi.app**. A single editorial composition: large type,
-an original interactive tooth sculpture, a brief introduction, and an inline waitlist form.
-The “Why Ophi?” dialog holds the problem context and cited public evidence; the privacy dialog explains signup data use.
+The site for **Ophi**, the AI voice agent for dental clinics, at **https://ophi.app**. An editorial page: large type,
+an original interactive tooth sculpture, recorded calls you can play with a synced transcript, what the agent does
+when a call leaves the script, how the front desk approves each change, and an inline early-access form.
+The “Why Ophi?” dialog holds the cited problem figure; the privacy dialog explains signup data use.
 Design decisions and rationale are in `../DESIGN.md`.
+
+## Recorded calls
+
+`public/calls/<slug>.mp3` and `lib/calls/<slug>.json` are real calls on Ophi's phone line (scripted test caller,
+fictional patients), exported from the sibling repo: `../ophi-phone/scripts/site_demo_export.py`. `lib/calls.ts`
+lists them in listening order and turns each into what the page shows; titles and one-liners live in `lib/copy.ts`.
+The first call's request is also the one shown waiting at the front desk. To add or replace a call, export it,
+import its JSON in `lib/calls.ts` and give it a title in `copy.listen.calls`. Never edit the words in a transcript.
 
 ## Run and verify
 

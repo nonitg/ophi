@@ -2,6 +2,9 @@
 const paths = {
   arrow: <path d="M6 14 14 6M7.5 6H14v6.5" />,
   up: <path d="M10 15.5V4.5M5 9.5l5-5 5 5" />,
+  down: <path d="M10 4.5v11M5 10.5l5 5 5-5" />,
+  play: <path d="M7.5 5.2v9.6l7.6-4.8z" fill="currentColor" />,
+  pause: <path d="M7.2 5.2v9.6M12.8 5.2v9.6" />,
   plus: <path d="M10 4.5v11M4.5 10h11" />,
   close: <path d="m5.5 5.5 9 9m0-9-9 9" />,
   check: <path d="m4.5 10.5 3.5 3.5 7.5-8" />,

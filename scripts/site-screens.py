@@ -17,7 +17,9 @@ with sync_playwright() as p:
         page.goto(BASE, wait_until="networkidle")
         page.wait_for_selector('.tooth-viewer[data-ready="true"]')
         assert page.evaluate("document.documentElement.scrollWidth <= innerWidth"), f"Overflow at {width}px"
-        page.screenshot(path=str(OUT / f"{name}.png"), full_page=True)
+        # The page is long: past Chromium's capture limit, keep the top of it rather than fail the run.
+        tall = page.evaluate("document.documentElement.scrollHeight") > 8000
+        page.screenshot(path=str(OUT / f"{name}.png"), full_page=True, clip={"x": 0, "y": 0, "width": width, "height": 8000} if tall else None)
         assert not errors, errors
         print(f"{name}: rendered without horizontal overflow or page errors — {OUT / f'{name}.png'}")
         page.close()

@@ -1,6 +1,6 @@
 # Ophi — public site design
 
-Updated 2026-09-22. Supersedes the radiograph lightbox and the earlier multi-section landing-page draft.
+Updated 2026-11-10 (product site; see below). Earlier: 2026-09-22, which superseded the radiograph lightbox and the earlier multi-section landing-page draft.
 Public brand: **Ophi**, wordmark **ophi.**, domain **ophi.app**. The existing internal code/package paths
 are not part of the public brand and were not migrated in this design task.
 
@@ -12,6 +12,53 @@ Less paperwork.”, an original enamel sculpture, a brief statement of purpose a
 
 The user liked the ivory/forest/orange language and sculpture but rejected the conventional
 headline → facts → chart → call-to-action stack. Keep the language; break the layout pattern.
+
+## Product site (2026-11-10)
+
+The owner asked for the site to stop being a waitlist page and sell the product, the phone agent (`../ophi-phone`),
+on trust, credibility and judgment, in the same language. The poster, signup band, FAQ and footer are unchanged in
+look; four sections sit between the poster and the band. Where this section and older ones disagree, this one wins
+(the page is no longer one composition, and it now says what the product does).
+
+Reading order: poster, standfirst, Listen, judgment, front desk, limits, signup band, questions, footer.
+
+- **Proof before claims.** The first thing under the headline is a recorded call. Every skill the page names plays
+  the recorded moment that shows it (“Hear it”), and quotes Ophi's own words from that recording, or the note a
+  transfer left the team. “Hear it” plays where the reader is, without moving the page, from the caller's line that
+  set the moment off; its tag turns ink while it plays and a second press pauses it.
+- **Standfirst** (bare paper): one serif sentence saying what Ophi is, the orange “Get early access” pill, a
+  secondary “Hear a call” pill that starts the first recording, and the pilot status with the orange dot.
+- **Listen** (the sage panel, moved up from the signup): the call list on the left, the call sheet on the right.
+  - The call sheet is a paper-tone sheet on the band: an ink play button, the call as a trace, and the transcript.
+  - The trace is one stroke per reading, the caller above the line in sage and Ophi below it in ink; silence is a
+    dotted line. Played strokes are full strength, the rest faint. The playhead is the page's one moving orange mark.
+  - Transcript: Ophi speaks in the display serif, the caller in the sans. It reads whole before anything plays;
+    once playing, what hasn't been said yet steps back. Sage chips between lines say what Ophi did behind the words
+    (checked identity, read the schedule, sent the request). The call ends with what it left for the team.
+  - Each timestamp, any point on the trace and each call in the list plays from there in one press.
+  - “Playing” means sound: until the recording's clock moves, the sheet stays in a waiting state, and after half a
+    second says “Loading the recording…”. Stacked (under 1100px), the sheet comes before the list, and choosing a
+    call brings the sheet into view.
+  - The page itself never scrolls on its own during playback; only the transcript column follows the call.
+- **Judgment**: a ruled index, not cards. Title, plain description, Ophi's quoted words, and the “Hear it” pill.
+  No latency figure: the recordings carry the pace (the agent's own latency log reads about 0.3 s faster than what
+  a listener hears, so a printed number would invite a fair challenge).
+- **Front desk**: “Ophi asks. Your team says yes.” A working miniature of the staff queue, filled with the request
+  the first recorded call actually created. One ink “Approve booking” button; the three steps it sets off tick in
+  order, and the patient's text only appears once they have. Shown faint beforehand, so the press holds no surprise.
+  It is labelled a demonstration. Ink, not orange: orange stays the page's one action.
+- **Limits**: “What Ophi won't do.” Four refusals with a sage cross tag. Stating limits plainly is the trust section.
+- Section headings echo the poster: display serif, closing words in italic and stepped right. Sections open on a
+  crease rule. No eyebrow labels, cards, logos, testimonials, prices or metric rows.
+- Header: quiet text links to the sections (hidden under 940px), the X-ray button, and an outlined “Get early
+  access” pill (hidden on phones, where the orange one sits right under the headline).
+- New controls use tokens only, so X-ray needs no per-component work beyond `xray:` on the two paper-only tones.
+
+Recordings are real calls placed on Ophi's phone line by a scripted test caller, with fictional patients, exported
+by `ophi-phone` (`scripts/site_demo_export.py`) as `site/public/calls/<slug>.mp3` and `site/lib/calls/<slug>.json`.
+Nothing is cut from the middle of any call; the two transfers end at the hand-off line, where a real call rings
+through to staff (the test line has no one to ring), and the page says so. Titles and notes are written in
+`site/lib/copy.ts` and `site/lib/calls.ts`; the words spoken are never edited. Claims in `copy.ts` are limited to what the agent does today.
 
 ## Structure and purpose
 
