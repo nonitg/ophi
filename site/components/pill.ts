@@ -31,3 +31,6 @@ export const pillTag = cva(
 );
 
 export const pillIcon = "size-[15px] transition-transform duration-350 ease-out";
+
+// The one orange action: asking for access. Call sites add their own spacing for tight widths.
+export const primaryPill = "inline-flex h-[46px] flex-none items-center justify-between gap-[21px] rounded-full border-0 bg-orange pr-4.5 pl-5 text-[12px] font-medium text-ink transition-[background] duration-200 hover:bg-[#f59973] xray:text-paper xray:shadow-[0_0_28px_-6px_#dff3e6b3] xray:hover:bg-white";

@@ -5,8 +5,30 @@ import { JsonLd } from "@/components/json-ld";
 import Link from "next/link";
 import { Icon } from "@/components/icons";
 import { CopyEmail } from "@/components/copy-email";
-import { pill, pillIcon, pillTag } from "@/components/pill";
+import { CallPlayer } from "@/components/call-player";
+import { HearIt } from "@/components/hear-it";
+import { ApprovalCard } from "@/components/approval-card";
+import { pill, pillIcon, pillTag, primaryPill } from "@/components/pill";
 import { copy } from "@/lib/copy";
+import { demoCall, moment, recordedOn, recordings } from "@/lib/calls";
+
+// Section headings echo the poster: display serif, the closing words in italic and stepped to the right.
+const sectionTitle = "text-[length:clamp(40px,4.7vw,68px)] leading-[1.02] tracking-[-.045em] phone:text-[length:clamp(33px,9.6vw,42px)] phone:leading-[1.05]";
+const section = "mt-[clamp(72px,8.5vw,128px)] border-t border-line pt-9 [box-shadow:var(--crease)] phone:mt-16 phone:pt-7";
+const row = "border-t border-line [box-shadow:var(--crease)]";
+
+const calls = recordings.map(demoCall);
+const first = recordings[0];
+// Each claim about judgment carries the recorded moment that backs it, where there is one.
+const judgment = copy.judgment.map((skill) => {
+  const hear = skill.hear as { slug: string; tool?: string } | null;
+  const recording = hear && recordings.find((r) => r.slug === hear.slug);
+  const proof = recording ? moment(recording, hear.tool) : null;
+  return { ...skill, proof: proof && { slug: recording!.slug, ...proof } };
+});
+// The request the first call left at the front desk, and the text its approval sends (wording as ophi-phone office.py).
+const request = first.proposals[0];
+const confirmation = `${copy.frontDesk.card.clinic}: You’re booked for a ${request.title.split(": ")[1]} on ${request.details.when}. Questions? Call ${copy.frontDesk.card.phone}. Reply STOP to opt out.`;
 
 export default function Page() {
   return (
@@ -15,8 +37,12 @@ export default function Page() {
       <header className="site-header flex h-[98px] flex-none items-center justify-between phone:h-[84px]">
         <Link className="inline-block pr-[7px] text-[46px] leading-none font-[650] tracking-[-3.7px] phone:text-[38px] phone:tracking-[-3px]" href="/" aria-label="Ophi home">ophi<span className="text-rust xray:text-white xray:[text-shadow:0_0_14px_#dff3e6a6]" aria-hidden="true">.</span></Link>
         <div className="header-tools flex items-center gap-5 phone:gap-3.5">
+          <nav className="flex items-center max-[940px]:hidden" aria-label="On this page">
+            {copy.nav.map(({ href, label }) => <a key={href} href={href} className="rounded-full px-3 py-2 text-[13px] text-ink-soft transition-[background,color] duration-200 hover:bg-field hover:text-ink">{label}</a>)}
+          </nav>
           {/* ToothScene fills this with the X-ray control once the tooth is live. */}
           <div id="xray-slot" className="xray-slot relative flex" />
+          <a className={pill({ size: "footer", className: "header-cta phone:hidden" })} href="#join">{copy.cta}<span className={pillTag({ size: "footer" })}><Icon name="arrow" className={`${pillIcon} group-hover/pill:translate-x-px group-hover/pill:-translate-y-px`} /></span></a>
         </div>
       </header>
       <main id="main" className="flex-1">
@@ -35,26 +61,91 @@ export default function Page() {
             <ToothScene />
           </div>
         </section>
+        {/* What it is and the two things to do next: ask for access, or hear it first. */}
+        <div className="standfirst grid grid-cols-[minmax(0,1fr)_auto] items-end gap-x-[6%] gap-y-7 pt-9 pb-11 tablet:pt-7 phone:grid-cols-1 phone:pt-0 phone:pb-9">
+          <p className="max-w-[640px] font-serif text-[length:clamp(23px,2.05vw,30px)] leading-[1.3] tracking-[-.02em] text-pretty phone:text-[22px]">{copy.standfirst}</p>
+          <div className="grid justify-items-end gap-3.5 phone:justify-items-start">
+            <div className="flex flex-wrap items-center gap-2.5">
+              <a className={`group/join ${primaryPill}`} href="#join">{copy.cta}<Icon name="arrow" className="size-[22px] transition-transform duration-350 ease-out group-hover/join:translate-x-0.5 group-hover/join:-translate-y-0.5" /></a>
+              <HearIt slug={first.slug} t={0} label={copy.listen.action} show />
+            </div>
+            <p className="flex items-center gap-2 text-[12px] leading-[1.5] text-muted"><span className="size-1.5 flex-none rounded-full bg-orange" aria-hidden="true" />{copy.status}</p>
+          </div>
+        </div>
+        {/* The listening room: the one sage panel above the fold's edge. Proof before any claim. */}
+        <section id="listen" className="listen scroll-mt-6 rounded-[36px] bg-sage p-11 tablet:p-8 phone:-mx-2.5 phone:rounded-[28px] phone:px-4 phone:pt-7 phone:pb-5" aria-labelledby="listen-title">
+          <CallPlayer calls={calls} note={copy.listen.note.replace("{date}", recordedOn(first))} />
+        </section>
+        <section id="judgment" className={`${section} scroll-mt-6`} aria-labelledby="judgment-title">
+          <h2 id="judgment-title" className={sectionTitle}><span className="block text-balance">The hard part isn’t the voice.</span><em className="block pl-[16%] phone:pl-0">It’s the judgment.</em></h2>
+          <ul className="mt-14 phone:mt-9">
+            {judgment.map(({ title, body, proof }) => (
+              <li key={title} className={`${row} grid grid-cols-[minmax(0,5fr)_minmax(0,6fr)_152px] items-start gap-x-[5%] gap-y-3 py-7 tablet:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] phone:grid-cols-1 phone:py-6`}>
+                <h3 className="font-serif text-[length:clamp(25px,2.2vw,31px)] leading-[1.15] tracking-[-.02em] text-pretty">{title}</h3>
+                <div className="max-w-[540px]">
+                  <p className="text-[15px] leading-[1.65] text-ink-soft">{body}</p>
+                  {/* Ophi's own words from the recording, not ours: what it said, or the note a transfer left the team. */}
+                  {proof && <p className="mt-3 line-clamp-2 font-serif text-[17px] leading-[1.45] text-muted italic phone:line-clamp-3">{proof.note ? <><span className="font-sans text-[13px] not-italic">{copy.listen.teamNote}</span> “{proof.note}”</> : <>“{proof.quote}”</>}</p>}
+                </div>
+                <div className="flex justify-end tablet:col-start-2 tablet:justify-start phone:col-start-1">
+                  {proof && <HearIt slug={proof.slug} t={proof.t} label="Hear it" about={title} />}
+                </div>
+              </li>
+            ))}
+          </ul>
+        </section>
+        <section id="front-desk" className={`${section} scroll-mt-6`} aria-labelledby="front-desk-title">
+          <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,500px)] items-start gap-x-[8%] gap-y-12 tablet:grid-cols-1">
+            <div>
+              <h2 id="front-desk-title" className={sectionTitle}>Ophi asks.<em className="block pl-[14%] phone:pl-0">Your team says yes.</em></h2>
+              <p className="mt-9 max-w-[500px] text-[17px] leading-[1.6] text-ink-soft phone:mt-6 phone:text-[16px]">{copy.frontDesk.lede}</p>
+              <ol className="mt-9 max-w-[560px] phone:mt-7">
+                {copy.frontDesk.steps.map(({ title, body }, i) => (
+                  <li key={title} className={`${row} grid grid-cols-[44px_minmax(0,1fr)] py-4.5`}>
+                    <span className="font-serif text-[22px] leading-[1.2] text-muted italic" aria-hidden="true">{i + 1}</span>
+                    <div><h3 className="font-sans text-[14px] leading-[1.5] font-medium">{title}</h3><p className="mt-1 text-[14px] leading-[1.6] text-muted">{body}</p></div>
+                  </li>
+                ))}
+              </ol>
+            </div>
+            <ApprovalCard proposal={request} text={confirmation} />
+          </div>
+          <div className={`${row} mt-16 grid grid-cols-[minmax(0,5fr)_minmax(0,6fr)_152px] items-start gap-x-[5%] gap-y-3 py-7 tablet:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] phone:mt-12 phone:grid-cols-1 phone:py-6`}>
+            <h3 className="font-serif text-[length:clamp(25px,2.2vw,31px)] leading-[1.15] tracking-[-.02em] text-pretty">{copy.frontDesk.software.title}</h3>
+            <p className="max-w-[540px] text-[15px] leading-[1.65] text-ink-soft">{copy.frontDesk.software.body}</p>
+          </div>
+        </section>
+        <section className={section} aria-labelledby="limits-title">
+          <h2 id="limits-title" className={sectionTitle}>What Ophi <em>won’t do.</em></h2>
+          <ul className="mt-12 grid grid-cols-2 gap-x-[8%] phone:mt-8 phone:grid-cols-1">
+            {copy.limits.map(({ title, body }) => (
+              <li key={title} className={`${row} flex gap-4.5 py-6`}>
+                <span className="mt-1 grid size-8 flex-none place-items-center rounded-full bg-sage text-label xray:text-ink-soft" aria-hidden="true"><Icon name="close" className="size-[15px]" /></span>
+                <div><h3 className="font-serif text-[length:clamp(23px,1.9vw,27px)] leading-[1.2] tracking-[-.02em]">{title}</h3><p className="mt-1.5 max-w-[440px] text-[14.5px] leading-[1.65] text-ink-soft">{body}</p></div>
+              </li>
+            ))}
+          </ul>
+        </section>
         {/* The signup band: one sage panel for the one action. Two columns share rows, so "Why Ophi?" lines up with the email field.
             Stacked on phones, the rows no longer need to line up, and a grid track would size to the widest control.
-            The introduction follows the headline on bare paper, so the band holds the signup alone. */}
-        <div className="entry-row my-9 grid grid-cols-[minmax(0,1fr)_minmax(0,490px)] grid-rows-[auto_auto] gap-x-[6%] rounded-[36px] bg-sage p-11 tablet:grid-cols-[minmax(0,1fr)_minmax(0,440px)] phone:mt-0 phone:mb-8 phone:flex phone:flex-col phone:gap-[30px] phone:rounded-none phone:bg-transparent phone:p-0">
+            The introduction follows on bare paper, so the band holds the signup alone. */}
+        <div className="entry-row mt-[clamp(72px,8.5vw,128px)] mb-9 grid grid-cols-[minmax(0,1fr)_minmax(0,490px)] grid-rows-[auto_auto] gap-x-[6%] rounded-[36px] bg-sage p-11 tablet:grid-cols-[minmax(0,1fr)_minmax(0,440px)] phone:mt-16 phone:mb-8 phone:flex phone:flex-col phone:gap-[30px] phone:rounded-none phone:bg-transparent phone:p-0">
           <div className="introduction row-span-2 grid grid-rows-subgrid phone:flex phone:flex-col phone:gap-4.5">
             {/* Short lines end on a pair of words, not one (text-pretty on phones, here and below). */}
-            <p className="max-w-[400px] pt-0.5 text-[17px] leading-[1.6] text-[#55624e] tablet:text-[15px] phone:max-w-[340px] phone:pt-0 phone:text-[16px] phone:leading-[1.55] phone:text-pretty xray:text-[#c3cfc4]">We're building an AI voice agent for dental clinics, so your team never misses a patient call again.</p>
+            <p className="max-w-[400px] pt-0.5 text-[17px] leading-[1.6] text-[#55624e] tablet:text-[15px] phone:max-w-[340px] phone:pt-0 phone:text-[16px] phone:leading-[1.55] phone:text-pretty xray:text-[#c3cfc4]">{copy.signup.intro}</p>
             <div className="introduction-actions flex min-h-[58px] items-center self-start phone:min-h-0"><InfoPanel kind="why" /></div>
           </div>
-          <section id="join" className="signup row-span-2 grid grid-rows-subgrid phone:block phone:rounded-[28px] phone:bg-sage phone:px-5 phone:pt-[26px] phone:pb-6" aria-labelledby="signup-title">
+          <section id="join" className="signup row-span-2 grid scroll-mt-6 grid-rows-subgrid phone:block phone:rounded-[28px] phone:bg-sage phone:px-5 phone:pt-[26px] phone:pb-6" aria-labelledby="signup-title">
             <div className="signup-head">
-              <h2 id="signup-title" className="text-[28px] leading-[1.15] tracking-[-.7px] phone:text-[25px] small:text-[23px]">Be here from the beginning.</h2>
-              <p className="signup-note mt-2.5 mb-4.5 text-[13px] leading-[1.6] text-muted phone:text-pretty">Get occasional updates and hear when Ophi is answering calls.</p>
+              <h2 id="signup-title" className="text-[28px] leading-[1.15] tracking-[-.7px] phone:text-[25px] small:text-[23px]">{copy.signup.title}</h2>
+              <p className="signup-note mt-2.5 mb-4.5 text-[13px] leading-[1.6] text-muted phone:text-pretty">{copy.signup.note}</p>
             </div>
             <WaitlistForm />
           </section>
         </div>
         {/* Answers start where the form starts and end at the card edge: form track plus card padding.
             Contact follows the questions in reading order; wide screens tuck it under the heading. */}
-        <section className="faq grid grid-cols-[minmax(0,1fr)_minmax(0,534px)] grid-rows-[auto_1fr] gap-x-[6%] border-t border-line pt-7 pb-9 [box-shadow:var(--crease)] [grid-template-areas:'head_items'_'contact_items'] tablet:grid-cols-[minmax(0,1fr)_minmax(0,484px)] phone:grid-cols-[1fr] phone:grid-rows-none phone:gap-3.5 phone:pt-[25px] phone:pb-7 phone:[grid-template-areas:'head'_'items'_'contact']" aria-labelledby="faq-title">
+        <section id="questions" className="faq grid scroll-mt-6 grid-cols-[minmax(0,1fr)_minmax(0,534px)] grid-rows-[auto_1fr] gap-x-[6%] border-t border-line pt-7 pb-9 [box-shadow:var(--crease)] [grid-template-areas:'head_items'_'contact_items'] tablet:grid-cols-[minmax(0,1fr)_minmax(0,484px)] phone:grid-cols-[1fr] phone:grid-rows-none phone:gap-3.5 phone:pt-[25px] phone:pb-7 phone:[grid-template-areas:'head'_'items'_'contact']" aria-labelledby="faq-title">
           <div className="[grid-area:head]">
             <h2 id="faq-title" className="text-[28px] leading-[1.2] tracking-[-.7px] phone:text-[25px]">A few quick answers.</h2>
           </div>

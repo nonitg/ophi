@@ -6,7 +6,7 @@ import { subscribe, type SubscribeState } from "@/app/actions";
 import { copy } from "@/lib/copy";
 import { Icon } from "@/components/icons";
 import { PmsSelect } from "@/components/pms-select";
-import { pill, pillIcon, pillTag } from "@/components/pill";
+import { pill, pillIcon, pillTag, primaryPill } from "@/components/pill";
 
 const initial: SubscribeState = { status: "idle" };
 
@@ -50,7 +50,7 @@ export function WaitlistForm() {
           <input ref={emailInput} id="email" name="email" type="email" autoComplete="email" inputMode="email" placeholder={copy.form.emailPlaceholder} value={email} onChange={(event) => setEmail(event.target.value)} required aria-invalid={invalid || undefined} aria-describedby={failed ? "email-error consent" : "consent"}
             className="h-[46px] w-full min-w-0 rounded-[30px] border-0 bg-transparent px-[15px] py-0 text-[14px] text-ink outline-none placeholder:text-[#65715c] placeholder:opacity-100 phone:pr-2 phone:pl-3 phone:text-[16px] phone:placeholder:text-[14px] xray:placeholder:text-muted" />
           {/* Busy, not unavailable: the pill stays solid while its arrow carries the wait. */}
-          <button type="submit" disabled={pending} className="group/join join-button inline-flex h-[46px] flex-none items-center justify-between gap-[21px] rounded-full border-0 bg-orange pr-4.5 pl-5 text-[12px] font-medium transition-[background] duration-200 hover:bg-[#f59973] disabled:opacity-100 tablet:gap-3 tablet:px-4 phone:gap-3 phone:px-3.5 phone:text-[11px] small:gap-[7px] small:px-[11px] xray:text-paper xray:shadow-[0_0_28px_-6px_#dff3e6b3] xray:hover:bg-white">
+          <button type="submit" disabled={pending} className={`group/join join-button ${primaryPill} disabled:opacity-100 tablet:gap-3 tablet:px-4 phone:gap-3 phone:px-3.5 phone:text-[11px] small:gap-[7px] small:px-[11px]`}>
             {pending ? copy.form.submitting : copy.form.submit}
             {/* Joining: the arrow leaves and comes back while the request is out. */}
             <Icon name="arrow" className={`size-[22px] transition-transform duration-350 ease-out group-hover/join:translate-x-0.5 group-hover/join:-translate-y-0.5 tiny:hidden ${pending ? "motion-safe:animate-[send_.9s_var(--ease-out)_infinite]" : ""}`} />
