@@ -17,6 +17,7 @@ ROOT = Path(__file__).resolve().parent.parent
 ASSETS = ROOT / "assets"
 BASE = sys.argv[1] if len(sys.argv) > 1 else "http://localhost:3111"
 IVORY = "#f4f2e9"
+FOREST = "#193a30"
 
 # Upload sizes per platform; each platform crops or masks the edges itself.
 AVATAR_SIZES = {1080: "Instagram, Facebook, TikTok", 400: "X, LinkedIn, Google"}
@@ -99,6 +100,15 @@ def avatars(page) -> None:
         shoot(page, page_html(centred, IVORY), size, size, ASSETS / f"profile/ophi-avatar-wordmark-{size}.png")
 
 
+def contact_poster(page) -> None:
+    """Full-screen phone contact poster: small ivory wordmark centred on forest green (iPhone Pro Max size)."""
+    width, height = 1290, 2796
+    word = (ASSETS / "logo/ophi-wordmark-ivory.svg").read_text()
+    mark_width = round(width * .34)
+    centred = f'<div style="display:grid;place-items:center;height:{height}px">{svg_box(word, mark_width, round(mark_width * aspect(word)))}</div>'
+    shoot(page, page_html(centred, FOREST), width, height, ASSETS / f"profile/ophi-contact-poster-{width}x{height}.png")
+
+
 def banners(browser) -> None:
     for name, (width, height, css) in BANNERS.items():
         page = browser.new_page(viewport={"width": width, "height": height}, reduced_motion="reduce")
@@ -119,6 +129,7 @@ def main() -> None:
         page = browser.new_page()
         logos(page)
         avatars(page)
+        contact_poster(page)
         page.close()
         banners(browser)
         browser.close()
