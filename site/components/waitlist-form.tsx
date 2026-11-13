@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useActionState, useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import { track } from "@vercel/analytics";
 import { subscribe, type SubscribeState } from "@/app/actions";
 import { copy } from "@/lib/copy";
@@ -10,8 +10,9 @@ import { pill, pillIcon, pillTag } from "@/components/pill";
 
 const initial: SubscribeState = { status: "idle" };
 
-export function WaitlistForm() {
-  const [state, action, pending] = useActionState(subscribe, initial);
+// The film page passes its own action and extra optional fields; the homepage uses the defaults.
+export function WaitlistForm({ action: save = subscribe, children }: { action?: typeof subscribe; children?: ReactNode }) {
+  const [state, action, pending] = useActionState(save, initial);
   const [email, setEmail] = useState("");
   const wrap = useRef<HTMLDivElement>(null);
   const formHeight = useRef(0);
@@ -57,6 +58,7 @@ export function WaitlistForm() {
           </button>
         </div>
         {failed && <p id="email-error" role="alert" className="waitlist-error my-2.5 text-[12px] leading-[1.5] text-error">{state.message}</p>}
+        {children}
         <PmsSelect />
         {/* The honeypot name deliberately avoids browser autofill vocabularies. */}
         <div className="sr-only" aria-hidden="true"><label htmlFor="hp_ref">Reference</label><input id="hp_ref" name="hp_ref" type="text" tabIndex={-1} autoComplete="off" /></div>
