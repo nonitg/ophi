@@ -8,7 +8,8 @@ import { pill, pillIcon, pillTag } from "@/components/pill";
 const title = "mb-6 pr-14 text-[length:clamp(32px,3.5vw,46px)] leading-[1.1] tracking-[-1.6px] phone:pr-0 phone:text-[32px] small:text-[30px]";
 const text = "mt-5 text-[14px] leading-[1.8] text-[#52614b] phone:text-[13px] xray:text-[#c3cfc4]";
 
-export function InfoPanel({ kind }: { kind: "why" | "privacy" }) {
+// `note` adds a page's own sentence to the privacy panel (the film page also takes a name and number).
+export function InfoPanel({ kind, note }: { kind: "why" | "privacy"; note?: string }) {
   const dialog = useRef<HTMLDialogElement>(null);
   const titleId = useId();
   const isWhy = kind === "why";
@@ -32,6 +33,7 @@ export function InfoPanel({ kind }: { kind: "why" | "privacy" }) {
             <h2 id={titleId} className={title}>Committed to<br /><em>100% transparency</em></h2>
             <p className={text}>Joining the mailing list means occasional emails about Ophi’s launch and progress.</p>
             <p className={text}>We store your email with Resend, our email provider. Sharing your clinic software is optional; it helps us decide what to build.</p>
+            {note && <p className={text}>{note}</p>}
             <p className={text}>Your email and data never leaves our servers.</p>
             <p className={text}>We count page visits with Vercel Analytics, which uses no cookies and doesn’t identify you.</p>
           </>}
