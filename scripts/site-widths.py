@@ -38,7 +38,8 @@ with sync_playwright() as p:
         page = browser.new_page(viewport={"width": width, "height": 900}, device_scale_factor=1, reduced_motion="reduce")
         errors = []
         page.on("pageerror", lambda e: errors.append(str(e)))
-        page.on("console", lambda m: errors.append(m.text) if m.type == "error" else None)
+        # Vercel Analytics only exists on Vercel, so its script 404s on a local server.
+        page.on("console", lambda m: errors.append(m.text) if m.type == "error" and "/_vercel/" not in m.location.get("url", "") else None)
         page.goto(BASE, wait_until="networkidle")
         found = page.evaluate(JS, SECTIONS) + errors
         if found:
