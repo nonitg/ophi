@@ -35,7 +35,8 @@ with sync_playwright() as p:
     page = browser.new_context(viewport={"width": W, "height": H}, is_mobile=True, has_touch=True).new_page()
     errors = []
     page.on("pageerror", lambda e: errors.append(str(e)))
-    page.on("console", lambda m: errors.append(m.text) if m.type == "error" else None)
+    # Vercel Analytics only exists on Vercel, so its script 404s on a local server.
+    page.on("console", lambda m: errors.append(m.text) if m.type == "error" and "/_vercel/" not in m.location.get("url", "") else None)
     page.goto(BASE, wait_until="networkidle")
     page.add_style_tag(content="html{scroll-behavior:auto!important}")
 
