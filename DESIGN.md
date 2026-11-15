@@ -96,8 +96,26 @@ diagram), the record-system name chips (the FAQ answers which software works).
 ABELDent are not connected (the page now says ABELDent is first), and the FAQ says patient data lives in Canada
 under Canadian health privacy law, while the demo server is in the US. Revisit both before the site is public.
 
-Checks: `scripts/site-widths.py` (20 widths: overflow, text leaving its section, the 14px floor) and
-`scripts/site-vision-flow.py` (door tabs, story autoplay, real call, step buttons, Approve, FAQ).
+Checks: `scripts/site-widths.py` (20 widths: overflow, text leaving its section, the 14px floor),
+`scripts/site-vision-flow.py` (door tabs, story autoplay, real call, step buttons, Approve, FAQ) and
+`scripts/site-phone-flow.py` (390x750 touch: menu, hero holds still, How and the story each fit one screen, swipe,
+all clinic patients, Approve).
+
+### Phones and tablets (2026-11-15)
+
+The rule: a phone gets the same story, the same pictures and the same content as a desktop, rearranged so each moving
+picture fits one phone screen (about 690px under the header), so the reader sees cause and effect together.
+
+- **Header.** Below 1100px the section links fold into a menu button beside Get early access
+  (`components/site-menu.tsx`): big serif links drop under the header; a pick, a tap outside or Escape closes it.
+- **Hero.** Under 480px the two buttons stack full width at 52px. The patient dots return under the cards.
+- **How.** Below 1240px the doors' waiting room is shorter (200px, 176px on phones) and each door's object rests on
+  the card's top edge, growing upward. Phone rows are 64px, so the doors, every step and "Saved" fit one screen. The
+  thread is measured from the first mark to the last, so any row height works.
+- **Story.** Under 900px it reads like a story on a phone: the six bars, the moment's words (no number; the bars count),
+  then Alex's phone. A sideways swipe on the phone changes moment; vertical drags still scroll.
+- **Clinic.** Phones show all six patients (two of the four live events land on the last two). Below 1100px "What
+  Ophi did" sits ticked under each row's next step instead of in its own column.
 
 ## Structure and purpose
 

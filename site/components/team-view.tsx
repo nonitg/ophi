@@ -100,15 +100,14 @@ export function TeamView() {
               {words.columns.map((name, i) => <span key={name} className={i === 3 ? "tablet:hidden" : ""}>{name}</span>)}
             </div>
             <ul aria-label="Patients at the clinic today">
-              {team.rows.map((row, i) => (
-                // Phones show the first four patients; the table is long enough to make the point.
-                <PatientRow key={row.id} row={row} fresh={row.id === team.latest} approval={approval} checks={checks} onApprove={approve} className={i > 3 ? "phone:hidden" : ""} />
+              {team.rows.map((row) => (
+                <PatientRow key={row.id} row={row} fresh={row.id === team.latest} approval={approval} checks={checks} onApprove={approve} />
               ))}
             </ul>
           </div>
           {/* What just happened, in words. Announced only once the reader has pressed Approve. */}
-          <p ref={status} tabIndex={-1} className="flex min-h-[60px] items-center gap-3 bg-sage px-8 py-3 text-[16px] leading-[1.45] outline-none phone:px-5 phone:text-[15px]" aria-live={approval === "no" ? "off" : "polite"}>
-            <span className="relative size-2.5 flex-none rounded-full bg-sage-deep" aria-hidden="true">
+          <p ref={status} tabIndex={-1} className="flex min-h-[60px] items-center gap-3 bg-sage px-8 py-3 phone:items-start phone:py-4 text-[16px] leading-[1.45] outline-none phone:px-5 phone:text-[15px]" aria-live={approval === "no" ? "off" : "polite"}>
+            <span className="relative size-2.5 flex-none rounded-full bg-sage-deep phone:mt-[7px]" aria-hidden="true">
               <Ping key={message} className="inset-0 bg-sage-deep" />
             </span>
             <Fade id={message} room={MESSAGES} className="min-w-0 flex-1">{message}</Fade>
@@ -120,16 +119,16 @@ export function TeamView() {
   );
 }
 
-function PatientRow({ row, fresh, approval, checks, onApprove, className }: { row: Row; fresh: boolean; approval: Approval; checks: number; onApprove: () => void; className: string }) {
+function PatientRow({ row, fresh, approval, checks, onApprove }: { row: Row; fresh: boolean; approval: Approval; checks: number; onApprove: () => void }) {
   const held = row.id === HELD;
   const done = row.marks.filter((m) => m === "done").length;
   const ask = <Ask approval={approval} checks={checks} move={row.move} onApprove={onApprove} />;
   return (
-    <li className={`relative rounded-[18px] px-5 py-4 phone:px-3 ${className}`}>
+    <li className="relative rounded-[18px] px-5 py-4 phone:px-3 phone:py-3.5">
       {/* The held request sits on sage until the yes; the latest thing to happen is lit, and the light glides from row to row. */}
       {held && <motion.span className="absolute inset-0 rounded-[18px] bg-sage/70" initial={false} animate={{ opacity: approval === "done" ? 0 : 1 }} transition={{ duration: 0.9, ease: soft.ease }} aria-hidden="true" />}
       {fresh && <motion.span layoutId="team-latest" className="absolute inset-0 bg-sage/45" style={{ borderRadius: 18 }} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={spring} aria-hidden="true" />}
-      <div className={`relative ${columns} items-center phone:gap-y-1.5`}>
+      <div className={`relative ${columns} items-center phone:gap-y-1`}>
         <div>
           <p className="text-[17px] leading-[1.3]">{row.name}</p>
           <p className="text-[15px] text-muted">{row.care}</p>
@@ -138,7 +137,15 @@ function PatientRow({ row, fresh, approval, checks, onApprove, className }: { ro
           <span className="sr-only">{`${done} of ${row.marks.length} steps done`}</span>
           <MiniThread states={row.marks} />
         </div>
-        <p className="text-[16px] leading-[1.4] phone:col-span-2"><Fade id={row.next} room={LINES.get(`${row.id}:next`)}>{row.next}</Fade></p>
+        <div className="phone:col-span-2">
+          <p className="text-[16px] leading-[1.4]"><Fade id={row.next} room={LINES.get(`${row.id}:next`)}>{row.next}</Fade></p>
+          {/* Without room for "What Ophi did", it sits under what's next, ticked like everything Ophi does here. */}
+          {!held && (
+            <p className="mt-1 hidden items-start gap-2 text-[15px] leading-[1.4] text-ink-soft tablet:flex">
+              <Tick className="mt-[3px] size-4" /><Fade id={row.move} room={LINES.get(`${row.id}:move`)} className="min-w-0 flex-1">{row.move}</Fade>
+            </p>
+          )}
+        </div>
         <div className="text-[15px] leading-[1.4] text-ink-soft tablet:hidden">{held ? ask : <Fade id={row.move} room={LINES.get(`${row.id}:move`)}>{row.move}</Fade>}</div>
       </div>
       {/* Tablets and phones drop the last column, so the request sits under the row. */}
@@ -165,7 +172,7 @@ function Ask({ approval, checks, move, onApprove }: { approval: Approval; checks
           <motion.div key="ask" className="col-start-1 row-start-1 flex flex-wrap items-center justify-between gap-3" exit={{ opacity: 0, y: -10, filter: "blur(4px)" }} transition={soft}>
             <Fade id={line} className="text-label">
               <span className="flex items-center gap-2">
-                {running && <span className="grid size-4 flex-none place-items-center rounded-full bg-deep text-on-deep"><Icon name="check" className="size-2.5" /></span>}
+                {running && <Tick className="size-4" />}
                 {line}
               </span>
             </Fade>
@@ -181,7 +188,7 @@ function Ask({ approval, checks, move, onApprove }: { approval: Approval; checks
           </motion.div>
         ) : (
           <motion.p key="done" className="col-start-1 row-start-1 flex items-center gap-2.5 text-[15px] text-ink-soft" initial={{ opacity: 0, y: 12, filter: "blur(4px)" }} animate={{ opacity: 1, y: 0, filter: "blur(0px)" }} transition={{ ...soft, delay: 0.1 }}>
-            <span className="grid size-[18px] flex-none place-items-center rounded-full bg-deep text-on-deep" aria-hidden="true"><Icon name="check" className="size-3" /></span>
+            <Tick className="size-[18px]" />
             {move}
           </motion.p>
         )}
@@ -190,3 +197,7 @@ function Ask({ approval, checks, move, onApprove }: { approval: Approval; checks
   );
 }
 
+// What Ophi did, marked the same way wherever it shows.
+function Tick({ className }: { className: string }) {
+  return <span className={`grid flex-none place-items-center rounded-full bg-deep text-on-deep ${className}`} aria-hidden="true"><Icon name="check" className="size-[66%]" /></span>;
+}

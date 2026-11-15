@@ -85,6 +85,7 @@ const isWide = () => matchMedia(WIDE).matches;
 export function HowThread() {
   const root = useRef<HTMLDivElement>(null);
   const fold = useRef<HTMLDivElement>(null);
+  const list = useRef<HTMLOListElement>(null);
   const marks = useRef<Partial<Record<CareId, HTMLElement | null>>>({});
   const notes = useRef<Partial<Record<CareId, HTMLElement | null>>>({});
   const seen = useInView(root, 0.2);
@@ -119,6 +120,22 @@ export function HowThread() {
     return () => observer.disconnect();
   }, [moment.target]);
 
+  // The thread runs from the first step's mark to the last one's, however tall the rows are at this width.
+  useLayoutEffect(() => {
+    const ol = list.current;
+    if (!ol) return;
+    const fit = () => {
+      const box = ol.getBoundingClientRect();
+      const centre = (id: CareId) => { const r = marks.current[id]!.getBoundingClientRect(); return r.top + r.height / 2 - box.top; };
+      ol.style.setProperty("--line-top", `${centre(SHOWN[0])}px`);
+      ol.style.setProperty("--line-bottom", `${box.height - centre(SHOWN[SHOWN.length - 1])}px`);
+    };
+    fit();
+    const observer = new ResizeObserver(fit);
+    observer.observe(ol);
+    return () => observer.disconnect();
+  }, []);
+
   // The fragment folds into the timeline: into the step's mark from the left, into its note from the right.
   useEffect(() => {
     const el = fold.current;
@@ -138,7 +155,7 @@ export function HowThread() {
       <div ref={root} className={`relative mt-16 phone:mt-10 ${playing ? "" : "[&_*]:[animation-play-state:paused]"}`}>
         {/* Below the widest layout, fragments arrive in this space above the card, then fall into it. Between them, the
             doors wait here, the last one used still lit. */}
-        <div className="relative grid h-[300px] place-items-center min-[1240px]:hidden" aria-hidden="true">
+        <div className="relative grid h-[200px] place-items-center min-[1240px]:hidden phone:h-[176px] tiny:h-[216px]" aria-hidden="true">
           <motion.ul className="flex gap-2.5" animate={{ opacity: fragment ? 0 : 1, scale: fragment ? 0.94 : 1, filter: fragment ? "blur(4px)" : "blur(0px)" }} transition={soft}>
             {DOORS.map((door) => {
               const lit = door === moment.door && shown.phase !== "reset";
@@ -173,32 +190,32 @@ export function HowThread() {
             </span>
           </div>
 
-          <ol className="relative mt-7 phone:mt-5">
+          <ol ref={list} className="relative mt-7 phone:mt-5">
             {/* The thread: drawn in ink as far as the care is done. */}
-            <span className="absolute top-[39px] bottom-[39px] left-[13px] w-[2px] rounded-full bg-line phone:top-[40px] phone:bottom-[40px]" />
-            <motion.span className="absolute top-[39px] bottom-[39px] left-[13px] w-[2px] origin-top rounded-full bg-ink phone:top-[40px] phone:bottom-[40px]" animate={{ scaleY: lastDone / (rows.length - 1) }} transition={settle} />
+            <span className="absolute top-[var(--line-top,39px)] bottom-[var(--line-bottom,39px)] left-[13px] w-[2px] rounded-full bg-line" />
+            <motion.span className="absolute top-[var(--line-top,39px)] bottom-[var(--line-bottom,39px)] left-[13px] w-[2px] origin-top rounded-full bg-ink" animate={{ scaleY: lastDone / (rows.length - 1) }} transition={settle} />
             {rows.map((row, i) => {
               const target = row.id === moment.target && shown.phase !== "reset";
               const nextStep = i === rows.findIndex(({ state }) => state !== "done");
               return (
-                <li key={row.id} className="relative grid h-[78px] grid-cols-[28px_minmax(0,1fr)_auto] items-center gap-x-5 phone:h-20 phone:grid-cols-[28px_minmax(0,1fr)] phone:gap-x-4">
-                  {target && <motion.span layoutId="how-row" className="absolute -inset-x-4 inset-y-1 rounded-[20px] bg-sage/70 phone:-inset-x-2.5" transition={spring} />}
+                <li key={row.id} className="relative grid h-[78px] grid-cols-[28px_minmax(0,1fr)_auto] items-center gap-x-5 phone:h-16 phone:grid-cols-[28px_minmax(0,1fr)] phone:content-center phone:gap-x-4 phone:gap-y-1">
+                  {target && <motion.span layoutId="how-row" className="absolute -inset-x-4 inset-y-1 rounded-[20px] bg-sage/70 phone:-inset-x-2.5 phone:inset-y-0.5" transition={spring} />}
                   <span ref={(el) => { marks.current[row.id] = el; }} className="relative"><Mark state={row.state} pulse={target && shown.phase === "land"} /></span>
                   <span className={`relative ${titleType} truncate phone:text-[20px]`}>{row.label}</span>
-                  <span className="relative flex items-center justify-end gap-3 phone:col-start-2 phone:-mt-3 phone:justify-start">
+                  <span className="relative flex items-center justify-end gap-3 phone:col-start-2 phone:justify-start phone:gap-2.5">
                     <span ref={(el) => { notes.current[row.id] = el; }} className="relative grid">
                       <AnimatePresence mode="popLayout" initial={false}>
                         <motion.span key={row.note + nextStep} initial={{ opacity: 0, y: 12, filter: "blur(4px)" }} animate={{ opacity: 1, y: 0, filter: "blur(0px)" }} exit={{ opacity: 0, y: -12, filter: "blur(4px)" }} transition={soft}
-                          className={`whitespace-nowrap text-[17px] leading-[1.3] phone:text-[15px] ${nextStep ? "rounded-full bg-orange/22 px-3 py-1 text-ink" : "text-ink-soft"}`}>
+                          className={`whitespace-nowrap text-[17px] leading-[1.3] phone:text-[15px] ${nextStep ? "rounded-full bg-orange/22 px-3 py-1 text-ink phone:px-2.5 phone:py-0.5" : "text-ink-soft"}`}>
                           {row.note}
                         </motion.span>
                       </AnimatePresence>
                     </span>
-                    <span className="flex w-[52px] justify-end -space-x-2 phone:justify-start">
+                    <span className="flex w-[52px] justify-end -space-x-2 phone:w-auto phone:justify-start">
                       <AnimatePresence initial={false}>
                         {(via[row.id] ?? []).map((door, j) => (
-                          <motion.span key={`${door}-${j}`} initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }} transition={{ ...spring, delay: 0.15 }} className="grid size-[30px] place-items-center rounded-full bg-card text-ink shadow-[0_1px_2px_#193a3026,0_3px_8px_-2px_#193a3026]">
-                            <Icon name={doorIcon[door]} className="size-4" />
+                          <motion.span key={`${door}-${j}`} initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }} transition={{ ...spring, delay: 0.15 }} className="grid size-[30px] place-items-center rounded-full bg-card text-ink shadow-[0_1px_2px_#193a3026,0_3px_8px_-2px_#193a3026] phone:size-6">
+                            <Icon name={doorIcon[door]} className="size-4 phone:size-3.5" />
                           </motion.span>
                         ))}
                       </AnimatePresence>
@@ -214,7 +231,7 @@ export function HowThread() {
 
         {/* The door this moment came through: from the side on wide screens, from below the heading otherwise. */}
         <div
-          className={`pointer-events-none absolute top-[150px] left-1/2 w-[min(340px,calc(100%-8px))] -translate-x-1/2 -translate-y-1/2 min-[1240px]:top-(--row-y) min-[1240px]:w-[290px] min-[1240px]:translate-x-0 ${moment.side === "left" ? "min-[1240px]:left-[calc(50%_-_590px)]" : "min-[1240px]:left-[calc(50%_+_312px)]"}`}
+          className={`pointer-events-none absolute top-[216px] left-1/2 w-[min(340px,calc(100%-8px))] -translate-x-1/2 -translate-y-full min-[1240px]:top-(--row-y) min-[1240px]:w-[290px] min-[1240px]:translate-x-0 min-[1240px]:-translate-y-1/2 phone:top-[190px] tiny:top-[230px] ${moment.side === "left" ? "min-[1240px]:left-[calc(50%_-_590px)]" : "min-[1240px]:left-[calc(50%_+_312px)]"}`}
           aria-hidden="true"
         >
           <AnimatePresence>

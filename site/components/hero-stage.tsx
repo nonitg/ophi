@@ -36,7 +36,7 @@ export function HeroStage() {
 
   return (
     <MotionConfig reducedMotion="user">
-      <div ref={root} className="relative mx-auto h-[620px] w-full max-w-[560px] phone:flex phone:h-[712px] phone:flex-col small:h-[732px]" onPointerEnter={() => setHovered(true)} onPointerLeave={() => { setHovered(false); reset(); }} onPointerMove={move}>
+      <div ref={root} className="relative mx-auto h-[620px] w-full max-w-[560px] phone:flex phone:h-[682px] phone:flex-col small:h-[702px] tiny:h-[716px]" onPointerEnter={() => setHovered(true)} onPointerLeave={() => { setHovered(false); reset(); }} onPointerMove={move}>
         <p className="sr-only">{`${m.name} reaches the clinic by ${words.channel[m.door].toLowerCase()}. Ophi answers from ${m.name}’s care in your records, then: ${m.did}.`}</p>
 
         {/* A soft disc of light under the phone. */}
@@ -45,7 +45,7 @@ export function HeroStage() {
         {/* The patient's phone: on the right, or on top in one narrow column, with the cards tucked under it in turn. */}
         <motion.div style={phone} className="absolute top-0 right-0 phone:relative phone:self-center" aria-hidden="true">
           <Phone m={m} />
-          <Dots step={m.step} progress={m.progress} />
+          <Dots step={m.step} progress={m.progress} className="mt-5 flex phone:hidden" />
         </motion.div>
 
         {/* What Ophi read, and what it wrote back: in front of the phone, over its left edge (under it on phones). */}
@@ -55,6 +55,8 @@ export function HeroStage() {
         <motion.div style={front} className="absolute top-[436px] right-[266px] phone:relative phone:top-auto phone:right-auto phone:-mt-3 phone:self-end" aria-hidden="true">
           <Toast m={m} />
         </motion.div>
+        {/* One column: whose turn it is sits at the foot of the stage, under the cards. */}
+        <Dots step={m.step} progress={m.progress} className="mt-auto hidden phone:flex" />
       </div>
     </MotionConfig>
   );
@@ -120,7 +122,7 @@ function Phone({ m }: { m: M }) {
   const status = m.door === "call" ? (m.shown.lines.length ? words.onCall : words.calling) : m.door === "text" ? words.channel.text : words.page(m.name);
   return (
     <div className="w-[288px] rounded-[52px] bg-[#0d211b] p-[11px] shadow-[0_2px_4px_#0d211b33,0_40px_80px_-30px_#0d211b99,0_80px_120px_-60px_#193a3066] phone:w-[262px] phone:rounded-[46px] phone:p-[9px]">
-      <div className="relative flex h-[556px] flex-col overflow-hidden rounded-[42px] bg-paper text-ink [--mark-on:var(--paper)] [--mark:var(--ink)] phone:h-[450px] phone:rounded-[38px]">
+      <div className="relative flex h-[556px] flex-col overflow-hidden rounded-[42px] bg-paper text-ink [--mark-on:var(--paper)] [--mark:var(--ink)] phone:h-[420px] phone:rounded-[38px]">
         <div className="relative flex h-12 flex-none items-center justify-between px-8 text-[14px] font-medium">
           <Swap id={m.clock} className="tabular-nums">{m.clock}</Swap>
           <span className="absolute top-3 left-1/2 h-[26px] w-[92px] -translate-x-1/2 rounded-full bg-[#0d211b]" />
@@ -319,9 +321,9 @@ function Toast({ m }: { m: M }) {
 }
 
 // Three patients, one assistant: whose turn it is, and how long until the next.
-function Dots({ step, progress }: { step: number; progress: M["progress"] }) {
+function Dots({ step, progress, className }: { step: number; progress: M["progress"]; className: string }) {
   return (
-    <div className="mt-5 flex justify-center gap-2 phone:hidden">
+    <div className={`justify-center gap-2 ${className}`} aria-hidden="true">
       {MOMENTS.map(({ id }, i) => {
         const active = i === step;
         return (

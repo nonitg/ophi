@@ -25,8 +25,9 @@ const startBeat = (step: number) => (STEPS[step].door === "page" ? 0 : Math.max(
 // paused: every moment shows as it ends.
 type Mode = "auto" | "step" | "paused";
 
-// One patient's crown, start to finish: pick a moment, watch it happen on Alex's phone. Under 900px the phone comes
-// first and one moment shows at a time.
+// One patient's crown, start to finish: pick a moment, watch it happen on Alex's phone. Under 900px it reads like a
+// story on a phone: the moments as a row of bars, the current one's words, then Alex's phone under them, so the words
+// and the screen they describe fit one screen. A swipe on the phone moves between moments.
 export function CrownStory() {
   const root = useRef<HTMLDivElement>(null);
   const audio = useRef<HTMLAudioElement>(null);
@@ -110,24 +111,24 @@ export function CrownStory() {
     <MotionConfig reducedMotion="user">
       {/* Off screen, the voices stop moving too. */}
       <div ref={root} className={`rounded-[36px] bg-deep p-[clamp(28px,3.6vw,52px)] text-on-deep [--mark-on:var(--deep)] [--mark:var(--on-deep)] phone:rounded-[28px] phone:px-5 phone:py-9 ${seen ? "" : "[&_*]:[animation-play-state:paused]"}`}>
-        <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-[clamp(32px,5vw,80px)] gap-y-7 max-[899px]:grid-cols-1">
+        <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-[clamp(32px,5vw,80px)] gap-y-7 max-[899px]:grid-cols-1 phone:gap-y-5">
           <div className="max-[899px]:contents">
             <h2 id="story-title" className="font-serif text-[length:clamp(34px,3.4vw,48px)] leading-[1.05] tracking-[-.035em] text-balance max-[899px]:order-1">{words.title}</h2>
-            <ol ref={list} className="mt-7 grid gap-1 max-[899px]:order-4 max-[899px]:mt-0">
+            <ol ref={list} className="mt-7 grid gap-1 max-[899px]:order-3 max-[899px]:mt-0">
               {STEPS.map((s, i) => {
                 const active = i === step;
                 const passed = i < step || (active && done);
                 return (
                   <li key={s.when} className={css.moment} data-active={active || undefined} data-past={i < step || undefined}>
                     <button type="button" onClick={() => choose(i)} aria-current={active ? "step" : undefined}
-                      className={`group/step relative grid w-full grid-cols-[28px_minmax(0,1fr)] gap-x-4 rounded-[18px] px-4 py-3 text-left transition-[background] duration-300 ${active ? "" : "hover:bg-on-deep/5"}`}>
+                      className={`group/step relative grid w-full grid-cols-[28px_minmax(0,1fr)] gap-x-4 rounded-[18px] px-4 py-3 text-left transition-[background] duration-300 max-[899px]:grid-cols-1 phone:px-4.5 ${active ? "" : "hover:bg-on-deep/5"}`}>
                       {/* The current moment's surface glides from one moment to the next, its bar filling as it plays. */}
                       {active && (
                         <motion.span layoutId="story-moment" className="absolute inset-0 overflow-hidden bg-on-deep/10" style={{ borderRadius: 18 }} transition={spring} aria-hidden="true">
                           <motion.span className="absolute inset-x-0 bottom-0 h-[3px] origin-left bg-on-deep/60" initial={{ scaleX: 0 }} animate={{ scaleX: (shownBeat + 1) / s.beats.length }} transition={glide} />
                         </motion.span>
                       )}
-                      <span className={`relative mt-0.5 grid size-7 place-items-center rounded-full border text-[14px] transition-[background,color,border-color] duration-500 ${passed ? "border-on-deep bg-on-deep text-deep" : "border-on-deep/40"}`}>{i + 1}</span>
+                      <span className={`relative mt-0.5 grid size-7 place-items-center rounded-full border text-[14px] transition-[background,color,border-color] duration-500 max-[899px]:hidden ${passed ? "border-on-deep bg-on-deep text-deep" : "border-on-deep/40"}`}>{i + 1}</span>
                       <span className="relative">
                         <span className="block text-[14px] text-on-deep-soft">{s.when}</span>
                         <span className={`mt-0.5 block font-serif text-[20px] leading-[1.25] tracking-[-.01em] transition-[color] duration-500 ${active ? "text-on-deep" : "text-on-deep-soft"}`}>{s.title}</span>
@@ -149,7 +150,7 @@ export function CrownStory() {
               })}
             </ol>
             {/* Narrow screens show one moment at a time: these move between them. */}
-            <div className="hidden items-center gap-1.5 max-[899px]:order-3 max-[899px]:-my-3 max-[899px]:flex">
+            <div className="hidden items-center gap-1.5 max-[899px]:order-2 max-[899px]:-my-4 max-[899px]:flex">
               {STEPS.map((s, i) => (
                 <button key={s.when} type="button" onClick={() => choose(i)} aria-label={`Moment ${i + 1}: ${s.title}`} aria-current={i === step ? "step" : undefined} className="grid h-11 flex-1 place-items-center">
                   <span className={`h-2 w-full rounded-full transition-[background] duration-500 ${i === step ? "bg-orange" : i < step ? "bg-on-deep" : "bg-on-deep/25"}`} />
@@ -169,8 +170,14 @@ export function CrownStory() {
             </div>
           </div>
 
-          <div className="flex flex-col items-center max-[899px]:order-2">
+          <div className="flex flex-col items-center max-[899px]:order-4">
+            <motion.div className="max-w-full touch-pan-y" onPanEnd={(_, { offset }) => {
+              if (Math.abs(offset.x) < 48 || Math.abs(offset.x) < Math.abs(offset.y)) return;
+              const to = step + (offset.x < 0 ? 1 : -1);
+              if (to >= 0 && to < STEPS.length) choose(to);
+            }}>
             <Phone moment={step} clock={now.clock} when={now.when} door={now.door} frame={frame} lines={lines} typing={typing} action={now.action} heard={heard} live={live} />
+            </motion.div>
             <button type="button" onClick={listen} aria-pressed={heard !== null} className="mt-3 flex min-h-11 items-center rounded-full px-4 text-[15px] text-on-deep-soft [transition:background_.15s,color_.15s,scale_.16s_var(--ease-out)] hover:bg-on-deep/10 hover:text-on-deep active:scale-[.97]">
               <span className="flex items-center gap-2.5 whitespace-nowrap">
                 <Icon name={heard === null ? "play" : "pause"} className="size-4" />{heard === null ? words.real : words.stop}
@@ -189,8 +196,8 @@ type PhoneProps = { moment: number; clock: string; when: string; door: string; f
 // Alex's phone, showing whichever door this moment comes through. It prints on paper, so its marks reset to ink.
 function Phone({ moment, clock, when, door, frame, lines, typing, action, heard, live }: PhoneProps) {
   return (
-    <div className="w-[310px] max-w-full rounded-[50px] bg-[#0d211b] p-2.5 shadow-[0_40px_80px_-30px_#000a] max-[899px]:w-[292px] phone:w-[270px]">
-      <div className="relative flex h-[540px] flex-col overflow-hidden rounded-[41px] bg-paper text-ink [--mark-on:var(--paper)] [--mark:var(--ink)] max-[899px]:h-[470px] phone:h-[430px]">
+    <div className="w-[310px] max-w-full rounded-[50px] bg-[#0d211b] p-2.5 shadow-[0_40px_80px_-30px_#000a] max-[899px]:w-[292px] phone:w-[268px] phone:rounded-[46px] phone:p-2">
+      <div className="relative flex h-[540px] flex-col overflow-hidden rounded-[41px] bg-paper text-ink [--mark-on:var(--paper)] [--mark:var(--ink)] max-[899px]:h-[470px] phone:h-[412px] phone:rounded-[38px]">
         <div className="flex h-11 flex-none items-center justify-between px-7 text-[14px] font-medium">
           <Swap id={clock}>{clock}</Swap>
           <span className="absolute top-3 left-1/2 h-6 w-24 -translate-x-1/2 rounded-full bg-[#0d211b]" aria-hidden="true" />

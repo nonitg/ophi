@@ -12,6 +12,7 @@ import { TeamView } from "@/components/team-view";
 import { Roadmap } from "@/components/roadmap";
 import { SectionHead } from "@/components/section-head";
 import { Reveal } from "@/components/reveal";
+import { SiteMenu } from "@/components/site-menu";
 import { primaryPill } from "@/components/pill";
 import { display, frame, heading, lede, section } from "@/components/type";
 import { copy } from "@/lib/copy";
@@ -37,7 +38,10 @@ export default function Page() {
           <nav className="flex items-center gap-1 tablet:hidden" aria-label="On this page">
             {copy.nav.map(({ href, label }) => <a key={href} href={href} className="rounded-full px-4 py-2 text-[16px] text-ink transition-[background] duration-200 hover:bg-ink/5">{label}</a>)}
           </nav>
-          <a className={`${primaryPill({ size: "lead" })} h-11 gap-3 phone:h-10 phone:px-4 phone:text-[14px]`} href="#join">{copy.cta}<Icon name="arrow" className="size-[18px] phone:hidden" /></a>
+          <div className="flex items-center gap-2 phone:gap-1">
+            <a className={`${primaryPill({ size: "lead" })} h-11 gap-3 phone:h-10 phone:px-4 phone:text-[14px]`} href="#join">{copy.cta}<Icon name="arrow" className="size-[18px] phone:hidden" /></a>
+            <SiteMenu />
+          </div>
         </div>
       </header>
 
@@ -47,10 +51,11 @@ export default function Page() {
           <div>
             <h1 id="hero-title" className={`${display} motion-safe:animate-[arrive_.8s_var(--ease-out)_both]`}>{copy.hero.title}</h1>
             <p className={`${lede} mt-7 max-w-[32em] motion-safe:animate-[arrive_.8s_.1s_var(--ease-out)_both]`}>{copy.hero.lede}</p>
-            <div className="mt-10 flex flex-wrap gap-3 motion-safe:animate-[arrive_.8s_.18s_var(--ease-out)_both] phone:mt-8">
-              <a className={`group/join ${primaryPill({ size: "lead" })} gap-4`} href="#join">{copy.cta}<Icon name="arrow" className="size-5 transition-transform duration-200 ease-(--ease-out) motion-reduce:transition-none group-hover/join:translate-x-0.5 group-hover/join:-translate-y-0.5" /></a>
+            {/* Side by side where they fit; a narrow phone stacks them as two full-width, thumb-sized buttons. */}
+            <div className="mt-10 flex flex-wrap gap-3 motion-safe:animate-[arrive_.8s_.18s_var(--ease-out)_both] phone:mt-8 narrow:flex-col">
+              <a className={`group/join ${primaryPill({ size: "lead" })} gap-4 narrow:h-13 narrow:justify-center narrow:gap-3 narrow:text-[16px]`} href="#join">{copy.cta}<Icon name="arrow" className="size-5 transition-transform duration-200 ease-(--ease-out) motion-reduce:transition-none group-hover/join:translate-x-0.5 group-hover/join:-translate-y-0.5" /></a>
               {/* A second way in for the skimmer: straight to How, which plays as it comes into view. */}
-              <a href="#how" className="group/how inline-flex h-12 items-center gap-3 rounded-full border border-ink/20 py-1.5 pr-5 pl-1.5 text-[15px] text-ink [transition:background_.2s,border-color_.2s,scale_.16s_var(--ease-out)] hover:border-ink/40 hover:bg-ink/5 active:scale-[.97]">
+              <a href="#how" className="group/how inline-flex h-12 items-center gap-3 rounded-full border border-ink/20 py-1.5 pr-5 pl-1.5 text-[15px] text-ink [transition:background_.2s,border-color_.2s,scale_.16s_var(--ease-out)] hover:border-ink/40 hover:bg-ink/5 active:scale-[.97] narrow:h-13 narrow:justify-center narrow:pr-6 narrow:text-[16px]">
                 <span className="grid size-9 place-items-center rounded-full bg-ink text-paper"><Icon name="down" className="size-4 transition-transform duration-200 ease-(--ease-out) motion-reduce:transition-none group-hover/how:translate-y-0.5" /></span>
                 {copy.hero.seeHow}
               </a>
