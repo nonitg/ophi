@@ -1,93 +1,140 @@
+import Link from "next/link";
 import { WaitlistForm } from "@/components/waitlist-form";
-import { ToothScene } from "@/components/tooth-scene";
 import { InfoPanel } from "@/components/info-panel";
 import { JsonLd } from "@/components/json-ld";
-import Link from "next/link";
 import { Icon } from "@/components/icons";
 import { CopyEmail } from "@/components/copy-email";
-import { pill, pillIcon, pillTag } from "@/components/pill";
+import { HeroStage } from "@/components/hero-stage";
+import { Gap } from "@/components/gap";
+import { HowThread } from "@/components/how-thread";
+import { CrownStory } from "@/components/crown-story";
+import { TeamView } from "@/components/team-view";
+import { Roadmap } from "@/components/roadmap";
+import { SectionHead } from "@/components/section-head";
+import { Reveal } from "@/components/reveal";
+import { primaryPill } from "@/components/pill";
+import { display, frame, heading, lede, section } from "@/components/type";
 import { copy } from "@/lib/copy";
 
+// Where Ophi is built, under the hero's buttons (or under its card in one column).
+function HeroFacts({ className }: { className: string }) {
+  return (
+    <p className={`flex-wrap items-center gap-x-6 gap-y-2 text-[15px] text-muted motion-safe:animate-[arrive_.8s_.24s_var(--ease-out)_both] ${className}`}>
+      <span className="flex items-center gap-2"><Icon name="leaf" className="size-[17px] text-orange" />{copy.madeIn}</span>
+    </p>
+  );
+}
+
+// One story, told in order: what Ophi is, how it works, the gap it closes, one patient through it, the clinic's
+// side, where it's going, then the ask. Each section uses the same heading, the same card and the same thread.
 export default function Page() {
   return (
-    <div className="site-shell mx-auto flex min-h-svh w-[min(calc(100%-112px),1400px)] flex-col tablet:w-[calc(100%-72px)] phone:w-[calc(100%-40px)] small:w-[calc(100%-32px)]" id="top">
-      <a className="fixed -top-[100px] left-5 z-50 bg-ink p-[15px] text-paper focus:top-[15px]" href="#main">Skip to content</a>
-      <header className="site-header flex h-[98px] flex-none items-center justify-between phone:h-[84px]">
-        <Link className="inline-block pr-[7px] text-[46px] leading-none font-[650] tracking-[-3.7px] phone:text-[38px] phone:tracking-[-3px]" href="/" aria-label="Ophi home">ophi<span className="text-rust xray:text-white xray:[text-shadow:0_0_14px_#dff3e6a6]" aria-hidden="true">.</span></Link>
-        <div className="header-tools flex items-center gap-5 phone:gap-3.5">
-          {/* ToothScene fills this with the X-ray control once the tooth is live. */}
-          <div id="xray-slot" className="xray-slot relative flex" />
+    <div id="top" className="flex min-h-svh flex-col">
+      <a className="fixed -top-[100px] left-5 z-50 rounded-full bg-ink px-5 py-3 text-paper focus:top-4" href="#main">Skip to content</a>
+      <header className="sticky top-0 z-30 bg-paper/95 backdrop-blur-md">
+        <div className={`${frame} flex h-[76px] items-center justify-between gap-6 phone:h-16`}>
+          <Link className="text-[34px] leading-none font-[650] tracking-[-2.6px] phone:text-[30px]" href="/" aria-label="Ophi home" translate="no">ophi<span className="text-orange" aria-hidden="true">.</span></Link>
+          <nav className="flex items-center gap-1 tablet:hidden" aria-label="On this page">
+            {copy.nav.map(({ href, label }) => <a key={href} href={href} className="rounded-full px-4 py-2 text-[16px] text-ink transition-[background] duration-200 hover:bg-ink/5">{label}</a>)}
+          </nav>
+          <a className={`${primaryPill({ size: "lead" })} h-11 gap-3 phone:h-10 phone:px-4 phone:text-[14px]`} href="#join">{copy.cta}<Icon name="arrow" className="size-[18px] phone:hidden" /></a>
         </div>
       </header>
+
       <main id="main" className="flex-1">
-        {/* A single editorial composition: type and sculpture occupy the same space. */}
-        <section className="poster relative isolate h-[clamp(430px,53svh,610px)] wide:h-[clamp(540px,52svh,650px)] tablet:h-[clamp(355px,48svh,460px)] phone:mt-1.5 phone:mb-8 phone:h-[405px] phablet:h-[460px] small:h-[375px]" aria-labelledby="poster-title">
-          {/* In X-ray the headline turns radiopaque (components/xray-filters.tsx) and adds to the tooth wherever the two
-              overlap, as superimposed structures do on a radiograph. The density filter reads a solid highlight as mass
-              and buries the glyphs, so filtered type selects faintly (here and on the footer wordmark). */}
-          <h1 id="poster-title" className="poster-title pointer-events-none absolute inset-[20px_0_0] z-2 flex flex-col justify-between text-[length:clamp(96px,11.2vw,174px)] leading-[.98] tracking-[-.065em] tablet:text-[11.6vw] phone:inset-[3px_0_0] phone:text-[length:clamp(64px,15.4vw,105px)] phone:leading-none phone:tracking-[-.06em] small:text-[60px] motion-safe:animate-[arrive_.75s_ease-out_both] xray:mix-blend-screen xray:[filter:url(#xray-density)] xray:selection:bg-[#e6ece32e] xray:supports-[mix-blend-mode:plus-lighter]:mix-blend-plus-lighter">
-            <span className="block pt-4.5 phone:pt-0">Patient calls.</span>
-            {/* "Always" over "answered." at every phone width; the X-ray note sits beside "Always" (tooth-scene.tsx). */}
-            <em className="block self-end pb-[3px] text-[.98em] tracking-[-.065em] phone:w-min phone:max-w-full phone:self-start phone:pb-0 phone:text-[.86em] phone:leading-[.99]">Always answered.</em>
-          </h1>
-          <div className="sculpture absolute -top-[8%] -right-[2%] z-1 h-[103%] w-[53%] wide:-top-[5%] wide:w-[55%] tablet:-top-[4%] tablet:h-[105%] tablet:w-[55%] phone:top-[6%] phone:right-0 phone:h-[88%] phone:w-full phablet:top-[5%] phablet:right-0 phablet:w-[84%] small:top-[8%] motion-safe:animate-[arrive_1s_.08s_ease-out_both]">
-            <div className="pointer-events-none absolute top-1/4 left-[14%] h-[51%] w-[75%] -rotate-31 rounded-[50%] border border-[#c1ccb5] phone:left-[10%] phone:h-1/2 phone:w-[80%] xray:border-[#e6ece333]" aria-hidden="true" />
-            <ToothScene />
+        {/* The stage keeps its full width beside the words; its light spills to the page edge and is clipped there. */}
+        <section className={`${frame} grid grid-cols-[minmax(0,1fr)_minmax(0,560px)] items-center gap-x-[clamp(32px,4vw,64px)] gap-y-14 overflow-x-clip pt-[clamp(40px,6vw,96px)] tablet:grid-cols-1 phone:gap-y-10 phone:pt-8`} aria-labelledby="hero-title">
+          <div>
+            <h1 id="hero-title" className={`${display} motion-safe:animate-[arrive_.8s_var(--ease-out)_both]`}>{copy.hero.title}</h1>
+            <p className={`${lede} mt-7 max-w-[32em] motion-safe:animate-[arrive_.8s_.1s_var(--ease-out)_both]`}>{copy.hero.lede}</p>
+            <div className="mt-10 flex flex-wrap gap-3 motion-safe:animate-[arrive_.8s_.18s_var(--ease-out)_both] phone:mt-8">
+              <a className={`group/join ${primaryPill({ size: "lead" })} gap-4`} href="#join">{copy.cta}<Icon name="arrow" className="size-5 transition-transform duration-200 ease-(--ease-out) motion-reduce:transition-none group-hover/join:translate-x-0.5 group-hover/join:-translate-y-0.5" /></a>
+              {/* A second way in for the skimmer: straight to How, which plays as it comes into view. */}
+              <a href="#how" className="group/how inline-flex h-12 items-center gap-3 rounded-full border border-ink/20 py-1.5 pr-5 pl-1.5 text-[15px] text-ink [transition:background_.2s,border-color_.2s,scale_.16s_var(--ease-out)] hover:border-ink/40 hover:bg-ink/5 active:scale-[.97]">
+                <span className="grid size-9 place-items-center rounded-full bg-ink text-paper"><Icon name="down" className="size-4 transition-transform duration-200 ease-(--ease-out) motion-reduce:transition-none group-hover/how:translate-y-0.5" /></span>
+                {copy.hero.seeHow}
+              </a>
+            </div>
+            <HeroFacts className="mt-9 flex tablet:hidden" />
           </div>
+          <div className="w-full motion-safe:animate-[arrive_1s_.2s_var(--ease-out)_both]"><HeroStage /></div>
+          {/* One column: the stage comes straight after the buttons, so a phone's first screen reaches the product. */}
+          <HeroFacts className="hidden tablet:flex" />
         </section>
-        {/* The signup band: one sage panel for the one action. Two columns share rows, so "Why Ophi?" lines up with the email field.
-            Stacked on phones, the rows no longer need to line up, and a grid track would size to the widest control.
-            The introduction follows the headline on bare paper, so the band holds the signup alone. */}
-        <div className="entry-row my-9 grid grid-cols-[minmax(0,1fr)_minmax(0,490px)] grid-rows-[auto_auto] gap-x-[6%] rounded-[36px] bg-sage p-11 tablet:grid-cols-[minmax(0,1fr)_minmax(0,440px)] phone:mt-0 phone:mb-8 phone:flex phone:flex-col phone:gap-[30px] phone:rounded-none phone:bg-transparent phone:p-0">
-          <div className="introduction row-span-2 grid grid-rows-subgrid phone:flex phone:flex-col phone:gap-4.5">
-            {/* Short lines end on a pair of words, not one (text-pretty on phones, here and below). */}
-            <p className="max-w-[400px] pt-0.5 text-[17px] leading-[1.6] text-[#55624e] tablet:text-[15px] phone:max-w-[340px] phone:pt-0 phone:text-[16px] phone:leading-[1.55] phone:text-pretty xray:text-[#c3cfc4]">We're building an AI voice agent for dental clinics, so your team never misses a patient call again.</p>
-            <div className="introduction-actions flex min-h-[58px] items-center self-start phone:min-h-0"><InfoPanel kind="why" /></div>
-          </div>
-          <section id="join" className="signup row-span-2 grid grid-rows-subgrid phone:block phone:rounded-[28px] phone:bg-sage phone:px-5 phone:pt-[26px] phone:pb-6" aria-labelledby="signup-title">
-            <div className="signup-head">
-              <h2 id="signup-title" className="text-[28px] leading-[1.15] tracking-[-.7px] phone:text-[25px] small:text-[23px]">Be here from the beginning.</h2>
-              <p className="signup-note mt-2.5 mb-4.5 text-[13px] leading-[1.6] text-muted phone:text-pretty">Get occasional updates and hear when Ophi is answering calls.</p>
+
+        {/* Doors slide in from past the card's sides; clipped at the page edge so they never widen the page. */}
+        <section id="how" className={`${frame} ${section} overflow-x-clip`} aria-labelledby="how-title">
+          <SectionHead id="how-title" title={copy.how.title} lede={copy.how.lede} />
+          <HowThread />
+        </section>
+
+        <section id="why" className={`${frame} ${section}`} aria-labelledby="why-title">
+          <SectionHead id="why-title" title={copy.gap.title} lede={copy.gap.lede} />
+          <Gap />
+        </section>
+
+        <section id="story" className={`${frame} ${section} tablet:px-5 phone:px-3`} aria-labelledby="story-title">
+          <CrownStory />
+        </section>
+
+        <section id="clinic" className={`${frame} ${section}`} aria-labelledby="clinic-title">
+          <SectionHead id="clinic-title" title={copy.team.title} lede={copy.team.lede} />
+          <TeamView />
+        </section>
+
+        <section id="roadmap" className={`${frame} ${section}`} aria-labelledby="roadmap-title">
+          <SectionHead id="roadmap-title" title={copy.roadmap.title} />
+          <Roadmap />
+        </section>
+
+        <section id="join" className={`${frame} ${section}`} aria-labelledby="join-title">
+          <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,500px)] items-center gap-x-[clamp(40px,6vw,96px)] gap-y-8 rounded-[36px] bg-sage p-[clamp(32px,5vw,72px)] tablet:grid-cols-1 phone:rounded-[28px] phone:px-5 phone:py-9">
+            <div>
+              <h2 id="join-title" className={heading}>{copy.signup.title}</h2>
+              <p className="mt-5 max-w-[30em] text-[18px] leading-[1.55] text-label">{copy.signup.note}</p>
             </div>
             <WaitlistForm />
-          </section>
-        </div>
-        {/* Answers start where the form starts and end at the card edge: form track plus card padding.
-            Contact follows the questions in reading order; wide screens tuck it under the heading. */}
-        <section className="faq grid grid-cols-[minmax(0,1fr)_minmax(0,534px)] grid-rows-[auto_1fr] gap-x-[6%] border-t border-line pt-7 pb-9 [box-shadow:var(--crease)] [grid-template-areas:'head_items'_'contact_items'] tablet:grid-cols-[minmax(0,1fr)_minmax(0,484px)] phone:grid-cols-[1fr] phone:grid-rows-none phone:gap-3.5 phone:pt-[25px] phone:pb-7 phone:[grid-template-areas:'head'_'items'_'contact']" aria-labelledby="faq-title">
-          <div className="[grid-area:head]">
-            <h2 id="faq-title" className="text-[28px] leading-[1.2] tracking-[-.7px] phone:text-[25px]">A few quick answers.</h2>
           </div>
-          {/* Relative keeps the questions above the copy pill where it overflows its narrow column (701–770px). */}
-          <div className="faq-items relative [grid-area:items]">
-            {copy.faq.map(({ q, a }) => (
-              // Answers ease open instead of snapping; browsers without interpolate-size get the fade only.
-              <details key={q} className="group/faq border-line not-first:border-t motion-safe:[interpolate-size:allow-keywords] motion-safe:details-content:overflow-hidden motion-safe:details-content:[block-size:0] motion-safe:details-content:[transition:block-size_.4s_var(--ease-out),content-visibility_.4s_allow-discrete] motion-safe:open:details-content:[block-size:auto]">
-                <summary className="flex min-h-12 list-none items-center justify-between gap-4 py-3 text-[13px]">{q}<Icon name="plus" className="size-[18px] flex-none transition-transform duration-350 ease-out group-open/faq:rotate-45" /></summary>
-                <p className="pr-6 pb-4 text-[13px] leading-[1.7] text-muted phone:text-pretty motion-safe:-translate-y-1 motion-safe:opacity-0 motion-safe:[transition:opacity_.25s_ease-out,translate_.4s_var(--ease-out)] motion-safe:group-open/faq:translate-y-0 motion-safe:group-open/faq:opacity-100 motion-safe:group-open/faq:delay-60">{a}</p>
-              </details>
-            ))}
+        </section>
+
+        <section id="questions" className={`${frame} ${section} pb-[clamp(64px,7vw,104px)] phone:pb-16 grid grid-cols-[minmax(0,1fr)_minmax(0,640px)] gap-x-16 gap-y-10 tablet:grid-cols-1`} aria-labelledby="faq-title">
+          <div>
+            <h2 id="faq-title" className={heading}>{copy.faqTitle}</h2>
+            <div className="mt-8 grid gap-3.5 text-[16px] text-muted tablet:hidden">
+              <p>{copy.contact}</p>
+              <CopyEmail email={copy.contactEmail} />
+            </div>
           </div>
-          {/* Contact lives with the questions, keeping the signup band to one action. */}
-          <div className="contact mt-[26px] grid gap-2.5 self-start text-[13px] text-muted [grid-area:contact] phone:mt-3.5">
-            <p>Anything else? Write to us.</p>
-            <CopyEmail email={copy.contactEmail} />
+          <div>
+            <div className="grid gap-2.5">
+              {copy.faq.map(({ q, a }) => (
+                // Answers ease open instead of snapping; browsers without interpolate-size get the fade only.
+                <details key={q} className="group/faq rounded-[20px] bg-card shadow-[0_1px_2px_#193a300f] motion-safe:[interpolate-size:allow-keywords] motion-safe:details-content:overflow-hidden motion-safe:details-content:[block-size:0] motion-safe:details-content:[transition:block-size_.25s_var(--ease-out),content-visibility_.25s_allow-discrete] motion-safe:open:details-content:[block-size:auto]">
+                  <summary className="flex min-h-[68px] list-none items-center justify-between gap-6 px-6 py-4 text-[18px] leading-[1.35] phone:px-5 phone:text-[17px]">{q}<Icon name="plus" className="size-5 flex-none transition-transform duration-200 ease-(--ease-out) motion-reduce:transition-none group-open/faq:rotate-45" /></summary>
+                  <p className="px-6 pb-6 text-[16px] leading-[1.6] text-ink-soft phone:px-5">{a}</p>
+                </details>
+              ))}
+            </div>
+            <div className="mt-10 hidden gap-3.5 text-[16px] text-muted tablet:grid">
+              <p>{copy.contact}</p>
+              <CopyEmail email={copy.contactEmail} />
+            </div>
           </div>
         </section>
       </main>
-      <footer className="site-footer mt-auto border-t border-line pt-9 text-muted [box-shadow:var(--crease)] phone:pt-5">
-        {/* Decorative; its oversized glyph box overlaps the contact row above and would swallow clicks. */}
-        {/* The wordmark spans the footer edge to edge; its size tracks the footer's width. */}
-        <div className="footer-wordmark @container pointer-events-none flex items-center pb-[38px] leading-[1.05] font-semibold text-ink phone:pt-[13px] phone:pb-[25px]" aria-hidden="true"><span className="-ml-[.05em] text-[length:52cqw] tracking-[-.085em] xray:[filter:url(#xray-density)] xray:selection:bg-[#e6ece32e]">ophi<span className="text-rust">.</span></span></div>
-        {/* Phones: privacy left, a round back-to-top right, copyright last. */}
-        <div className="footer-bottom flex min-h-[62px] items-center justify-between gap-6 border-t border-line text-[11px] [box-shadow:var(--crease)] phone:flex-col-reverse phone:items-start phone:gap-4 phone:pt-[18px] phone:pb-[22px] phone:text-[10px]">
-          <span>© {new Date().getFullYear()} Ophi</span>
-          <div className="footer-actions flex flex-wrap items-center justify-end gap-2.5 phone:w-full phone:flex-nowrap phone:justify-between">
-            <InfoPanel kind="privacy" />
-            <a className={pill({ size: "footer", className: "back-to-top phone:min-h-10 phone:w-10 phone:justify-center phone:p-0" })} href="#top"><span className="phone:sr-only">Back to the top</span><span className={pillTag({ size: "footer" })}><Icon name="up" className={`${pillIcon} group-hover/pill:-translate-y-0.5`} /></span></a>
+
+      <footer className={`${frame} text-muted`}>
+        {/* Decorative: the wordmark spans the footer edge to edge; its size tracks the footer's width. */}
+        <div className="@container pointer-events-none leading-[1.05] font-semibold text-ink" aria-hidden="true"><span className="-ml-[.05em] block text-[length:52cqw] tracking-[-.085em]" translate="no">ophi<span className="text-orange">.</span></span></div>
+        <div className="flex min-h-[80px] flex-wrap items-center justify-between gap-4 py-5 text-[14px]">
+          <span className="flex items-center gap-1.5">© {new Date().getFullYear()} Ophi<span aria-hidden="true">·</span><Icon name="leaf" className="size-4 flex-none" />{copy.madeIn}</span>
+          <div className="flex flex-wrap items-center gap-2.5">
+            <InfoPanel />
+            <a className="inline-flex min-h-10 items-center gap-2 rounded-full px-4 text-ink hover:bg-ink/5" href="#top">Back to the top<Icon name="up" className="size-4" /></a>
           </div>
         </div>
       </footer>
+      <Reveal />
       {/* Structured data for search engines: invisible, mirrors the visible copy so rich results stay honest. */}
       <JsonLd data={{ "@context": "https://schema.org", "@type": "Organization", name: copy.name, url: "https://ophi.app/", logo: "https://ophi.app/icon.svg", email: copy.contactEmail }} />
       <JsonLd data={{ "@context": "https://schema.org", "@type": "WebSite", name: copy.name, url: "https://ophi.app/" }} />

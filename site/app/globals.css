@@ -5,8 +5,6 @@
    the window light. Semantic class names left in the markup (.tooth-viewer, .signup, .join-button…) are hooks
    for scripts/site-*.py and component code, not styles. */
 
-/* Hover also applies after a tap on touch screens, as it did before Tailwind. */
-@custom-variant hover (&:hover);
 /* Breakpoints, in cascade order. Phone layout is ≤700px (DESIGN.md "Phone layout"). */
 @custom-variant wide (@media (min-width: 1600px));
 @custom-variant tablet (@media (max-width: 1100px));
@@ -26,11 +24,14 @@
   --ink: #193a30;
   /* Holds AA contrast even in the deepest window-light shade (scripts/site-contrast.py). */
   --muted: #5c6557;
-  /* Section rules are folds in the sheet: a crease line with light catching its lower lip. */
+  /* A rule is a fold in the sheet: a crease line with light catching its lower lip. */
   --crease: inset 0 1px #fffdf6;
   --orange: #ef865b;
   --line: #d4d9c9;
   --sage: #e4e7d9;
+  /* The one card surface: warm white lifted off the ivory page by a soft shadow from above. */
+  --card: #fffdf8;
+  --shadow-card: 0 1px 2px #193a300d, 0 12px 32px -12px #193a3024, 0 40px 80px -48px #193a3033;
   --radius: 4px;
   --pill-line: #c3ccb8;
   --background: var(--paper);
@@ -45,6 +46,15 @@
   --tag-hover: #d9dfcb;
   --sage-deep: #6b8062;
   --error: #a53f1f;
+  /* The one dark panel (the front desk): forest as a surface, what prints on it, and ink set on that print. */
+  --deep: #193a30;
+  --on-deep: #f4f2e9;
+  --on-deep-soft: #b7c3b4;
+  --deep-line: #46635a;
+  --deep-ink: #193a30;
+  /* A care mark's colour and the tick set on it (components/care-mark.tsx); dark surfaces swap the pair. */
+  --mark: var(--ink);
+  --mark-on: var(--paper);
   /* The native clinic-software select's arrow, before hydration swaps in the custom listbox. */
   --select-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='%23193a30' stroke-width='1.4' stroke-linecap='round'%3E%3Cpath d='m5.5 8 4.5 4.5L14.5 8'/%3E%3C/svg%3E");
 }
@@ -57,6 +67,8 @@
   --color-primary: var(--ink);
   --color-primary-foreground: var(--paper);
   --color-paper: var(--paper);
+  --color-card: var(--card);
+  --shadow-card: var(--shadow-card);
   --color-ink: var(--ink);
   --color-ink-soft: var(--ink-soft);
   --color-muted: var(--muted);
@@ -70,6 +82,11 @@
   --color-tag-hover: var(--tag-hover);
   --color-sage-deep: var(--sage-deep);
   --color-error: var(--error);
+  --color-deep: var(--deep);
+  --color-on-deep: var(--on-deep);
+  --color-on-deep-soft: var(--on-deep-soft);
+  --color-deep-line: var(--deep-line);
+  --color-deep-ink: var(--deep-ink);
 }
 
 /* Static: always emitted, since xray.css reads --ease-out too. */
@@ -99,6 +116,8 @@
     background: var(--paper);
     color-scheme: light;
     scroll-behavior: smooth;
+    /* Keeps anything scrolled to (by link or by Tab) clear of the sticky header. */
+    scroll-padding-top: 96px;
     /* Owner preference: no visible scrollbars on the page or the listbox; wheel, touch and keyboard scrolling still work. */
     scrollbar-width: none;
   }
@@ -111,10 +130,9 @@
     overflow: hidden;
   }
 
-  /* The page is a sheet of cotton paper; its grain scrolls with the content. */
   body {
     color: var(--ink);
-    background: var(--paper) url("/paper.svg") 0 0 / 256px;
+    background: var(--paper);
     font-family: var(--font-body), Arial, sans-serif;
     -webkit-font-smoothing: antialiased;
   }
@@ -153,6 +171,17 @@
     outline-offset: 3px;
   }
 
+  /* On the dark panel the halo turns light, so it still stands out. */
+  .bg-deep :focus-visible {
+    outline-color: var(--on-deep);
+  }
+
+  @media (max-width: 700px) {
+    html {
+      scroll-padding-top: 80px;
+    }
+  }
+
   h1,
   h2,
   h3 {
@@ -164,58 +193,148 @@
     font-weight: 400;
   }
 
+  /* Reduced motion drops movement, not fades: each moving part opts out where it is styled (motion-safe:,
+     motion-reduce:, MotionConfig reducedMotion="user"). */
   @media (prefers-reduced-motion: reduce) {
     html {
       scroll-behavior: auto;
-    }
-
-    *,
-    *::before,
-    *::after {
-      animation: none !important;
-      transition: none !important;
     }
   }
 }
 
 @layer components {
-  /* One window light for the whole site, fixed to the viewport so the paper slides beneath it while scrolling.
-     A thin transparent shade over everything printed on the page (no blend mode, so scrolling stays cheap);
-     dialogs sit above it like sheets lifted into the light. Sized to the largest viewport so the light never
-     rescales as mobile browser bars show and hide; the vh sizes serve browsers without lvh. */
-  .room-light {
-    position: fixed;
-    inset: 0;
-    z-index: 40;
-    pointer-events: none;
-    background: url("/light-wide.svg") 50% 0 / max(100vw, 160vh) auto no-repeat;
-    background-size: max(100vw, 160lvh) auto;
-  }
-
-  @media (max-aspect-ratio: 1/1) {
-    .room-light {
-      background-image: url("/light-tall.svg");
-      background-size: max(100vw, 50vh) auto;
-      background-size: max(100vw, 50lvh) auto;
-    }
-  }
-
-  @media print {
-    .room-light {
-      display: none;
-    }
+  /* Each block rises into place once, as it first comes into view (components/reveal.tsx); --i staggers siblings.
+     It ends on no translate, so nothing inside is left in a new layer. Reduced motion keeps the fade only; without
+     JavaScript everything is simply there. */
+  .js [data-reveal] {
+    opacity: 0;
+    transition: opacity .6s var(--ease-out);
+    transition-delay: calc(var(--i, 0) * 60ms);
   }
 
   @media (prefers-reduced-motion: no-preference) {
-    .room-light {
-      animation: daylight 1.8s .1s ease-out both;
+    .js [data-reveal] {
+      translate: 0 12px;
+      transition: opacity .6s var(--ease-out), translate .6s var(--ease-out);
+      transition-delay: calc(var(--i, 0) * 60ms);
     }
+  }
+
+  .js [data-reveal].in {
+    opacity: 1;
+    translate: none;
   }
 }
 
-@keyframes daylight {
-  from {
+/* What the patient never sees (components/thread.tsx): it prints, then slips out of focus as its card comes in. */
+.fog {
+  filter: blur(5px);
+  opacity: .5;
+  transition: filter .8s ease-out, opacity .8s ease-out;
+  transition-delay: calc(700ms + var(--i, 0) * 130ms);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .js [data-reveal]:not(.in) .fog {
+    filter: none;
+    opacity: 1;
+  }
+}
+
+/* Counted things (components/gap.tsx) fill in one by one as their figure comes into view, each springing up to
+   size as it fills, so the count runs through them like a wave. */
+.hit {
+  transition: background-color .45s ease-out, color .45s ease-out, scale .7s cubic-bezier(.34, 1.56, .64, 1);
+  transition-delay: calc(500ms + var(--d, 0) * 24ms);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .js [data-reveal]:not(.in) .hit {
+    background-color: color-mix(in srgb, var(--ink) 8%, transparent);
+    color: color-mix(in srgb, var(--ink) 40%, transparent);
+    scale: .5;
+  }
+}
+
+/* A step that just changed glows orange for a moment. */
+@keyframes flash-text {
+  from,
+  30% {
+    color: var(--color-rust);
+  }
+}
+
+/* Signal moving along a connector line. */
+@keyframes flow {
+  to {
+    stroke-dashoffset: -28;
+  }
+}
+
+/* The roadmap (components/roadmap.tsx): the line draws itself from the live stage as it comes into view (down, on
+   phones), each stage arrives as the line reaches it with its dot springing up, then the live stage calls out a few
+   times and settles. */
+.grow-line {
+  transition: scale .9s var(--ease-out) .25s;
+}
+
+.grow-down {
+  transition: scale .7s var(--ease-out);
+  transition-delay: calc(450ms + var(--i, 0) * 80ms);
+}
+
+.stage {
+  transition: opacity .8s var(--ease-out), translate .9s var(--ease-out);
+  transition-delay: calc(380ms + var(--i, 0) * 80ms);
+}
+
+.stage-dot {
+  transition: scale .8s cubic-bezier(.34, 1.56, .64, 1), opacity .4s ease-out;
+  transition-delay: calc(300ms + var(--i, 0) * 80ms);
+}
+
+.now-ring::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  background: var(--orange);
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .js [data-reveal]:not(.in) .grow-line {
+    scale: 0 1;
+  }
+
+  .js [data-reveal]:not(.in) .grow-down {
+    scale: 1 0;
+  }
+
+  .js [data-reveal]:not(.in) .stage {
     opacity: 0;
+    translate: 0 16px;
+  }
+
+  .js [data-reveal]:not(.in) .stage-dot {
+    opacity: 0;
+    scale: .3;
+  }
+
+  .js [data-reveal].in .now-ring::after {
+    animation: call-out 2.2s var(--ease-out) 1.4s 3;
+  }
+}
+
+@keyframes call-out {
+  from {
+    opacity: .45;
+    scale: 1;
+  }
+
+  to {
+    opacity: 0;
+    scale: 2.6;
   }
 }
 
@@ -270,7 +389,11 @@
 
 @keyframes ink-fill {
   from {
-    transform: scale(0);
+    clip-path: circle(0 at 50% 50%);
+  }
+
+  to {
+    clip-path: circle(50%);
   }
 }
 
@@ -290,5 +413,62 @@
   from {
     opacity: 0;
     transform: translateY(-4px);
+  }
+}
+
+/* Something waiting breathes, so the eye finds what needs attention: a ring leaves it and fades. */
+@keyframes waiting {
+  from {
+    transform: scale(1);
+    opacity: .6;
+  }
+
+  70%,
+  to {
+    transform: scale(1.9);
+    opacity: 0;
+  }
+}
+
+@keyframes voice {
+  50% {
+    transform: scaleY(.35);
+  }
+}
+
+@keyframes bubble-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(.97);
+  }
+}
+
+@keyframes screen-in {
+  from {
+    opacity: 0;
+    transform: scale(.985);
+  }
+}
+
+/* Something just changed here: a wash that fades. */
+@keyframes flash-sage {
+  from,
+  35% {
+    background: var(--sage);
+  }
+}
+
+/* Time running out, as a bar filling from the left (the hero's next patient). */
+@keyframes fill-x {
+  from {
+    scale: 0 1;
+  }
+}
+
+/* A count that just went up. */
+@keyframes tick-up {
+  from {
+    opacity: .2;
+    transform: translateY(.18em);
   }
 }

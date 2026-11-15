@@ -32,6 +32,13 @@ for text in TEXTS:
     shaded_paper = over(lit, rgb(SHADE), DEPTH)
     print(f"{text}: lit {contrast(rgb(text), lit):.2f}:1, deepest shade {contrast(shaded_text, shaded_paper):.2f}:1")
 
+# Type on the sage surfaces (listening room, clinic sheet, signup band) and on the dark front-desk panel.
+SAGE, DEEP = "#e4e7d9", "#193a30"
+for text, ground in [("#5c6557", SAGE), ("#53604d", SAGE), ("#425e51", SAGE), ("#b7c3b4", DEEP), ("#f4f2e9", DEEP)]:
+    base = over(rgb(ground), [0, 0, 0], GRAIN)
+    shaded = contrast(over(rgb(text), rgb(SHADE), DEPTH), over(base, rgb(SHADE), DEPTH))
+    print(f"{text} on {ground}: lit {contrast(rgb(text), base):.2f}:1, deepest shade {shaded:.2f}:1")
+
 # X-ray mode (site/app/xray.css): pale type on film, backlit by the lightbox glow behind the content.
 FILM = "#0e1f19"
 GLOW, GLOW_DEPTH = "#9fd3b9", .1       # brightest point of the lightbox glow
@@ -44,5 +51,8 @@ print("X-ray mode")
 for text in XRAY_TEXTS:
     worst = min(contrast(rgb(text), bg) for bg in (film_dark, film_lit, band_lit))
     print(f"{text}: film {contrast(rgb(text), film_dark):.2f}:1, lit band {contrast(rgb(text), band_lit):.2f}:1, worst {worst:.2f}:1")
+deep_lit = over(film_lit, rgb(SOFT), .11)   # the front-desk panel, denser than the bands
+for text in ("#e6ece3", "#c9d4c8"):
+    print(f"{text} on the lit front-desk panel: {contrast(rgb(text), deep_lit):.2f}:1")
 print(f"join button #0e1f19 on #f4f8f1: {contrast(rgb('#0e1f19'), rgb('#f4f8f1')):.2f}:1")
 print(f"focus ring #a9c0b1 on lit band: {contrast(rgb('#a9c0b1'), band_lit):.2f}:1")

@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { DM_Sans } from "next/font/google";
 import localFont from "next/font/local";
 import "./globals.css";
@@ -43,6 +43,14 @@ export const metadata: Metadata = {
     images: ["/opengraph-image.png"],
   },
 };
+export const viewport: Viewport = { themeColor: "#f4f2e9" };
+
 export default function RootLayout({ children }: LayoutProps<"/">) {
-  return <html lang="en-CA" className={`${sans.variable} ${newsreader.variable}`}><body>{children}<div className="room-light" aria-hidden="true" /><Analytics /></body></html>;
+  // The `js` class lets sections start hidden and rise in (components/reveal.tsx) only when a script can reveal them.
+  return (
+    <html lang="en-CA" className={`${sans.variable} ${newsreader.variable}`} suppressHydrationWarning>
+      <head><script dangerouslySetInnerHTML={{ __html: "document.documentElement.classList.add('js')" }} /></head>
+      <body>{children}<Analytics /></body>
+    </html>
+  );
 }

@@ -57,7 +57,7 @@ export default function FilmPage() {
       </main>
       <footer className="mt-auto flex min-h-[62px] items-center justify-between gap-6 border-t border-line text-[11px] text-muted [box-shadow:var(--crease)] phone:py-4">
         <span>© {new Date().getFullYear()} Ophi</span>
-        <InfoPanel kind="privacy" note="If you add your name or phone number, they reach us by email, and we use them only to contact you about Ophi." />
+        <InfoPanel note="If you add your name or phone number, they reach us by email, and we use them only to contact you about Ophi." />
       </footer>
     </div>
   );

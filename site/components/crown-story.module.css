@@ -1,0 +1,33 @@
+/* Narrow screens show one moment at a time. Every moment sits in the same cell, so the list keeps the height of its
+   longest moment and nothing below it moves; the old moment leaves first, then the next one rises into its place
+   (up and away going forward, down going back). Matches Tailwind's `max-[899px]`, which stops short of 899px. */
+@media (width < 899px) {
+  .moment {
+    grid-area: 1 / 1;
+    opacity: 0;
+    visibility: hidden;
+    translate: 0 12px;
+    filter: blur(4px);
+    transition: opacity .2s var(--ease-out), translate .2s var(--ease-out), filter .2s, visibility 0s .2s;
+  }
+
+  .moment[data-past] {
+    translate: 0 -12px;
+  }
+
+  .moment[data-active] {
+    opacity: 1;
+    visibility: visible;
+    translate: 0 0;
+    filter: none;
+    transition: opacity .45s .22s ease-out, translate .7s .22s cubic-bezier(.16, 1, .3, 1), filter .45s .22s ease-out, visibility 0s;
+  }
+}
+
+@media (width < 899px) and (prefers-reduced-motion: reduce) {
+  .moment {
+    translate: none;
+    filter: none;
+    transition: none;
+  }
+}

@@ -24,6 +24,12 @@
   --tag-hover: #e6ece31f;
   --sage-deep: #a9c0b1;
   --error: #f2a58a;
+  /* The front-desk panel is denser tissue than the sage bands; what prints on it stays bone. */
+  --deep: #e6ece31c;
+  --on-deep: var(--bone);
+  --on-deep-soft: #c9d4c8;
+  --deep-line: #e6ece340;
+  --deep-ink: var(--film);
 }
 
 @layer base {

@@ -1,6 +1,6 @@
 # Ophi — public site design
 
-Updated 2026-09-22. Supersedes the radiograph lightbox and the earlier multi-section landing-page draft.
+Updated 2026-11-12 (one system; see below). Earlier: 2026-09-22, which superseded the radiograph lightbox and the earlier multi-section landing-page draft.
 Public brand: **Ophi**, wordmark **ophi.**, domain **ophi.app**. The existing internal code/package paths
 are not part of the public brand and were not migrated in this design task.
 
@@ -12,6 +12,92 @@ Less paperwork.”, an original enamel sculpture, a brief statement of purpose a
 
 The user liked the ivory/forest/orange language and sculpture but rejected the conventional
 headline → facts → chart → call-to-action stack. Keep the language; break the layout pattern.
+
+## One system (2026-11-12, second pass)
+
+The owner rejected the first vision site as "messy, hard to understand and read" and asked for "one cohesive
+experience" with direction. Its fault was the rule it was built on: every section invented its own kind of picture
+(cards, a bar chart, a tree, a pinned phone scene, a dot field, a staircase, struck-through lines), under window-light
+shadows, in four type styles. Thirteen screens of patchwork. This pass keeps the story and replaces the patchwork with
+one system. Where this section and older ones disagree, this one wins.
+
+**The rule: one motif, one card, one type scale, one way to open a section.**
+
+- **Motif: the thread.** A patient's care as a line of steps marked done, booked, planned or waiting
+  (`components/thread.tsx`, marks in `care-mark.tsx`). Every picture is that thread seen from somewhere: each patient's
+  care in the hero card, the record vs. what Alex knows, the memory in the diagram, the personal page in the story, one mini thread
+  per patient in the clinic view, and the roadmap laid on its side.
+- **Surfaces.** Plain ivory page (no grain, no window light). One card: warm white `#fffdf8`, radius 28, soft shadow
+  from above (`card` in `components/type.ts`). Sage for quiet inner surfaces and the signup panel. Forest for the
+  story band and the Ophi node only. Orange for actions and "next / waiting".
+- **Type.** Newsreader for headings and Ophi's spoken words, DM Sans for everything else. Six roles in
+  `components/type.ts`; nothing under 14px. No monospace, no staggered or italic headline tricks.
+- **Sections** open the same way (`components/section-head.tsx`): one heading that carries the idea, one sentence
+  under it, then one picture. Left-aligned on one 1240px frame, one gap above each (`section` in `type.ts`), never
+  padding below, so neighbours can't double up.
+- **One patient, one source.** Every picture of Alex is cut from the story's data (`lib/story.ts` `frameAt`), and the
+  clinic view's patients from `lib/team.ts`, so names, steps and dates always agree. The hero's three conversations
+  (`lib/hero.ts`) reuse both; `lib/hero.test.ts` holds them to the clinic view.
+- **Motion.** Blocks rise in once as they arrive (`components/reveal.tsx`, `.js [data-reveal]`); the product
+  pictures work while on screen (the hero's patients take turns, the system diagram plays its moments, the gap's
+  fixes arrive, the story plays, clinic rows update). Reduced motion shows every final state.
+
+Motion: one language, in `components/motion.tsx` (springs, the soft ease, `Swap`/`Fade` for text changing in place,
+the call's voice bars and text bubbles). Things morph rather than switch: the old leaves before the new arrives, text
+crossfades in place, and the care mark (`components/care-mark.tsx`) springs between states. Fixed heights, so nothing
+shifts; paused off screen; reduced motion shows a finished still.
+
+Reading order:
+
+1. **Hero.** "One assistant for every patient." Plain sentence, Get early access plus "See how it works" (jumps to How,
+   which plays as it comes into view), "Built in Canada" (the pilot-status line was removed by the owner,
+   2026-11-14). Beside it, a phone on a sage disc (`components/hero-stage.tsx`, data in `lib/hero.ts`): three patients
+   take turns, one per door (Alex calls to move "it", Margaret texts about her denture, Chloé books from her page).
+   A floating card reads "X's care, from your records" and a dark toast says what Ophi wrote back. The old screen
+   leaves before the new one rises in; the stage is a fixed height, so nothing below moves. (2026-11-14: picked by
+   the owner over a tabless card; replaced the tabbed hero card. The "Hear Ophi take a real call" button was removed
+   the same day: both voices in that recording are generated, so it isn't a real call. The owner picked "See how it
+   works" over an inline email field and a list of reassurances.)
+2. **How.** "Call, text or tap. It all lands in one place." Straight after the hero, so the page says what Ophi is
+   before it argues why (owner, 2026-11-12: "take the focus back to Ophi"). One big card, "Alex's care"
+   (`components/how-thread.tsx`, states from `lib/story.ts`): five steps of the crown in large serif type on the
+   thread. Each door arrives as a small object (their page, the clinic's records, a text, a call), docks beside the
+   step it changes (from the side on wide screens, from above on narrow ones) and folds into it; the mark springs to
+   its new state, the step keeps that door's icon, and the card's footer ticks "Saved to your record system".
+   (2026-11-14: the owner picked this over an app-window product shot; it replaced a patients → Ophi box → records
+   diagram that read as "too much… not visually appealing". Box-and-line diagrams were rejected as not beautiful
+   enough.)
+3. **Why.** "Care takes many steps. Today, your patient sees one." "What Alex knows today": the same plan with all
+   but one step out of focus ("To learn the rest, Alex has to call.") (`components/gap.tsx`). Then 31 in 100 calls
+   (dots) and 1 in 5 adults (people), each with a "With Ophi" card under it. The "with Ophi" plan card was cut when
+   How started showing every step with its door.
+4. **One patient.** The dark band, fits a 900px screen. Six moments of Alex's crown as a step list beside Alex's
+   phone; it plays itself while on screen, a picked moment plays and stays, and it can be paused. Under 900px the
+   phone comes first, then the moment and a dot bar. The real recording plays from the call screen.
+5. **For clinics.** "Your team sees every patient. You decide what needs a yes." The clinic table with tallies,
+   rows that change, and a working Approve.
+6. **Roadmap.** Answer (piloting now), Inform, Guide, Complete, Run, then what stays with the team.
+7. Signup panel, questions, footer wordmark.
+
+**Reader tests (2026-11-12, second pass: an office manager on desktop, an owner-dentist on a phone, a design critic,
+a Web Interface Guidelines audit).** What changed because of them: Alex's four pictures disagreed on step names and
+dates (now one source); the story was taller than the screen and changed off-screen on phones; grey placeholder bars
+read as "still loading" (now blur); "Not a phone bot, a reminder tool and a portal" read as the opposite; orange did
+six jobs; the privacy pop-up contradicted itself; live regions announced the self-playing demos; the sticky header
+covered focused controls; Approve dropped focus. Still missing for both readers, and waiting on the owner: who is
+behind Ophi, price or pilot terms, a real clinic.
+
+Removed: the tooth and X-ray mode (the files stay in `components/` for the owner to restore or delete), the window
+light and paper grain, "What Ophi is not" (its one useful line is an FAQ answer), the separate "Works with" section
+(folded into How), the left-to-right doors diagram and then the tasks/patient panels (both replaced by the system
+diagram), the record-system name chips (the FAQ answers which software works).
+
+**Claims.** The page states the vision, including things not true of the product today: record systems other than
+ABELDent are not connected (the page now says ABELDent is first), and the FAQ says patient data lives in Canada
+under Canadian health privacy law, while the demo server is in the US. Revisit both before the site is public.
+
+Checks: `scripts/site-widths.py` (20 widths: overflow, text leaving its section, the 14px floor) and
+`scripts/site-vision-flow.py` (door tabs, story autoplay, real call, step buttons, Approve, FAQ).
 
 ## Structure and purpose
 

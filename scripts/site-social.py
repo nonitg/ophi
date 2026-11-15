@@ -12,15 +12,15 @@ with sync_playwright() as p:
     page.wait_for_selector('.tooth-viewer[data-ready="true"]')
     # Export-only framing: retain the real brand, typography, sculpture and materials.
     page.add_style_tag(content='''
-      #main > :not(.poster), .site-footer, .header-tools, nextjs-portal { display: none !important; }
+      #main > :not(.hero), .hero > :not(.poster), .site-footer, .header-tools, nextjs-portal { display: none !important; }
       .site-shell { width: calc(100% - 96px); min-height: 630px; }
       .site-header { height: 90px; }
       .poster { height: 460px; }
-      .poster-title { font-size: 139px; }
+      .poster-title { font-size: 132px; }
       body::after { content: "ophi.app"; position: absolute; bottom: 28px; left: 48px; font-size: 15px; color: #626b5d; }
     ''')
     page.wait_for_timeout(1500)
     page.screenshot(path=str(root / "site/app/opengraph-image.png"))
     browser.close()
-(root / "site/app/opengraph-image.alt.txt").write_text("Ophi. Good care. Less paperwork. An original ivory tooth sculpture on warm paper in soft window light.\n")
+(root / "site/app/opengraph-image.alt.txt").write_text("Ophi. One assistant for every patient. An original ivory tooth sculpture on warm paper in soft window light.\n")
 print(root / "site/app/opengraph-image.png")

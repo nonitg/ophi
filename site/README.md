@@ -1,9 +1,22 @@
 # Ophi public site
 
-The pre-launch site for **Ophi**, at **https://ophi.app**. A single editorial composition: large type,
-an original interactive tooth sculpture, a brief introduction, and an inline waitlist form.
-The “Why Ophi?” dialog holds the problem context and cited public evidence; the privacy dialog explains signup data use.
-Design decisions and rationale are in `../DESIGN.md`.
+The site for **Ophi**, one assistant for every dental patient, at **https://ophi.app**. It tells the company's
+vision (`../ophi-phone` `VISION.md`): a hero card where three patients reach Ophi by call, text and their page,
+Ophi drawn as one system between patients and records with everyday moments playing through it, the gap between
+the record and the patient with Ophi's fix beside each problem, one crown followed through six moments, the
+clinic's side as a working miniature, the stages it grows through, and an inline early-access form.
+Design decisions and rationale are in `../DESIGN.md` ("Vision site").
+
+## Where the content lives
+
+- `lib/copy.ts`: every word outside the two scripted miniatures.
+- `lib/story.ts`: the crown story (steps, beats, the care timeline, record rows) and the real call's words and timings.
+- `lib/team.ts`: the team view's patients, what happens to them while watched, and the held request.
+
+The first call in the story is a real conversation with Ophi's phone agent (a scripted test caller, a fictional
+patient): `public/calls/book-cleaning.mp3`, exported from the sibling repo by `../ophi-phone/scripts/site_demo_export.py`.
+Its words in `lib/story.ts` are the recording's: never edit them. Everything else in the story and the team view is
+an illustration, and the page says so.
 
 ## Run and verify
 
@@ -19,12 +32,12 @@ Use `http://localhost:3111` for development. Next.js checks the browser origin f
 From the repository root:
 
 ```bash
-.venv/bin/python scripts/site-screens.py http://localhost:3111
-.venv/bin/python scripts/site-states.py http://localhost:3111
+.venv/bin/python scripts/site-widths.py http://localhost:3111
+.venv/bin/python scripts/site-vision-flow.py http://localhost:3111
 ```
 
-Browser checks use the local no-write honeypot branch to verify the success screen without creating a real contact.
-They do not prove production contact persistence. Unit tests cover the signup server action separately.
+The first measures 20 widths (and X-ray at three): page overflow, text leaving its section, type under 14px. The
+second drives the diagram, the story, the real call and the Approve button. Neither submits the signup form.
 
 ## Sculpture
 
@@ -81,4 +94,5 @@ Before publishing:
 - Verify a real opt-in contact is saved, and unsubscribe behavior, with the owner's own test address.
 
 Vercel root directory: `site`. Next.js framework defaults. Product positioning remains pre-launch:
-no invented launch date, customer counts, product screenshots, or approval-rate promises.
+no invented launch date, customer counts or outcome promises. The page states where Ophi is going; see "Claims" in `../DESIGN.md`
+for what is not yet true of the product.

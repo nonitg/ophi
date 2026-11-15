@@ -27,7 +27,7 @@ export function CopyEmail({ email, className }: { email: string; className?: str
   return (
     <span className={className}>
       <button type="button" className={pill({ className: "copy-email-button cursor-copy" })} onClick={copyAddress} aria-label={`Copy email address ${email}`}>
-        <span className="text-[15px] select-text">{email}</span>
+        <span className="text-[16px] select-text">{email}</span>
         <span className={pillTag()} aria-hidden="true" data-done={status === "copied" || undefined}>
           {status === "copied" ? "Copied" : "Copy"}
           <Icon name={status === "copied" ? "check" : "copy"} className={pillIcon} />
