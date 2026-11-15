@@ -193,6 +193,11 @@
     font-weight: 400;
   }
 
+  /* Emphasis in display type is Newsreader's italic, a family of its own (app/layout.tsx). */
+  :is(h1, h2, h3, .font-serif) :is(em, i) {
+    font-family: var(--font-display-italic), Georgia, serif;
+  }
+
   /* Reduced motion drops movement, not fades: each moving part opts out where it is styled (motion-safe:,
      motion-reduce:, MotionConfig reducedMotion="user"). */
   @media (prefers-reduced-motion: reduce) {

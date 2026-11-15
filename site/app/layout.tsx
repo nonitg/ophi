@@ -11,10 +11,20 @@ const sans = DM_Sans({ subsets: ["latin"], variable: "--font-body", display: "sw
 // 120 KB instead of 279 KB for the full weight range. next/font/google can't pin a weight while keeping an axis.
 // Source: fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;1,6..72,400
 const newsreader = localFont({
-  src: [{ path: "./fonts/newsreader-400.woff2", weight: "400", style: "normal" }, { path: "./fonts/newsreader-400-italic.woff2", weight: "400", style: "italic" }],
+  src: [{ path: "./fonts/newsreader-400.woff2", weight: "400", style: "normal" }],
   variable: "--font-display",
   display: "swap",
   // Keeps the fallback metrics next/font/google used (app/globals.css).
+  adjustFontFallback: false,
+  fallback: ["Newsreader Fallback"],
+});
+// The italic is its own family, not preloaded: it sets only a heading's emphasis (globals.css), which the homepage
+// shows only in its privacy panel, so a slow phone spends its first seconds on the type it shows first.
+const newsreaderItalic = localFont({
+  src: [{ path: "./fonts/newsreader-400-italic.woff2", weight: "400", style: "italic" }],
+  variable: "--font-display-italic",
+  display: "swap",
+  preload: false,
   adjustFontFallback: false,
   fallback: ["Newsreader Fallback"],
 });
@@ -48,7 +58,7 @@ export const viewport: Viewport = { themeColor: "#f4f2e9" };
 export default function RootLayout({ children }: LayoutProps<"/">) {
   // The `js` class lets sections start hidden and rise in (components/reveal.tsx) only when a script can reveal them.
   return (
-    <html lang="en-CA" className={`${sans.variable} ${newsreader.variable}`} suppressHydrationWarning>
+    <html lang="en-CA" className={`${sans.variable} ${newsreader.variable} ${newsreaderItalic.variable}`} suppressHydrationWarning>
       <head><script dangerouslySetInnerHTML={{ __html: "document.documentElement.classList.add('js')" }} /></head>
       <body>{children}<Analytics /></body>
     </html>

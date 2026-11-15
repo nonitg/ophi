@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import localFont from "next/font/local";
 import Link from "next/link";
 import { leaveDetails } from "@/app/demo/actions";
 import { FilmPlayer } from "@/components/film-player";
@@ -10,6 +11,14 @@ import { WaitlistForm } from "@/components/waitlist-form";
 const title = "Ophi: one assistant for every patient";
 const description = "A 90-second film on what Ophi is building for dental clinics.";
 const PHONE = { shown: "(778) 772-9034", href: "tel:+17787729034" };
+// This headline's second half is italic, so unlike the rest of the site (app/layout.tsx) this page preloads it.
+const filmItalic = localFont({
+  src: [{ path: "../fonts/newsreader-400-italic.woff2", weight: "400", style: "italic" }],
+  variable: "--font-display-italic",
+  display: "swap",
+  adjustFontFallback: false,
+  fallback: ["Newsreader Fallback"],
+});
 
 // Shared by link only: nothing on the site points here, and search engines are asked to stay out.
 export const metadata: Metadata = {
@@ -26,7 +35,7 @@ const field = "h-[46px] w-full min-w-0 rounded-full border border-band-line bg-t
 
 export default function FilmPage() {
   return (
-    <div className="mx-auto flex min-h-svh w-[min(calc(100%-112px),1180px)] flex-col tablet:w-[calc(100%-72px)] phone:w-[calc(100%-40px)] small:w-[calc(100%-32px)]">
+    <div className={`${filmItalic.variable} mx-auto flex min-h-svh w-[min(calc(100%-112px),1180px)] flex-col tablet:w-[calc(100%-72px)] phone:w-[calc(100%-40px)] small:w-[calc(100%-32px)]`}>
       <header className="flex h-[98px] flex-none items-center phone:h-[84px]">
         <Link className="inline-block pr-[7px] text-[46px] leading-none font-[650] tracking-[-3.7px] phone:text-[38px] phone:tracking-[-3px]" href="/" aria-label="Ophi home">ophi<span className="text-rust" aria-hidden="true">.</span></Link>
       </header>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useRef } from "react";
+import { useEffect, useId, useRef } from "react";
 import { Icon } from "@/components/icons";
 import { pill, pillIcon, pillTag } from "@/components/pill";
 
@@ -12,6 +12,12 @@ export function InfoPanel({ note }: { note?: string }) {
   const dialog = useRef<HTMLDialogElement>(null);
   const titleId = useId();
   const look = { surface: "paper", size: "footer" } as const;
+  // The title's italic isn't preloaded (app/layout.tsx): fetch it once the page is up, so the panel never opens on a
+  // stand-in face.
+  useEffect(() => {
+    const em = dialog.current?.querySelector("em");
+    if (em) void document.fonts.load(`italic 400 1em ${getComputedStyle(em).fontFamily}`);
+  }, []);
   return (
     <>
       <button className={pill({ ...look, className: "privacy-button" })} type="button" aria-haspopup="dialog" onClick={() => dialog.current?.showModal()}>Your email & privacy<span className={pillTag(look)}><Icon name="plus" className={`${pillIcon} group-hover/pill:rotate-90`} /></span></button>
