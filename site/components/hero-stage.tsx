@@ -27,6 +27,8 @@ const finePointer = () => matchMedia("(pointer: fine)").matches;
 export function HeroStage() {
   const root = useRef<HTMLDivElement>(null);
   const seen = useInView(root, 0.3);
+  // Wholly off screen, its voice bars stop too: left running, they keep a phone's main thread busy below the fold.
+  const onScreen = useInView(root, 0, false, true);
   const [hovered, setHovered] = useState(false);
   const m = useMoments(seen, hovered);
   const { sx, sy, move, reset } = useParallax(m.reduced);
@@ -36,7 +38,7 @@ export function HeroStage() {
 
   return (
     <MotionConfig reducedMotion="user">
-      <div ref={root} className="relative mx-auto h-[620px] w-full max-w-[560px] phone:flex phone:h-[682px] phone:flex-col small:h-[702px] tiny:h-[716px]" onPointerEnter={() => setHovered(true)} onPointerLeave={() => { setHovered(false); reset(); }} onPointerMove={move}>
+      <div ref={root} className={`relative mx-auto h-[620px] w-full max-w-[560px] phone:flex phone:h-[682px] phone:flex-col small:h-[702px] tiny:h-[716px] ${onScreen ? "" : "[&_*]:[animation-play-state:paused]"}`} onPointerEnter={() => setHovered(true)} onPointerLeave={() => { setHovered(false); reset(); }} onPointerMove={move}>
         <p className="sr-only">{`${m.name} reaches the clinic by ${words.channel[m.door].toLowerCase()}. Ophi answers from ${m.name}’s care in your records, then: ${m.did}.`}</p>
 
         {/* A soft disc of light under the phone. */}
