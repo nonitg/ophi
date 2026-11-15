@@ -34,10 +34,14 @@ From the repository root:
 ```bash
 .venv/bin/python scripts/site-widths.py http://localhost:3111
 .venv/bin/python scripts/site-vision-flow.py http://localhost:3111
+.venv/bin/python scripts/site-phone-flow.py http://localhost:3111
+.venv/bin/python scripts/site-load.py http://localhost:3111
 ```
 
 The first measures 20 widths (and X-ray at three): page overflow, text leaving its section, type under 14px. The
-second drives the diagram, the story, the real call and the Approve button. Neither submits the signup form.
+second drives the diagram, the story, the real call and the Approve button. The third does the same on a 390x750
+touch phone: the menu, each moving picture fitting one screen, a swipe through the story. None submits the signup
+form. The last times the homepage and `/demo` on a throttled slow-4G phone; run it against `next start`, not dev.
 
 ## Sculpture
 
@@ -93,6 +97,7 @@ Before publishing:
   local metadata does not connect DNS or publish the site.
 - Verify a real opt-in contact is saved, and unsubscribe behavior, with the owner's own test address.
 
-Vercel root directory: `site`. Next.js framework defaults. Product positioning remains pre-launch:
+Vercel root directory: `site`. Next.js framework defaults. Vercel skips a push whose last commit doesn't touch
+`site/`, even if earlier commits in the same push do, so end a push with a commit inside `site/` (or redeploy). Product positioning remains pre-launch:
 no invented launch date, customer counts or outcome promises. The page states where Ophi is going; see "Claims" in `../DESIGN.md`
 for what is not yet true of the product.
