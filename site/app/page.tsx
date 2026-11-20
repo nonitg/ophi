@@ -9,7 +9,7 @@ import { Gap } from "@/components/gap";
 import { HowThread } from "@/components/how-thread";
 import { CrownStory } from "@/components/crown-story";
 import { TeamView } from "@/components/team-view";
-import { Roadmap } from "@/components/roadmap";
+import { FrontDesk } from "@/components/front-desk";
 import { SectionHead } from "@/components/section-head";
 import { Reveal } from "@/components/reveal";
 import { SiteMenu } from "@/components/site-menu";
@@ -26,8 +26,8 @@ function HeroFacts({ className }: { className: string }) {
   );
 }
 
-// One story, told in order: what Ophi is, how it works, the gap it closes, one patient through it, the clinic's
-// side, where it's going, then the ask. Each section uses the same heading, the same card and the same thread.
+// One story, told in order: what Ophi is (the whole front desk), how it works, the gap it closes, one patient through
+// it, the clinic's side, then the ask. Each section uses the same heading, the same card and the same thread.
 export default function Page() {
   return (
     <div id="top" className="flex min-h-svh flex-col">
@@ -67,6 +67,11 @@ export default function Page() {
           <HeroFacts className="hidden tablet:flex" />
         </section>
 
+        <section id="desk" className={`${frame} ${section}`} aria-labelledby="desk-title">
+          <SectionHead id="desk-title" title={copy.desk.title} lede={copy.desk.lede} />
+          <FrontDesk />
+        </section>
+
         {/* Doors slide in from past the card's sides; clipped at the page edge so they never widen the page. */}
         <section id="how" className={`${frame} ${section} overflow-x-clip`} aria-labelledby="how-title">
           <SectionHead id="how-title" title={copy.how.title} lede={copy.how.lede} />
@@ -85,11 +90,6 @@ export default function Page() {
         <section id="clinic" className={`${frame} ${section}`} aria-labelledby="clinic-title">
           <SectionHead id="clinic-title" title={copy.team.title} lede={copy.team.lede} />
           <TeamView />
-        </section>
-
-        <section id="roadmap" className={`${frame} ${section}`} aria-labelledby="roadmap-title">
-          <SectionHead id="roadmap-title" title={copy.roadmap.title} />
-          <Roadmap />
         </section>
 
         <section id="join" className={`${frame} ${section}`} aria-labelledby="join-title">

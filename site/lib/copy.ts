@@ -1,27 +1,28 @@
-// Public copy. The page describes where Ophi is going (ophi-phone VISION.md), not only what ships today:
-// no customers, prices, launch dates or outcome promises. Never say a treatment is covered, approved or eligible.
+// Public copy. The page presents Ophi as the whole front desk, the owner's call (2026-11-20), not only what ships
+// today: no customers, prices, launch dates or outcome promises. Never say a treatment is covered, approved or eligible.
 // Every idea is said once; each section's picture carries the rest.
 export const copy = {
   name: "Ophi",
   // Metadata only: the visible wordmark is hardcoded in page.tsx, so the SERP/tab title carries the keywords
   // without changing the page the reader sees.
-  title: "Ophi — One assistant for every dental patient",
+  title: "Ophi — The AI front desk for dental clinics",
   description:
-    "Ophi is one assistant for every patient of a dental clinic. Patients call, text or tap, and Ophi knows where their care stands and what happens next, straight from the clinic’s own record system.",
-  keywords: ["Ophi", "dental patient assistant", "dental AI", "dental clinics", "patient communication", "treatment follow-up", "dental clinic software", "AI phone answering"],
+    "Ophi is the AI front desk for dental clinics. Patients call, text or tap, and Ophi books them, answers their questions from their own chart, handles their insurance, follows up after treatment and turns enquiries into new patients, all inside the PMS the clinic already uses.",
+  keywords: ["Ophi", "AI dental front desk", "dental front desk automation", "dental patient assistant", "dental AI", "dental clinics", "patient communication", "treatment follow-up", "dental insurance automation", "new patient leads", "dental clinic software", "AI phone answering"],
   contactEmail: "hello@ophi.app",
   nav: [
+    { href: "#desk", label: "The front desk" },
     { href: "#how", label: "How it works" },
     { href: "#story", label: "One patient" },
     { href: "#clinic", label: "For clinics" },
-    { href: "#roadmap", label: "Roadmap" },
   ],
   cta: "Get early access",
   madeIn: "Built in Canada",
 
   hero: {
-    title: "One assistant for every patient.",
-    lede: "Ophi is an AI assistant for dental clinics. Patients call, text or tap, and it always knows where their care stands and what happens next.",
+    // Non-breaking spaces keep "The front desk," on one line; type.ts `display` sizes it to fit.
+    title: "The front desk, handled.",
+    lede: "Ophi is the AI front desk for dental clinics. Patients call, text or tap, and Ophi books them, answers from their chart, handles their insurance and follows up after treatment, all inside the PMS you already use.",
     seeHow: "See how it works",
     // The stage: three patients, three doors, each answered from their own care (lib/hero.ts, components/hero-stage.tsx).
     channel: { call: "Phone call", text: "Text message", page: "Patient page" },
@@ -37,7 +38,7 @@ export const copy = {
   // Why: the record holds the whole plan, the patient holds one date (components/gap.tsx).
   gap: {
     title: "Care takes many steps. Today, your patient sees one.",
-    lede: "The whole plan lives in your record system. To learn the rest, patients phone the front desk, and many never get through.",
+    lede: "The whole plan lives in your PMS. To learn the rest, patients phone the front desk, and many never get through.",
     patient: "What Alex knows today",
     // The one step Alex knows about: the appointment the front desk told them.
     known: "prep",
@@ -47,7 +48,7 @@ export const copy = {
     stats: [
       {
         figure: "31 in 100", text: "calls to dental practices hang up before reaching anyone.", source: "Patient Prism, 2026", href: "https://www.patientprism.com/report/dental-patient-access-report/", of: 100, hit: 31,
-        fix: "Every call answered, day or night, in your clinic’s words.",
+        fix: "Every call and text answered, day or night, in your clinic’s words.",
       },
       {
         figure: "1 in 5", text: "adults have ever opened a patient portal.", source: "CareQuest Institute, 1,022 US adults", href: null, of: 5, hit: 1,
@@ -60,7 +61,7 @@ export const copy = {
   // Says what Ophi is; never names or blames anyone else.
   how: {
     title: "Call, text or tap. It all lands in one place.",
-    lede: "However a patient reaches you, Ophi adds it to one picture of their care, kept in step with the record system you already run.",
+    lede: "However a patient reaches you, Ophi adds it to one picture of their care, kept in step with the PMS you already use.",
     care: "Alex’s care",
     plan: "Crown, lower left molar",
     doors: { call: "Call", text: "Text", page: "Their page", records: "Records" },
@@ -74,8 +75,8 @@ export const copy = {
     booked: (when: string) => `Booked ${when}`,
     records: "From your records",
     insurer: "The insurer replied.",
-    inStep: "In step with your record system",
-    saved: "Saved to your record system",
+    inStep: "In step with your PMS",
+    saved: "Saved to your PMS",
     alt: "Alex’s crown as one care timeline. Alex books the crown prep on their own page, the insurer’s reply comes in from the clinic’s records, the fitting is booked by text and then moved in a phone call, and every change lands in the same timeline.",
   },
 
@@ -103,7 +104,7 @@ export const copy = {
     approved: ["Checked the time is still free", "Written to your schedule", "Checked it saved correctly", "Jordan texted"],
     rule: "Your rule: surgery changes wait for a yes",
     tallies: [
-      { id: "calls", label: "calls answered" },
+      { id: "calls", label: "patients answered" },
       { id: "updates", label: "updates sent" },
       { id: "booked", label: "next steps booked" },
     ],
@@ -113,16 +114,23 @@ export const copy = {
     note: "An illustration of one clinic’s day. Fictional patients.",
   },
 
-  // Each stage adds work Ophi can take on; the stages before it stay (components/roadmap.tsx).
-  roadmap: {
-    title: "Starts with the phone. Grows into the whole front desk.",
-    now: "Starting here",
+  // The front desk's work in the order a patient meets it; Ophi does every job (components/front-desk.tsx).
+  // A call is one door of three, never the product.
+  desk: {
+    title: "Every job at the front desk.",
+    lede: "A phone call is one way in. Behind every call, text and tap, Ophi does the work, inside the PMS you already use.",
+    doorsLabel: "Patients reach Ophi by",
+    doors: [
+      { icon: "phone", label: "Phone call" },
+      { icon: "speech", label: "Text" },
+      { icon: "page", label: "Their own page" },
+    ],
     stages: [
-      { name: "Answer", work: "Every call picked up: booking, changes, new patients, questions." },
-      { name: "Inform", work: "Confirmations, reminders and each patient’s own page." },
-      { name: "Guide", work: "Multi-visit plans, lab orders and recalls, carried to the end." },
-      { name: "Complete", work: "Forms, estimates, insurance and payment, closed out." },
-      { name: "Run", work: "The routine front desk, at every location." },
+      { name: "New patients", work: "Follows up with everyone who asked about a visit and never booked, until they’re in the chair." },
+      { name: "Questions", work: "“Why is my tooth sore?” answered from their chart: what was done, when, and what your dentist noted." },
+      { name: "Scheduling", work: "Bookings, reschedules and reminders. Cancellations refilled, recalls booked." },
+      { name: "Insurance", work: "Estimates, preauthorizations, claims, and every “what will my plan pay?”" },
+      { name: "Follow-up", work: "Checks in after treatment, and weeks later books what your dentist recommended next." },
     ],
     stays: "What stays with your team: welcoming patients, judgment calls, and the approvals you choose to keep.",
   },
@@ -135,11 +143,13 @@ export const copy = {
   faqTitle: "Questions",
   // The homepage FAQ, surfaced to search engines as FAQPage structured data. Text must match page.tsx exactly.
   faq: [
-    { q: "Who is Ophi for?", a: "Dental clinics that want every patient to know where their care stands, without adding work for the front desk." },
-    { q: "Does it work with my clinic software?", a: "Ophi sits on the record system your clinic already runs. ABELDent is connected first, and we build the connection for each clinic we bring on." },
+    { q: "Who is Ophi for?", a: "Dental clinics that want their front desk work done, from the phones to insurance and payments, without adding to their team’s day." },
+    { q: "What does Ophi handle?", a: "The front desk’s routine work: bookings, reschedules, reminders and recalls; questions answered from each patient’s chart; follow-ups after treatment; new-patient enquiries; and insurance estimates, preauthorizations and claims. Patients reach it by phone, text or their own page." },
+    { q: "Does it work with my clinic software?", a: "Yes. Ophi works inside the PMS your clinic already uses, reading and writing your schedule, charts and insurance directly. Tell us your software when you sign up." },
     { q: "Where does patient data live?", a: "In Canada. Ophi is built for Canadian health privacy law, such as PHIPA in Ontario. It checks who it’s talking to before sharing anything, and writes to your records only what your rules allow." },
-    { q: "Will Ophi give clinical advice?", a: "No. Ophi only says what your records say. Questions about care go to your team." },
-    { q: "When can I try it?", a: "We’re starting with a small group of pilot clinics on ABELDent. Other record systems follow as clinics join." },
+    { q: "Can it handle insurance?", a: "Yes. Ophi prepares estimates and preauthorizations, follows up with insurers, files claims and answers patients’ questions about what their plan pays. It never tells a patient something is covered until the insurer has said so." },
+    { q: "Will Ophi give clinical advice?", a: "No. When a patient asks about pain or a symptom, Ophi answers only from their chart and your dentists’ own notes, offers a visit, and brings anything urgent straight to your team." },
+    { q: "When can I try it?", a: "We’re bringing on a small group of pilot clinics now. Leave your email and we’ll write when there’s room for yours." },
   ],
   contact: "Anything else? Write to us.",
 
@@ -164,6 +174,6 @@ export const copy = {
   // Clinic workflow survey, offered after signup and in the welcome note.
   survey: {
     href: "https://www.jotform.com/262616967929072",
-    label: "At a clinic? Tell us about your phone workflow",
+    label: "At a clinic? Tell us about your front desk",
   },
 } as const;

@@ -20,3 +20,10 @@ test("Alex's fitting moves to the time the clinic view shows, and Chloé books t
   expect(rows.get("chloe")?.next).toContain(chloe.rows[0].note);
   expect(chloe.tap).toBe("done");
 });
+
+test("Owen is waiting on the insurer in the hero, as in the clinic view", () => {
+  const owen = MOMENTS.find(({ id }) => id === "owen")!;
+  const rows = shownAt(owen, lastHeroBeat(owen)).rows;
+  expect(rows[0]).toMatchObject({ label: "Insurance estimate", state: "waiting" });
+  expect(teamAt(0, false).rows.find(({ id }) => id === "owen")?.next).toBe("Waiting on the insurer");
+});

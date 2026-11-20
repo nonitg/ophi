@@ -276,9 +276,8 @@
   }
 }
 
-/* The roadmap (components/roadmap.tsx): the line draws itself from the live stage as it comes into view (down, on
-   phones), each stage arrives as the line reaches it with its dot springing up, then the live stage calls out a few
-   times and settles. */
+/* The front desk (components/front-desk.tsx): the line draws itself as it comes into view (down, on phones), and
+   each stop arrives as the line reaches it with its dot springing up. */
 .grow-line {
   transition: scale .9s var(--ease-out) .25s;
 }
@@ -298,15 +297,6 @@
   transition-delay: calc(300ms + var(--i, 0) * 80ms);
 }
 
-.now-ring::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: 9999px;
-  background: var(--orange);
-  opacity: 0;
-}
-
 @media (prefers-reduced-motion: no-preference) {
   .js [data-reveal]:not(.in) .grow-line {
     scale: 0 1;
@@ -324,22 +314,6 @@
   .js [data-reveal]:not(.in) .stage-dot {
     opacity: 0;
     scale: .3;
-  }
-
-  .js [data-reveal].in .now-ring::after {
-    animation: call-out 2.2s var(--ease-out) 1.4s 3;
-  }
-}
-
-@keyframes call-out {
-  from {
-    opacity: .45;
-    scale: 1;
-  }
-
-  to {
-    opacity: 0;
-    scale: 2.6;
   }
 }
 

@@ -59,10 +59,11 @@ const START: Row[] = [
     ],
   },
   {
-    id: "nadia", name: "Nadia Rahman", care: "New patient", marks: ["booked"], next: "First exam, Mon 10:00 am", move: "Registered her by phone last night",
+    id: "nadia", name: "Nadia Rahman", care: "New patient", marks: ["booked"], next: "First exam, Mon 10:00 am", move: "Followed up her website enquiry",
     trail: [
-      { at: "Tue 9:48 pm", text: "Nadia called after hours" },
-      { at: "Tue 9:50 pm", text: "Took her name, birthday and insurance once" },
+      { at: "Mon 6:15 pm", text: "Asked about a first visit on your website, didn’t book" },
+      { at: "Tue 9:40 am", text: "Texted her two open times" },
+      { at: "Tue 9:48 pm", text: "She called back after hours. Took her details and insurance once" },
       { at: "8:02 am", text: "You approved the first exam. Nadia got a text" },
     ],
   },

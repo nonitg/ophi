@@ -22,8 +22,8 @@ const finePointer = () => matchMedia("(pointer: fine)").matches;
 // One feel for everything that arrives: a soft spring that settles without bounce, and a pop for what's tapped.
 
 // The hero's picture of the product: the patient's phone, and floating over its edge what Ophi read from the clinic's
-// records and what it wrote back. Three patients take turns, one per door (call, text, their page): the same
-// assistant for every patient.
+// records and what it wrote back. Four patients take turns, each a different front-desk job through a call, a text or
+// their page: one assistant for the whole desk.
 export function HeroStage() {
   const root = useRef<HTMLDivElement>(null);
   const seen = useInView(root, 0.3);
@@ -322,7 +322,7 @@ function Toast({ m }: { m: M }) {
   );
 }
 
-// Three patients, one assistant: whose turn it is, and how long until the next.
+// Four patients, one assistant: whose turn it is, and how long until the next.
 function Dots({ step, progress, className }: { step: number; progress: M["progress"]; className: string }) {
   return (
     <div className={`justify-center gap-2 ${className}`} aria-hidden="true">

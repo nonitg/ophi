@@ -1,8 +1,9 @@
 import { STEPS, frameAt, lastBeat, type CareId, type CareState, type Door } from "@/lib/story";
 
-// The hero's picture of the product: three patients of the fictional Birchwood Family Dental, each reaching Ophi
-// through a different door, each answered from their own care and written back to the clinic's records.
-// Alex's lines are the story's (lib/story.ts); Margaret and Chloé are the clinic view's patients (lib/team.ts).
+// The hero's picture of the product: four patients of the fictional Birchwood Family Dental, each with a different
+// front-desk job (a reschedule, a question about their treatment, a recall, insurance), answered from their own care
+// and written back to the clinic's records. Alex's lines are the story's (lib/story.ts); Chloé and Owen are the clinic
+// view's patients (lib/team.ts); Priya appears only here.
 
 export type Who = "patient" | "ophi";
 export type Said = { who: Who; text: string };
@@ -59,22 +60,27 @@ export const MOMENTS: Moment[] = [
     ],
   },
   {
-    id: "margaret",
-    name: "Margaret O’Neil",
+    // A question only the chart can answer: what was done, when, and what the dentist noted. Never a diagnosis.
+    id: "priya",
+    name: "Priya Nair",
     door: "text",
-    when: "Monday, 2:10 pm",
-    did: "Answered. She’ll get a text when it arrives",
+    when: "Thursday, 9:12 am",
+    did: "Answered from Dr. Shah’s notes. Checking in with her Monday",
     beats: [
-      { wait: 300, say: { who: "patient", text: "Hi, is my denture back from the lab yet?" } },
+      { wait: 300, say: { who: "patient", text: "My tooth is still sore from Tuesday’s filling. Is that normal?" } },
       {
         wait: 700,
         rows: [
-          { label: "Reline at the lab", note: "Due back Wed, Dec 2", state: "waiting" },
-          { label: "Denture fitting", note: "When it’s back", state: "planned" },
+          { label: "Filling, lower right molar", note: "Tue Nov 24 · Dr. Shah", state: "done" },
+          { label: "Check-in", note: "Not set", state: "planned" },
         ],
       },
-      { wait: 900, say: { who: "ophi", text: "Not yet. The lab has it due back Wednesday, and I’ll text you the moment it arrives." } },
-      { wait: 2000, say: { who: "patient", text: "Perfect, thank you!" } },
+      { wait: 900, say: { who: "ophi", text: "Dr. Shah noted it can stay sensitive for up to two weeks. If it gets worse, I can book you in today." } },
+      { wait: 2100, say: { who: "patient", text: "Okay, thank you!" } },
+      { wait: 1000, rows: [
+        { label: "Filling, lower right molar", note: "Tue Nov 24 · Dr. Shah", state: "done" },
+        { label: "Check-in", note: "Text Mon Nov 30", state: "booked", changed: true },
+      ] },
       { wait: 900, did: true },
     ],
   },
@@ -89,6 +95,31 @@ export const MOMENTS: Moment[] = [
       { wait: 300, rows: [{ label: "Six-month cleaning", note: "Due since October", state: "planned" }] },
       { wait: 1900, tap: true },
       { wait: 600, rows: [{ label: "Six-month cleaning", note: "Wed Dec 9, 11:00 am", state: "booked", changed: true }] },
+      { wait: 900, did: true },
+    ],
+  },
+  {
+    // The insurance side of the desk: Owen's estimate is the one the clinic view shows Ophi asked for.
+    id: "owen",
+    name: "Owen Brooks",
+    door: "call",
+    when: "Wednesday, 10:05 am",
+    did: "Followed up with his insurer and noted it on his file",
+    beats: [
+      { wait: 300, say: { who: "patient", text: "Hi, has my insurance come back on the root canal?" } },
+      {
+        wait: 700,
+        rows: [
+          { label: "Insurance estimate", note: "Sent Monday, no reply yet", state: "waiting" },
+          { label: "Root canal", note: "Once the estimate is back", state: "planned" },
+        ],
+      },
+      { wait: 900, say: { who: "ophi", text: "Not yet. We sent it Monday, so I’m asking your insurer for an update now." } },
+      { wait: 2100, say: { who: "ophi", text: "I’ll text you your share as soon as it’s in, with times for the root canal." } },
+      { wait: 1000, rows: [
+        { label: "Insurance estimate", note: "Followed up today", state: "waiting", changed: true },
+        { label: "Root canal", note: "Once the estimate is back", state: "planned" },
+      ] },
       { wait: 900, did: true },
     ],
   },

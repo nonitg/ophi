@@ -2,7 +2,8 @@
 // and nothing else, so the page reads as one piece. Nothing a visitor is meant to read sits under 14px.
 
 // Type scale. Display serif for headings, the sans for everything a visitor reads in passing.
-export const display = "font-serif text-[length:clamp(50px,6.2vw,92px)] leading-[.98] tracking-[-.04em] text-balance";
+// Sized so the hero's "The front desk," always fits one line beside the stage, and across a narrow phone.
+export const display = "font-serif text-[length:clamp(50px,6.2vw,80px)] leading-[.98] tracking-[-.04em] text-balance phone:text-[length:clamp(40px,12.6vw,80px)]";
 export const heading = "font-serif text-[length:clamp(36px,4.1vw,60px)] leading-[1.04] tracking-[-.035em] text-balance";
 export const title = "font-serif text-[length:clamp(23px,1.9vw,28px)] leading-[1.15] tracking-[-.02em]";
 export const lede = "text-[length:clamp(18px,1.45vw,21px)] leading-[1.55] text-ink-soft text-pretty";
