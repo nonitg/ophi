@@ -32,10 +32,10 @@ with sync_playwright() as p:
 
     def hero_moments():
         hero = page.locator("section[aria-labelledby=hero-title]")
-        # Three patients take turns, one door each: Alex calls, Margaret texts, Chloé books from her page.
+        # Four patients take turns: Alex calls, Priya texts a question about her filling, Chloé books from her page, Owen calls about insurance.
         expect(hero).to_contain_text("Alex’s care, from your records")
-        expect(hero).to_contain_text("Hi, is my denture back from the lab yet?", timeout=20000)
-        expect(hero).to_contain_text("Margaret’s care, from your records")
+        expect(hero).to_contain_text("My tooth is still sore from Tuesday’s filling. Is that normal?", timeout=20000)
+        expect(hero).to_contain_text("Priya’s care, from your records")
         expect(hero).to_contain_text("Book this time", timeout=20000)
 
     def hero_see_how():
@@ -49,7 +49,7 @@ with sync_playwright() as p:
         how.scroll_into_view_if_needed()
         # Each door changes Alex's care, and each change lands in the same timeline and is saved back.
         expect(how).to_contain_text("Booked Thu Nov 19, 9:30 am", timeout=10000)
-        expect(how).to_contain_text("Saved to your record system", timeout=8000)
+        expect(how).to_contain_text("Saved to your PMS", timeout=8000)
         expect(how).to_contain_text("The insurer replied.", timeout=12000)
         expect(how).to_contain_text("Alex is calling", timeout=30000)
 
@@ -58,7 +58,7 @@ with sync_playwright() as p:
         why.scroll_into_view_if_needed()
         # Alex's plan as they see it today, then each count with its fix underneath.
         expect(why).to_contain_text("To learn the rest, Alex has to call.")
-        expect(why).to_contain_text("Every call answered")
+        expect(why).to_contain_text("Every call and text answered")
         expect(why).to_contain_text("Every patient gets their page in a text")
 
     def story_plays():
@@ -95,7 +95,7 @@ with sync_playwright() as p:
     def faq():
         question = page.locator("#questions summary", has_text="Will Ophi give clinical advice?")
         question.click()
-        expect(page.locator("#questions")).to_contain_text("Questions about care go to your team.")
+        expect(page.locator("#questions")).to_contain_text("brings anything urgent straight to your team.")
 
     check("the hero's patients take turns, one door each", hero_moments)
     check("the hero's See how it works link jumps to How", hero_see_how)

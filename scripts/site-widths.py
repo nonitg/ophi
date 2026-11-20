@@ -9,7 +9,7 @@ from playwright.sync_api import sync_playwright
 
 BASE = sys.argv[1] if len(sys.argv) > 1 else "http://localhost:3111"
 WIDTHS = [320, 345, 360, 390, 480, 600, 700, 701, 768, 899, 900, 940, 1024, 1100, 1101, 1280, 1440, 1600, 1920, 2560]
-SECTIONS = ["header", "section[aria-labelledby=hero-title]", "#why", "#how", "#story", "#clinic", "#roadmap", "#join", "#questions", "footer"]
+SECTIONS = ["header", "section[aria-labelledby=hero-title]", "#why", "#how", "#story", "#clinic", "#desk", "#join", "#questions", "footer"]
 JS = """(sections) => {
   const out = [];
   if (document.documentElement.scrollWidth > innerWidth) out.push('page overflows');

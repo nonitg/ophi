@@ -26,7 +26,7 @@ one system. Where this section and older ones disagree, this one wins.
 - **Motif: the thread.** A patient's care as a line of steps marked done, booked, planned or waiting
   (`components/thread.tsx`, marks in `care-mark.tsx`). Every picture is that thread seen from somewhere: each patient's
   care in the hero card, the record vs. what Alex knows, the memory in the diagram, the personal page in the story, one mini thread
-  per patient in the clinic view, and the roadmap laid on its side.
+  per patient in the clinic view, and the front desk's stops laid on their side.
 - **Surfaces.** Plain ivory page (no grain, no window light). One card: warm white `#fffdf8`, radius 28, soft shadow
   from above (`card` in `components/type.ts`). Sage for quiet inner surfaces and the signup panel. Forest for the
   story band and the Ophi node only. Orange for actions and "next / waiting".
@@ -49,16 +49,26 @@ shifts; paused off screen; reduced motion shows a finished still.
 
 Reading order:
 
-1. **Hero.** "One assistant for every patient." Plain sentence, Get early access plus "See how it works" (jumps to How,
+1. **Hero.** "The front desk, handled." (2026-11-20, owner: the whole front desk is the first thing the page says;
+   voice is one part of it. Was "One assistant for every patient.") Non-breaking spaces keep "The front desk," on
+   one line; `display` tops out at 80px so it fits beside the stage. Plain sentence naming the whole job, Get early access plus "See how it works" (jumps to How,
    which plays as it comes into view), "Built in Canada" (the pilot-status line was removed by the owner,
-   2026-11-14). Beside it, a phone on a sage disc (`components/hero-stage.tsx`, data in `lib/hero.ts`): three patients
-   take turns, one per door (Alex calls to move "it", Margaret texts about her denture, Chloé books from her page).
+   2026-11-14). Beside it, a phone on a sage disc (`components/hero-stage.tsx`, data in `lib/hero.ts`): four patients
+   take turns, each a different front-desk job (Alex calls to move "it", Priya texts to ask if soreness after her
+   filling is normal and is answered from Dr. Shah's notes, Chloé books from her page, Owen calls about his insurance
+   estimate). Priya is the one hero patient not in the clinic view.
    A floating card reads "X's care, from your records" and a dark toast says what Ophi wrote back. The old screen
    leaves before the new one rises in; the stage is a fixed height, so nothing below moves. (2026-11-14: picked by
    the owner over a tabless card; replaced the tabbed hero card. The "Hear Ophi take a real call" button was removed
    the same day: both voices in that recording are generated, so it isn't a real call. The owner picked "See how it
    works" over an inline email field and a list of reassurances.)
-2. **How.** "Call, text or tap. It all lands in one place." Straight after the hero, so the page says what Ophi is
+2. **Front desk.** "Every job at the front desk." The old roadmap, moved up and told in the present tense (owner,
+   2026-11-20: "make it sound like we have all of it"; voice is one way a patient reaches the clinic, not the
+   product). A row of door chips (Phone call, Text, Their own page), then the thread on its side with five jobs: New
+   patients (lead follow-up), Questions (answered from the chart), Scheduling, Insurance, Follow-up (after treatment,
+   then the next recommended treatment). Each has a dark done mark; then what stays with the team
+   (`components/front-desk.tsx`). The clinic view's Nadia is now a website enquiry Ophi followed up.
+3. **How.** "Call, text or tap. It all lands in one place." Straight after the hero, so the page says what Ophi is
    before it argues why (owner, 2026-11-12: "take the focus back to Ophi"). One big card, "Alex's care"
    (`components/how-thread.tsx`, states from `lib/story.ts`): five steps of the crown in large serif type on the
    thread. Each door arrives as a small object (their page, the clinic's records, a text, a call), docks beside the
@@ -67,16 +77,15 @@ Reading order:
    (2026-11-14: the owner picked this over an app-window product shot; it replaced a patients → Ophi box → records
    diagram that read as "too much… not visually appealing". Box-and-line diagrams were rejected as not beautiful
    enough.)
-3. **Why.** "Care takes many steps. Today, your patient sees one." "What Alex knows today": the same plan with all
+4. **Why.** "Care takes many steps. Today, your patient sees one." "What Alex knows today": the same plan with all
    but one step out of focus ("To learn the rest, Alex has to call.") (`components/gap.tsx`). Then 31 in 100 calls
    (dots) and 1 in 5 adults (people), each with a "With Ophi" card under it. The "with Ophi" plan card was cut when
    How started showing every step with its door.
-4. **One patient.** The dark band, fits a 900px screen. Six moments of Alex's crown as a step list beside Alex's
+5. **One patient.** The dark band, fits a 900px screen. Six moments of Alex's crown as a step list beside Alex's
    phone; it plays itself while on screen, a picked moment plays and stays, and it can be paused. Under 900px the
    phone comes first, then the moment and a dot bar. The real recording plays from the call screen.
-5. **For clinics.** "Your team sees every patient. You decide what needs a yes." The clinic table with tallies,
+6. **For clinics.** "Your team sees every patient. You decide what needs a yes." The clinic table with tallies,
    rows that change, and a working Approve.
-6. **Roadmap.** Answer (piloting now), Inform, Guide, Complete, Run, then what stays with the team.
 7. Signup panel, questions, footer wordmark.
 
 **Reader tests (2026-11-12, second pass: an office manager on desktop, an owner-dentist on a phone, a design critic,
@@ -92,8 +101,10 @@ light and paper grain, "What Ophi is not" (its one useful line is an FAQ answer)
 (folded into How), the left-to-right doors diagram and then the tasks/patient panels (both replaced by the system
 diagram), the record-system name chips (the FAQ answers which software works).
 
-**Claims.** The page states the vision, including things not true of the product today: record systems other than
-ABELDent are not connected (the page now says ABELDent is first), and the FAQ says patient data lives in Canada
+**Claims.** The page presents Ophi as the whole front desk (owner, 2026-11-20), including things not true of the
+product today: lead follow-up, post-treatment follow-up, chart-based answers to symptom questions, insurance
+estimates, preauthorizations and claims; record systems other than ABELDent
+are not connected, though the FAQ says Ophi works inside the clinic's own; and the FAQ says patient data lives in Canada
 under Canadian health privacy law, while the demo server is in the US. Revisit both before the site is public.
 
 Checks: `scripts/site-widths.py` (20 widths: overflow, text leaving its section, the 14px floor),
