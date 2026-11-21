@@ -4,36 +4,14 @@ import { JsonLd } from "@/components/json-ld";
 import { copy } from "@/lib/copy";
 
 export const metadata: Metadata = {
-  title: "Ophi: privacy and compliance",
+  title: "Privacy at Ophi",
   description:
-    "What Ophi collects on this site, how it handles clinic and patient information, and which privacy and security standards it does and does not claim.",
+    "How Ophi handles dental scheduling calls, what staff approve, where requests are held, and what to review before a clinic pilot.",
   alternates: { canonical: "/privacy" },
 };
 
 const UPDATED = "November 20, 2026";
 const mail = copy.contactEmail;
-
-// Each row is a claim a clinic can check; keep it to what the code and contracts actually do.
-const standards: { name: string; status: string; detail: string }[] = [
-  {
-    name: "PHIPA (Ontario)",
-    status: "Compliant",
-    detail:
-      "Your clinic is the health information custodian. Ophi acts as its agent and handles patient information only to do the work the clinic asks for. The records stay in your clinic’s practice management system.",
-  },
-  {
-    name: "PIPEDA (federal)",
-    status: "Compliant",
-    detail:
-      "We collect only what a task needs, tell people what we do with it, keep nothing we don’t need, and answer access, correction and deletion requests.",
-  },
-  {
-    name: "CASL (Canada’s anti-spam law)",
-    status: "Compliant",
-    detail:
-      "We email only people who asked to hear from us, say why they are getting each email, and stop when they ask.",
-  },
-];
 
 const h2 = "mt-12 text-[22px] leading-[1.25] tracking-[-.4px]";
 const p = "mt-3 text-[14px] leading-[1.75] text-muted";
@@ -51,89 +29,94 @@ export default function Privacy() {
         </ol>
       </nav>
 
-      <h1 className="text-[34px] leading-[1.1] tracking-[-1.2px] sm:text-[42px]">Privacy and compliance</h1>
-      <p className={p}>Last updated {UPDATED}. This page covers ophi.app and the Ophi service for dental clinics.</p>
+      <h1 className="text-[34px] leading-[1.1] tracking-[-1.2px] sm:text-[42px]">Privacy at Ophi</h1>
+      <p className={p}>Updated {UPDATED}. For dental clinics, their patients and visitors to ophi.app.</p>
 
-      <section className="mt-8 rounded-[8px] bg-sage p-6" aria-labelledby="short">
-        <h2 id="short" className="text-[19px] leading-[1.3] tracking-[-.3px]">The short version</h2>
-        <ul className="mt-3 grid list-disc gap-2 pl-5">
-          <li className={li}>This website collects an email address, and sometimes a clinic-software name, a name and a phone number. It collects nothing about anyone’s health.</li>
-          <li className={li}>We never sell or rent what you give us.</li>
-          <li className={li}>When Ophi works inside a clinic’s records, the clinic stays in charge of them. Ophi acts only for the clinic.</li>
-          <li className={li}>Ophi does not keep patient records. It reads and writes your practice management system directly, and the records stay there.</li>
-          <li className={li}>We comply with PHIPA, PIPEDA and CASL.</li>
-        </ul>
+      <section className="mt-8 rounded-[8px] bg-sage p-6" aria-labelledby="calls">
+        <h2 id="calls" className="text-[22px] leading-tight">When Ophi answers your clinic’s phone</h2>
+        <p className={p}>Ophi helps callers arrange dental visits. It checks the caller’s name and date of birth before sharing appointment details. It looks up available times and sends a request to your staff. A call alone cannot change the schedule. A staff member must approve a request before Ophi writes to your practice management system.</p>
+        <p className={p}>While staff review a request, the call server holds patient details in memory. The hosted demo runs in Ohio and uses fictional clinic records. By default, unanswered requests expire after 24 hours. The server removes a request about an hour after approval, rejection or expiry.</p>
+        <p className={p}>Call audio and text pass through outside providers and may be processed in the United States. Before using Ophi with patients, review the providers, account settings and access permissions for your clinic with our team.</p>
       </section>
 
-      <h2 className={h2}>What this website collects</h2>
+      <h2 className={h2}>What a caller hears</h2>
+      <blockquote className="mt-3 border-l-2 border-pill-line pl-4">“Hi, I’m Ophi, the office’s AI assistant. How can I help you today?”</blockquote>
+      <p className={p}>Callers can ask for a person at any time. When a staff line is configured, Ophi rings it and leaves a callback request for the team in case nobody answers, including after hours. Without a staff line, Ophi can take a message. Ophi handles scheduling and directs clinical questions to your team.</p>
+
+      <h2 className={h2}>What Ophi can do in your records</h2>
+      <p className={p}>Ophi uses identifying details, upcoming appointments, provider schedules and visit types for booking. A new-patient request can also include contact and insurance details. Staff can decline a request without changing the patient’s record.</p>
+      <p className={p}>The available changes depend on your software. The demo can move and cancel appointments. The ABELDent connection implements patient creation and booking. Moving and cancelling in ABELDent are not available. Writes are rolled back by default until enabled. The account your clinic connects may have broader permissions than the actions Ophi offers. Ask to see the account’s permissions and a test booking before enabling writes.</p>
+
+      <h2 className={h2}>What remains after a call</h2>
+      <p className={p}>A pending booking can include a name, date of birth, requested visit and contact details. A callback can include a name, phone number and the caller’s message, including health details they volunteer. The dashboard shows these items to people with clinic dashboard access. Ophi operators with server access can also reach them.</p>
+      <p className={p}>With call logging off, Ophi drops the conversation transcript when the call ends and does not write a call recording. A separate diagnostic setting can save audio, transcripts and detailed logs for development. Confirm it is off for patient calls. The queue’s expiry times apply to the call server’s memory. Approved changes remain in the clinic’s records. If after-hours email is enabled, appointment details can also remain in the sending service and clinic mailbox.</p>
+
+      <h2 className={h2}>Who handles call information</h2>
+      <p className={p}>Ophi selects the speech and language services in the call configuration. The table lists the available choices. For a live pilot, ask for the selected provider at each step, its processing region, how long it keeps content and service logs, and whether its account terms permit model training. The demo configuration alone cannot establish those terms.</p>
+      <table className="mt-4 w-full text-left text-[14px] leading-relaxed">
+        <caption className="sr-only">Call services and information they receive</caption>
+        <thead><tr className="border-b border-line"><th scope="col" className="py-2 pr-4">Provider</th><th scope="col">Information handled</th></tr></thead>
+        <tbody>
+          {[
+            ["Telnyx", "Phone numbers, call timing and audio for the call and staff transfer."],
+            ["Amazon Web Services", "Hosts the call server. The Ohio demo server processes audio, conversation text and pending staff requests."],
+            ["AssemblyAI, Deepgram or Cartesia", "Receives caller audio to turn speech into text."],
+            ["Cerebras, Baseten, Groq or Anthropic", "Receives conversation text, clinic instructions and scheduling lookup results to generate a reply."],
+            ["ElevenLabs or Cartesia", "Receives the words of Ophi’s reply to turn them into speech."],
+            ["Clinic email provider, if enabled", "Receives approved after-hours appointment details, which can include the patient’s name, visit time and reason."],
+          ].map(([provider, detail]) => (
+            <tr key={provider} className="border-b border-line align-top">
+              <th scope="row" className="w-2/5 py-3 pr-4 font-medium">{provider}</th>
+              <td className="py-3 text-muted">{detail}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      <p className={p}>We tell the clinic before adding a provider. We do not sell patient information, use it for advertising or combine it with another clinic’s information.</p>
+
+      <h2 className={h2}>Before your first patient call</h2>
+      <p className={p}>Your clinic remains the health information custodian in Ontario. Ophi acts on the clinic’s instructions as its agent. Ophi is operated by its founders. We do not yet have a signed clinic pilot agreement. To arrange a walkthrough with a fictional patient or discuss written terms for your clinic, <a className={link} href={`mailto:${mail}?subject=Clinic%20pilot%20privacy%20review`}>contact the Ophi team</a>.</p>
+      <p className={p}>Review who signs for Ophi, who handles urgent incidents, who may access patient requests for support, and what record of that access your clinic can inspect. Clinic dashboard connections are encrypted in transit. The current dashboard uses a shared password, so a dashboard action alone does not identify the individual staff member. Agree on access and log retention with the pilot team before connecting your records.</p>
+
+      <h2 className={h2}>Stopping a pilot</h2>
+      <p className={p}>Have your phone administrator restore the clinic’s usual call routing and test an incoming call. Have your practice software administrator revoke Ophi’s connection. Disconnecting the records alone does not redirect the phone line. Review outstanding callbacks with staff before shutting down the call server, because a restart clears its in-memory queue. Confirm with Ophi which provider logs, emails and clinic records remain and when each can be deleted.</p>
+
+      <h2 className={h2}>If something goes wrong</h2>
+      <p className={p}>Contact the Ophi team about the phone service, even if you first notice the problem in your appointment book. We investigate the call service and involve the affected provider. Your clinic coordinates the response for its patients and can involve its practice software vendor when its system is affected.</p>
+      <p className={p}>If we learn of a security incident or suspected unauthorized access affecting patient information, a live call or your clinic connection, we will notify your designated clinic contact at the first reasonable opportunity and within 72 hours of learning of it. We will share what we know, what we have done to contain it and when you can expect an update.</p>
+      <p className={p}>To report a concern, <a className={link} href={`mailto:${mail}?subject=Clinic%20privacy%20incident`}>email Ophi about a privacy incident</a> with your clinic name and a callback number. Keep patient details out of email. Patients can contact their clinic about their records.</p>
+
+      <h2 className={h2}>Website visitors</h2>
       <ul className="mt-3 grid list-disc gap-2 pl-5">
         <li className={li}><strong className="font-medium text-ink">Waitlist form:</strong> your email address, and the clinic software you use if you choose to say. We use them to write to you about Ophi’s launch and progress.</li>
         <li className={li}><strong className="font-medium text-ink">Film page:</strong> if you leave a name or phone number, we email them to our team so someone can follow up. They are not added to the mailing list record.</li>
         <li className={li}><strong className="font-medium text-ink">Page visits:</strong> counted with Vercel Analytics, which sets no cookies and does not identify you.</li>
-        <li className={li}><strong className="font-medium text-ink">Your connection:</strong> the form’s spam limit keeps your IP address in server memory for about a minute. We do not write it to a database.</li>
+        <li className={li}><strong className="font-medium text-ink">Your connection:</strong> we use your IP address in server memory to limit repeated submissions within a one-minute window. The form does not write it to a database.</li>
       </ul>
       <p className={p}>
         Please do not put patient or health information into any form on this site or into an email to {mail}. We have no use for it there and the site is not built to hold it.
       </p>
 
-      <h2 className={h2}>Who handles it for us</h2>
+      <h2 className={h2}>Who handles website information</h2>
       <ul className="mt-3 grid list-disc gap-2 pl-5">
         <li className={li}><strong className="font-medium text-ink">Resend</strong> stores the mailing list and sends our emails.</li>
         <li className={li}><strong className="font-medium text-ink">Vercel</strong> hosts the site and provides the analytics.</li>
       </ul>
       <p className={p}>
-        Both are US-based companies, so your email address can be processed outside Canada. We share your details with no one else, and we use them for no purpose beyond the ones above.
+        We never sell or rent your details. Both are US-based companies, so your email address can be processed outside Canada. We share your details with no one else, and we use them for no purpose beyond the ones above.
       </p>
 
-      <h2 className={h2}>Your choices</h2>
+      <h2 className={h2}>Your website and email choices</h2>
       <p className={p}>
         To stop our emails, reply to any of them with “unsubscribe.” To see, correct or delete what we hold about you, or to withdraw your consent, write to <a className={link} href={`mailto:${mail}`}>{mail}</a>. We answer within 30 days. If you are not satisfied, you may complain to the Office of the Privacy Commissioner of Canada.
       </p>
-
-      <h2 className={h2}>Clinic and patient information</h2>
-      <p className={p}>
-        Ophi’s service for clinics works inside the practice management system (PMS) the clinic already uses. When a patient calls, Ophi reads the schedule and the patient’s chart and writes the booking straight into the PMS. That is health information, and these rules govern it:
-      </p>
-      <ul className="mt-3 grid list-disc gap-2 pl-5">
-        <li className={li}><strong className="font-medium text-ink">Your PMS holds the data.</strong> Your practice management system is the only place patient records are stored. Ophi reads from it and writes to it, has no database of patients, and keeps no copy of a chart, a schedule or an insurance record. What passes through Ophi during a call is described below.</li>
-        <li className={li}><strong className="font-medium text-ink">No recordings or transcripts.</strong> Ophi does not record calls or save what was said. The words of a call exist only while the call is live and are discarded when it ends. Operating logs record that an action happened, not the names or birthdays involved.</li>
-        <li className={li}><strong className="font-medium text-ink">The AI services keep nothing.</strong> Three services handle a live call: one turns the caller’s speech into text, one writes Ophi’s reply, and one speaks it. Each processes the conversation as it happens and retains none of it, and none of it is used to train a model. The language model runs on servers in Canada. The speech-to-text and voice services run in the United States, so a call’s audio and words pass through US servers for those moments, and nowhere do they stay.</li>
-        <li className={li}><strong className="font-medium text-ink">Who can see it, and how it is protected.</strong> Pending items sit in the memory of Ophi’s call server on Amazon Web Services in Ohio. They are visible only to clinic staff who sign in to Ophi’s dashboard with a password, and to the Ophi personnel who can log in to that server, which takes a private key. Connections to the server, including the call audio, are encrypted in transit.</li>
-        <li className={li}><strong className="font-medium text-ink">Callers are told, and can choose.</strong> Ophi opens every call by saying it is the office’s AI assistant. A caller can ask for a person at any time, and Ophi transfers the call to clinic staff straight away. Calls are not recorded, so there is no recording to consent to.</li>
-        <li className={li}><strong className="font-medium text-ink">Who touches a live call.</strong> The call is carried by Telnyx, a telephone carrier, to Ophi’s call server, which runs on Amazon Web Services in the United States. Speech is turned into text by AssemblyAI or Deepgram and spoken back by ElevenLabs or Cartesia. All of them are used only to process the call as it happens. We tell the clinic before adding a provider.</li>
-        <li className={li}><strong className="font-medium text-ink">The clinic is the custodian.</strong> Ophi acts as its agent and takes direction from the clinic. We do not sell patient information, use it for advertising, or combine one clinic’s with another’s.</li>
-        <li className={li}><strong className="font-medium text-ink">Identity first.</strong> Ophi checks who it is speaking to, by name and date of birth, before it shares anything about a patient. If the details don’t match, it asks again and never reveals who is on file. After two misses it shares nothing about any file: it books the caller as a new patient for staff to reconcile, or takes a callback request for your team.</li>
-        <li className={li}><strong className="font-medium text-ink">A narrow scope.</strong> For booking, Ophi reads a patient’s name and date of birth to confirm who is calling, their upcoming appointments, and the schedule’s open times. It writes one thing: an appointment, for an existing or a new patient. It cannot change a chart, a treatment plan or a bill.</li>
-        <li className={li}><strong className="font-medium text-ink">Your clinic holds the key.</strong> Ophi reaches your PMS only through the connection your clinic sets up, so the clinic can end that access at any time.</li>
-        <li className={li}><strong className="font-medium text-ink">Staff stay in the loop.</strong> Ophi proposes each booking and nothing is written to the PMS until staff approve it. A pending booking holds the patient’s name, date of birth and the visit asked for; a message left for staff holds a name, phone number and the message. Either one waits in Ophi’s memory until staff act on it. If nobody does, it expires after 24 hours, and once staff decide, Ophi drops it within the hour. Every action is logged so a clinic can see what was done and by whom.</li>
-        <li className={li}><strong className="font-medium text-ink">No clinical advice.</strong> Ophi does not read treatment notes to answer symptom questions. When a caller describes pain or an emergency, it offers the earliest emergency visit or passes the call to your team.</li>
-      </ul>
-      <p className={p}>
-        Because Ophi holds no patient records of its own, a breach of Ophi would not expose a store of patient data. If a security breach or suspected unauthorized access ever touches information Ophi holds, a live call, or the connection into a clinic’s PMS, we will tell the clinic within 72 hours of learning of it, and tell anyone else the law requires us to, including the Privacy Commissioner.
-      </p>
-
-      <h2 className={h2}>Standards we follow</h2>
-      <p className={p}>
-        What each law asks of us, and what we do about it.
-      </p>
-      <div className="mt-5 grid gap-3">
-        {standards.map((s) => (
-          <article key={s.name} className="rounded-[8px] border border-line bg-paper p-5">
-            <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-              <h3 className="text-[16px] leading-[1.35]">{s.name}</h3>
-              <span className="text-[12px] font-medium tracking-wide text-ink uppercase">{s.status}</span>
-            </div>
-            <p className="mt-2 text-[13px] leading-[1.7] text-muted">{s.detail}</p>
-          </article>
-        ))}
-      </div>
 
       <h2 className={h2}>Changes and contact</h2>
       <p className={p}>
         When we change this page, we change the date at the top. If a change affects how we treat information you already gave us, we will email you first. Questions about privacy go to <a className={link} href={`mailto:${mail}`}>{mail}</a>.
       </p>
 
-      <JsonLd data={{ "@context": "https://schema.org", "@type": "WebPage", name: "Ophi: privacy and compliance", url: "https://ophi.app/privacy", inLanguage: "en-CA" }} />
+      <JsonLd data={{ "@context": "https://schema.org", "@type": "WebPage", name: "Privacy at Ophi", url: "https://ophi.app/privacy", inLanguage: "en-CA" }} />
     </main>
   );
 }
