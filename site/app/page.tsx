@@ -135,6 +135,7 @@ export default function Page() {
           <span className="flex items-center gap-1.5">© {new Date().getFullYear()} Ophi<span aria-hidden="true">·</span><Icon name="leaf" className="size-4 flex-none" />{copy.madeIn}</span>
           <div className="flex flex-wrap items-center gap-2.5">
             <InfoPanel />
+            <Link className="inline-flex min-h-10 items-center rounded-full px-4 text-ink hover:bg-ink/5" href="/privacy">Privacy and compliance</Link>
             <a className="inline-flex min-h-10 items-center gap-2 rounded-full px-4 text-ink hover:bg-ink/5" href="#top">Back to the top<Icon name="up" className="size-4" /></a>
           </div>
         </div>
